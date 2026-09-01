@@ -1,0 +1,192 @@
+{
+  "_disclaimer": "FICTIONAL DEMO DATA. Inspired by the 2018 Kerala floods, using a simplified fictional grid for demo purposes. This is NOT real GPS, cadastral, ward, or administrative data. No cell, shelter, capacity, occupancy, severity value, or travel cost below corresponds to any real place or facility.",
+  "scenario_id": "flood-evac-demo-01",
+  "schema_version": 1,
+
+  "provenance": {
+    "real_background": [
+      "The August 2018 Kerala floods peaked in mid-August 2018.",
+      "Severely affected districts included Idukki, Ernakulam, Alappuzha, Thrissur, and Wayanad.",
+      "The flooding was worsened by controlled dam releases, including from the Idukki reservoir.",
+      "These are genuine historical facts used only as background inspiration for the shape of this scenario. They are NOT the source of any number in this file."
+    ],
+    "fictional_elements": [
+      "The 3x3 grid and every cell in it (C1-C9).",
+      "All (row, col) positions - these are abstract grid indices, not coordinates of any kind.",
+      "All seven shelters (S1-S7), including their existence, capacities, occupancies, and operational statuses.",
+      "All flood_severity values and severity_band labels.",
+      "All travel_cost_minutes values.",
+      "The evacuee population figure."
+    ],
+    "out_of_scope": [
+      "IoT / sensor feeds - cut entirely, not deferred.",
+      "Satellite imagery - cut entirely, not deferred.",
+      "Traffic APIs - cut entirely, not deferred. travel_cost_minutes is a STATIC abstract cost baked into this file, not derived from any traffic source, routing engine, or road network.",
+      "Live government APIs (IMD / NDMA / Bhuvan) - no live calls anywhere in this project."
+    ],
+    "note_on_verdicts": "This file deliberately contains NO allowed/excluded verdicts. Whether a shelter may be used is decided downstream by the RAG-grounded constraint step (Step 3) against real NDMA/NIDM guideline text. Hardcoding verdicts here would make that step meaningless."
+  },
+
+  "hazard_model": {
+    "description": "Fictional hazard gradient. Row 0 is modelled as nearest a dam-release channel and is worst affected; severity decreases as row index increases. This mirrors the general pattern of the 2018 Kerala floods (dam releases worsening downstream inundation) without reproducing any actual location.",
+    "severity_scale": "flood_severity is a unitless 0.0-1.0 float, 0.0 = dry, 1.0 = fully inundated.",
+    "severity_bands": {
+      "severe": ">= 0.70",
+      "high": "0.55 - 0.69",
+      "moderate": "0.30 - 0.54",
+      "low": "0.10 - 0.29",
+      "minimal": "< 0.10"
+    }
+  },
+
+  "grid": {
+    "rows": 3,
+    "cols": 3,
+    "cells": [
+      {
+        "cell_id": "C1",
+        "row": 0,
+        "col": 0,
+        "descriptor": "upstream channel-adjacent cell",
+        "flood_severity": 0.92,
+        "severity_band": "severe"
+      },
+      {
+        "cell_id": "C2",
+        "row": 0,
+        "col": 1,
+        "descriptor": "upstream channel-adjacent cell",
+        "flood_severity": 0.85,
+        "severity_band": "severe"
+      },
+      {
+        "cell_id": "C3",
+        "row": 0,
+        "col": 2,
+        "descriptor": "upstream channel-adjacent cell",
+        "flood_severity": 0.71,
+        "severity_band": "severe"
+      },
+      {
+        "cell_id": "C4",
+        "row": 1,
+        "col": 0,
+        "descriptor": "mid-gradient low-lying cell",
+        "flood_severity": 0.63,
+        "severity_band": "high"
+      },
+      {
+        "cell_id": "C5",
+        "row": 1,
+        "col": 1,
+        "descriptor": "mid-gradient cell",
+        "flood_severity": 0.48,
+        "severity_band": "moderate"
+      },
+      {
+        "cell_id": "C6",
+        "row": 1,
+        "col": 2,
+        "descriptor": "mid-gradient cell",
+        "flood_severity": 0.35,
+        "severity_band": "moderate"
+      },
+      {
+        "cell_id": "C7",
+        "row": 2,
+        "col": 0,
+        "descriptor": "downstream elevated cell",
+        "flood_severity": 0.22,
+        "severity_band": "low"
+      },
+      {
+        "cell_id": "C8",
+        "row": 2,
+        "col": 1,
+        "descriptor": "downstream elevated cell",
+        "flood_severity": 0.1,
+        "severity_band": "low"
+      },
+      {
+        "cell_id": "C9",
+        "row": 2,
+        "col": 2,
+        "descriptor": "downstream elevated cell",
+        "flood_severity": 0.05,
+        "severity_band": "minimal"
+      }
+    ]
+  },
+
+  "source": {
+    "cell_id": "C1",
+    "population_to_evacuate": 700,
+    "note": "Single flooded source cell whose population requires evacuation to exactly one shelter. Fictional figure."
+  },
+
+  "shelters": [
+    {
+      "shelter_id": "S1",
+      "cell_id": "C2",
+      "capacity_total": 400,
+      "current_occupancy": 120,
+      "status": "operational",
+      "travel_cost_minutes": 8
+    },
+    {
+      "shelter_id": "S2",
+      "cell_id": "C4",
+      "capacity_total": 250,
+      "current_occupancy": 240,
+      "status": "operational",
+      "travel_cost_minutes": 14
+    },
+    {
+      "shelter_id": "S3",
+      "cell_id": "C5",
+      "capacity_total": 600,
+      "current_occupancy": 180,
+      "status": "operational",
+      "travel_cost_minutes": 21
+    },
+    {
+      "shelter_id": "S4",
+      "cell_id": "C8",
+      "capacity_total": 900,
+      "current_occupancy": 150,
+      "status": "operational",
+      "travel_cost_minutes": 34
+    },
+    {
+      "shelter_id": "S5",
+      "cell_id": "C9",
+      "capacity_total": 1100,
+      "current_occupancy": 90,
+      "status": "operational",
+      "travel_cost_minutes": 41
+    },
+    {
+      "shelter_id": "S6",
+      "cell_id": "C6",
+      "capacity_total": 500,
+      "current_occupancy": 500,
+      "status": "at_capacity",
+      "travel_cost_minutes": 26
+    },
+    {
+      "shelter_id": "S7",
+      "cell_id": "C7",
+      "capacity_total": 350,
+      "current_occupancy": 60,
+      "status": "closed_structural_damage",
+      "travel_cost_minutes": 30
+    }
+  ],
+
+  "field_notes": {
+    "capacity_headroom": "Derived, not stored: capacity_total - current_occupancy. Kept derived so the two numbers can never disagree.",
+    "status_values": "One of: operational, at_capacity, closed_structural_damage. This is the 'shelter status' input - one of the only two data kinds in scope.",
+    "travel_cost_minutes": "Static abstract travel cost from the source cell C1 to that shelter. Fictional. Not computed from any road network or traffic feed.",
+    "why_the_spread": "The spread is deliberate. The nearest shelter by travel cost sits in a severe-flood cell, so a distance-minimising baseline picks an unsafe option and the constraint step is what rules it out. Several shelters are also non-viable on shelter-status grounds alone (one full, one closed)."
+  }
+}
