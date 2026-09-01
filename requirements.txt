@@ -1,0 +1,4 @@
+# Sentinel-Agent Sprint — dependencies are added step by step, not all up front.
+# Everything here is free / runs locally. No paid APIs.
+
+# Step 0: none yet.
