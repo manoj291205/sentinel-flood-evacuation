@@ -32,8 +32,8 @@ Each step gets one section containing:
 | Area | Path | Status |
 | --- | --- | --- |
 | Scenario data | `data/scenario.json` | **Built (Step 1)** — fictional grid, 9 cells, 7 shelters |
-| Real source documents | `data/raw_docs/` | Empty — awaiting real NDMA/NIDM PDFs (Step 2) |
-| Local RAG (embed + retrieve) | `src/rag/` | Not built yet (Step 2) |
+| Real source documents | `data/raw_docs/` | **Built (Step 2)** — 1 real NDMA PDF, 168 pages |
+| Local RAG (embed + retrieve) | `src/rag/` | **Built (Step 2)** — 480 chunks in local Chroma |
 | Gemini constraint step | `src/constraints/` | Not built yet (Step 3) |
 | Gymnasium env + training | `src/env/` | Not built yet (Step 4) |
 | Streamlit dashboard | `src/dashboard/` | Not built yet (Step 5) |
@@ -262,5 +262,129 @@ not real GPS or administrative data.
 ### Commit
 
 See `git log` for the hash of *Step 1: fictional Kerala-inspired flood scenario*.
+
+---
+
+## Step 2 — Real RAG corpus
+
+**Goal.** Put genuine published flood-management guidelines on disk and make their
+clauses retrievable, so the Step 3 constraint call can cite real text. If retrieval
+returned nothing real, Step 3's citations would be invented — which `DEVELOPMENT.md` forbids
+outright. Everything in this step runs locally: no API key, no paid service.
+
+### Added
+
+| Path | Purpose |
+| --- | --- |
+| `src/rag/fetch_docs.py` | Downloads the source PDFs, verifies each really is a PDF (`%PDF` magic bytes), deduplicates by content hash, and writes a provenance manifest. Never creates a placeholder: on failure it reports and exits non-zero. |
+| `src/rag/ingest.py` | Extracts page text with `pypdf`, chunks it, embeds locally with `sentence-transformers`, and writes a Chroma collection. |
+| `src/rag/retrieve.py` | `retrieve(query, k)` → `RetrievedChunk(text, source_document, page, score)`. This is the reusable function Step 3 imports. |
+| `src/rag/test_retrieval.py` | Prints top-3 chunks for the required query plus two Step-3-shaped probes, so a human can confirm the text is real. |
+| `data/raw_docs/ndma_flood_guidelines.pdf` | The real source document (6,120,219 bytes). **Committed**, so the demo runs with no network. |
+| `data/raw_docs/MANIFEST.json` | Provenance: URL, mirror URLs, SHA-256, byte size, page count, retrieval timestamp. |
+
+### Two real findings about the source URLs
+
+**1. The kickoff prompt's NIDM URL 404s.** `https://nidm.gov.in/pdf/guidelines/floods.pdf`
+(lowercase `pdf`) returns HTTP 404 — that host's paths are case-sensitive.
+`https://nidm.gov.in/PDF/guidelines/floods.pdf` serves the file. Same host, same
+filename, corrected casing; **not** a substituted document. That host also answers
+`HEAD` with 404 while answering `GET` with 200, so the fetcher never uses `HEAD` to test
+for existence.
+
+**2. The two URLs serve the same file.** The NDMA and NIDM URLs return **byte-identical**
+content — SHA-256 `2fc4518a29c249c91d223eb6edb6f5cba23d3fa85eaaa8a71d319bdde451981f`,
+6,120,219 bytes both. This was confirmed with `curl` independently of the fetch script,
+so it is not an artefact of fetching one URL twice. NIDM mirrors the NDMA file.
+
+> **Consequence, and why it mattered.** Indexing both would have put every chunk into the
+> corpus twice, letting a "top 3" retrieval return three copies of one passage while
+> looking like three independent citations. `fetch_docs.py` now deduplicates by SHA-256:
+> it keeps one canonical file, deletes the redundant copy, and records the second URL
+> under `mirror_urls` with a manifest note stating mirrors are **not** separate documents.
+>
+> **The corpus is therefore one real document, not two.** That clears the kickoff's bar
+> ("at least one real document"), but it should not be described as two sources.
+
+### What the document actually is
+
+Identified by reading the extracted text, not by trusting the filename or metadata:
+
+- **Title:** *National Disaster Management Guidelines: Management of Floods*
+- **Publisher:** National Disaster Management Authority (NDMA), Government of India
+- **Dated:** signed *"New Delhi … 17 January, 2008"* in the foreword
+- **Pages:** 168
+
+Two pieces of metadata about this file are **wrong and were not trusted**: the PDF's own
+`/CreationDate` claims 2004, and the `file` utility reports "31 pages" because it
+misreads linearized PDFs. `pypdf` reports the true 168.
+
+### How chunking preserves citations
+
+Chunks are **page-scoped** — a chunk never spans a page boundary — so every chunk keeps
+an exact page number and Step 3 can cite "document, page N" truthfully. Windows are
+~1,000 characters with ~150 of overlap; chunks under 200 characters are dropped.
+Metadata per chunk is `source_document` (named to match the Step 3 schema field), `page`,
+and `chunk_index`.
+
+Embeddings are computed by us with `all-MiniLM-L6-v2` and **passed to Chroma explicitly**,
+so Chroma never silently falls back to downloading and using its own default embedding
+model. Re-running `ingest.py` deletes and rebuilds the collection, so it is idempotent
+rather than accumulating duplicates.
+
+### Dependencies
+
+Added to `requirements.txt`: `pypdf==6.16.2`, `sentence-transformers==6.0.1`,
+`chromadb==1.5.9`. All free and local. `torch` 2.13.0 (CPU) arrives as a
+`sentence-transformers` dependency and is the bulk of the install.
+
+The Chroma store at `src/rag/chroma_db/` (6.4 MB) is **gitignored** — it is fully
+regenerable from the committed PDF via `ingest.py`.
+
+### How it was verified
+
+```
+$ .venv/bin/python -m src.rag.fetch_docs
+[ndma_flood_guidelines.pdf]  saved, bytes 6,120,219, pages 168
+[nidm_floods.pdf]            DUPLICATE: byte-identical -- recorded as a mirror URL
+1 distinct document(s) in data/raw_docs/ from 2 source URL(s) (1 duplicate mirror URL(s))
+
+$ .venv/bin/python -m src.rag.ingest
+pages with a text layer: 162      characters extracted: 374,292
+chunks kept: 480
+Embedded 480 chunks, dimension 384
+Indexed 480 chunks into 'flood_guidelines'
+
+$ .venv/bin/python -m src.rag.test_retrieval
+QUERY 'flood evacuation shelter capacity' -> #1 [page 86, distance 0.3567]
+  "...An important component of preparedness for floods is the construction of
+   suitable shelters for the flood-affected people during the relief period. The
+   state governments will design such shelters..."
+QUERY 'shelter site selection flood-free elevated land' -> #1 [page 64, distance 0.3489]
+  "...providing raised platforms for flood shelter for men and cattle, raising the
+   public utility installation especially the platforms for drinking water hand
+   pumps and bore wells above flood level..."
+```
+
+162 of 168 pages yielded a text layer, so the PDF is digital text and not a scan — no
+OCR fallback was needed (none exists in this prototype; `ingest.py` warns loudly if
+extraction comes back nearly empty rather than indexing emptiness).
+
+### Real vs. simplified
+
+**Entirely real.** Every chunk in the index is extracted verbatim from the genuine NDMA
+guidelines PDF. Nothing in this step is synthesised. The retrieved passages quoted above
+are actual text from pages 86 and 64 of that document.
+
+### Known limitation
+
+Retrieval sometimes surfaces front-matter — a table-of-contents line (page 10) and the
+abbreviations list (page 18) appeared among lower-ranked results. Top-ranked hits are
+substantive, so this is left as-is rather than over-filtered, but it is a real weakness:
+the Step 3 prompt should be tolerant of an occasional low-value chunk.
+
+### Commit
+
+See `git log` for the hash of *Step 2: real NDMA guideline corpus with local embedding and retrieval*.
 
 ---

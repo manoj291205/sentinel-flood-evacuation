@@ -1,4 +1,7 @@
 # Sentinel-Agent Sprint — dependencies are added step by step, not all up front.
 # Everything here is free / runs locally. No paid APIs.
 
-# Step 0: none yet.
+# Step 2: local RAG corpus (PDF text extraction, local embeddings, local vector store)
+pypdf==6.16.2
+sentence-transformers==6.0.1   # pulls torch (CPU); model all-MiniLM-L6-v2 runs locally
+chromadb==1.5.9

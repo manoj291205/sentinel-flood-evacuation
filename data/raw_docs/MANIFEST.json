@@ -1,0 +1,19 @@
+{
+  "_note": "Provenance record for the REAL source documents in this directory. Every file listed here was downloaded from the URL shown and verified to start with the %PDF magic bytes. Nothing in this directory is generated, synthesised, or fabricated. Where mirror_urls is non-empty, those URLs were verified to serve byte-identical content (same sha256) and are therefore NOT separate documents.",
+  "documents": [
+    {
+      "filename": "ndma_flood_guidelines.pdf",
+      "url": "https://ndma.gov.in/sites/default/files/PDF/Guidelines/flood.pdf",
+      "mirror_urls": [
+        "https://nidm.gov.in/PDF/guidelines/floods.pdf"
+      ],
+      "publisher": "National Disaster Management Authority (NDMA), Government of India",
+      "title": "National Disaster Management Guidelines: Management of Floods",
+      "dated": "17 January 2008 (per the signed foreword inside the document)",
+      "sha256": "2fc4518a29c249c91d223eb6edb6f5cba23d3fa85eaaa8a71d319bdde451981f",
+      "bytes": 6120219,
+      "pages": 168,
+      "retrieved_at_utc": "2026-09-01T19:06:59+00:00"
+    }
+  ]
+}
