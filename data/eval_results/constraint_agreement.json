@@ -1,0 +1,23 @@
+{
+  "n_scenarios_scored": 3,
+  "n_scenarios_requested": 10,
+  "stopped_early_on_api_error": true,
+  "n_shelter_verdicts": 21,
+  "with_retrieval": {
+    "tp": 10,
+    "tn": 5,
+    "false_allow": 0,
+    "false_exclude": 6
+  },
+  "without_retrieval": {
+    "tp": 10,
+    "tn": 5,
+    "false_allow": 0,
+    "false_exclude": 6
+  },
+  "verdict_flips": 0,
+  "citations_verbatim_with_retrieval": 21,
+  "citations_verbatim_without_retrieval": 0,
+  "failures": [],
+  "_note": "The deterministic safety rule is a yardstick, not ground truth from the NDMA text. false_allow (unsafe permitted) is a safety failure; false_exclude (usable barred) is a cost failure. They are not equivalent."
+}

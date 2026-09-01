@@ -16,3 +16,6 @@ sb3-contrib==2.9.0        # MaskablePPO
 
 # Step 5: the dashboard
 streamlit==1.63.0
+
+# Evaluation & tests (dev)
+pytest==9.1.1

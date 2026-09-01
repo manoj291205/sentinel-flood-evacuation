@@ -1,0 +1,569 @@
+{
+  "eval-000": {
+    "with_rag": {
+      "scenario_id": "eval-000",
+      "constraints": [
+        {
+          "action_id": "S1",
+          "status": "excluded",
+          "reason": "S1 is excluded because its headroom of 412 is insufficient to accommodate the 442 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "The state governments/SDMAs will provide adequate number of raised platforms/flood shelters at suitable locations in the flood plains with basic amenities such as drinking water, sanitation, medical treatment, cooking, tents, lantern etc. for the people to take shelter during floods.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S2",
+          "status": "excluded",
+          "reason": "S2 is excluded because it is located in a cell with severe flood severity of 0.82, making it unsafe for evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Evacuation may also be necessary after the area has been flooded in order to move persons from a flood-affected area to safer and better surroundings.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S3",
+          "status": "excluded",
+          "reason": "S3 is excluded because its headroom of 201 is insufficient for the 442 people needing evacuation.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "The state governments/SDMAs will provide adequate number of raised platforms/flood shelters at suitable locations in the flood plains with basic amenities such as drinking water, sanitation, medical treatment, cooking, tents, lantern etc. for the people to take shelter during floods.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S4",
+          "status": "excluded",
+          "reason": "S4 is excluded because it is currently at capacity with zero headroom available for evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "An important component of preparedness for floods is the construction of suitable shelters for the flood-affected people during the relief period.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S5",
+          "status": "excluded",
+          "reason": "S5 is excluded because its location experiences severe flood severity of 0.92, failing to offer safe shelter.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Evacuation may also be necessary after the area has been flooded in order to move persons from a flood-affected area to safer and better surroundings.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S6",
+          "status": "excluded",
+          "reason": "S6 is excluded because its available capacity headroom of 428 cannot accommodate the 442 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "The state governments/SDMAs will provide adequate number of raised platforms/flood shelters at suitable locations in the flood plains with basic amenities such as drinking water, sanitation, medical treatment, cooking, tents, lantern etc. for the people to take shelter during floods.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S7",
+          "status": "excluded",
+          "reason": "S7 is excluded because it is situated in a high flood severity zone of 0.63, which does not provide safer surroundings.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Evacuation may also be necessary after the area has been flooded in order to move persons from a flood-affected area to safer and better surroundings.",
+          "citation_verified": true
+        }
+      ],
+      "_meta": {
+        "model": "gemini-3.6-flash",
+        "scenario_fingerprint": "defa8a4d7d3ea176",
+        "retrieved_chunks": [
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 64
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 86
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 64
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 21
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 55
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 89
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 36
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 20
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 86
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 111
+          }
+        ],
+        "attempts_used": 1,
+        "unverified_citations": [],
+        "_note": "Generated by a single structured Gemini call grounded in the retrieved NDMA excerpts. citation_verified=false means the excerpt was NOT found verbatim in the retrieved text and should not be trusted as a quote."
+      }
+    },
+    "without_rag": {
+      "scenario_id": "eval-000",
+      "constraints": [
+        {
+          "action_id": "S1",
+          "status": "excluded",
+          "reason": "Shelter S1 has an available capacity headroom of 412 which is insufficient for the 442 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters must have sufficient available capacity headroom to accommodate the designated number of evacuees.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S2",
+          "status": "excluded",
+          "reason": "Shelter S2 is located in a cell with severe flood severity of 0.82 making it unsafe for reception.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters located in areas with high or severe flood severity must be excluded from evacuation reception.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S3",
+          "status": "excluded",
+          "reason": "Shelter S3 has an available capacity headroom of 201 which cannot accommodate 442 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters must have sufficient available capacity headroom to accommodate the designated number of evacuees.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S4",
+          "status": "excluded",
+          "reason": "Shelter S4 has zero capacity headroom and is currently marked as at capacity.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Facilities designated as at capacity or non-operational cannot accept additional evacuees.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S5",
+          "status": "excluded",
+          "reason": "Shelter S5 is subject to severe flood risk with a severity level of 0.92.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters located in areas with high or severe flood severity must be excluded from evacuation reception.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S6",
+          "status": "excluded",
+          "reason": "Shelter S6 has an available capacity headroom of 428 which is less than the 442 evacuees requiring shelter.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters must have sufficient available capacity headroom to accommodate the designated number of evacuees.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S7",
+          "status": "excluded",
+          "reason": "Shelter S7 is located in a cell experiencing high flood severity of 0.63.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters located in areas with high or severe flood severity must be excluded from evacuation reception.",
+          "citation_verified": false
+        }
+      ],
+      "_meta": {
+        "model": "gemini-3.6-flash",
+        "scenario_fingerprint": "defa8a4d7d3ea176",
+        "retrieved_chunks": [],
+        "attempts_used": 2,
+        "unverified_citations": [
+          "S1",
+          "S2",
+          "S3",
+          "S4",
+          "S5",
+          "S6",
+          "S7"
+        ],
+        "_note": "Generated by a single structured Gemini call grounded in the retrieved NDMA excerpts. citation_verified=false means the excerpt was NOT found verbatim in the retrieved text and should not be trusted as a quote."
+      }
+    }
+  },
+  "eval-001": {
+    "with_rag": {
+      "scenario_id": "eval-001",
+      "constraints": [
+        {
+          "action_id": "S1",
+          "status": "allowed",
+          "reason": "Shelter S1 is operational, situated in a low flood severity zone, and has sufficient capacity headroom (665) to accommodate all 496 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "The state governments/SDMAs will provide adequate number of raised platforms/flood shelters at suitable locations in the flood plains with basic amenities such as drinking water, sanitation, medical treatment, cooking, tents, lantern etc. for the people to take shelter during floods.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S2",
+          "status": "excluded",
+          "reason": "Shelter S2 only has a capacity headroom of 26, which is insufficient for the 496 evacuees needing shelter.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "The state governments/SDMAs will provide adequate number of raised platforms/flood shelters at suitable locations in the flood plains with basic amenities such as drinking water, sanitation, medical treatment, cooking, tents, lantern etc. for the people to take shelter during floods.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S3",
+          "status": "excluded",
+          "reason": "Shelter S3 is located in an area experiencing severe flood risk (severity 0.76) and lacks sufficient capacity headroom for 496 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Evacuation may also be necessary after the area has been flooded in order to move persons from a flood-affected area to safer and better surroundings.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S4",
+          "status": "allowed",
+          "reason": "Shelter S4 is operational with minimal flood severity and provides 605 spare headroom places, easily accommodating the 496 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "The state governments/SDMAs will provide adequate number of raised platforms/flood shelters at suitable locations in the flood plains with basic amenities such as drinking water, sanitation, medical treatment, cooking, tents, lantern etc. for the people to take shelter during floods.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S5",
+          "status": "allowed",
+          "reason": "Shelter S5 is operational with moderate flood severity and offers 714 spare headroom places to accommodate the 496 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Appropriate locations for constructing shelters in the event of floods will be identified and data collected on the minimum health and hygiene standards that need to be ensured in su",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S6",
+          "status": "excluded",
+          "reason": "Shelter S6 is in a severely flooded cell (severity 0.89) and has insufficient headroom to take 496 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Evacuation may also be necessary after the area has been flooded in order to move persons from a flood-affected area to safer and better surroundings.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S7",
+          "status": "excluded",
+          "reason": "Shelter S7 is situated in a cell with severe flooding (severity 0.86), making it unsuitable as a safer destination for evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Evacuation may also be necessary after the area has been flooded in order to move persons from a flood-affected area to safer and better surroundings.",
+          "citation_verified": true
+        }
+      ],
+      "_meta": {
+        "model": "gemini-3.6-flash",
+        "scenario_fingerprint": "5bb98f9eaec9485a",
+        "retrieved_chunks": [
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 64
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 86
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 64
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 21
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 55
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 89
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 36
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 20
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 86
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 111
+          }
+        ],
+        "attempts_used": 1,
+        "unverified_citations": [],
+        "_note": "Generated by a single structured Gemini call grounded in the retrieved NDMA excerpts. citation_verified=false means the excerpt was NOT found verbatim in the retrieved text and should not be trusted as a quote."
+      }
+    },
+    "without_rag": {
+      "scenario_id": "eval-001",
+      "constraints": [
+        {
+          "action_id": "S1",
+          "status": "allowed",
+          "reason": "Shelter S1 is operational, has a low flood severity of 0.16, and has 665 available capacity headroom which is sufficient for 496 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Operational shelters with adequate capacity headroom located outside severe flood zones are suitable for receiving evacuees.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S2",
+          "status": "excluded",
+          "reason": "Shelter S2 only has 26 capacity headroom available, which cannot accommodate 496 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters must have sufficient spare capacity headroom to accommodate the total number of evacuees.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S3",
+          "status": "excluded",
+          "reason": "Shelter S3 is located in cell C9 with severe flood severity (0.76) and lacks sufficient capacity headroom.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters located in cells with severe flood risk are unsafe for evacuees.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S4",
+          "status": "allowed",
+          "reason": "Shelter S4 is operational, situated in a minimal flood severity cell (0.08), and has 605 available capacity headroom for 496 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Operational shelters with adequate capacity headroom located outside severe flood zones are suitable for receiving evacuees.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S5",
+          "status": "allowed",
+          "reason": "Shelter S5 is operational, located in a cell with moderate flood severity (0.48), and offers 714 capacity headroom which exceeds the 496 required evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Operational shelters with adequate capacity headroom located outside severe flood zones are suitable for receiving evacuees.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S6",
+          "status": "excluded",
+          "reason": "Shelter S6 is situated in a severe flood severity cell (0.89) and has insufficient headroom for 496 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters located in cells with severe flood risk are unsafe for evacuees.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S7",
+          "status": "excluded",
+          "reason": "Shelter S7 is situated in a severe flood severity cell (0.86), making it unsafe for receiving evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters located in cells with severe flood risk are unsafe for evacuees.",
+          "citation_verified": false
+        }
+      ],
+      "_meta": {
+        "model": "gemini-3.6-flash",
+        "scenario_fingerprint": "5bb98f9eaec9485a",
+        "retrieved_chunks": [],
+        "attempts_used": 2,
+        "unverified_citations": [
+          "S1",
+          "S2",
+          "S3",
+          "S4",
+          "S5",
+          "S6",
+          "S7"
+        ],
+        "_note": "Generated by a single structured Gemini call grounded in the retrieved NDMA excerpts. citation_verified=false means the excerpt was NOT found verbatim in the retrieved text and should not be trusted as a quote."
+      }
+    }
+  },
+  "eval-002": {
+    "with_rag": {
+      "scenario_id": "eval-002",
+      "constraints": [
+        {
+          "action_id": "S1",
+          "status": "excluded",
+          "reason": "S1 is excluded because its available capacity headroom of 75 places cannot accommodate the 372 people needing evacuation.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "The state governments/SDMAs will provide adequate number of raised platforms/flood shelters at suitable locations in the flood plains with basic amenities such as drinking water, sanitation, medical treatment, cooking, tents, lantern etc. for the people to take shelter during floods.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S2",
+          "status": "excluded",
+          "reason": "S2 is excluded because it is closed due to structural damage despite having sufficient headroom.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "An important component of preparedness for floods is the construction of suitable shelters for the flood-affected people during the relief period.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S3",
+          "status": "excluded",
+          "reason": "S3 is excluded because it is closed from structural damage, located in a severely flooded area, and lacks capacity for 372 people.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "An important component of preparedness for floods is the construction of suitable shelters for the flood-affected people during the relief period.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S4",
+          "status": "allowed",
+          "reason": "S4 is operational and provides sufficient capacity headroom of 572 places to accommodate all 372 evacuees safely.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Evacuation may also be necessary after the area has been flooded in order to move persons from a flood-affected area to safer and better surroundings.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S5",
+          "status": "excluded",
+          "reason": "S5 is excluded because it is already at full capacity with zero headroom available for additional evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "The state governments/SDMAs will provide adequate number of raised platforms/flood shelters at suitable locations in the flood plains with basic amenities such as drinking water, sanitation, medical treatment, cooking, tents, lantern etc. for the people to take shelter during floods.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S6",
+          "status": "excluded",
+          "reason": "S6 is excluded due to severe flooding at its location and insufficient headroom of only 94 places.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Evacuation may also be necessary after the area has been flooded in order to move persons from a flood-affected area to safer and better surroundings.",
+          "citation_verified": true
+        },
+        {
+          "action_id": "S7",
+          "status": "allowed",
+          "reason": "S7 is operational, situated in an area with minimal flood severity, and offers 813 spare places to accommodate the evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Evacuation may also be necessary after the area has been flooded in order to move persons from a flood-affected area to safer and better surroundings.",
+          "citation_verified": true
+        }
+      ],
+      "_meta": {
+        "model": "gemini-3.6-flash",
+        "scenario_fingerprint": "0b94c9065b798fd5",
+        "retrieved_chunks": [
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 64
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 86
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 64
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 21
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 55
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 89
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 36
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 20
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 86
+          },
+          {
+            "source_document": "ndma_flood_guidelines.pdf",
+            "page": 111
+          }
+        ],
+        "attempts_used": 1,
+        "unverified_citations": [],
+        "_note": "Generated by a single structured Gemini call grounded in the retrieved NDMA excerpts. citation_verified=false means the excerpt was NOT found verbatim in the retrieved text and should not be trusted as a quote."
+      }
+    },
+    "without_rag": {
+      "scenario_id": "eval-002",
+      "constraints": [
+        {
+          "action_id": "S1",
+          "status": "excluded",
+          "reason": "Shelter S1 is excluded because its available capacity headroom of 75 places is insufficient to accommodate 372 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters must have sufficient available capacity headroom to accommodate the entire group of evacuees.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S2",
+          "status": "excluded",
+          "reason": "Shelter S2 is excluded because its operational status is closed due to structural damage.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters with structural damage or closed operational status must be excluded from receiving evacuees.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S3",
+          "status": "excluded",
+          "reason": "Shelter S3 is excluded because it is closed due to structural damage and lacks sufficient headroom for 372 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters with structural damage or closed operational status must be excluded from receiving evacuees.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S4",
+          "status": "allowed",
+          "reason": "Shelter S4 is allowed because it is operational, has a moderate flood severity of 0.31, and offers sufficient capacity headroom for 372 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Operational shelters with adequate capacity headroom and safe flood severity levels may be selected for evacuation.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S5",
+          "status": "excluded",
+          "reason": "Shelter S5 is excluded because it is currently at full capacity with zero headroom available.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters operating at full capacity cannot accept additional evacuees.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S6",
+          "status": "excluded",
+          "reason": "Shelter S6 is excluded because its capacity headroom of 94 is insufficient for 372 evacuees and it is located in a cell with severe flood risk.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Shelters located in areas with severe flood risk or insufficient capacity must be excluded.",
+          "citation_verified": false
+        },
+        {
+          "action_id": "S7",
+          "status": "allowed",
+          "reason": "Shelter S7 is allowed because it is operational, has minimal flood severity, and provides 813 headroom places which easily accommodates 372 evacuees.",
+          "source_document": "ndma_flood_guidelines.pdf",
+          "source_excerpt": "Operational shelters with adequate capacity headroom and safe flood severity levels may be selected for evacuation.",
+          "citation_verified": false
+        }
+      ],
+      "_meta": {
+        "model": "gemini-3.6-flash",
+        "scenario_fingerprint": "0b94c9065b798fd5",
+        "retrieved_chunks": [],
+        "attempts_used": 2,
+        "unverified_citations": [
+          "S1",
+          "S2",
+          "S3",
+          "S4",
+          "S5",
+          "S6",
+          "S7"
+        ],
+        "_note": "Generated by a single structured Gemini call grounded in the retrieved NDMA excerpts. citation_verified=false means the excerpt was NOT found verbatim in the retrieved text and should not be trusted as a quote."
+      }
+    }
+  }
+}
