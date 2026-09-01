@@ -17,7 +17,8 @@ A demo-able disaster-response decision-support prototype for a capstone project 
 - Python 3.11+, one virtual environment for the whole project
 - Embeddings: `sentence-transformers` (`all-MiniLM-L6-v2`), runs locally on CPU. No API key, no internet needed after the model downloads once.
 - Vector store: Chroma (local, no server needed)
-- Constraint-generation LLM call: Google Gemini API, free tier (`gemini-2.5-flash` or `gemini-2.5-flash-lite`), via the `google-genai` Python package. No credit card needed — sign up at Google AI Studio for a `GEMINI_API_KEY`. Assume it's set as an environment variable already.
+- Constraint-generation LLM call: Google Gemini API, free tier, via the `google-genai` Python package. No credit card needed — sign up at Google AI Studio for a `GEMINI_API_KEY`. Assume it's set as an environment variable already.
+  - **Model: `gemini-3.6-flash`.** This spec originally fixed `gemini-2.5-flash` / `gemini-2.5-flash-lite`, but as of 2026-09-02 both return `404 NOT_FOUND` — *"no longer available to new users. Please update your code to use models/gemini-3.6-flash"*. Substituted with the project owner's explicit approval. Still free tier.
 - RL: `gymnasium` for the environment, `stable-baselines3` for training, `sb3-contrib` for `MaskablePPO` (action masking)
 - Dashboard: Streamlit
 - Track dependencies in `requirements.txt` as you add them, not all at once up front

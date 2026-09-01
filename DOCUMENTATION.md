@@ -34,7 +34,7 @@ Each step gets one section containing:
 | Scenario data | `data/scenario.json` | **Built (Step 1)** — fictional grid, 9 cells, 7 shelters |
 | Real source documents | `data/raw_docs/` | **Built (Step 2)** — 1 real NDMA PDF, 168 pages |
 | Local RAG (embed + retrieve) | `src/rag/` | **Built (Step 2)** — 480 chunks in local Chroma |
-| Gemini constraint step | `src/constraints/` | Not built yet (Step 3) |
+| Gemini constraint step | `src/constraints/` | **Built (Step 3)** — 7/7 verdicts, all citations verified |
 | Gymnasium env + training | `src/env/` | Not built yet (Step 4) |
 | Streamlit dashboard | `src/dashboard/` | Not built yet (Step 5) |
 | Trained checkpoints | `models/` | Empty (Step 4) |
@@ -386,5 +386,157 @@ the Step 3 prompt should be tolerant of an occasional low-value chunk.
 ### Commit
 
 See `git log` for the hash of *Step 2: real NDMA guideline corpus with local embedding and retrieval*.
+
+---
+
+## Step 3 — The constraint step
+
+**Goal.** Join Step 1's verdict-free scenario to Step 2's real guideline corpus with
+**exactly one structured Gemini call per scenario**, marking every candidate shelter
+`allowed` or `excluded` with a one-sentence reason and the clause it rests on. This is
+the load-bearing step: the Step 1 data was built so a distance-minimising baseline picks
+the unsafe S1, and only this step rules it out.
+
+### Added
+
+| Path | Purpose |
+| --- | --- |
+| `src/constraints/generate.py` | Retrieval of context, prompt construction, the single Gemini call, schema validation, the grounding check, and disk caching. |
+| `src/constraints/test_constraints.py` | Runs the step standalone and prints the verdict table, every reason and cited clause, and the raw JSON. |
+| `data/constraints_output.json` | The validated result, **committed** so Steps 4–6 and the live demo need no API call. |
+
+### Model substitution — a spec change, approved
+
+`DEVELOPMENT.md` originally fixed `gemini-2.5-flash` / `gemini-2.5-flash-lite`. **Both return
+`404 NOT_FOUND` on this key:**
+
+```
+This model models/gemini-2.5-flash is no longer available to new users.
+Please update your code to use models/gemini-3.6-flash
+```
+
+Note that `client.models.list()` still *advertises* both models — the failure only
+appears on an actual generate call, so listing the catalogue is not a valid availability
+check. `gemini-3.6-flash` was verified working, and was adopted **with the project
+owner's explicit approval**. `DEVELOPMENT.md` has been updated to record the substitution and
+its reason rather than leaving a dead model id in the spec.
+
+Still free tier: a Google AI Studio key with no billing attached cannot call anything
+outside it, so a successful call is itself evidence the model is free-tier eligible.
+
+### The three defences against a fabricated citation
+
+1. **Schema validation** (hard, triggers the retry) — top-level keys, matching
+   `scenario_id`, exactly one entry per shelter with no missing and no invented
+   `action_id`, `status` ∈ {allowed, excluded}, non-empty reason and excerpt.
+2. **`source_document` must be a filename actually listed in
+   `data/raw_docs/MANIFEST.json`** — a citation naming a document not in the corpus is
+   the most plausible-looking way a fabricated source would slip past a reader.
+3. **Verbatim grounding check** — each `source_excerpt` must appear, whitespace-normalised
+   and case-insensitive, inside a chunk actually retrieved. Failure retries once; if it
+   still fails the result is kept but marked `citation_verified: false` and rendered
+   **UNVERIFIED**. The demo never hard-fails on stage, and the system detects its own
+   ungrounded citations instead of trusting the model.
+
+**The retry is not decorative — it fired on the first real run.** Attempt 1 returned
+`"source_document": "ndma_flood_guidelines.pdf (page 89)"`, appending a page number to
+the filename. Check 2 rejected all seven entries, the errors were fed back, and attempt 2
+returned clean filenames.
+
+### A prompt fix worth recording
+
+The first passing run was structurally perfect but **weak where it mattered**: five of
+seven constraints cited the same generic sentence ("Evacuation of human population and
+livestock is the only prescribed means...") regardless of the actual reason. The quotes
+were real and verbatim, but a citation that does not support its specific reason is
+useless — and the explainability claim is the whole point of the step.
+
+Inspecting the retrieved chunks showed the corpus *did* contain strong, specific clauses
+(e.g. page 111: *"Plinth levels of all buildings should be 0.6 m above the drainage/flood
+submersion lines"*). The model was simply defaulting to one generic quote. The prompt now
+requires the excerpt to be the clause most directly supporting that shelter's specific
+verdict, and forbids reusing one generic sentence.
+
+Result: **7 distinct excerpts across 7 constraints**, and it now passes on attempt 1.
+
+### Schema conformance
+
+All five `DEVELOPMENT.md`-mandated fields are present on every constraint, unchanged. Two
+additions are **additive only** and break no consumer:
+
+- `citation_verified` (bool) on each constraint — required to surface UNVERIFIED.
+- `_meta` at top level — model name, scenario fingerprint, retrieved chunk list, attempts
+  used, and unverified ids.
+
+### Caching
+
+The result is written to `data/constraints_output.json` keyed by a **scenario
+fingerprint** (a hash of the decision-relevant scenario facts). A rerun reuses the cache;
+editing the scenario invalidates it automatically; `--refresh` forces a new call. This
+keeps free-tier quota intact and means the live demo works with no network.
+
+### Dependencies
+
+`google-genai==2.21.0` added to `requirements.txt`.
+
+### How it was verified
+
+```
+$ .venv/bin/python -m src.constraints.test_constraints --refresh
+Calling gemini-3.6-flash (attempt 1 of 2)...
+
+ID  verdict    severity             headroom  travel   citation
+S1  EXCLUDED   0.85 severe               280       8   ndma_flood_guidelines.pdf [VERIFIED]
+S2  EXCLUDED   0.63 high                  10      14   ndma_flood_guidelines.pdf [VERIFIED]
+S3  EXCLUDED   0.48 moderate             420      21   ndma_flood_guidelines.pdf [VERIFIED]
+S4  ALLOWED    0.1 low                   750      34   ndma_flood_guidelines.pdf [VERIFIED]
+S5  ALLOWED    0.05 minimal             1010      41   ndma_flood_guidelines.pdf [VERIFIED]
+S6  EXCLUDED   0.35 moderate               0      26   ndma_flood_guidelines.pdf [VERIFIED]
+S7  EXCLUDED   0.22 low                  290      30   ndma_flood_guidelines.pdf [VERIFIED]
+
+ALLOWED  (2): ['S4', 'S5']
+EXCLUDED (5): ['S1', 'S2', 'S3', 'S6', 'S7']
+attempts used: 1
+All citations verified verbatim against the retrieved NDMA text.
+```
+
+Independent assertions over the written file:
+
+```
+PASS: all 5 DEVELOPMENT.md-mandated fields present on all 7 constraints
+PASS: only additive field is 'citation_verified'
+PASS: one entry per shelter, no duplicates, no invented shelters
+verified citations: 7 / 7
+distinct excerpts used: 7
+PASS: GEMINI_API_KEY appears in no file in the repo
+```
+
+**The trap worked.** S1 — nearest at 8 minutes — was excluded for sitting in a 0.85
+severe-flood cell, citing a real clause about roof and first-floor levels needing to sit
+above 100-year flood levels. S6 was excluded as at-capacity, S7 as closed with the apt
+quote *"Maintenance of shelters is a major issue."* S4 and S5 remain allowed, which is
+exactly the trade-off Step 4 has to weigh.
+
+### Real vs. simplified
+
+**Real:** the guideline text, every excerpt, and the Gemini call itself. Every quoted
+clause was checked to be verbatim present in the retrieved NDMA text.
+
+**Model-generated:** the verdicts and reasons. These are `gemini-3.6-flash`'s judgements
+about fictional shelters — not official determinations by any agency, and they should
+never be described as such.
+
+**Fictional:** everything the verdicts are *about* — the shelters, capacities, statuses,
+and severities, per Step 1.
+
+### Deliberately not done
+
+No deterministic pre-filter removing full or closed shelters before the model sees them.
+The kickoff says the LLM marks each shelter; letting code silently pre-decide would
+overstate what the LLM is actually doing.
+
+### Commit
+
+See `git log` for the hash of *Step 3: RAG-grounded Gemini constraint step*.
 
 ---

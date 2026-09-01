@@ -5,3 +5,6 @@
 pypdf==6.16.2
 sentence-transformers==6.0.1   # pulls torch (CPU); model all-MiniLM-L6-v2 runs locally
 chromadb==1.5.9
+
+# Step 3: the Gemini constraint call (free tier, one structured call per scenario)
+google-genai==2.21.0
