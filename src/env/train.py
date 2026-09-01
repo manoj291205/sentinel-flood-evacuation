@@ -22,6 +22,9 @@ from stable_baselines3.common.env_checker import check_env
 from .shelter_env import ShelterChoiceEnv
 
 MODEL_PATH = Path(__file__).resolve().parents[2] / "models" / "maskable_ppo_shelter.zip"
+# 40k. A 200k run was measured and gave 72% held-out optimal versus 40k's 73% --
+# no gain for 5x the compute, so the policy has plateaued well below the oracle's
+# 93%. See EVALUATION.md; this is evidence about the method, not a budget problem.
 TOTAL_TIMESTEPS = 40_000
 SEED = 7
 

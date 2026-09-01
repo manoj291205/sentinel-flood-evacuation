@@ -209,7 +209,10 @@ tiles = [
     ("Travel time", f"{chosen_fact['travel_cost_minutes']:g} min", "from the flooded source cell"),
     ("Spare capacity", f"{chosen_fact['capacity_headroom']:,}",
      f"{'takes all ' + format(population, ',') if fits else 'CANNOT take all ' + format(population, ',')}"),
-    ("Policy score", f"{reward:.3f}", f"best available · regret {info['regret']:.3f}"),
+    ("Policy score", f"{reward:.3f}",
+     "optimal among allowed" if info["regret"] < 1e-9
+     else f"SUBOPTIMAL — {info['optimal_shelter_id']} scores "
+          f"{info['optimal_reward']:.3f} (regret {info['regret']:.3f})"),
 ]
 for col, (label, value, sub) in zip(cols, tiles):
     col.markdown(

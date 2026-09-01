@@ -131,18 +131,40 @@ class ShelterChoiceEnv(gym.Env):
         )
 
     def _perturb(self) -> list[dict]:
-        """Jitter the scenario so the policy learns the trade-off, not one memorised answer."""
+        """Draw a fresh scenario so the policy learns the trade-off, not slot identities.
+
+        Every attribute is drawn INDEPENDENTLY per shelter rather than scaled from that
+        slot's values in the demo scenario.
+
+        This matters, and it was found by measurement rather than by inspection. The
+        first version scaled each attribute from `base` and kept `status = base["status"]`.
+        Because S6 is `at_capacity` and S7 is `closed_structural_damage` in the demo
+        scenario, those two slots were masked out in EVERY training episode -- so the
+        policy learned "slots 6 and 7 are never available" as a positional prior and
+        never selected them even when they were allowed. On a held-out suite it picked
+        S6/S7 zero times out of 60 where the oracle picked them 17 times, and scored 45%
+        optimal against the oracle's 93%.
+
+        Drawing independently removes any stable slot identity, so the policy has to read
+        the features. The ranges match the family used by src/eval/generate_scenarios.py;
+        the evaluation instances themselves are generated from a different seed and are
+        never trained on.
+        """
         facts = []
         for base in self.base_facts:
-            capacity = int(base["capacity_total"] * self._rng.uniform(0.6, 1.4))
-            capacity = max(capacity, 50)
+            capacity = int(self._rng.integers(150, 1301))
             occupancy = int(capacity * self._rng.uniform(0.0, 1.0))
-            severity = float(np.clip(base["flood_severity"] + self._rng.uniform(-0.35, 0.35), 0.0, 1.0))
-            travel = float(np.clip(base["travel_cost_minutes"] * self._rng.uniform(0.5, 1.6), 3.0, 90.0))
+            severity = round(float(self._rng.uniform(0.0, 1.0)), 2)
+            travel = float(self._rng.integers(5, 46))
 
-            status = base["status"]
-            if self._rng.random() < 0.12:  # occasionally knock a shelter out of service
+            draw = self._rng.random()
+            if draw < 0.08:
+                status = "at_capacity"
+                occupancy = capacity
+            elif draw < 0.20:
                 status = "closed_structural_damage"
+            else:
+                status = "operational"
 
             facts.append(
                 {

@@ -3,8 +3,8 @@
   "n_scenarios": 60,
   "suite_seed": 20260902,
   "headline": {
-    "changed_choice": 18,
-    "unsafe_without_constraints": 19,
+    "changed_choice": 24,
+    "unsafe_without_constraints": 24,
     "unsafe_with_constraints": 4
   },
   "strategies": {
@@ -46,8 +46,8 @@
       }
     },
     "rl_policy_allowed": {
-      "mean_reward": 0.6481222043434779,
-      "optimal_rate": 0.45,
+      "mean_reward": 0.7212694739301999,
+      "optimal_rate": 0.7333333333333333,
       "unsafe_picks": 4,
       "violation_kinds": {
         "severe_flood_cell": 2,
@@ -75,12 +75,12 @@
       }
     },
     "rl_policy_unconstrained": {
-      "mean_reward": 0.7124087736010551,
-      "optimal_rate": 0.36666666666666664,
-      "unsafe_picks": 19,
+      "mean_reward": 0.771116332213084,
+      "optimal_rate": 0.5,
+      "unsafe_picks": 24,
       "violation_kinds": {
-        "severe_flood_cell": 12,
-        "not_operational": 10
+        "severe_flood_cell": 20,
+        "not_operational": 8
       }
     }
   },
@@ -105,7 +105,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S7",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -117,8 +117,8 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
-        "unsafe": false
+        "shelter": "S2",
+        "unsafe": true
       }
     },
     {
@@ -153,8 +153,8 @@
         "unsafe": true
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
-        "unsafe": false
+        "shelter": "S7",
+        "unsafe": true
       }
     },
     {
@@ -177,7 +177,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S4",
+        "shelter": "S7",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -189,7 +189,7 @@
         "unsafe": true
       },
       "rl_policy_unconstrained": {
-        "shelter": "S4",
+        "shelter": "S7",
         "unsafe": false
       }
     },
@@ -225,7 +225,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S4",
+        "shelter": "S2",
         "unsafe": false
       }
     },
@@ -333,8 +333,8 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S3",
-        "unsafe": false
+        "shelter": "S7",
+        "unsafe": true
       }
     },
     {
@@ -393,7 +393,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S4",
+        "shelter": "S6",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -441,8 +441,8 @@
         "unsafe": true
       },
       "rl_policy_unconstrained": {
-        "shelter": "S3",
-        "unsafe": false
+        "shelter": "S7",
+        "unsafe": true
       }
     },
     {
@@ -537,7 +537,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S2",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -549,7 +549,7 @@
         "unsafe": true
       },
       "rl_policy_unconstrained": {
-        "shelter": "S4",
+        "shelter": "S6",
         "unsafe": true
       }
     },
@@ -837,8 +837,8 @@
         "unsafe": true
       },
       "rl_policy_unconstrained": {
-        "shelter": "S2",
-        "unsafe": false
+        "shelter": "S6",
+        "unsafe": true
       }
     },
     {
@@ -969,7 +969,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S2",
+        "shelter": "S7",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1005,7 +1005,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S3",
+        "shelter": "S1",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1017,7 +1017,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S3",
+        "shelter": "S1",
         "unsafe": false
       }
     },
@@ -1041,7 +1041,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S4",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1053,7 +1053,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
+        "shelter": "S4",
         "unsafe": false
       }
     },
@@ -1113,7 +1113,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S2",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1125,7 +1125,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
+        "shelter": "S2",
         "unsafe": false
       }
     },
@@ -1149,7 +1149,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S7",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1161,7 +1161,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
+        "shelter": "S7",
         "unsafe": false
       }
     },
@@ -1185,7 +1185,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S7",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1197,7 +1197,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
+        "shelter": "S7",
         "unsafe": false
       }
     },
@@ -1257,7 +1257,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S3",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1269,7 +1269,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
+        "shelter": "S3",
         "unsafe": false
       }
     },
@@ -1329,7 +1329,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S5",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1341,8 +1341,8 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
-        "unsafe": false
+        "shelter": "S3",
+        "unsafe": true
       }
     },
     {
@@ -1401,7 +1401,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S5",
+        "shelter": "S6",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1473,7 +1473,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S2",
+        "shelter": "S7",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1545,7 +1545,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S5",
+        "shelter": "S2",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1557,8 +1557,8 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S3",
-        "unsafe": true
+        "shelter": "S2",
+        "unsafe": false
       }
     },
     {
@@ -1617,7 +1617,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S5",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1629,7 +1629,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
+        "shelter": "S5",
         "unsafe": false
       }
     },
@@ -1653,7 +1653,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S2",
+        "shelter": "S6",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1665,8 +1665,8 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
-        "unsafe": true
+        "shelter": "S6",
+        "unsafe": false
       }
     },
     {
@@ -1689,7 +1689,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S3",
+        "shelter": "S6",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1701,7 +1701,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S3",
+        "shelter": "S6",
         "unsafe": false
       }
     },
@@ -1725,7 +1725,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S6",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1737,7 +1737,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
+        "shelter": "S6",
         "unsafe": false
       }
     },
@@ -1761,7 +1761,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S2",
+        "shelter": "S7",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1773,7 +1773,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S2",
+        "shelter": "S7",
         "unsafe": false
       }
     },
@@ -1845,8 +1845,8 @@
         "unsafe": true
       },
       "rl_policy_unconstrained": {
-        "shelter": "S4",
-        "unsafe": false
+        "shelter": "S6",
+        "unsafe": true
       }
     },
     {
@@ -1869,7 +1869,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S2",
+        "shelter": "S4",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1941,7 +1941,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S5",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1953,7 +1953,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
+        "shelter": "S5",
         "unsafe": false
       }
     },
@@ -1977,7 +1977,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S6",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -1989,7 +1989,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
+        "shelter": "S6",
         "unsafe": false
       }
     },
@@ -2133,7 +2133,7 @@
         "unsafe": true
       },
       "rl_policy_unconstrained": {
-        "shelter": "S4",
+        "shelter": "S6",
         "unsafe": true
       }
     },
@@ -2157,7 +2157,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S7",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -2193,7 +2193,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S4",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -2205,7 +2205,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
+        "shelter": "S4",
         "unsafe": false
       }
     },
@@ -2229,7 +2229,7 @@
         "unsafe": false
       },
       "rl_policy_allowed": {
-        "shelter": "S1",
+        "shelter": "S6",
         "unsafe": false
       },
       "nearest_unconstrained": {
@@ -2241,7 +2241,7 @@
         "unsafe": false
       },
       "rl_policy_unconstrained": {
-        "shelter": "S1",
+        "shelter": "S6",
         "unsafe": false
       }
     }
