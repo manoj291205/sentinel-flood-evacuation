@@ -38,7 +38,7 @@ Each step gets one section containing:
 | Gymnasium env + training | `src/env/` | **Built (Step 4)** — MaskablePPO, 91.5% optimal |
 | Streamlit dashboard | `src/dashboard/` | **Built (Step 5)** — verified rendering in a real browser |
 | Trained checkpoints | `models/` | **Built (Step 4)** — `maskable_ppo_shelter.zip` |
-| End-to-end runner | `run_demo.py` | Not built yet (Step 6) |
+| End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
 
 ---
 
@@ -781,5 +781,85 @@ than depending on the presenter remembering to say it.
 ### Commit
 
 See `git log` for the hash of *Step 5: Streamlit dashboard*.
+
+---
+
+## Step 6 — Tie it together
+
+**Goal.** Make the whole pipeline one command, and write a README that states plainly
+what is real, what is invented, what it costs, and what would have to change to make it
+rigorous.
+
+### Added
+
+| Path | Purpose |
+| --- | --- |
+| `run_demo.py` | Six-stage end-to-end runner. Rebuilds anything missing, skips anything present. |
+| `README.md` | The project's public account of itself: real vs. fictional, free-tier services, how to run, honesty mechanisms, known limitations, and the path to a rigorous version. |
+
+### `run_demo.py` stages
+
+1. **Preflight** — Python version, package imports, `GEMINI_API_KEY`. The key is only
+   *required* when constraints must actually be regenerated; a cached run reports that no
+   key and no network are needed.
+2. **Scenario** — grid, source cell, and all seven shelters with derived headroom.
+3. **Corpus** — fetches the PDF if absent, embeds if the vector store is absent, then runs
+   a **live top-1 retrieval** so the RAG layer is visibly working rather than assumed.
+4. **Constraints** — cached or regenerated; prints the verdict table and per-citation
+   verification.
+5. **Policy** — trains if no checkpoint exists, else loads.
+6. **Decision** — runs the policy with the real mask, **then again on an all-allowed
+   mask**, and prints both.
+
+Stage 6 exists because the with/without comparison is the project's central claim; the
+end-to-end script should *demonstrate* it, not assert it. The unconstrained result is
+computed, never hardcoded.
+
+### How it was verified
+
+Three runs, not one:
+
+```
+1. Everything cached
+   "Using cached constraints from constraints_output.json (no API call)."
+   RECOMMENDED SHELTER : S4
+   with NO constraints at all : S1  (severity 0.85, score 1.0000)
+   EXIT CODE: 0
+
+2. Vector store deleted first  (proves "no manual steps" rather than assuming it)
+   $ rm -rf src/rag/chroma_db && .venv/bin/python run_demo.py
+   No vector store — chunking and embedding locally (no API call)...
+     chunks kept: 480
+     Indexed 480 chunks into 'flood_guidelines'
+   top hit: ndma_flood_guidelines.pdf, page 86  (cosine distance 0.3567)
+   RECOMMENDED SHELTER : S4
+   EXIT CODE: 0
+
+3. Failure path  (a broken stage must not exit 0)
+   $ env -u GEMINI_API_KEY .venv/bin/python run_demo.py --refresh-constraints
+   GEMINI_API_KEY: NOT SET — required, because constraints must be generated.
+   FAILED: preflight
+   EXIT CODE: 1
+```
+
+Every factual claim in the README was checked against the repo before writing it — page
+count (168), byte size (6,120,219), SHA-256, chunk count (480), model id
+(`gemini-3.6-flash`), allowed set (S4, S5), citations verified (7/7), and the pinned
+dependency versions.
+
+### Dependencies
+
+None added. `run_demo.py` only orchestrates existing modules.
+
+### Real vs. simplified
+
+The README is the authoritative statement of this and contains the full table. In short:
+the NDMA document, every quoted clause, and the 2018 Kerala background are real; the
+grid, the shelters and every number attached to them are fictional; the verdicts are a
+language model's judgements about fictional shelters.
+
+### Commit
+
+See `git log` for the hash of *Step 6: end-to-end runner and README*.
 
 ---
