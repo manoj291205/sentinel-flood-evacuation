@@ -35,9 +35,9 @@ Each step gets one section containing:
 | Real source documents | `data/raw_docs/` | **Built (Step 2)** — 1 real NDMA PDF, 168 pages |
 | Local RAG (embed + retrieve) | `src/rag/` | **Built (Step 2)** — 480 chunks in local Chroma |
 | Gemini constraint step | `src/constraints/` | **Built (Step 3)** — 7/7 verdicts, all citations verified |
-| Gymnasium env + training | `src/env/` | Not built yet (Step 4) |
+| Gymnasium env + training | `src/env/` | **Built (Step 4)** — MaskablePPO, 91.5% optimal |
 | Streamlit dashboard | `src/dashboard/` | Not built yet (Step 5) |
-| Trained checkpoints | `models/` | Empty (Step 4) |
+| Trained checkpoints | `models/` | **Built (Step 4)** — `maskable_ppo_shelter.zip` |
 | End-to-end runner | `run_demo.py` | Not built yet (Step 6) |
 
 ---
@@ -538,5 +538,131 @@ overstate what the LLM is actually doing.
 ### Commit
 
 See `git log` for the hash of *Step 3: RAG-grounded Gemini constraint step*.
+
+---
+
+## Step 4 — The RL environment
+
+**Goal.** Turn Step 3's constraint set into a decision. Per `DEVELOPMENT.md` this is a
+**single-decision, contextual-bandit-style** task: one action per candidate shelter, one
+step per episode, small enough to train in minutes. Excluded shelters are made
+**structurally unselectable** via `MaskablePPO` action masking rather than discouraged
+with a penalty.
+
+### Added
+
+| Path | Purpose |
+| --- | --- |
+| `src/env/shelter_env.py` | `ShelterChoiceEnv` — `Discrete(7)` actions, 28-dim observation, one step per episode, `action_masks()` for MaskablePPO. |
+| `src/env/train.py` | Trains MaskablePPO, runs `check_env` first, evaluates against an oracle, saves the checkpoint. |
+| `src/env/evaluate.py` | Example decisions, including the real scenario using the actual Gemini mask, plus a 1,000-episode masking assertion. |
+| `models/maskable_ppo_shelter.zip` | The trained checkpoint. **Committed** — the demo loads it. |
+
+### Reward
+
+```
+fit          = min(headroom / population, 1.0)     # 1.0 once it can take all 700
+travel_score = 1 - normalised travel cost
+reward       = 0.65 * fit + 0.35 * travel_score
+```
+
+Fit is **capped**, so space beyond "fits everyone" earns nothing and travel cost breaks
+the tie between shelters that both fit. This was a deliberate choice: it models the real
+question ("can it take everyone?") rather than rewarding a shelter for space nobody uses.
+
+### THE MOST IMPORTANT CAVEAT — the training mask is not the LLM
+
+The action mask has **two different sources**:
+
+| Mode | Mask source |
+| --- | --- |
+| **Training** (`randomise=True`) | `proxy_exclusion_rule()` — a small deterministic rule (severe flooding / no headroom / not operational) |
+| **Demo & inference** (`randomise=False`) | the **real Step 3 Gemini output** from `data/constraints_output.json` |
+
+Training runs tens of thousands of episodes; calling the Gemini API once per episode
+would be neither free nor fast, and `DEVELOPMENT.md` forbids paid usage. The proxy imitates
+the *kind* of exclusions the LLM makes — **it is not the LLM, and it is not derived from
+the NDMA documents.**
+
+> **Do not describe the policy as "trained against LLM-generated constraints."** It is
+> trained against a proxy rule and *evaluated* against real LLM constraints. This is
+> stated in the module docstring as well as here, because a reviewer could reasonably
+> assume otherwise.
+
+### A second finding: on this scenario the mask does not change the answer
+
+Worth stating plainly before it gets claimed otherwise. Rewards for every shelter,
+**ignoring** the mask:
+
+```
+S1  0.6100  EXCLUDED        S5  0.6500  allowed
+S2  0.2956  EXCLUDED        S6  0.1591  EXCLUDED
+S3  0.6021  EXCLUDED        S7  0.3860  EXCLUDED
+S4  0.7242  allowed
+
+argmax with NO constraints at all : S4
+argmax WITH the Gemini mask       : S4
+```
+
+The reward function **already** disfavours S1: its headroom of 280 cannot take 700, so
+its `fit` term is only 0.4 despite being the closest shelter. The constraint step
+therefore makes S1 *unselectable* but does not change which shelter wins.
+
+That is still a real guarantee — a structural bar is stronger than a soft preference, and
+it holds no matter how the reward is tuned — but the honest claim is **"the constraints
+guarantee the unsafe option can never be chosen"**, *not* "the constraints are what
+stopped it being chosen". The Step 1 trap is currently caught by two independent
+mechanisms, and the reward alone is sufficient.
+
+### How it was verified
+
+```
+$ .venv/bin/python -m src.env.train
+Checking the environment against the Gymnasium API...
+  environment OK
+Training MaskablePPO for 40,000 timesteps (CPU)...
+  picked the optimal allowed shelter : 91.5%
+  mean reward        : 0.6407
+  oracle mean reward : 0.6451
+  mean regret        : 0.0044
+  masked-action violations : 0  (must be 0)
+
+$ .venv/bin/python -m src.env.evaluate
+DECISION ON THE REAL SCENARIO  (mask from the actual Gemini constraint step)
+S1   masked out   0.85    280    8   0.6100
+S4   SELECTABLE   0.1     750   34   0.7242   <-- CHOSEN
+S5   SELECTABLE   0.05   1010   41   0.6500
+  RECOMMENDED SHELTER : S4      regret 0.0000
+
+EXAMPLE DECISIONS ON RANDOMISED SCENARIOS — 8/8 optimal
+
+Masking check over 1,000 random episodes...
+  episodes where an EXCLUDED shelter was chosen: 0  (must be 0)
+```
+
+`check_env` from Stable-Baselines3 passes before training, so the environment conforms to
+the Gymnasium API.
+
+### On the 91.5% figure — do not oversell it
+
+With only a handful of allowed actions per episode this is an **easy** problem. A high
+optimal rate shows the wiring is correct; it is not evidence of a sophisticated policy.
+The training script prints this caveat itself so it cannot be quietly dropped.
+
+### Dependencies
+
+`gymnasium==1.3.0`, `stable-baselines3==2.9.0`, `sb3-contrib==2.9.0`.
+
+### Real vs. simplified
+
+**Real:** the masking mechanism, the training, and the evaluation numbers above.
+
+**Simplified:** the training-time exclusion proxy (above); the episode randomisation,
+which jitters the fictional Step 1 shelters; and the reward weights (0.65 / 0.35), which
+are a modelling choice, not a figure from any source.
+
+### Commit
+
+See `git log` for the hash of *Step 4: single-decision Gymnasium env + MaskablePPO*.
 
 ---
