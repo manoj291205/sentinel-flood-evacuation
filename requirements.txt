@@ -13,3 +13,6 @@ google-genai==2.21.0
 gymnasium==1.3.0
 stable-baselines3==2.9.0
 sb3-contrib==2.9.0        # MaskablePPO
+
+# Step 5: the dashboard
+streamlit==1.63.0

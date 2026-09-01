@@ -36,7 +36,7 @@ Each step gets one section containing:
 | Local RAG (embed + retrieve) | `src/rag/` | **Built (Step 2)** — 480 chunks in local Chroma |
 | Gemini constraint step | `src/constraints/` | **Built (Step 3)** — 7/7 verdicts, all citations verified |
 | Gymnasium env + training | `src/env/` | **Built (Step 4)** — MaskablePPO, 91.5% optimal |
-| Streamlit dashboard | `src/dashboard/` | Not built yet (Step 5) |
+| Streamlit dashboard | `src/dashboard/` | **Built (Step 5)** — verified rendering in a real browser |
 | Trained checkpoints | `models/` | **Built (Step 4)** — `maskable_ppo_shelter.zip` |
 | End-to-end runner | `run_demo.py` | Not built yet (Step 6) |
 
@@ -676,5 +676,110 @@ are a modelling choice, not a figure from any source.
 ### Commit
 
 See `git log` for the hash of *Step 4: single-decision Gymnasium env + MaskablePPO*.
+
+---
+
+## Step 5 — The dashboard
+
+**Goal.** The only part shown live. It has to make the pipeline legible to someone who
+has not read the code, and must not overstate what the system does.
+
+### Added
+
+| Path | Purpose |
+| --- | --- |
+| `src/dashboard/app.py` | Single-page Streamlit app. Renders what the pipeline produced; reimplements no decision logic. |
+| `.streamlit/config.toml` | Pins a **light** theme so the app looks identical on any machine. |
+
+### Layout, top to bottom
+
+1. **Provenance banner above the fold** — states that the NDMA document is real and that the grid, shelters, capacities, statuses, severities and travel costs are all fictional, and that the verdicts are a language model's judgements, not any agency's determinations.
+2. **Recommendation** — four stat tiles: shelter, travel time, spare capacity, policy score with regret.
+3. **The constraint toggle** — see below.
+4. **Hazard grid** — 3×3, shaded by severity, source cell marked, each shelter shown in its cell with its verdict.
+5. **Shelter table** — every shelter with severity, headroom, travel, status, score, verdict badge.
+6. **Exclusion evidence** — for every excluded shelter: reason, the verbatim NDMA quote, document and date, and a VERIFIED/UNVERIFIED badge.
+
+### An accessibility failure found by measuring, not guessing
+
+The palette validator was run on the ALLOWED/EXCLUDED colour pair:
+
+```
+[FAIL] CVD separation  #d03b3b <-> #0ca30c  ΔE 4.1 (deutan)
+[PASS] Normal-vision floor  ΔE 33.9
+```
+
+**Green-vs-red is essentially invisible to a deuteranope** — roughly 1 in 12 men. A
+verdict encoded by colour alone would have been unreadable to a reviewer in the room.
+
+Mitigation, applied everywhere a verdict appears: **icon + text label**, colour only as
+reinforcement — `✓ ALLOWED` / `✕ EXCLUDED`, never a bare coloured dot. Likewise **flood
+severity is printed numerically in every grid cell**, so magnitude is never carried by
+shade alone.
+
+### Colour choices
+
+- **Severity = sequential magnitude → one hue, light→dark**: the validated blue ramp
+  (`#cde2fb` → `#0d366b`), which also reads naturally as water depth. Not a rainbow.
+- **Verdicts** = the fixed status palette (`#0ca30c` / `#d03b3b`), with the icon+label
+  mitigation above.
+- No new categorical palette was introduced, so no further validation was required.
+
+### The constraint toggle
+
+Off → the real Gemini mask applies → **S4**. On → the mask is dropped and **the same
+policy is re-run on an all-allowed mask** → **S1**, with an explanation that it is the
+closest shelter with room for everyone but sits in a severe-flood cell.
+
+The unconstrained result is **computed, not hardcoded** — the dashboard actually re-runs
+the policy. Hardcoding "S1" would have made the demo's central claim theatre.
+
+S1's exclusion panel auto-expands when it is the unconstrained pick, so the evidence is
+already open when the question gets asked.
+
+### Offline by construction
+
+`@st.cache_resource` for the checkpoint, `@st.cache_data` for scenario and constraints.
+The app reads the **cached** `data/constraints_output.json` and **never calls Gemini**, so
+the demo runs with no network. Missing checkpoint or constraints produces the exact
+command to run, not a traceback.
+
+### How it was verified
+
+Streamlit only executes the script when a client connects, so "the server started" proves
+nothing. A real browser (Playwright driving Chrome) was used instead:
+
+```
+page errors: none
+  OK  'Sentinel-Agent'     OK  'Why each shelter was excluded'
+  OK  'Recommendation'     OK  'VERIFIED'
+  OK  'S4'                 OK  'EXCLUDED' / 'ALLOWED'
+  OK  'Hazard grid'        OK  'NDMA'
+
+toggle ON -> 'Unsafe recommendation': True
+toggle ON -> mentions S1            : True
+```
+
+Screenshots of the top, the toggled comparison, and the exclusion evidence were captured
+and **visually inspected** for collisions and overflow. An initial headless-Chrome
+`--screenshot` attempt captured only Streamlit's loading skeleton — the virtual clock
+never let the websocket finish — which is why a real driver was used.
+
+**Playwright is verification tooling only and is deliberately NOT in
+`requirements.txt`** — the app does not need it.
+
+### Dependencies
+
+`streamlit==1.63.0`.
+
+### Real vs. simplified
+
+Everything rendered is produced upstream; the dashboard invents nothing. The banner at
+the top of the page states the real/fictional split, so it travels with the demo rather
+than depending on the presenter remembering to say it.
+
+### Commit
+
+See `git log` for the hash of *Step 5: Streamlit dashboard*.
 
 ---
