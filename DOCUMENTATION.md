@@ -589,30 +589,42 @@ the NDMA documents.**
 > stated in the module docstring as well as here, because a reviewer could reasonably
 > assume otherwise.
 
-### A second finding: on this scenario the mask does not change the answer
+### A second finding, and the fix for it
 
-Worth stating plainly before it gets claimed otherwise. Rewards for every shelter,
-**ignoring** the mask:
+The first version of this step had a real weakness, found by checking rather than
+assuming. With S1's original headroom of 280, the reward function **already** disfavoured
+it (its `fit` term was only 0.4 despite being closest), so:
 
 ```
-S1  0.6100  EXCLUDED        S5  0.6500  allowed
-S2  0.2956  EXCLUDED        S6  0.1591  EXCLUDED
-S3  0.6021  EXCLUDED        S7  0.3860  EXCLUDED
-S4  0.7242  allowed
-
 argmax with NO constraints at all : S4
 argmax WITH the Gemini mask       : S4
 ```
 
-The reward function **already** disfavours S1: its headroom of 280 cannot take 700, so
-its `fit` term is only 0.4 despite being the closest shelter. The constraint step
-therefore makes S1 *unselectable* but does not change which shelter wins.
+The mask made S1 unselectable but did not change which shelter won. The claim
+"the constraints stopped the unsafe recommendation" would have been false.
 
-That is still a real guarantee — a structural bar is stronger than a soft preference, and
-it holds no matter how the reward is tuned — but the honest claim is **"the constraints
-guarantee the unsafe option can never be chosen"**, *not* "the constraints are what
-stopped it being chosen". The Step 1 trap is currently caught by two independent
-mechanisms, and the reward alone is sufficient.
+**Fix (approved):** S1's capacity was raised to 1,000 with 100 occupied — headroom 900.
+It now fits all 700 evacuees *and* is still the closest at 8 minutes, so it scores a
+perfect **1.0**, while remaining in the 0.85 severe-flood cell. Result:
+
+```
+  S1  reward 1.0000  EXCLUDED     S5  reward 0.6500  allowed
+  S2  reward 0.2956  EXCLUDED     S6  reward 0.1591  EXCLUDED
+  S3  reward 0.6021  EXCLUDED     S7  reward 0.3860  EXCLUDED
+  S4  reward 0.7242  allowed
+
+argmax with NO constraints : S1        <-- a shelter inside the flood zone
+argmax WITH Gemini mask    : S4
+CONSTRAINTS CHANGE THE ANSWER: True
+```
+
+**Without the constraint layer this system recommends a shelter inside the severe-flood
+zone.** That is now a demonstrable claim, not a hopeful one.
+
+Gemini was re-run against the modified scenario and **still excluded S1** — now purely on
+hazard grounds, since the capacity objection had disappeared: *"Shelter S1 is located in
+a severely flooded cell with a flood severity of 0.85, making it unsafe to receive
+evacuees."* The policy was retrained because the shelter templates changed.
 
 ### How it was verified
 
@@ -622,14 +634,14 @@ Checking the environment against the Gymnasium API...
   environment OK
 Training MaskablePPO for 40,000 timesteps (CPU)...
   picked the optimal allowed shelter : 91.5%
-  mean reward        : 0.6407
-  oracle mean reward : 0.6451
-  mean regret        : 0.0044
+  mean reward        : 0.6751
+  oracle mean reward : 0.6792
+  mean regret        : 0.0041
   masked-action violations : 0  (must be 0)
 
 $ .venv/bin/python -m src.env.evaluate
 DECISION ON THE REAL SCENARIO  (mask from the actual Gemini constraint step)
-S1   masked out   0.85    280    8   0.6100
+S1   masked out   0.85    900    8   1.0000   <-- top score, but EXCLUDED
 S4   SELECTABLE   0.1     750   34   0.7242   <-- CHOSEN
 S5   SELECTABLE   0.05   1010   41   0.6500
   RECOMMENDED SHELTER : S4      regret 0.0000

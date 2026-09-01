@@ -128,8 +128,8 @@
     {
       "shelter_id": "S1",
       "cell_id": "C2",
-      "capacity_total": 400,
-      "current_occupancy": 120,
+      "capacity_total": 1000,
+      "current_occupancy": 100,
       "status": "operational",
       "travel_cost_minutes": 8
     },
@@ -187,6 +187,6 @@
     "capacity_headroom": "Derived, not stored: capacity_total - current_occupancy. Kept derived so the two numbers can never disagree.",
     "status_values": "One of: operational, at_capacity, closed_structural_damage. This is the 'shelter status' input - one of the only two data kinds in scope.",
     "travel_cost_minutes": "Static abstract travel cost from the source cell C1 to that shelter. Fictional. Not computed from any road network or traffic feed.",
-    "why_the_spread": "The spread is deliberate. The nearest shelter by travel cost sits in a severe-flood cell, so a distance-minimising baseline picks an unsafe option and the constraint step is what rules it out. Several shelters are also non-viable on shelter-status grounds alone (one full, one closed)."
+    "why_the_spread": "The spread is deliberate. S1 is the trap: it is the nearest shelter AND has enough spare capacity to take every evacuee, so on capacity and travel cost alone it is the single most attractive option. But it sits in a severe-flood cell (0.85), so it is exactly the choice a hazard-aware constraint step must forbid. Without that step the system would recommend a shelter inside the flood zone. Several shelters are also non-viable on shelter-status grounds alone (one full, one closed)."
   }
 }

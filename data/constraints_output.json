@@ -4,55 +4,55 @@
     {
       "action_id": "S1",
       "status": "excluded",
-      "reason": "Shelter S1 is excluded because it is located in a severely flooded cell with 0.85 flood severity and lacks the capacity headroom needed for 700 evacuees.",
-      "source_document": "ndma_flood_guidelines.pdf",
-      "source_excerpt": "The roof levels of the single storey buildings and the first- floor level in double-storey buildings will be above 100-year flood levels so that the human beings and movable property can be temporarily sheltered there during periods of danger on account of floods.",
-      "citation_verified": true
-    },
-    {
-      "action_id": "S2",
-      "status": "excluded",
-      "reason": "Shelter S2 is excluded due to high flood severity in cell C4 and an insufficient capacity headroom of only 10 places.",
-      "source_document": "ndma_flood_guidelines.pdf",
-      "source_excerpt": "In the existing developed areas, possibilities of protecting against submergence or relocating to safer areas vital installations like electricity sub-stations/ power houses, telephone exchan",
-      "citation_verified": true
-    },
-    {
-      "action_id": "S3",
-      "status": "excluded",
-      "reason": "Shelter S3 is excluded because its headroom of 420 places cannot accommodate the total group of 700 evacuees.",
-      "source_document": "ndma_flood_guidelines.pdf",
-      "source_excerpt": "The state governments/SDMAs will provide adequate number of raised platforms/flood shelters at suitable locations in the flood plains with basic amenities such as drinking water, sanitation, medical treatment, cooking, tents, lantern etc. for the people to take shelter during floods.",
-      "citation_verified": true
-    },
-    {
-      "action_id": "S4",
-      "status": "allowed",
-      "reason": "Shelter S4 is allowed as it is operational in a low flood severity cell with 750 headroom available to accommodate all 700 evacuees.",
+      "reason": "Shelter S1 is located in a severely flooded cell with a flood severity of 0.85, making it unsafe to receive evacuees.",
       "source_document": "ndma_flood_guidelines.pdf",
       "source_excerpt": "Evacuation may also be necessary after the area has been flooded in order to move persons from a flood-affected area to safer and better surroundings.",
       "citation_verified": true
     },
     {
-      "action_id": "S5",
-      "status": "allowed",
-      "reason": "Shelter S5 is allowed because it is operational in a minimal flood risk area and has 1010 available headroom, sufficient for 700 evacuees.",
+      "action_id": "S2",
+      "status": "excluded",
+      "reason": "Shelter S2 has a capacity headroom of only 10 places, which cannot accommodate the 700 evacuees.",
+      "source_document": "ndma_flood_guidelines.pdf",
+      "source_excerpt": "The state governments/SDMAs will provide adequate number of raised platforms/flood shelters at suitable locations in the flood plains with basic amenities such as drinking water, sanitation, medical treatment, cooking, tents, lantern etc. for the people to take shelter during floods.",
+      "citation_verified": true
+    },
+    {
+      "action_id": "S3",
+      "status": "excluded",
+      "reason": "Shelter S3 has a capacity headroom of 420, which is insufficient for 700 evacuees.",
       "source_document": "ndma_flood_guidelines.pdf",
       "source_excerpt": "An important component of preparedness for floods is the construction of suitable shelters for the flood-affected people during the relief period.",
       "citation_verified": true
     },
     {
-      "action_id": "S6",
-      "status": "excluded",
-      "reason": "Shelter S6 is excluded because it is currently at capacity with zero headroom available.",
+      "action_id": "S4",
+      "status": "allowed",
+      "reason": "Shelter S4 is operational in a low flood risk cell and has a capacity headroom of 750 places, which can accommodate all 700 evacuees.",
       "source_document": "ndma_flood_guidelines.pdf",
       "source_excerpt": "Appropriate locations for constructing shelters in the event of floods will be identified and data collected on the minimum health and hygiene standards that need to be ensured in su",
       "citation_verified": true
     },
     {
+      "action_id": "S5",
+      "status": "allowed",
+      "reason": "Shelter S5 is operational with minimal flood severity and has 1010 spare headroom places for the 700 evacuees.",
+      "source_document": "ndma_flood_guidelines.pdf",
+      "source_excerpt": "The state governments/SDMAs will provide adequate number of raised platforms/flood shelters at suitable locations in the flood plains with basic amenities such as drinking water, sanitation, medical treatment, cooking, tents, lantern etc. for the people to take shelter during floods.",
+      "citation_verified": true
+    },
+    {
+      "action_id": "S6",
+      "status": "excluded",
+      "reason": "Shelter S6 is currently at capacity with zero headroom available for new evacuees.",
+      "source_document": "ndma_flood_guidelines.pdf",
+      "source_excerpt": "An important component of preparedness for floods is the construction of suitable shelters for the flood-affected people during the relief period.",
+      "citation_verified": true
+    },
+    {
       "action_id": "S7",
       "status": "excluded",
-      "reason": "Shelter S7 is excluded because it is closed due to structural damage.",
+      "reason": "Shelter S7 is closed due to structural damage and lacks sufficient capacity headroom.",
       "source_document": "ndma_flood_guidelines.pdf",
       "source_excerpt": "Maintenance of shelters is a major issue.",
       "citation_verified": true
@@ -60,7 +60,7 @@
   ],
   "_meta": {
     "model": "gemini-3.6-flash",
-    "scenario_fingerprint": "6913cef4cbd19cbc",
+    "scenario_fingerprint": "a1a4e7541edb9aab",
     "retrieved_chunks": [
       {
         "source_document": "ndma_flood_guidelines.pdf",
@@ -103,7 +103,7 @@
         "page": 111
       }
     ],
-    "attempts_used": 1,
+    "attempts_used": 2,
     "unverified_citations": [],
     "_note": "Generated by a single structured Gemini call grounded in the retrieved NDMA excerpts. citation_verified=false means the excerpt was NOT found verbatim in the retrieved text and should not be trusted as a quote."
   }
