@@ -39,6 +39,9 @@ Each step gets one section containing:
 | Streamlit dashboard | `src/dashboard/` | **Built (Step 5)** — verified rendering in a real browser |
 | Trained checkpoints | `models/` | **Built (Step 4)** — `maskable_ppo_shelter.zip` |
 | End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
+| Evaluation suite | `src/eval/` | **Built** — 60 held-out scenarios, baselines, ablations |
+| Tests | `tests/` | **Built** — 43 offline invariant tests, CI on GitHub Actions |
+| Measured results | `EVALUATION.md` | **Written** — including the unflattering ones |
 
 ---
 
@@ -861,5 +864,80 @@ language model's judgements about fictional shelters.
 ### Commit
 
 See `git log` for the hash of *Step 6: end-to-end runner and README*.
+
+---
+
+## Post-demo — making the claims defensible
+
+**Goal.** Every claim the prototype made rested on **one hand-built scenario that was
+tuned to produce the desired result**. This work replaces assertions with measurements.
+Full write-up in `EVALUATION.md`; this entry records what changed and what it cost.
+
+### Added
+
+| Path | Purpose |
+| --- | --- |
+| `src/eval/generate_scenarios.py` | 60 seeded held-out scenarios, distribution declared in the output file. |
+| `src/eval/baselines.py` | Random / nearest / max-capacity / greedy, constrained and unconstrained. |
+| `src/eval/run_study.py` | The ablation study and baseline table. |
+| `src/eval/constraint_agreement.py` | LLM-vs-safety-rule agreement, and the retrieval ablation. |
+| `tests/` (5 files, 43 tests) | Real invariants, offline, 0.18 s. |
+| `.github/workflows/ci.yml` | Runs those tests with **no** API key. |
+| `EVALUATION.md` | Method, every table, and the honest reading of each. |
+
+### What the measurements showed
+
+- **The constraint layer works, measurably.** Unsafe picks fall from **40% to 7%** across
+  60 scenarios, and all four residual failures are scenarios where *no* safe shelter
+  existed. The single anecdote is now a rate.
+- **RL is not justified on this task.** The reward is fully computable, so greedy-argmax
+  *is* the oracle: **93%** versus the policy's **73%**. A 5× longer run gave 72% — a
+  plateau, not a budget problem.
+- **The LLM errs safely.** Zero false-allows (unsafe shelter permitted) against six
+  false-excludes (usable shelter barred) across 21 verdicts.
+- **Retrieval does not change the verdicts — it makes them evidenceable.** 0/21 verdicts
+  flipped when retrieval was removed, but verbatim-verifiable citations fell from 21/21
+  to 0/21.
+
+### A bug the evaluation found that the demo could never have
+
+The policy scored 45% optimal on held-out scenarios versus 94% on its own training
+distribution, with near-identical marginal feature distributions. The cause was visible
+only in *which* shelters it picked: **S6 and S7 zero times in 60 scenarios**, where the
+oracle picked them 17 times.
+
+`_perturb()` kept `status = base["status"]`, and S6 is `at_capacity` while S7 is
+`closed_structural_damage` — so those two slots were masked out in **every training
+episode**. The policy learned slot identity instead of the features. Drawing every
+attribute independently fixed it: **45% → 73%**, S6/S7 picks **0/0 → 7/8**.
+
+This was invisible on the demo scenario and would have stayed invisible without a
+held-out suite.
+
+**Honest consequence:** the retrained policy picks **S5** (0.650) on the demo scenario
+rather than the optimal **S4** (0.724). The configuration was chosen on held-out
+performance, **not** by retraining until the demo looked right. The dashboard now shows
+`SUBOPTIMAL` and names the better shelter instead of claiming "best available".
+
+### A hard limit worth knowing
+
+`gemini-3.6-flash` free tier allows **20 requests per DAY**
+(`GenerateRequestsPerDayPerProjectPerModel-FreeTier`) — per day, not per minute. At two
+calls per scenario that caps the LLM study at 10 scenarios/day, which is why the
+agreement and ablation results rest on 3 scenarios. The runner caches per scenario,
+survives quota errors without losing work, and resumes on a later day.
+
+### How it was verified
+
+```
+run_demo exit: 0
+43 tests passed (offline, no API key)
+dashboard: page errors none · shows SUBOPTIMAL · recommends S5
+scenario generation: deterministic (regenerated and diffed)
+```
+
+### Commit
+
+See `git log` for the evaluation commits.
 
 ---

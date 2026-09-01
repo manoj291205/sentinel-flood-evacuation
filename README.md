@@ -9,7 +9,9 @@ send evacuees — all shown in an explainable dashboard.
 > **This is a fast, zero-budget prototype built for a capstone demo. It is not
 > production software and not a rigorous research system.** It runs entirely on free
 > tiers and local models. Read *[What is real and what is not](#what-is-real-and-what-is-not)*
-> before drawing any conclusion from it.
+> before drawing any conclusion from it, and
+> **[EVALUATION.md](EVALUATION.md)** for measured results — including the ones that
+> undercut the system.
 
 ---
 
@@ -21,13 +23,23 @@ travel cost alone it is the single most attractive option, scoring a perfect 1.0
 sits in a cell with flood severity 0.85.
 
 ```
-with the RAG-grounded constraints : S4  (severity 0.10, score 0.7242)
+with the RAG-grounded constraints : S5  (severity 0.05, score 0.6500)
 with NO constraints at all        : S1  (severity 0.85, score 1.0000)
 ```
 
 **Without the constraint layer, this system recommends a shelter inside the flood zone.**
 The dashboard has a toggle that demonstrates this live, and the comparison is computed by
 actually re-running the policy on an unmasked action space — not hardcoded.
+
+This is not a one-off. Across a 60-scenario held-out suite, the unconstrained policy picks
+an unsafe shelter **40% of the time**; with the constraint layer that falls to **7%**, and
+every remaining case is a scenario where *no* safe shelter existed at all
+([EVALUATION.md](EVALUATION.md) §1).
+
+Note the constrained pick above is **S5, not the optimal S4** (0.724) — the policy is
+suboptimal here by 0.074, and the dashboard says so rather than calling it "best
+available". That honesty costs nothing: the safety claim does not depend on the policy
+being optimal, only on the unsafe option being unselectable.
 
 ---
 
@@ -68,6 +80,11 @@ live government API calls anywhere.
 its result is cached to `data/constraints_output.json`, so **the demo runs with no
 network at all**.
 
+> **Free-tier quota, measured 2026-09-02:** `gemini-3.6-flash` allows **20 requests per
+> day** (`GenerateRequestsPerDayPerProjectPerModel-FreeTier`) — per *day*, not per minute.
+> Ample for the demo, which makes one cached call, but it is the reason the evaluation in
+> §3–§4 of [EVALUATION.md](EVALUATION.md) covers 3 scenarios rather than 20.
+
 > **Note on the model id.** This project was specified against `gemini-2.5-flash` /
 > `gemini-2.5-flash-lite`. As of 2 September 2026 both return
 > `404 — "no longer available to new users. Please update your code to use
@@ -103,6 +120,15 @@ skips whatever already exists, so a rerun takes seconds. Flags: `--rebuild-index
 
 ```bash
 .venv/bin/streamlit run src/dashboard/app.py
+```
+
+**The evaluation:**
+
+```bash
+.venv/bin/python -m src.eval.generate_scenarios      # held-out suite (seeded)
+.venv/bin/python -m src.eval.run_study               # ablation + baselines
+.venv/bin/python -m src.eval.constraint_agreement    # LLM agreement + RAG ablation
+.venv/bin/python -m pytest tests/                    # 43 offline tests
 ```
 
 **Individual steps**, if you want to see one in isolation:
@@ -178,13 +204,24 @@ Stated plainly, because these are the questions a reviewer should ask.
   imitates the *kind* of exclusions the LLM makes. **The real Gemini mask is used only at
   demo and inference time.** Do not describe the policy as "trained against
   LLM-generated constraints".
-- **The RL task is easy.** ~2–3 allowed actions per episode. The policy picks the optimal
-  allowed shelter 91.5% of the time with mean regret 0.0041 — this shows the wiring is
-  correct, not that the policy is sophisticated.
+- **RL is not justified on this task, and that is now measured.** The reward is fully
+  computable from the observation, so a one-line greedy argmax over the allowed set *is*
+  the oracle. On a held-out suite it scores **93%** against the trained policy's **73%** —
+  and a 5× longer training run gave no improvement (72%). The contextual-bandit framing
+  is scaffolding for the multi-step problem where greedy stops being optimal; it does not
+  win here. See [EVALUATION.md](EVALUATION.md) §2.
+- **Retrieval does not change the verdicts — it makes them evidenceable.** Measured by
+  ablation: removing the retrieved excerpts flipped **0 of 21** verdicts, but citations
+  verifiable verbatim fell from **21/21 to 0/21**. The RAG layer is doing *evidentiary*
+  work, not decision work. Do not describe it as driving the reasoning.
 - **Retrieval surfaces front matter.** A table-of-contents line and the abbreviations
   list occasionally appear among lower-ranked results. Top hits are substantive.
-- **One scenario.** Everything is demonstrated on a single hand-built case. There is no
-  test set, no baseline comparison, and no statistical claim of any kind.
+- **The evaluation suite is synthetic and small in places.** There is now a 60-scenario
+  held-out suite with baselines and an ablation ([EVALUATION.md](EVALUATION.md)), but the
+  LLM-agreement and retrieval-ablation results rest on **21 verdicts from 3 scenarios** —
+  the free tier allows only 20 requests *per day*. Directionally interesting, not
+  statistically strong.
+- **Nothing is validated against real evacuation outcomes.** Still the largest gap.
 - **The reward weights (0.65 capacity / 0.35 travel) are a modelling choice**, not a
   figure from any source or standard.
 - **No OCR.** If a source PDF were a scan rather than digital text, ingestion would warn
@@ -238,6 +275,9 @@ src/env/                        Gymnasium env, MaskablePPO training, evaluation
 src/dashboard/app.py            the Streamlit app
 models/                         trained policy checkpoint
 run_demo.py                     the whole pipeline, one command
+src/eval/                       held-out suite, baselines, ablation studies
+tests/                          43 offline invariant tests (pytest, run in CI)
+EVALUATION.md                   measured results, including the unflattering ones
 DOCUMENTATION.md                per-step build log: every addition, and why
 ```
 
