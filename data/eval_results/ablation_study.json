@@ -1,0 +1,2249 @@
+{
+  "_note": "Mask source is the DETERMINISTIC safety rule, not the LLM. These measure the architecture, not the LLM's accuracy.",
+  "n_scenarios": 60,
+  "suite_seed": 20260902,
+  "headline": {
+    "changed_choice": 18,
+    "unsafe_without_constraints": 19,
+    "unsafe_with_constraints": 4
+  },
+  "strategies": {
+    "random_allowed": {
+      "mean_reward": 0.47001706988861164,
+      "optimal_rate": 0.16666666666666666,
+      "unsafe_picks": 4,
+      "violation_kinds": {
+        "severe_flood_cell": 4,
+        "not_operational": 1,
+        "no_headroom": 1
+      }
+    },
+    "nearest_allowed": {
+      "mean_reward": 0.6506093795100848,
+      "optimal_rate": 0.43333333333333335,
+      "unsafe_picks": 4,
+      "violation_kinds": {
+        "severe_flood_cell": 3,
+        "not_operational": 2,
+        "no_headroom": 1
+      }
+    },
+    "max_capacity_allowed": {
+      "mean_reward": 0.7031266912817955,
+      "optimal_rate": 0.5666666666666667,
+      "unsafe_picks": 4,
+      "violation_kinds": {
+        "severe_flood_cell": 4,
+        "not_operational": 1
+      }
+    },
+    "greedy_reward_allowed (= oracle)": {
+      "mean_reward": 0.7579818064967792,
+      "optimal_rate": 0.9333333333333333,
+      "unsafe_picks": 4,
+      "violation_kinds": {
+        "severe_flood_cell": 4
+      }
+    },
+    "rl_policy_allowed": {
+      "mean_reward": 0.6481222043434779,
+      "optimal_rate": 0.45,
+      "unsafe_picks": 4,
+      "violation_kinds": {
+        "severe_flood_cell": 2,
+        "not_operational": 2,
+        "no_headroom": 1
+      }
+    },
+    "nearest_unconstrained": {
+      "mean_reward": 0.6639258821805318,
+      "optimal_rate": 0.3,
+      "unsafe_picks": 22,
+      "violation_kinds": {
+        "severe_flood_cell": 14,
+        "not_operational": 11,
+        "no_headroom": 4
+      }
+    },
+    "greedy_unconstrained": {
+      "mean_reward": 0.7986606811483701,
+      "optimal_rate": 0.6833333333333333,
+      "unsafe_picks": 19,
+      "violation_kinds": {
+        "severe_flood_cell": 14,
+        "not_operational": 7
+      }
+    },
+    "rl_policy_unconstrained": {
+      "mean_reward": 0.7124087736010551,
+      "optimal_rate": 0.36666666666666664,
+      "unsafe_picks": 19,
+      "violation_kinds": {
+        "severe_flood_cell": 12,
+        "not_operational": 10
+      }
+    }
+  },
+  "per_scenario": [
+    {
+      "scenario_id": "eval-000",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-001",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S3",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S7",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-002",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S2",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S2",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-003",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-004",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-005",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S4",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-006",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S2",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-007",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-008",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S2",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S2",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S2",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-009",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S7",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S7",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-010",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S6",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-011",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S1",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-012",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S6",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-013",
+      "regime": "all_safe",
+      "random_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-014",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-015",
+      "regime": "all_safe",
+      "random_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-016",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S4",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-017",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S1",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-018",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S2",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-019",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-020",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S3",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S6",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S2",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-021",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S7",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-022",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S5",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-023",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-024",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-025",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-026",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-027",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-028",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S3",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-029",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-030",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-031",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S2",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-032",
+      "regime": "all_safe",
+      "random_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-033",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-034",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-035",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-036",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S3",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-037",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-038",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-039",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-040",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-041",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-042",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-043",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-044",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-045",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-046",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S5",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S2",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-047",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-048",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S6",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-049",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S2",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S5",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-050",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-051",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-052",
+      "regime": "all_safe",
+      "random_allowed": {
+        "shelter": "S3",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-053",
+      "regime": "no_safe_shelter",
+      "random_allowed": {
+        "shelter": "S6",
+        "unsafe": true
+      },
+      "nearest_allowed": {
+        "shelter": "S5",
+        "unsafe": true
+      },
+      "max_capacity_allowed": {
+        "shelter": "S5",
+        "unsafe": true
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S5",
+        "unsafe": true
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": true
+      },
+      "nearest_unconstrained": {
+        "shelter": "S5",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S5",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-054",
+      "regime": "no_safe_shelter",
+      "random_allowed": {
+        "shelter": "S7",
+        "unsafe": true
+      },
+      "nearest_allowed": {
+        "shelter": "S7",
+        "unsafe": true
+      },
+      "max_capacity_allowed": {
+        "shelter": "S6",
+        "unsafe": true
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S6",
+        "unsafe": true
+      },
+      "rl_policy_allowed": {
+        "shelter": "S4",
+        "unsafe": true
+      },
+      "nearest_unconstrained": {
+        "shelter": "S7",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S6",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-055",
+      "regime": "no_safe_shelter",
+      "random_allowed": {
+        "shelter": "S3",
+        "unsafe": true
+      },
+      "nearest_allowed": {
+        "shelter": "S2",
+        "unsafe": true
+      },
+      "max_capacity_allowed": {
+        "shelter": "S4",
+        "unsafe": true
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S4",
+        "unsafe": true
+      },
+      "rl_policy_allowed": {
+        "shelter": "S4",
+        "unsafe": true
+      },
+      "nearest_unconstrained": {
+        "shelter": "S2",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-056",
+      "regime": "no_safe_shelter",
+      "random_allowed": {
+        "shelter": "S5",
+        "unsafe": true
+      },
+      "nearest_allowed": {
+        "shelter": "S3",
+        "unsafe": true
+      },
+      "max_capacity_allowed": {
+        "shelter": "S6",
+        "unsafe": true
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S7",
+        "unsafe": true
+      },
+      "rl_policy_allowed": {
+        "shelter": "S3",
+        "unsafe": true
+      },
+      "nearest_unconstrained": {
+        "shelter": "S3",
+        "unsafe": true
+      },
+      "greedy_unconstrained": {
+        "shelter": "S7",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S4",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-057",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": true
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S3",
+        "unsafe": true
+      }
+    },
+    {
+      "scenario_id": "eval-058",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S7",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    },
+    {
+      "scenario_id": "eval-059",
+      "regime": "mixed",
+      "random_allowed": {
+        "shelter": "S4",
+        "unsafe": false
+      },
+      "nearest_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "max_capacity_allowed": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "greedy_reward_allowed (= oracle)": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "rl_policy_allowed": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "nearest_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      },
+      "greedy_unconstrained": {
+        "shelter": "S6",
+        "unsafe": false
+      },
+      "rl_policy_unconstrained": {
+        "shelter": "S1",
+        "unsafe": false
+      }
+    }
+  ]
+}

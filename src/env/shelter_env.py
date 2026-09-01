@@ -97,9 +97,11 @@ class ShelterChoiceEnv(gym.Env):
         randomise: bool = True,
         constraint_payload: dict | None = None,
         seed: int | None = None,
+        scenario: dict | None = None,
     ):
+        """`scenario` defaults to data/scenario.json; pass a dict to evaluate another one."""
         super().__init__()
-        self.scenario = load_scenario()
+        self.scenario = scenario if scenario is not None else load_scenario()
         self.base_facts = shelter_facts(self.scenario)
         self.population = self.scenario["source"]["population_to_evacuate"]
         self.randomise = randomise
