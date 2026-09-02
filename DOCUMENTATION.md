@@ -35,7 +35,7 @@ Each step gets one section containing:
 | Real source documents | `data/raw_docs/` | **Built (Step 2)** — 1 real NDMA PDF, 168 pages |
 | Local RAG (embed + retrieve) | `src/rag/` | **Built (Step 2)** — 480 chunks in local Chroma |
 | Gemini constraint step | `src/constraints/` | **Built (Step 3)** — 7/7 verdicts, all citations verified |
-| Gymnasium env + training | `src/env/` | **Built (Step 4)** — MaskablePPO, 91.5% optimal |
+| Gymnasium env + training | `src/env/` | **Built (Step 4)** — MaskablePPO. Current measured figure is **73% optimal on the held-out suite** (`EVALUATION.md` §2); the 91.5% below is the superseded pre-retrain training-distribution number. |
 | Streamlit dashboard | `src/dashboard/` | **Built (Step 5)** — verified rendering in a real browser |
 | Trained checkpoints | `models/` | **Built (Step 4)** — `maskable_ppo_shelter.zip` |
 | End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
@@ -664,6 +664,13 @@ With only a handful of allowed actions per episode this is an **easy** problem. 
 optimal rate shows the wiring is correct; it is not evidence of a sophisticated policy.
 The training script prints this caveat itself so it cannot be quietly dropped.
 
+> **Superseded — read this before quoting any number in this section.** 91.5% was measured
+> on the *training* distribution, and by a policy that was later found to be broken (the
+> S6/S7 bug, in the post-demo section below). The current policy scores **73% optimal on
+> the held-out suite** against a greedy oracle's 93%, and on this demo scenario it now
+> recommends **S5** (0.650, regret 0.074), **not** the S4 with regret 0.0000 printed
+> above. See `EVALUATION.md` §2.
+
 ### Dependencies
 
 `gymnasium==1.3.0`, `stable-baselines3==2.9.0`, `sb3-contrib==2.9.0`.
@@ -730,7 +737,8 @@ shade alone.
 
 ### The constraint toggle
 
-Off → the real Gemini mask applies → **S4**. On → the mask is dropped and **the same
+Off → the real Gemini mask applies → **S4** (**since the post-demo retrain this is S5**,
+labelled `SUBOPTIMAL`; see below). On → the mask is dropped and **the same
 policy is re-run on an all-allowed mask** → **S1**, with an explanation that it is the
 closest shelter with room for everyone but sits in a severe-flood cell.
 
