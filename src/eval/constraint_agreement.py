@@ -25,6 +25,7 @@ Run:  .venv/bin/python -m src.eval.constraint_agreement            (uses cache)
 from __future__ import annotations
 
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -55,6 +56,44 @@ THROTTLE_SECONDS = 2.0
 DAILY_REQUEST_BUDGET = 20
 
 WIDTH = 88
+
+
+def _retry_delay_from(exc: Exception) -> float | None:
+    """Seconds Google says to wait, if the error carries a retryDelay."""
+    match = re.search(r"'retryDelay': '(\d+)s'", str(exc))
+    return float(match.group(1)) if match else None
+
+
+def call_with_quota_retry(fn, *, label: str, budget_seconds: float = 900.0):
+    """Run `fn`, waiting out 429s until the rolling quota frees a slot.
+
+    MEASURED BEHAVIOUR, 2026-09-02: the cap really is a fixed daily budget of 20
+    requests that resets at midnight Pacific -- NOT a rolling window whose slots free
+    individually. Waiting it out does not work: a 15-minute grind against an exhausted
+    budget freed zero slots, and the `retryDelay` the server returns (14s, then a flat
+    ~59s) is a generic backoff hint, not a prediction of when capacity returns.
+
+    So this retry is only worth anything for short-lived transient 429s. When the daily
+    budget is genuinely spent, the budget below expires and the caller stops cleanly with
+    everything cached -- resume after the next midnight Pacific.
+    """
+    waited = 0.0
+    while True:
+        try:
+            return fn()
+        except Exception as exc:  # noqa: BLE001 - inspect, then re-raise if not a quota error
+            if "RESOURCE_EXHAUSTED" not in str(exc) and "429" not in str(exc):
+                raise
+            delay = _retry_delay_from(exc)
+            if delay is None:
+                delay = 30.0
+            delay += 3.0  # small buffer so we do not race the window
+            if waited + delay > budget_seconds:
+                raise
+            print(f"    quota full on {label}; waiting {delay:.0f}s for a slot "
+                  f"({waited + delay:.0f}s/{budget_seconds:.0f}s used)")
+            time.sleep(delay)
+            waited += delay
 
 
 def load_cache() -> dict:
@@ -108,7 +147,9 @@ def main() -> int:
             # Each arm fails independently: a broken ablation must not discard a good
             # RAG result, and vice versa.
             try:
-                with_rag = generate_constraints(scenario, verbose=False)
+                with_rag = call_with_quota_retry(
+                    lambda: generate_constraints(scenario, verbose=False),
+                    label=f"{sid} with-rag")
                 time.sleep(THROTTLE_SECONDS)
             except ConstraintError as exc:
                 print(f"  {sid}: RAG arm FAILED — {str(exc)[:90]}")
@@ -120,7 +161,9 @@ def main() -> int:
                 quota_stop = True
                 break
             try:
-                without_rag = generate_without_retrieval(scenario)
+                without_rag = call_with_quota_retry(
+                    lambda: generate_without_retrieval(scenario),
+                    label=f"{sid} ablation")
                 time.sleep(THROTTLE_SECONDS)
             except ConstraintError as exc:
                 print(f"  {sid}: ablation arm FAILED — {str(exc)[:90]}")
