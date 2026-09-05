@@ -46,22 +46,39 @@ it, and "RL wins on average" is unlikely regardless of design.
 
 **Q3 — Is the tail structured or arbitrary?** Fit a small decision tree predicting
 "top-decile regret" from instance features (lag spread, stock tightness, severity
-crossover, bundle cost, population spread). **Report AUC.** Near 0.5 means the heuristic
-is losing to arbitrary tie-breaks rather than to missed planning — nothing for a policy
-to learn. Meaningfully above ~0.65 means there is exploitable structure, and the tree
-also tells us *which* structure.
+crossover, bundle cost, population spread), scored by cross-validated AUC.
 
-**Q4 — the decisive one — can a cheap planner close the gap?** Implement
-`lookahead_planner`: exhaustive search over the next *k* dispatches, greedy tail, k ∈
-{2,3}, plus a beam-search variant (width 3–5). This is ~40 lines and costs milliseconds.
+> **A raw AUC here is uninterpretable and must not be reported alone.** A tree on this
+> many features at this n will find *something*. The comparison that matters is against a
+> null: **refit the identical pipeline on shuffled labels**, 200 permutations, and report
+> the null AUC distribution (mean and 95th percentile) beside the real one. Real 0.72
+> against a shuffled 0.68 is nothing. The claim is the *separation*, not the number — and
+> having just watched `n=10` flip the strongest-heuristic identity on pure noise, this
+> guard is mandatory, not optional.
+
+**Q4 — the decisive one — can a cheap planner close the gap, and at what price?**
+Implement `lookahead_planner`: exhaustive search over the next *k* dispatches, greedy
+tail, k ∈ {2,3}, plus a beam-search variant (width 3–5). ~40 lines.
+
+> **Score alone is not the comparison — the planner and a policy do not face the same
+> clock.** A planner searching at decision time buys quality with latency; a trained
+> policy is a forward pass. "Ship the planner" is the right call for a paper and possibly
+> the wrong one for a system meant to re-plan as conditions change. So **record
+> per-decision wall-clock cost alongside the score**, for every policy, with v1's
+> `MaskablePPO.predict()` measured as the millisecond reference for what a learned policy
+> actually costs.
 
 ### Gate 1A.5 decision rule
 
 | Outcome | Action |
 | --- | --- |
-| `lookahead_planner` ≥ 95% normalised score | **STOP. Do not build.** Ship the planner. This is v1's finding again: the task is solvable without learning, and we would be re-running an experiment whose answer we already have. |
-| Tail unstructured (AUC < 0.6) **and** absolute headroom over `bundle_aware` < 5% of mean optimum | **STOP / redesign.** Nothing learnable and nothing worth learning. |
+| Planner ≥ 95% normalised score **at latency within ~10× of policy inference** | **STOP. Do not build.** Clean stop: the task is solvable without learning, at a cost a real system would happily pay. Ship the planner. |
+| Planner ≥ 95% **but at ≫100× the latency** | **Judgement, not a threshold.** The finding is "solvable, but not at re-planning speed", and the case for a learned policy becomes *latency*, not quality. Proceeding is then allowed only if that is stated as the entire justification — and it is a much weaker one than "RL plans better". |
+| Tail AUC **not separated from its shuffled null** *and* absolute headroom over `bundle_aware` < 5% of mean optimum | **STOP / redesign.** Nothing learnable and nothing worth learning. |
 | Planner leaves a real, structured gap | **Proceed to §3**, and the planner joins the permanent baseline set. |
+
+The stop rule is deliberately not a single number. Which of these four we land in gets
+stated explicitly in the write-up, rather than collapsed into "the gate passed".
 
 **This gate can genuinely fail, and failing it is the cheapest good outcome available** —
 it costs a day and saves the rebuild. Record the result in `DOCUMENTATION.md` either way,
@@ -165,13 +182,53 @@ model**, never merged into the Gemini numbers. Finishing `eval-009` on Gemini (2
 completes the intended 10 and costs almost nothing.
 
 **Q2 — Why are the 7 flips concentrated in 2 of 9 scenarios?** (5 in `eval-003`, 2 in
-`eval-004`.) Hypothesis: they sit on shelters near a decision boundary — severity just
-under 0.70, headroom just around demand. **Testable offline, today, from the existing
-cache**: score every one of the 63 shelters for marginality and check whether flips
-concentrate there. If they do, the claim sharpens from a vague "11.1% of verdicts move" to
-**"retrieval moves the verdict exactly where the call is close"** — which is both more
-useful and more defensible. If they do not, the 11.1% stands as unexplained variance and
-should be reported as such.
+`eval-004`.) Hypothesis: they sit on shelters near a decision boundary. Testable offline
+from the existing cache — but "marginality" is a construct I am free to define, so if it
+is defined after seeing which seven flipped, the sharpened claim is unfalsifiable. It is
+therefore **pre-registered below, and this section is committed before the analysis is
+run.** The commit order is the evidence.
+
+#### Pre-registered definition (fixed; not to be revised after seeing results)
+
+The deterministic safety rule turns on: `severity ≥ 0.70`, `headroom < 1`, and
+`status != operational`. For each shelter, with `P` = the scenario's
+`population_to_evacuate`, define three normalised distances to a decision boundary:
+
+```
+d_sev   = |flood_severity − 0.70| / 0.70          distance to the severity threshold
+d_cap0  = |capacity_headroom − 1| / max(P, 1)     distance to the zero-headroom boundary
+d_capP  = |capacity_headroom − P| / max(P, 1)     distance to "only just fits everyone"
+
+margin  = min(d_sev, d_cap0, d_capP)
+marginal := margin ≤ 0.15
+```
+
+A shelter whose `status != operational` is assigned `margin = 1.0` — "closed" is
+unambiguous; there is no nearly-open. Marginality uses **only scenario facts**: no
+verdict, no flip label, no model output enters it.
+
+#### Pre-registered tests
+
+- **T1, thresholded:** Fisher's exact test (one-sided) on the 2×2 of
+  `marginal × flipped`. Report odds ratio and *p*.
+- **T2, threshold-free:** Mann–Whitney *U* (one-sided) on `margin` for flipped versus
+  unflipped shelters, so the result does not hinge on the 0.15 cutoff. Report medians.
+- **Decision:** the sharpened claim — *"retrieval moves the verdict exactly where the call
+  is close"* — may be made **only if T1 and T2 agree in direction and T2 gives p < 0.05**.
+  Otherwise the 11.1% is reported as unexplained variance, which is the honest default.
+- **Power, stated in advance:** there are **7 flip events**. This test can support a
+  positive finding weakly; it cannot establish absence. A null result will be reported as
+  "underpowered, no evidence either way" and never as "position on the boundary does not
+  matter".
+
+#### Disclosure — what I already knew before pre-registering
+
+Full blindness is not available and claiming it would be worse than admitting it. Already
+known: the flips are 5 in `eval-003` and 2 in `eval-004`; all 7 are on shelters the safety
+rule calls **safe**; 5 are `allowed → excluded` and 2 the reverse. **Not** known: which
+specific shelter ids flipped, or their severity and headroom values. The definition above
+was written from the safety rule's own thresholds, not from inspecting the flipped rows,
+but this test is weaker than a truly blind one and is reported as such.
 
 ---
 
