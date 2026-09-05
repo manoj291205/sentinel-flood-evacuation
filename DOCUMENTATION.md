@@ -1036,3 +1036,130 @@ of supporting quote is not.
 See `git log` for *Resume the LLM study at n=63*.
 
 ---
+
+## 2026-09-05 — Phase 0 and Gate 1A (`EXPANSION_PLAN.md`)
+
+**Goal.** Preserve v1, then answer the one question that decides whether Phase 1 is worth
+building: **would a multi-resource allocation task actually be harder than greedy?** v1's
+central negative finding is that its reward is a closed-form function of one observation,
+so greedy-argmax *is* the oracle and RL cannot win. Adding resources does not
+automatically fix that.
+
+### Phase 0 — preserve the working demo
+
+| Path | Purpose |
+| --- | --- |
+| tag `v1-capstone-demo` | The evaluated single-decision system. Verified at tag: `run_demo.py` exit 0 (recommends S5, unconstrained S1), 43 tests pass. |
+| branch `v2-resources` | All expansion work. `main` is untouched. |
+| `EVALUATION_V1.md` | Frozen copy of the v1 evaluation, with a banner stating that v2 numbers measure a different task, reward and oracle and **must not** be shown side by side with these. |
+
+### Gate 1A — the decision experiment
+
+| Path | Purpose |
+| --- | --- |
+| `scripts/greedy_check.py` | Throwaway. Not part of the package, imported by nothing. Builds tiny allocation instances, solves them **exhaustively**, and measures how often hand-written heuristics hit the true optimum. |
+| `data/eval_results/gate1a_*.json` | Results, with the generation distribution declared inside each file. |
+
+The proposed task carries all three non-separability sources: **complementarity** (a
+shelter protects nobody until it holds a minimum bundle of *every* resource, so the first
+delivery is worth exactly zero), **contention** (one finite depot), and
+**time-dependence** (scripted severity paths, reward accruing per timestep).
+
+**A deliberate departure from the plan's method.** `EXPANSION_PLAN.md` §1.2 names
+`myopic_greedy` as the comparison. Measured against only that, the gate passes easily —
+and would have green-lit a rebuild that a 20-line heuristic beats. So four heuristics were
+written, including `bundle_aware`, which sees complementarity, the horizon and (in variant
+B) transit time, and **the gate is decided on the strongest of them**. A gate decided
+against a strawman is worse than no gate.
+
+### Result 1 — the plan's proposed design fails the gate
+
+At the prescribed size (3 cells, 2 resources, 3 timesteps):
+
+| policy | optimal | mean gap | median gap |
+| --- | --- | --- | --- |
+| `random_allowed` | 8.5% | 638.6% | 162.1% |
+| `myopic_pure` | 33.0% | 141.2% | 91.4% |
+| `myopic_tiebreak` | 62.0% | 432.1% | 0.0% |
+| **`bundle_aware`** | **100.0%** | **0.0%** | **0.0%** |
+
+**200 of 200 instances solved exactly by a hand-written heuristic.** By the plan's own
+threshold table (>95% → *stop, strengthen the design*), Phase 1 as specified would have
+reproduced v1's finding for far more work.
+
+### Result 2 — but the verdict was an artifact of instance size
+
+Brute force forces tiny instances, and at 3 timesteps with one delivery per step only a
+single bundle can ever be completed, so "pick the best completable bundle" is trivially
+optimal. Re-running the same design at larger horizons:
+
+| size | 3×3 | 3×4 | 3×5 | 4×5 | 4×6 |
+| --- | --- | --- | --- | --- | --- |
+| `bundle_aware` optimal | 100.0% | 99.5% | 98.0% | 95.0% | 91.7% |
+
+It degrades, but slowly — even at 4×6 the heuristic is 91.7% optimal with a 0.4% mean
+gap. **That is less headroom than v1 already had** (greedy 93% vs the policy's 73%), so
+building Phase 1 on this design would have been a poor bet.
+
+### Result 3 — one design change fixes it
+
+Per §1.1's instruction to strengthen the design, **variant B adds per-cell delivery lag**:
+a dispatch to cell *c* arrives `lag[c]` timesteps later, so goods sit in transit and the
+depot can supply another cell meanwhile. This is physical — it is travel time, which v1
+already models — and it creates scheduling structure that per-bundle greedy cannot see.
+
+| size | 3×3 | 3×4 | 3×5 | 4×5 | 4×6 |
+| --- | --- | --- | --- | --- | --- |
+| A — no lag | 100.0% | 99.5% | 98.0% | 95.0% | 91.7% |
+| **B — delivery lag** | 100.0% | 97.0% | **79.3%** | **61.0%** | **48.3%** |
+
+Full table for variant B at 4×6 (60 instances, 5.77 M leaves brute-forced):
+
+| policy | optimal | mean gap | median gap | p90 gap |
+| --- | --- | --- | --- | --- |
+| `random_allowed` | 0.0% | 1224.9% | 201.3% | 2009.3% |
+| `myopic_pure` | 6.7% | 839.2% | 186.0% | 1217.7% |
+| `myopic_tiebreak` | 40.0% | 172.2% | 16.5% | 435.3% |
+| **`bundle_aware`** | **48.3%** | 71.2% | **1.1%** | 56.4% |
+
+### The honest reading of that 48.3%
+
+**Do not report it as "the heuristic fails half the time."** Its **median gap is 1.1%** —
+on most instances it is near-optimal and simply misses ties. The headroom is in the tail:
+p90 gap 56.4%, and a handful of instances where it is catastrophically wrong. So the
+finding is *"a good heuristic is usually nearly right and occasionally very wrong"*, which
+is a reasonable place for a learned policy to add value, but **not** a promise that RL will
+win. v1's lesson stands: this is a hypothesis to be measured at Gate 1B, not a result.
+
+### Verdict
+
+- **Do not build variant A.** It is greedy-solvable, exactly like v1.
+- **Build variant B**, with delivery lag, and size instances at **≥4 cells × ≥5–6
+  timesteps**. Below that the task cannot discriminate between planning and greed.
+- The 3×3 size prescribed in `EXPANSION_PLAN.md` §1.2 is **too small to run this gate on**.
+  Had the gate been run only at that size, as written, it would have returned a confident
+  and misleading STOP.
+
+### How it was verified
+
+Exhaustiveness is asserted, not assumed: every instance's search tree is independently
+recounted and the counts must match; the best plan is re-scored and must reproduce its own
+value; and no heuristic may exceed the brute-force optimum on any instance (the plan's own
+§1.8 invariant). 5.77 M leaves at 4×6. Disabling lag reproduced the pre-refactor numbers
+**exactly**, confirming the transit rewrite changed nothing else.
+
+One bug found and fixed in the harness itself: the declared generation distribution was
+snapshotted at import from the default config, so a `--size` run would have written a
+distribution block describing a different experiment than the one it ran.
+
+### Real vs. simplified
+
+Everything in this experiment is **fictional** — populations, severities, demands, stock
+and lags are invented, as in v1. Nothing here is real data, and no claim about the world
+is made. The measurements of heuristic-versus-optimum are real.
+
+### Commit
+
+See `git log` on branch `v2-resources`.
+
+---

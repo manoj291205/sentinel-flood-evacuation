@@ -1,0 +1,663 @@
+{
+  "_note": "Gate 1A decision experiment for EXPANSION_PLAN.md Phase 1. Fictional instances. The gate is decided on the STRONGEST heuristic, not the myopic one, so that a weak baseline cannot green-light the rebuild.",
+  "distribution": {
+    "n_instances": 60,
+    "seed": 20260905,
+    "cells": 4,
+    "timesteps": 6,
+    "resources": [
+      "water",
+      "medical"
+    ],
+    "population_per_cell": "randint(50, 400) rounded to 10",
+    "need_water_per_cell": "randint(1, 2) units",
+    "need_medical_per_cell": "1 unit",
+    "severity_t0": "uniform(0.05, 0.95)",
+    "severity_path": "per cell, one of rise/fall/flat; step = uniform(0.10, 0.30), clipped to [0,1]",
+    "depot_stock_water": "randint(1, 3) units",
+    "depot_stock_medical": "randint(1, 2) units",
+    "deliveries_per_timestep": 1,
+    "delivery_lag_per_cell": "randint(0, 2) timesteps (variant B)",
+    "note": "Stock is deliberately scarce relative to total demand, so the instances contain genuine contention. All values are FICTIONAL, invented for this experiment."
+  },
+  "results": [
+    {
+      "policy": "random_allowed",
+      "optimal_pct": 0.0,
+      "mean_gap_pct": 1224.9186546822448,
+      "median_gap_pct": 201.32308627447898,
+      "p90_gap_pct": 2009.2543471853805,
+      "max_gap_pct": 29451.395572666628
+    },
+    {
+      "policy": "myopic_pure",
+      "optimal_pct": 6.666666666666667,
+      "mean_gap_pct": 839.1710808361713,
+      "median_gap_pct": 186.0363625193008,
+      "p90_gap_pct": 1217.665615141954,
+      "max_gap_pct": 20506.448508181362
+    },
+    {
+      "policy": "myopic_tiebreak",
+      "optimal_pct": 40.0,
+      "mean_gap_pct": 172.18697690351718,
+      "median_gap_pct": 16.49136545972471,
+      "p90_gap_pct": 435.31911348108633,
+      "max_gap_pct": 2973.094170403581
+    },
+    {
+      "policy": "bundle_aware",
+      "optimal_pct": 48.333333333333336,
+      "mean_gap_pct": 71.22053813281909,
+      "median_gap_pct": 1.0804529163812437,
+      "p90_gap_pct": 56.40304968663179,
+      "max_gap_pct": 2137.60603204523
+    }
+  ],
+  "strongest_heuristic": "bundle_aware",
+  "verdict": "IDEAL -- proceed to Phase 1",
+  "degenerate_instances": 0,
+  "total_brute_force_leaves": 5774250,
+  "instances": [
+    {
+      "optimum": 0.1067,
+      "scores": {
+        "random_allowed": -0.4434,
+        "myopic_pure": -0.4231,
+        "myopic_tiebreak": -0.4434,
+        "bundle_aware": 0.0966
+      },
+      "leaves": 132274
+    },
+    {
+      "optimum": 1.3575,
+      "scores": {
+        "random_allowed": -1.4476,
+        "myopic_pure": -1.2076,
+        "myopic_tiebreak": 1.3575,
+        "bundle_aware": 1.2225
+      },
+      "leaves": 150409
+    },
+    {
+      "optimum": 0.7412,
+      "scores": {
+        "random_allowed": -0.6374,
+        "myopic_pure": 0.7412,
+        "myopic_tiebreak": 0.7412,
+        "bundle_aware": 0.7412
+      },
+      "leaves": 155989
+    },
+    {
+      "optimum": 0.2885,
+      "scores": {
+        "random_allowed": -0.2689,
+        "myopic_pure": -0.2321,
+        "myopic_tiebreak": -0.0289,
+        "bundle_aware": 0.2426
+      },
+      "leaves": 72184
+    },
+    {
+      "optimum": 1.1011,
+      "scores": {
+        "random_allowed": -0.3801,
+        "myopic_pure": -0.3067,
+        "myopic_tiebreak": 1.1011,
+        "bundle_aware": 1.089
+      },
+      "leaves": 22279
+    },
+    {
+      "optimum": 1.0812,
+      "scores": {
+        "random_allowed": -0.3429,
+        "myopic_pure": -0.3429,
+        "myopic_tiebreak": 0.8351,
+        "bundle_aware": 0.6858
+      },
+      "leaves": 120904
+    },
+    {
+      "optimum": 0.3677,
+      "scores": {
+        "random_allowed": -0.0475,
+        "myopic_pure": 0.3677,
+        "myopic_tiebreak": 0.353,
+        "bundle_aware": 0.3677
+      },
+      "leaves": 193234
+    },
+    {
+      "optimum": 0.6366,
+      "scores": {
+        "random_allowed": -1.1634,
+        "myopic_pure": -1.1634,
+        "myopic_tiebreak": 0.6366,
+        "bundle_aware": 0.6366
+      },
+      "leaves": 122704
+    },
+    {
+      "optimum": 0.5418,
+      "scores": {
+        "random_allowed": 0.2792,
+        "myopic_pure": -0.2032,
+        "myopic_tiebreak": 0.1091,
+        "bundle_aware": 0.5015
+      },
+      "leaves": 53824
+    },
+    {
+      "optimum": 0.6191,
+      "scores": {
+        "random_allowed": -1.3009,
+        "myopic_pure": -1.1701,
+        "myopic_tiebreak": 0.6191,
+        "bundle_aware": 0.2699
+      },
+      "leaves": 132274
+    },
+    {
+      "optimum": 0.5239,
+      "scores": {
+        "random_allowed": 0.0575,
+        "myopic_pure": 0.4617,
+        "myopic_tiebreak": 0.4393,
+        "bundle_aware": 0.4617
+      },
+      "leaves": 93289
+    },
+    {
+      "optimum": 1.0395,
+      "scores": {
+        "random_allowed": -0.101,
+        "myopic_pure": 0.023,
+        "myopic_tiebreak": 0.9466,
+        "bundle_aware": 0.931
+      },
+      "leaves": 72184
+    },
+    {
+      "optimum": 1.619,
+      "scores": {
+        "random_allowed": -0.1404,
+        "myopic_pure": -0.4489,
+        "myopic_tiebreak": 1.619,
+        "bundle_aware": 1.5429
+      },
+      "leaves": 20944
+    },
+    {
+      "optimum": 0.1737,
+      "scores": {
+        "random_allowed": -0.6363,
+        "myopic_pure": -0.6363,
+        "myopic_tiebreak": -0.2313,
+        "bundle_aware": 0.1737
+      },
+      "leaves": 132274
+    },
+    {
+      "optimum": 0.4517,
+      "scores": {
+        "random_allowed": -1.0813,
+        "myopic_pure": -1.0813,
+        "myopic_tiebreak": 0.1337,
+        "bundle_aware": 0.1337
+      },
+      "leaves": 132274
+    },
+    {
+      "optimum": 0.7127,
+      "scores": {
+        "random_allowed": 0.1454,
+        "myopic_pure": -0.5923,
+        "myopic_tiebreak": 0.7127,
+        "bundle_aware": 0.3768
+      },
+      "leaves": 73984
+    },
+    {
+      "optimum": 0.5517,
+      "scores": {
+        "random_allowed": -0.0383,
+        "myopic_pure": -0.9136,
+        "myopic_tiebreak": 0.4588,
+        "bundle_aware": 0.4788
+      },
+      "leaves": 53824
+    },
+    {
+      "optimum": 0.617,
+      "scores": {
+        "random_allowed": -1.0016,
+        "myopic_pure": 0.4235,
+        "myopic_tiebreak": 0.1384,
+        "bundle_aware": 0.617
+      },
+      "leaves": 20944
+    },
+    {
+      "optimum": 0.0404,
+      "scores": {
+        "random_allowed": -0.9578,
+        "myopic_pure": -0.9578,
+        "myopic_tiebreak": -0.816,
+        "bundle_aware": -0.2523
+      },
+      "leaves": 155989
+    },
+    {
+      "optimum": 0.4893,
+      "scores": {
+        "random_allowed": -0.9786,
+        "myopic_pure": 0.4893,
+        "myopic_tiebreak": 0.4893,
+        "bundle_aware": 0.4893
+      },
+      "leaves": 56959
+    },
+    {
+      "optimum": -0.0917,
+      "scores": {
+        "random_allowed": -0.3536,
+        "myopic_pure": -0.3536,
+        "myopic_tiebreak": -0.3536,
+        "bundle_aware": -0.0917
+      },
+      "leaves": 23614
+    },
+    {
+      "optimum": 1.1104,
+      "scores": {
+        "random_allowed": -0.453,
+        "myopic_pure": 1.0526,
+        "myopic_tiebreak": 1.1104,
+        "bundle_aware": 1.1104
+      },
+      "leaves": 101149
+    },
+    {
+      "optimum": 0.2509,
+      "scores": {
+        "random_allowed": 0.0334,
+        "myopic_pure": 0.0218,
+        "myopic_tiebreak": 0.24,
+        "bundle_aware": 0.24
+      },
+      "leaves": 234529
+    },
+    {
+      "optimum": -0.4456,
+      "scores": {
+        "random_allowed": -0.9556,
+        "myopic_pure": -0.5956,
+        "myopic_tiebreak": -0.4456,
+        "bundle_aware": -0.4456
+      },
+      "leaves": 23614
+    },
+    {
+      "optimum": 0.0476,
+      "scores": {
+        "random_allowed": -0.5314,
+        "myopic_pure": -0.5314,
+        "myopic_tiebreak": 0.0476,
+        "bundle_aware": 0.0086
+      },
+      "leaves": 148009
+    },
+    {
+      "optimum": -0.1018,
+      "scores": {
+        "random_allowed": -2.147,
+        "myopic_pure": -0.6017,
+        "myopic_tiebreak": -0.9069,
+        "bundle_aware": -0.6666
+      },
+      "leaves": 53824
+    },
+    {
+      "optimum": 0.7011,
+      "scores": {
+        "random_allowed": -0.8589,
+        "myopic_pure": -1.9425,
+        "myopic_tiebreak": 0.7011,
+        "bundle_aware": 0.3693
+      },
+      "leaves": 73984
+    },
+    {
+      "optimum": 1.8931,
+      "scores": {
+        "random_allowed": -0.6903,
+        "myopic_pure": 1.0352,
+        "myopic_tiebreak": 0.6326,
+        "bundle_aware": 1.873
+      },
+      "leaves": 50689
+    },
+    {
+      "optimum": 0.4317,
+      "scores": {
+        "random_allowed": -1.3635,
+        "myopic_pure": -0.6579,
+        "myopic_tiebreak": 0.0417,
+        "bundle_aware": 0.4317
+      },
+      "leaves": 193234
+    },
+    {
+      "optimum": 0.7241,
+      "scores": {
+        "random_allowed": 0.0214,
+        "myopic_pure": -1.3731,
+        "myopic_tiebreak": -0.3476,
+        "bundle_aware": 0.3641
+      },
+      "leaves": 73984
+    },
+    {
+      "optimum": 0.5395,
+      "scores": {
+        "random_allowed": -0.1176,
+        "myopic_pure": 0.3231,
+        "myopic_tiebreak": 0.3019,
+        "bundle_aware": 0.4674
+      },
+      "leaves": 73984
+    },
+    {
+      "optimum": 1.3296,
+      "scores": {
+        "random_allowed": -2.165,
+        "myopic_pure": 1.2194,
+        "myopic_tiebreak": 0.235,
+        "bundle_aware": 1.2194
+      },
+      "leaves": 122704
+    },
+    {
+      "optimum": 0.0052,
+      "scores": {
+        "random_allowed": -1.5248,
+        "myopic_pure": -1.0601,
+        "myopic_tiebreak": 0.0052,
+        "bundle_aware": 0.0052
+      },
+      "leaves": 53824
+    },
+    {
+      "optimum": -0.0265,
+      "scores": {
+        "random_allowed": -2.3214,
+        "myopic_pure": -1.7544,
+        "myopic_tiebreak": -0.2441,
+        "bundle_aware": -0.5935
+      },
+      "leaves": 50689
+    },
+    {
+      "optimum": 0.7719,
+      "scores": {
+        "random_allowed": -0.7203,
+        "myopic_pure": -0.7203,
+        "myopic_tiebreak": 0.2997,
+        "bundle_aware": 0.7719
+      },
+      "leaves": 101149
+    },
+    {
+      "optimum": 0.569,
+      "scores": {
+        "random_allowed": -0.468,
+        "myopic_pure": 0.3297,
+        "myopic_tiebreak": 0.2013,
+        "bundle_aware": 0.5353
+      },
+      "leaves": 50689
+    },
+    {
+      "optimum": 0.0202,
+      "scores": {
+        "random_allowed": -1.2347,
+        "myopic_pure": 0.0187,
+        "myopic_tiebreak": 0.0187,
+        "bundle_aware": 0.0187
+      },
+      "leaves": 56959
+    },
+    {
+      "optimum": 0.1906,
+      "scores": {
+        "random_allowed": -0.9776,
+        "myopic_pure": -0.9776,
+        "myopic_tiebreak": 0.1624,
+        "bundle_aware": 0.1624
+      },
+      "leaves": 101149
+    },
+    {
+      "optimum": 0.0134,
+      "scores": {
+        "random_allowed": -0.3844,
+        "myopic_pure": -0.3844,
+        "myopic_tiebreak": -0.3844,
+        "bundle_aware": -0.019
+      },
+      "leaves": 95569
+    },
+    {
+      "optimum": 0.509,
+      "scores": {
+        "random_allowed": -1.126,
+        "myopic_pure": -0.73,
+        "myopic_tiebreak": 0.404,
+        "bundle_aware": 0.404
+      },
+      "leaves": 150409
+    },
+    {
+      "optimum": -0.0382,
+      "scores": {
+        "random_allowed": -0.7063,
+        "myopic_pure": -0.5425,
+        "myopic_tiebreak": -0.0382,
+        "bundle_aware": -0.0382
+      },
+      "leaves": 53824
+    },
+    {
+      "optimum": 0.0957,
+      "scores": {
+        "random_allowed": -0.8943,
+        "myopic_pure": -0.8943,
+        "myopic_tiebreak": -0.3993,
+        "bundle_aware": 0.0957
+      },
+      "leaves": 150409
+    },
+    {
+      "optimum": 0.1365,
+      "scores": {
+        "random_allowed": 0.0,
+        "myopic_pure": 0.0,
+        "myopic_tiebreak": 0.1365,
+        "bundle_aware": 0.1365
+      },
+      "leaves": 155989
+    },
+    {
+      "optimum": 0.1847,
+      "scores": {
+        "random_allowed": -1.4273,
+        "myopic_pure": -0.7808,
+        "myopic_tiebreak": 0.1847,
+        "bundle_aware": 0.1847
+      },
+      "leaves": 22279
+    },
+    {
+      "optimum": 0.4415,
+      "scores": {
+        "random_allowed": -1.5307,
+        "myopic_pure": -1.454,
+        "myopic_tiebreak": -0.3307,
+        "bundle_aware": 0.4415
+      },
+      "leaves": 22279
+    },
+    {
+      "optimum": 0.5744,
+      "scores": {
+        "random_allowed": -0.0462,
+        "myopic_pure": -0.0982,
+        "myopic_tiebreak": 0.471,
+        "bundle_aware": 0.4386
+      },
+      "leaves": 93289
+    },
+    {
+      "optimum": 0.5966,
+      "scores": {
+        "random_allowed": 0.0,
+        "myopic_pure": 0.5966,
+        "myopic_tiebreak": 0.5966,
+        "bundle_aware": 0.5966
+      },
+      "leaves": 234529
+    },
+    {
+      "optimum": 0.9996,
+      "scores": {
+        "random_allowed": 0.0,
+        "myopic_pure": 0.3819,
+        "myopic_tiebreak": 0.9996,
+        "bundle_aware": 0.9996
+      },
+      "leaves": 181804
+    },
+    {
+      "optimum": 0.1169,
+      "scores": {
+        "random_allowed": -0.707,
+        "myopic_pure": -0.707,
+        "myopic_tiebreak": 0.1169,
+        "bundle_aware": 0.1169
+      },
+      "leaves": 120844
+    },
+    {
+      "optimum": 0.0175,
+      "scores": {
+        "random_allowed": -1.0217,
+        "myopic_pure": -0.638,
+        "myopic_tiebreak": 0.0175,
+        "bundle_aware": 0.0175
+      },
+      "leaves": 56959
+    },
+    {
+      "optimum": -0.3601,
+      "scores": {
+        "random_allowed": -1.8413,
+        "myopic_pure": -1.9275,
+        "myopic_tiebreak": -1.9275,
+        "bundle_aware": -0.4463
+      },
+      "leaves": 120844
+    },
+    {
+      "optimum": 0.8754,
+      "scores": {
+        "random_allowed": -0.8405,
+        "myopic_pure": 0.2773,
+        "myopic_tiebreak": 0.8754,
+        "bundle_aware": 0.8754
+      },
+      "leaves": 120904
+    },
+    {
+      "optimum": 0.5315,
+      "scores": {
+        "random_allowed": -0.13,
+        "myopic_pure": -0.13,
+        "myopic_tiebreak": -0.13,
+        "bundle_aware": 0.5315
+      },
+      "leaves": 53824
+    },
+    {
+      "optimum": 1.2577,
+      "scores": {
+        "random_allowed": -1.035,
+        "myopic_pure": -0.1924,
+        "myopic_tiebreak": 1.2577,
+        "bundle_aware": 1.2577
+      },
+      "leaves": 120844
+    },
+    {
+      "optimum": 0.2285,
+      "scores": {
+        "random_allowed": 0.0823,
+        "myopic_pure": -1.0882,
+        "myopic_tiebreak": 0.113,
+        "bundle_aware": 0.2285
+      },
+      "leaves": 122704
+    },
+    {
+      "optimum": 0.5512,
+      "scores": {
+        "random_allowed": -0.1723,
+        "myopic_pure": 0.0008,
+        "myopic_tiebreak": -0.1723,
+        "bundle_aware": 0.5512
+      },
+      "leaves": 63229
+    },
+    {
+      "optimum": 0.5831,
+      "scores": {
+        "random_allowed": -0.3731,
+        "myopic_pure": -0.2719,
+        "myopic_tiebreak": 0.1969,
+        "bundle_aware": 0.4819
+      },
+      "leaves": 20944
+    },
+    {
+      "optimum": 0.4466,
+      "scores": {
+        "random_allowed": -0.9034,
+        "myopic_pure": -0.5617,
+        "myopic_tiebreak": 0.4466,
+        "bundle_aware": 0.4466
+      },
+      "leaves": 63229
+    },
+    {
+      "optimum": 0.3586,
+      "scores": {
+        "random_allowed": -1.1714,
+        "myopic_pure": -1.1714,
+        "myopic_tiebreak": 0.3586,
+        "bundle_aware": 0.3586
+      },
+      "leaves": 120844
+    },
+    {
+      "optimum": 0.6494,
+      "scores": {
+        "random_allowed": -0.4548,
+        "myopic_pure": 0.4425,
+        "myopic_tiebreak": 0.2306,
+        "bundle_aware": 0.6494
+      },
+      "leaves": 72184
+    }
+  ]
+}

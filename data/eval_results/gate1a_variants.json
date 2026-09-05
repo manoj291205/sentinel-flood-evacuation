@@ -1,0 +1,48 @@
+{
+  "_note": "Gate 1A: design variant comparison. Fictional instances.",
+  "variant_A": "complementarity + contention + time-dependence",
+  "variant_B": "variant A plus per-cell delivery lag (transit time)",
+  "rows": [
+    {
+      "size": "3x3",
+      "n": 200,
+      "A": 100.0,
+      "A_gap": 0.0,
+      "B": 100.0,
+      "B_gap": 0.0
+    },
+    {
+      "size": "3x4",
+      "n": 200,
+      "A": 99.5,
+      "A_gap": 0.05019640852974182,
+      "B": 97.0,
+      "B_gap": 1.323702158031244
+    },
+    {
+      "size": "3x5",
+      "n": 150,
+      "A": 98.0,
+      "A_gap": 0.3450205333309142,
+      "B": 79.33333333333333,
+      "B_gap": 12.149051822576709
+    },
+    {
+      "size": "4x5",
+      "n": 100,
+      "A": 95.0,
+      "A_gap": 0.38786762346904446,
+      "B": 61.0,
+      "B_gap": 12.290959311778312
+    },
+    {
+      "size": "4x6",
+      "n": 60,
+      "A": 91.66666666666667,
+      "A_gap": 0.3951456521907418,
+      "B": 48.333333333333336,
+      "B_gap": 71.22053813281909
+    }
+  ],
+  "verdict_variant_B": "IDEAL -- proceed"
+}
