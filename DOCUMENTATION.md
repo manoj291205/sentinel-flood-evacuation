@@ -1163,3 +1163,121 @@ is made. The measurements of heuristic-versus-optimum are real.
 See `git log` on branch `v2-resources`.
 
 ---
+
+## 2026-09-05 (later) — Gate 1A.5 stops Phase 1, and the metric decision is why
+
+**Goal.** Before building anything from `PHASE1_PLAN.md` §3, characterise the tail that
+Gate 1A's headline rested on. Gate 1A cleared variant B because `bundle_aware` scored
+**48.3% optimal** at 4×6 — but with a **median gap of 1.1%**, which is the signature of a
+statistic that is not measuring what it appears to.
+
+### Added
+
+| Path | Purpose |
+| --- | --- |
+| `scripts/tail_check.py` | Generates 200 instances at 4×6 with lag, brute-forces each, and runs six policies **with per-decision wall-clock timing**. |
+| `scripts/tail_analysis.py` | The four Q's, including Q3's shuffled-label null and Q4's latency comparison. |
+| `scripts/retrieval_q2.py` | The pre-registered marginality test (§4 below). |
+| `data/eval_results/gate1a5_*.json`, `retrieval_q2_marginality.json` | Results. |
+
+Three method fixes were **pre-registered and committed at `213cb3b`, before any of these
+scripts were written**. That commit order is the evidence, and for the retrieval test it
+is the whole point.
+
+### Q1 — the headroom was largely a denominator artifact
+
+| policy | % optimal | ratio-gap mean | **normalised score (median)** | norm p10 |
+| --- | --- | --- | --- | --- |
+| `random_allowed` | 0.5% | 641.7% | 0.000 | 0.000 |
+| `myopic_tiebreak` | 38.5% | 135.6% | 0.905 | 0.045 |
+| `bundle_aware` | 48.5% | 49.7% | **0.992** | 0.772 |
+
+**`bundle_aware` was already capturing 99.2% of the achievable headroom.** The "48.3%
+optimal" that cleared Gate 1A counted a 0.1% miss identically to a 2000% miss. Under the
+metric declared in `PHASE1_PLAN.md` §2 — *declared before these numbers existed* — the
+gate that produced the plan would not have passed as written.
+
+### Q2 — the improvement is concentrated, but small
+
+46.4% of all remaining regret sits in the worst 10% of instances (28.1% in the worst 5%),
+and mean regret is 17.3% of the mean optimum. Concentrated, and above the 5% floor — so
+on this evidence alone there was still something to chase.
+
+### Q3 — structure exists, but barely clears its null
+
+| | AUC |
+| --- | --- |
+| real (5-fold CV, top-decile regret) | 0.624 |
+| shuffled-label null, mean | 0.496 |
+| shuffled-label null, 95th percentile | 0.612 |
+| permutation *p* | 0.025 |
+
+Separated from the null, but by 0.012 of AUC. **Reported as weak.** Without the null this
+would have been written up as "AUC 0.62, the tail is structured", which would have been an
+overstatement — the guard earned its keep on the first use.
+
+### Q4 — the decisive one: a 40-line planner closes it, at affordable latency
+
+| policy | normalised score (median) | % optimal | ms/decision | × vs policy |
+| --- | --- | --- | --- | --- |
+| `bundle_aware` | 0.992 | 48.5% | 0.012 | 0× |
+| **`lookahead_k2`** | **1.000** | 89.5% | **1.641** | **13×** |
+| `lookahead_k3` | 1.000 | 92.5% | 8.353 | 67× |
+| `beam_w5` | 0.379 | 13.5% | 0.210 | 2× |
+
+Reference: v1's `MaskablePPO.predict()` measured at **0.124 ms/decision**.
+
+**A 2-step lookahead planner scores a median normalised 1.000 with a p10 of 0.991** — even
+its bottom decile captures 99.1% of achievable headroom. There is no tail left for a
+learned policy to win.
+
+### The verdict, and a correction to my own stop rule
+
+The pre-registered rule said *≥95% at ≤10× latency is a clean stop; at ≫100× it is a
+judgement call*. The measurement landed at **13×**, and the script therefore printed
+"JUDGEMENT". **On inspection the rule was written in the wrong unit.** 13× of an unusually
+fast baseline is **1.64 ms in absolute terms**, against a re-planning loop that runs in
+seconds. That is comfortably affordable, so the right reading is the *clean stop*, not the
+judgement branch. A multiple of a forward pass was the wrong denominator; the deadline is.
+
+> **GATE 1A.5: STOP. Do not build `PHASE1_PLAN.md` §3.** The task is solved, to within a
+> fraction of a percent of the optimum, by ~40 lines of lookahead at 1.6 ms per decision.
+> Training a policy would re-run v1's experiment at greater cost.
+
+### What would change this answer
+
+The planner has the **exact dynamics** — deterministic severity paths and known lags — so
+it can search a perfect model. That is a real advantage and it is legitimate here only
+because this task hands it over. If severity became stochastic or the lags unknown, the
+planner's model advantage disappears and the case for a learned policy genuinely returns.
+**That, not more resources, is the direction with an open question in it.**
+
+### §4 — the retrieval question, pre-registered and failed
+
+`retrieval_q2.py`, per the definition committed at `213cb3b`: flips do **not** concentrate
+near the safety rule's boundaries. Median margin 0.322 for flipped versus 0.271 for
+unflipped — the opposite direction. Odds ratio 0.42, Fisher *p* = 0.90, Mann–Whitney
+*p* = 0.61. Under the pre-registered decision rule **the sharpened claim is not made**, and
+the 11.1% in `EVALUATION.md` §4 stays unexplained variance. With 7 events this fails to
+show presence and cannot establish absence.
+
+Recorded post-hoc and **explicitly not tested**: all 7 flips fall in the "operational,
+below the severity threshold, but cannot take the whole population" group — 7 of 24 inside
+it, 0 of 39 outside. No *p*-value is attached, because the grouping was chosen after seeing
+the data. It becomes a pre-registered hypothesis for a future run.
+
+The construct was wrong in **form**, not subject: it measured proximity to a boundary when
+the pattern looks categorical — a region, not its edge.
+
+### The pattern worth noticing
+
+Three plans in a row have now been overturned by measuring rather than assuming: v1's RL
+justification (§2 of `EVALUATION.md`), the "retrieval changes nothing" claim (n=21 → n=63),
+and now Phase 1 itself, stopped by a gate that cost a day. **The measurement discipline is
+the deliverable.** The systems it keeps rejecting are the evidence that it works.
+
+### Commit
+
+See `git log` on branch `v2-resources`.
+
+---

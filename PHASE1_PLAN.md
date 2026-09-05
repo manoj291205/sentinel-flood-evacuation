@@ -1,6 +1,16 @@
 # Phase 1 plan — variant B (allocation with delivery lag)
 
-Status: **draft for approval. Nothing here is built.** Supersedes `EXPANSION_PLAN.md`
+> ## STATUS: STOPPED AT GATE 1A.5 (2026-09-05). DO NOT BUILD §3.
+>
+> `lookahead_k2` — a 2-step lookahead planner, ~40 lines — captures **median normalised
+> score 1.000 (p10 0.991)** at **1.64 ms per decision**. There is essentially no headroom
+> left for a learned policy, and the latency is trivially affordable for a re-planning
+> system. §1 (the gate) and §4 (retrieval) were executed; §3 was not, and should not be.
+> Full result in `DOCUMENTATION.md`, 2026-09-05.
+>
+> §2's metric decision is the reason this was caught — see the write-up.
+
+Status: **draft, now closed out by its own gate. Nothing in §3 was built.** Supersedes `EXPANSION_PLAN.md`
 §1.2–§1.8 where the two conflict; everything it does not mention still stands.
 
 Written against the Gate 1A result (`DOCUMENTATION.md`, 2026-09-05) on branch
