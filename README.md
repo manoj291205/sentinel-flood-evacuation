@@ -83,7 +83,8 @@ network at all**.
 > **Free-tier quota, measured 2026-09-02:** `gemini-3.6-flash` allows **20 requests per
 > day** (`GenerateRequestsPerDayPerProjectPerModel-FreeTier`) — per *day*, not per minute.
 > Ample for the demo, which makes one cached call, but it is the reason the evaluation in
-> §3–§4 of [EVALUATION.md](EVALUATION.md) covers 3 scenarios rather than 20.
+> §3–§4 of [EVALUATION.md](EVALUATION.md) covers 9 scenarios rather than 20, scored
+> across two days.
 
 > **Note on the model id.** This project was specified against `gemini-2.5-flash` /
 > `gemini-2.5-flash-lite`. As of 2 September 2026 both return
@@ -211,16 +212,21 @@ Stated plainly, because these are the questions a reviewer should ask.
   is scaffolding for the multi-step problem where greedy stops being optimal; it does not
   win here. See [EVALUATION.md](EVALUATION.md) §2.
 - **Retrieval does not change the verdicts — it makes them evidenceable.** Measured by
-  ablation: removing the retrieved excerpts flipped **0 of 21** verdicts, but citations
-  verifiable verbatim fell from **21/21 to 0/21**. The RAG layer is doing *evidentiary*
-  work, not decision work. Do not describe it as driving the reasoning.
+  ablation: removing the retrieved excerpts flipped **7 of 63** verdicts (11.1%) — but
+  **none of them on an unsafe shelter**, so no safety outcome changed. Citations
+  verifiable verbatim fell from **63/63 to 0/63**. The RAG layer is doing *evidentiary*
+  work first and marginal-judgement work second; it is not what decides whether an unsafe
+  shelter gets excluded. Do not describe it as driving the reasoning. (An earlier
+  21-verdict sample showed 0 flips and this section said retrieval changed nothing at all
+  — see [EVALUATION.md](EVALUATION.md) §4 for how that was overturned.)
 - **Retrieval surfaces front matter.** A table-of-contents line and the abbreviations
   list occasionally appear among lower-ranked results. Top hits are substantive.
 - **The evaluation suite is synthetic and small in places.** There is now a 60-scenario
   held-out suite with baselines and an ablation ([EVALUATION.md](EVALUATION.md)), but the
-  LLM-agreement and retrieval-ablation results rest on **21 verdicts from 3 scenarios** —
+  LLM-agreement and retrieval-ablation results rest on **63 verdicts from 9 scenarios** —
   the free tier allows only 20 requests *per day*. Directionally interesting, not
-  statistically strong.
+  statistically strong: growing that sample from 21 verdicts already overturned one
+  conclusion.
 - **Nothing is validated against real evacuation outcomes.** Still the largest gap.
 - **The reward weights (0.65 capacity / 0.35 travel) are a modelling choice**, not a
   figure from any source or standard.

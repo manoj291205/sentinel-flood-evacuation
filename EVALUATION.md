@@ -97,38 +97,69 @@ column, not the reward column, is the case for the constraint layer.
 
 ## 3. Is the LLM actually right?
 
-**Sample: 21 shelter verdicts across 3 scenarios.** Small — see the quota finding.
+**Sample: 63 shelter verdicts across 9 scenarios**, scored across two days
+(2026-09-02 and 2026-09-04) as the 20-requests-per-day cap allowed. Scenario `eval-009`
+is still unscored — the cap was hit mid-scenario.
 
 | | with retrieval | without retrieval |
 | --- | --- | --- |
-| agreement with the safety rule | 71.4% | 71.4% |
-| correctly excluded (unsafe) | 10 | 10 |
-| correctly allowed (safe) | 5 | 5 |
+| agreement with the safety rule | 68.3% (43/63) | 63.5% (40/63) |
+| correctly excluded (unsafe) | 30 | 30 |
+| correctly allowed (safe) | 13 | 10 |
 | **false-allow** (unsafe permitted) | **0** | **0** |
-| false-exclude (usable barred) | 6 | 6 |
+| false-exclude (usable barred) | 20 | 23 |
 
 The two error types are reported separately because they are **not equivalent**:
 
-- **false-allow** permits an unsafe shelter — a **safety** failure. **Zero observed.**
-- **false-exclude** bars a usable shelter — a **cost** failure. Six observed.
+- **false-allow** permits an unsafe shelter — a **safety** failure. **Zero observed**, in
+  either condition, across all 63 verdicts.
+- **false-exclude** bars a usable shelter — a **cost** failure. Twenty observed.
 
 The model is **conservative**, and errs in the direction you would want a safety layer to
-err. On this sample it never permitted a shelter the deterministic rule considered unsafe.
+err. It never permitted a shelter the deterministic rule considered unsafe — and
+`correctly excluded` is identical (30) with and without retrieval, so **every unsafe
+shelter was caught in both conditions**. The cost of that conservatism is real: it barred
+20 of the 33 shelters the rule considered usable.
+
+> **Superseded numbers.** An earlier version of this section reported 71.4% agreement on
+> 21 verdicts from 3 scenarios, with 6 false-excludes and 0 verdict flips. Tripling the
+> sample moved agreement to 68.3% and **overturned the §4 conclusion below**. The earlier
+> figures were not wrong; they were under-powered.
 
 ## 4. Does retrieval change the verdicts?
 
 | | result |
 | --- | --- |
-| verdicts that flipped when retrieval was removed | **0/21 (0%)** |
-| citations verifiable verbatim, **with** retrieval | **21/21** |
-| citations verifiable verbatim, **without** retrieval | **0/21** |
+| verdicts that flipped when retrieval was removed | **7/63 (11.1%)** |
+| …of those, flips on an **unsafe** shelter | **0** |
+| citations verifiable verbatim, **with** retrieval | **63/63** |
+| citations verifiable verbatim, **without** retrieval | **0/63** |
 
-**Retrieval does not change the decisions. It changes whether they can be evidenced.**
+**This overturns the earlier reading.** At 21 verdicts the flip count was 0/21, and this
+section previously concluded flatly that retrieval does not change the decisions. At 63
+verdicts it changes 7 of them. The corrected claim is narrower, and it still holds:
 
-The model reaches the same verdicts from the scenario facts alone. What disappears
-without retrieval is the ability to *substantiate* them. This is worth stating precisely,
-because it is easy to imply the RAG layer is driving the reasoning. It is not — it is
-doing **evidentiary** work.
+**Retrieval does not change the *safety* decisions. It changes some cost decisions, and
+it changes whether any decision can be evidenced at all.**
+
+Every one of the 7 flips is on a shelter the safety rule considers **safe**:
+
+| flip, when retrieval is removed | count | reading |
+| --- | --- | --- |
+| safe shelter `allowed` → `excluded` | 5 | retrieval was right; the ablation barred a usable shelter |
+| safe shelter `excluded` → `allowed` | 2 | retrieval was wrong; the ablation freed a usable shelter |
+| any flip on an **unsafe** shelter | **0** | the safety property is untouched by retrieval |
+
+Net effect of removing retrieval: 3 more usable shelters barred (false-excludes 20 → 23),
+and no safety outcome changed. The flips are also **concentrated in 2 of the 9 scenarios**
+(5 in `eval-003`, 2 in `eval-004`), so this is not a uniform 11% noise floor — it is a
+couple of scenarios where the excerpts genuinely moved the model's judgement on marginal
+shelters.
+
+What has not changed is the citation row, which was always the load-bearing one: without
+retrieval **not one** of the 63 citations can be verified. The RAG layer does
+**evidentiary** work first and marginal-judgement work second. It is still not what
+decides whether an unsafe shelter gets excluded.
 
 ### What the ablation caught the model doing
 
@@ -198,19 +229,38 @@ GenerateRequestsPerDayPerProjectPerModel-FreeTier = 20 requests PER DAY
 ```
 
 **per day, not per minute.** Each scenario in §3–§4 costs two calls (with-retrieval plus
-ablation), so **at most 10 scenarios can be scored per day**. This is why §3 and §4 rest
-on 3 scenarios rather than 20.
+ablation), so **at most 10 scenarios can be scored per day**.
 
 The runner caches per scenario, catches quota errors without losing completed work, and
-resumes on a later day. Running it across three more days would complete the intended
-subset.
+resumes on a later day. That is how §3–§4 grew from 3 scenarios to 9: a second day
+(2026-09-04) added six more before the cap was hit again, mid-way through `eval-009`.
+Resuming once more would finish the intended 10-scenario subset.
+
+Two non-quota failures showed up on that second day and are worth recording, because both
+look like quota exhaustion and are not:
+
+- **`503 UNAVAILABLE` — "this model is currently experiencing high demand."** Transient
+  overload. It stopped the run after 6 scenarios; simply re-running resumed from cache and
+  continued.
+- **A DNS resolution failure** (`nodename nor servname provided`) after the genuine 429s
+  began. The runner's quota-wait loop had already been waiting ~9 minutes at that point.
+
+The runner treats every API exception the same way — stop, keep the cache, exit cleanly —
+which is the right behaviour, but its message attributes the stop to the daily cap. On the
+503 that message was wrong.
 
 ---
 
 ## What these numbers do not show
 
-- **§3 and §4 are 21 verdicts from 3 scenarios.** Directionally interesting, not
-  statistically strong. No confidence intervals are claimed.
+- **§3 and §4 are 63 verdicts from 9 scenarios**, and that sample is still small.
+  Directionally interesting, not statistically strong. No confidence intervals are
+  claimed. Tripling it from 21 already overturned one of this document's conclusions
+  (§4), which is the clearest available evidence that the remaining numbers here are not
+  settled either.
+- **The §4 flips come from 2 scenarios.** Seven flips concentrated in `eval-003` and
+  `eval-004` is a thin basis for the 11.1% rate; the true rate could be well above or
+  below it.
 - **The safety rule is a yardstick, not truth.** Agreement with it is not proof the LLM
   is right; both could be wrong in the same direction.
 - **The suite is synthetic.** It tests behaviour on plausible inputs, not on real floods.

@@ -26,9 +26,12 @@ Do not repeat these claims without checking `EVALUATION.md` first:
 - **RL is not justified on this task.** The reward is fully computable, so a one-line
   greedy argmax over the allowed set *is* the oracle: 93% vs the trained policy's 73% on a
   held-out suite. 5x more training gave no gain.
-- **Retrieval does not change the verdicts** (0/21 flipped in an ablation) — it makes them
-  *evidenceable* (verbatim-verifiable citations went 21/21 to 0/21 without it). The RAG
-  layer does evidentiary work, not decision work.
+- **Retrieval does not change the SAFETY verdicts.** Measured at n=63: removing it flips
+  7/63 verdicts (11.1%), but **0 of those are on unsafe shelters** — every unsafe shelter
+  is caught either way. What collapses is evidence: verbatim-verifiable citations go 63/63
+  to 0/63. The RAG layer does evidentiary work first, marginal-judgement work second, and
+  decision work not at all. (The older "0/21 flipped" claim was under-powered; tripling
+  the sample overturned it.)
 - **The corpus is ONE document.** The NDMA and NIDM URLs serve byte-identical files.
 - **The training action mask is a deterministic proxy rule, NOT the LLM.** The real Gemini
   mask is used only at demo/inference time. Never say the policy was "trained against
@@ -41,8 +44,8 @@ Do not repeat these claims without checking `EVALUATION.md` first:
 
 `gemini-3.6-flash` free tier = **20 requests per day**, resetting at midnight Pacific.
 Each evaluation scenario costs 2 calls. This is why
-`src/eval/constraint_agreement.py` has scored only 3 of 10 scenarios; it caches per
-scenario and resumes. Budget API calls deliberately — the demo itself needs none, since
+`src/eval/constraint_agreement.py` has scored 9 of 10 scenarios across two days; it
+caches per scenario and resumes. Budget API calls deliberately — the demo itself needs none, since
 `data/constraints_output.json` is cached and committed.
 
 ## Hard scope boundaries (do not expand without asking first)

@@ -902,10 +902,11 @@ Full write-up in `EVALUATION.md`; this entry records what changed and what it co
   *is* the oracle: **93%** versus the policy's **73%**. A 5× longer run gave 72% — a
   plateau, not a budget problem.
 - **The LLM errs safely.** Zero false-allows (unsafe shelter permitted) against six
-  false-excludes (usable shelter barred) across 21 verdicts.
+  false-excludes (usable shelter barred) across 21 verdicts. **At n=63 (below) this
+  became 0 false-allows against 20 false-excludes.**
 - **Retrieval does not change the verdicts — it makes them evidenceable.** 0/21 verdicts
   flipped when retrieval was removed, but verbatim-verifiable citations fell from 21/21
-  to 0/21.
+  to 0/21. **This was later overturned at n=63 — see the entry below.**
 
 ### A bug the evaluation found that the demo could never have
 
@@ -933,7 +934,8 @@ performance, **not** by retraining until the demo looked right. The dashboard no
 (`GenerateRequestsPerDayPerProjectPerModel-FreeTier`) — per day, not per minute. At two
 calls per scenario that caps the LLM study at 10 scenarios/day, which is why the
 agreement and ablation results rest on 3 scenarios. The runner caches per scenario,
-survives quota errors without losing work, and resumes on a later day.
+survives quota errors without losing work, and resumes on a later day. (It was resumed on
+2026-09-04 — see the entry below.)
 
 ### How it was verified
 
@@ -947,5 +949,90 @@ scenario generation: deterministic (regenerated and diffed)
 ### Commit
 
 See `git log` for the evaluation commits.
+
+---
+
+## 2026-09-04 — Resuming the LLM study, and the conclusion it overturned
+
+**Goal.** Spend a day's free-tier quota extending the smallest sample in the project: the
+LLM-agreement and retrieval-ablation study, which rested on 3 scenarios because the cap is
+20 requests per day.
+
+### What was run
+
+`src/eval/constraint_agreement.py`, unchanged, twice — it resumes from its per-scenario
+cache. No new code was written for this; the runner was built to be resumable and it was.
+
+Scenarios scored went **3 → 9** (of an intended 10), verdicts **21 → 63**. `eval-009`
+remains unscored: the daily cap landed mid-scenario, after the retry loop had waited
+through nine 429s over ~9 minutes.
+
+### The finding — a previous conclusion did not survive
+
+`EVALUATION.md` §4 previously said, flatly, that **retrieval does not change the
+verdicts** (0 of 21 flipped). At 63 verdicts:
+
+| | n=21 (2026-09-02) | n=63 (2026-09-04) |
+| --- | --- | --- |
+| verdicts flipped without retrieval | 0 (0%) | **7 (11.1%)** |
+| flips on an **unsafe** shelter | 0 | **0** |
+| agreement with the safety rule | 71.4% | 68.3% |
+| false-allow (unsafe permitted) | 0 | **0** |
+| false-exclude (usable barred) | 6 | 20 |
+| citations verifiable verbatim | 21/21 → 0/21 | **63/63 → 0/63** |
+
+All 7 flips are on shelters the safety rule considers **safe** — 5 that retrieval allowed
+and the ablation barred, 2 the other way. **Zero flips on an unsafe shelter**, so the
+safety property is untouched: every unsafe shelter was excluded in both conditions.
+
+The corrected claim is narrower than the old one and survives the larger sample:
+**retrieval does not change the safety decisions; it changes some marginal cost decisions,
+and it changes whether any decision can be evidenced at all.**
+
+The flips are concentrated in 2 of the 9 scenarios (5 in `eval-003`, 2 in `eval-004`), so
+11.1% is not a uniform noise floor. That concentration is itself a caveat and is recorded
+as one.
+
+> **Why this entry matters more than the numbers in it.** The overturned claim was
+> repeated in five documents and in `DEVELOPMENT.md`'s "findings that contradict the spec"
+> list — it had become one of the project's headline results. It was produced by a sample
+> one third the size. Everything else in `EVALUATION.md` rests on samples of the same
+> order, and should be read with that in mind.
+
+### Two failure modes that look like quota exhaustion and are not
+
+Recorded because the runner's own message misattributes the first one:
+
+1. **`503 UNAVAILABLE`** — "this model is currently experiencing high demand." Transient
+   overload, not the cap. It stopped the run after 6 scenarios; re-running resumed from
+   cache and continued straight through.
+2. **A DNS resolution failure** (`nodename nor servname provided`) during the quota-wait
+   loop.
+
+The runner stops cleanly and keeps its cache on any API exception, which is right. Its
+message attributing the stop to the daily cap is not always right.
+
+### Also verified that day
+
+One live end-to-end constraint call on the demo scenario (`gemini-3.6-flash`, 1 attempt,
+7/7 citations verified verbatim). **All seven verdicts matched the committed cache
+exactly**, confirming `data/constraints_output.json` is a faithful recording of the live
+pipeline rather than a divergence from it. Written to a scratchpad file; the committed
+cache was asserted byte-unchanged.
+
+One difference worth noting: that run used **4 distinct excerpts across 7 constraints**,
+where the committed cache uses 7 distinct ones — a partial regression of the
+citation-specificity problem fixed in Step 3. Verdicts are stable run to run; the choice
+of supporting quote is not.
+
+### Files changed
+
+`EVALUATION.md` §3, §4, the quota section and the limitations list; the derived claims in
+`README.md`, `DEVELOPMENT.md`, `REVIEW_NOTES.md` and `DEMO_SCRIPT.md`; and the two files under
+`data/eval_results/`.
+
+### Commit
+
+See `git log` for *Resume the LLM study at n=63*.
 
 ---

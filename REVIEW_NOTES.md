@@ -22,9 +22,16 @@ being optimal. It does not win here, and I am not claiming it does.
 
 ### "Does the RAG layer actually do anything?" (§4)
 
-Not to the decisions. Removing retrieval flipped **0 of 21 verdicts** — the model reaches
-the same conclusions from the scenario facts alone. What it does is **evidentiary**:
-citations verifiable verbatim went from **21/21 with retrieval to 0/21 without**.
+Not to the safety decisions. Removing retrieval flips **7 of 63 verdicts (11.1%)**, and
+**not one of them is on an unsafe shelter** — every unsafe shelter is excluded either way.
+The 7 are all marginal calls on safe shelters, and they cost 3 usable shelters on net. So
+retrieval does some judgement work at the margin, and no safety work. What it mainly does
+is **evidentiary**: citations verifiable verbatim go from **63/63 with retrieval to 0/63
+without**.
+
+Be ready for this follow-up: an earlier 21-verdict sample showed **0** flips and I wrote
+that retrieval changes nothing. Tripling the sample overturned it. I would rather report
+that than defend the tidier claim.
 
 The ablation caught something worth telling. With no excerpts supplied, the model first
 returned empty `source_excerpt` fields — honest. Pushed by the schema retry, it then
@@ -75,15 +82,16 @@ With the constraint layer, unsafe picks fall to **4/60 (7%)**, and all four are 
 scenario where a safe shelter existed, the constraint layer produced zero unsafe picks.**
 Unconstrained, the policy itself is unsafe 24/60 (40%).
 
-On the LLM's own accuracy (§3): across 21 verdicts, **zero false-allows** (unsafe shelter
-permitted) against six false-excludes (usable shelter barred). It errs conservatively,
-which is the direction you want a safety layer to err.
+On the LLM's own accuracy (§3): across 63 verdicts, **zero false-allows** (unsafe shelter
+permitted) against 20 false-excludes (usable shelter barred). It errs conservatively,
+which is the direction you want a safety layer to err — but 20 of 33 usable shelters
+barred is a real cost, not a rounding error.
 
 ### Limitations — say these before they are found
 
-- **§3 and §4 rest on 21 verdicts from 3 scenarios.** The free tier is 20 requests *per
+- **§3 and §4 rest on 63 verdicts from 9 scenarios.** The free tier is 20 requests *per
   day* and each scenario costs two calls. Directionally interesting, not statistically
-  strong. No confidence intervals claimed.
+  strong. No confidence intervals claimed — and the §4 flips come from just 2 scenarios.
 - **The 60-scenario suite is synthetic.** Plausible inputs, not real floods.
 - **Nothing is validated against real evacuation outcomes.** Largest gap in the project.
 - **The corpus is one document**, not two — the NDMA and NIDM URLs serve byte-identical

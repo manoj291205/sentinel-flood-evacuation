@@ -75,7 +75,8 @@ Scroll to **Hazard grid**, then to **Why each shelter was excluded**. Open S1's 
 > citations verified on this run."
 
 If asked whether retrieval is doing the reasoning, be straight about it: it is not — an
-ablation flipped 0 of 21 verdicts, but verifiable citations went from 21/21 to 0/21.
+ablation flipped 7 of 63 verdicts, none of them on an unsafe shelter, while verifiable
+citations went from 63/63 to 0/63.
 Retrieval makes the verdicts checkable, not correct.
 
 ## 3:15–4:30 — The S6/S7 bug (the strongest story — do not skip it)
@@ -106,7 +107,7 @@ bottom. Point at them.
 > headline one: because the reward is fully computable, a two-line greedy rule is the
 > oracle by construction and beats the trained policy, 93% to 73%. The RL framing is
 > scaffolding for the multi-step problem, not a win here. The LLM agreement numbers rest
-> on 21 verdicts from 3 scenarios, because the free tier allows 20 requests a day. And
+> on 63 verdicts from 9 scenarios, because the free tier allows 20 requests a day. And
 > nothing here is validated against real evacuation outcomes. That is the largest gap."
 
 ---
@@ -143,5 +144,5 @@ Second fallback, if Python itself is unavailable — open these files and read f
 
 - Not "trained against LLM-generated constraints." Training used a deterministic proxy
   rule; the Gemini mask is used at demo and inference time only.
-- Not "the RAG layer makes the decisions." It makes them evidenceable. 0 of 21 verdicts
-  flipped without it.
+- Not "the RAG layer makes the decisions." It makes them evidenceable. Without it, 7 of
+  63 verdicts flip — but none on an unsafe shelter, so no safety outcome changes.
