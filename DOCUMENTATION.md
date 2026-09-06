@@ -1,14 +1,16 @@
 # Sentinel-Agent Sprint — Build Documentation
 
-A running log of **every addition to this project**, in the order it was added.
-Updated and committed at the end of each step, alongside the code it describes.
+A chronological build log and current inventory of the project. The dated entries
+record additions in the order they were made; the overview near the top reflects the
+repository as it exists now.
 
 This file is source-controlled (it is not covered by any `.gitignore` rule) and is
 intended to be read top-to-bottom as the story of how the prototype was built.
 
-> **Honesty rule carried over from `DEVELOPMENT.md`:** nothing fabricated is ever
-> described here as real. Every simplified, fictional, or placeholder element is
-> labelled as such in the entry that introduces it.
+> **Project honesty rule:** nothing fabricated is ever described here as real. Every
+> simplified, fictional, or placeholder element is labelled as such in the entry that
+> introduces it. Historical entries may name bootstrap files that are no longer present;
+> those references are retained as provenance, not as current setup instructions.
 
 ---
 
@@ -42,6 +44,30 @@ Each step gets one section containing:
 | Evaluation suite | `src/eval/` | **Built** — 60 held-out scenarios, baselines, ablations |
 | Tests | `tests/` | **Built** — 43 offline invariant tests, CI on GitHub Actions |
 | Measured results | `EVALUATION.md` | **Written** — including the unflattering ones |
+| Frozen v1 results | `EVALUATION_V1.md` | **Archived** — immutable comparison point for the evaluated v1 demo |
+| Reviewer material | `REVIEW_NOTES.md`, `DEMO_SCRIPT.md` | **Written** — defence sheet and five-minute walkthrough |
+| v2 decision experiments | `scripts/`, `data/eval_results/` | **Stopped at Gate 1A.5** — cheap lookahead closes the available planning gap |
+| Closed expansion plan | `PHASE1_PLAN.md` | **Stopped** — §3 was deliberately not built after the gate failed |
+
+### Current repository inventory
+
+| Group | Current contents |
+| --- | --- |
+| Entrypoints | `run_demo.py`; `src/dashboard/app.py` |
+| Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/` |
+| Scenario and constraints | `data/scenario.json`, `data/constraints_output.json` |
+| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json` |
+| Real source corpus | `data/raw_docs/README.md`, `MANIFEST.json`, and `ndma_flood_guidelines.pdf` |
+| Model artifact | `models/maskable_ppo_shelter.zip` |
+| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py` |
+| Automated verification | `tests/`, `pytest.ini`, `.github/workflows/ci.yml` |
+| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md` |
+| Runtime configuration | `requirements.txt`, `.python-version`, `.streamlit/config.toml`, `.gitignore` |
+
+Generated local state is intentionally not part of that inventory: `.venv/`,
+`src/rag/chroma_db/`, `.pytest_cache/`, `__pycache__/`, and local AI-assistant settings
+are ignored. The virtual environment and Chroma index may exist locally and are retained
+because they make the current demo runnable without reinstalling or re-indexing.
 
 ---
 
@@ -195,7 +221,7 @@ picked the right shelter, the entire RAG-plus-constraint layer would be decorati
 
 | ID | Cell | Severity | Cap | Occ | Headroom | Travel | Fits 700? | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| S1 | C2 | 0.85 severe | 400 | 120 | 280 | **8** | no | operational |
+| S1 | C2 | 0.85 severe | 1000 | 100 | **900** | **8** | **YES** | operational |
 | S2 | C4 | 0.63 high | 250 | 240 | 10 | 14 | no | operational |
 | S3 | C5 | 0.48 moderate | 600 | 180 | 420 | 21 | no | operational |
 | S4 | C8 | 0.10 low | 900 | 150 | **750** | 34 | **YES** | operational |
@@ -203,9 +229,9 @@ picked the right shelter, the entire RAG-plus-constraint layer would be decorati
 | S6 | C6 | 0.35 moderate | 500 | 500 | 0 | 26 | no | at_capacity |
 | S7 | C7 | 0.22 low | 350 | 60 | 290 | 30 | no | closed_structural_damage |
 
-- **S1 is the trap.** It is nearest by a wide margin (8 min vs. a next-best of 14), so a
-  naive distance-minimising baseline picks it — but it sits inside a `severe` flood
-  cell. Only the constraint step rules it out.
+- **S1 is the trap.** It is nearest by a wide margin (8 min vs. a next-best of 14) and
+  has enough headroom for all 700 evacuees, so the unconstrained reward ranks it first —
+  but it sits inside a `severe` flood cell. Only the constraint step rules it out.
 - **S6 and S7 fail on shelter status alone** (full; closed for structural damage).
 - **The live trade-off is S4 vs. S5** — fits-everyone-and-closer against
   safest-and-roomiest. That is precisely the tension Step 4's reward has to weigh.
@@ -889,7 +915,12 @@ Full write-up in `EVALUATION.md`; this entry records what changed and what it co
 | `src/eval/baselines.py` | Random / nearest / max-capacity / greedy, constrained and unconstrained. |
 | `src/eval/run_study.py` | The ablation study and baseline table. |
 | `src/eval/constraint_agreement.py` | LLM-vs-safety-rule agreement, and the retrieval ablation. |
+| `data/eval_scenarios.json` | Generated, seeded held-out suite consumed by the evaluation runners. |
+| `data/eval_results/ablation_study.json` | Policy/baseline and constrained/unconstrained measurements. |
+| `data/eval_results/constraint_agreement.json` | Aggregated LLM agreement and retrieval-ablation results. |
+| `data/eval_results/constraint_agreement_cache.json` | Per-scenario resumable cache for quota-limited LLM evaluation. |
 | `tests/` (5 files, 43 tests) | Real invariants, offline, 0.18 s. |
+| `pytest.ini` | Pytest configuration, including the project import path. |
 | `.github/workflows/ci.yml` | Runs those tests with **no** API key. |
 | `EVALUATION.md` | Method, every table, and the honest reading of each. |
 
@@ -1279,5 +1310,53 @@ the deliverable.** The systems it keeps rejecting are the evidence that it works
 ### Commit
 
 See `git log` on branch `v2-resources`.
+
+---
+
+## 2026-09-06 — Repository inventory and local-metadata cleanup
+
+**Goal.** Bring this document's overview in line with the complete repository and remove
+machine-specific residue without disturbing the runnable environment.
+
+### Documentation brought into the inventory
+
+The overview now explicitly records additions that existed in git but were previously
+only described indirectly or in later prose:
+
+- `REVIEW_NOTES.md` — a compact defence sheet for likely reviewer questions.
+- `DEMO_SCRIPT.md` — a five-minute, click-by-click dashboard walkthrough.
+- `EVALUATION_V1.md` — the frozen evaluation attached to tag `v1-capstone-demo`.
+- `PHASE1_PLAN.md` — the v2 plan, now marked stopped at Gate 1A.5; its implementation
+  section was intentionally never built.
+- `pytest.ini`, the five test modules, the generated held-out suite, and the persisted
+  evaluation result/cache files.
+- The Gate 1A and Gate 1A.5 scripts and their result artifacts under `scripts/` and
+  `data/eval_results/`.
+
+The Step 1 decision table was also corrected to match the current scenario: S1 has
+capacity 1,000, occupancy 100, and headroom 900. That makes it a stronger trap because
+it is both the nearest shelter and large enough for the full population, while remaining
+unsafe due to severe flooding.
+
+### Cleanup
+
+Removed local-only `.claude/`, `.pytest_cache/`, and project `__pycache__/` directories.
+Added `.claude/` and `.pytest_cache/` to `.gitignore`; Python bytecode caches were already
+ignored. `.venv/` and `src/rag/chroma_db/` remain ignored but were deliberately retained
+so the checked-out demo stays immediately runnable. These removed directories contained
+no tracked source or evaluation data and can be recreated by their respective tools.
+
+Historical mentions of `DEVELOPMENT.md` and other bootstrap instructions remain in earlier
+entries because those sections describe the state and rules at the time each step was
+built. They should not be read as the current repository inventory.
+
+### Real vs. simplified
+
+No scenario, source, model, or measured result changed in this maintenance step. The
+inventory and cleanup describe repository state only.
+
+### Commit
+
+See `git log` for the repository-inventory and local-metadata cleanup commit.
 
 ---
