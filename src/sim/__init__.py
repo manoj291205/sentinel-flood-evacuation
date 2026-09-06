@@ -1,7 +1,16 @@
-"""Static V3 scenario contracts.
+"""V3 scenario contracts and deterministic Phase 3 transition engine."""
 
-Phase 2 deliberately contains no transition, reward, planning, or stochastic behavior.
-"""
+from .events import (
+    WAIT,
+    ActionRejectionCode,
+    AuditEventType,
+    AuditRecord,
+    DispatchAction,
+    DispatchEvent,
+    DispatchStatus,
+    WaitAction,
+)
+from .invariants import InvariantViolation, assert_episode_invariants
 
 from .schemas import (
     FleetConfig,
@@ -29,12 +38,31 @@ from .schemas import (
     dump_v3_scenario,
     load_v3_scenario,
 )
+from .state import EpisodeState, RouteState, ShelterState, TerminalReason, ZoneState
+from .transition import (
+    ActionValidation,
+    TransitionResult,
+    initialize_episode,
+    step,
+    transition,
+    validate_action,
+)
 
 __all__ = [
+    "WAIT",
+    "ActionRejectionCode",
+    "ActionValidation",
+    "AuditEventType",
+    "AuditRecord",
+    "DispatchAction",
+    "DispatchEvent",
+    "DispatchStatus",
+    "EpisodeState",
     "FleetConfig",
     "HazardConfig",
     "LocationKind",
     "LocationRef",
+    "InvariantViolation",
     "NetworkConfig",
     "NetworkMode",
     "OperationalPriorityFeature",
@@ -43,16 +71,27 @@ __all__ = [
     "ProvenanceClass",
     "ProvenanceComponent",
     "RouteDefinition",
+    "RouteState",
     "ScenarioV3",
     "ScenarioValidationError",
     "ShelterDefinition",
+    "ShelterState",
     "ShelterStatus",
     "StochasticParameterStatus",
     "StochasticModelConfig",
     "TimeConfig",
+    "TerminalReason",
+    "TransitionResult",
     "Trend",
     "ZoneDefinition",
+    "ZoneState",
     "SCHEMA_VERSION",
     "dump_v3_scenario",
+    "initialize_episode",
     "load_v3_scenario",
+    "assert_episode_invariants",
+    "step",
+    "transition",
+    "validate_action",
+    "WaitAction",
 ]

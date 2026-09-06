@@ -42,7 +42,8 @@ Each step gets one section containing:
 | Trained checkpoints | `models/` | **Built (Step 4)** — `maskable_ppo_shelter.zip` |
 | End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
 | Evaluation suite | `src/eval/` | **Built** — 60 held-out scenarios, baselines, ablations |
-| Tests | `tests/` | **Built** — 43 offline invariant tests, CI on GitHub Actions |
+| V3 deterministic simulator | `src/sim/` | **Built (V3 Phase 3)** — immutable runtime snapshots, event queue, reservation ledger, transitions, and invariants |
+| Tests | `tests/` | **Built** — 155 tests total: 60 Phase 3, 52 Phase 2, and 43 legacy tests |
 | Measured results | `EVALUATION.md` | **Written** — including the unflattering ones |
 | Frozen v1 results | `EVALUATION_V1.md` | **Archived** — immutable comparison point for the evaluated v1 demo |
 | Reviewer material | `REVIEW_NOTES.md`, `DEMO_SCRIPT.md` | **Written** — defence sheet and five-minute walkthrough |
@@ -54,14 +55,14 @@ Each step gets one section containing:
 | Group | Current contents |
 | --- | --- |
 | Entrypoints | `run_demo.py`; `src/dashboard/app.py` |
-| Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/` |
-| Scenario and constraints | `data/scenario.json`, `data/constraints_output.json` |
+| Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/`, `src/sim/` |
+| Scenario and constraints | `data/scenario.json`, `data/constraints_output.json`, `data/scenarios_v3/example_v3_scenario.json` |
 | Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json` |
 | Real source corpus | `data/raw_docs/README.md`, `MANIFEST.json`, and `ndma_flood_guidelines.pdf` |
 | Model artifact | `models/maskable_ppo_shelter.zip` |
 | Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py` |
 | Automated verification | `tests/`, `pytest.ini`, `.github/workflows/ci.yml` |
-| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md` |
+| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md` |
 | Runtime configuration | `requirements.txt`, `.python-version`, `.streamlit/config.toml`, `.gitignore` |
 
 Generated local state is intentionally not part of that inventory: `.venv/`,
@@ -1604,5 +1605,211 @@ present. The provenance enum can separately label components `REAL`, `SIMULATED`
 ### Commit
 
 See `git log` for *V3 Phase 2: dynamic scenario schema and validation*.
+
+---
+
+## 2026-09-07 — V3 Phase 3: deterministic multi-step evacuation simulator
+
+### Goal
+
+Build and freeze the sequential logistics mechanics before uncertainty, safety policy,
+reward design, planners, or RL are introduced. The simulator consumes the immutable
+Phase 2 `ScenarioV3` definition and returns new immutable `EpisodeState` snapshots.
+
+### Added
+
+| Path | Purpose |
+| --- | --- |
+| `src/sim/events.py` | Semantic dispatch/WAIT actions, deterministic dispatch events, rejection codes, and serializable audit records. |
+| `src/sim/state.py` | Frozen runtime zone, shelter, route, and episode snapshots, plus derived population/transit/capacity views. |
+| `src/sim/transition.py` | Pure initialization, mechanical action validation, arrival processing, dispatch execution, timestep advancement, and terminal handling. |
+| `src/sim/invariants.py` | Fail-fast population, capacity, reservation, event, entity-ID, nonnegative-value, and terminal-state checks. |
+| `tests/test_v3_transitions.py` | 60 tests for initialization, dispatch, arrival, capacity, partial batches, routes, status, WAIT, rejection, termination, conservation, serialization, and replay. |
+
+`src/sim/__init__.py` was modified to export the Phase 3 runtime API. No new data fixture
+was necessary; tests derive clearly synthetic variants from the existing Phase 2 fixture
+without writing them back to disk.
+
+### Runtime-state model
+
+`ScenarioV3` remains the immutable static input. `EpisodeState` separately records the
+current timestep; per-zone remaining population and severity; per-shelter occupancy,
+reservation, status, and severity; current route reachability/travel time; dispatch
+events; safely arrived population; the configured aggregate dispatch limit and usage;
+terminal state; and audit log. All collections are tuples and every transition returns a
+replacement snapshot.
+
+`people_in_transit`, total remaining population, pending dispatches, and available
+capacity are derived views. Initial shelter occupants are not part of the evacuation
+population and never count as newly safe arrivals.
+
+### Capacity reservation semantics
+
+Capacity is reserved when a dispatch is accepted:
+
+```text
+available = capacity_total - occupancy_current - capacity_reserved
+```
+
+The shelter occupancy does not change at dispatch. When the scheduled event arrives,
+the same count moves from `capacity_reserved` to `occupancy_current`, so availability is
+unchanged by that conversion. This prevents concurrent in-transit groups from
+overbooking a destination.
+
+### Population semantics
+
+People leave `population_remaining` and enter the in-transit event ledger at dispatch.
+They enter `people_safely_arrived` only when their arrival is processed. Phase 3 has no
+failure/casualty bucket, so every accepted state must satisfy:
+
+```text
+initial_evacuation_population
+= population_remaining + people_in_transit + people_safely_arrived
+```
+
+The invariant checker also reconciles each source zone against all events dispatched
+from that zone; population cannot silently move between zones.
+
+### Travel-lag semantics
+
+Phase 3 uses only the static reachable route's `travel_time_mean`:
+
+```text
+travel_lag_steps = max(1, ceil(travel_time_mean / timestep_minutes))
+arrival_timestep = departure_timestep + travel_lag_steps
+```
+
+`travel_time_std`, closure probability, and stochastic configuration are deliberately
+ignored. Event IDs are deterministic and monotonic: `dispatch-000001`,
+`dispatch-000002`, and so on.
+
+### Partial-batch semantics
+
+One semantic dispatch sends:
+
+```text
+min(vehicle_capacity, zone population remaining, shelter capacity available)
+```
+
+The count must be positive. Exact-capacity and final partial source batches are valid.
+The Phase 3 API exposes one action opportunity per call and one call advances one
+timestep. The schema's higher aggregate dispatch limits remain available for a future
+multi-action interface; this phase executes at most one successful dispatch per step.
+
+### RESTRICTED semantics
+
+`CLOSED` is mechanically unavailable. `OPEN` and `RESTRICTED` are both mechanically
+dispatchable in Phase 3 when population, route, fleet, travel, and capacity checks pass.
+`RESTRICTED` does not yet imply a capacity multiplier or safety exclusion; Phase 5 must
+freeze that policy meaning.
+
+### Transition ordering
+
+Each accepted call uses this fixed order:
+
+1. Process dispatch arrivals scheduled for the current timestep, converting reservation
+   to occupancy and counting people safe.
+2. Apply the deterministic exogenous-update position; it is an explicit Phase 3 no-op,
+   so route and hazard state do not change.
+3. Reset dispatch availability for the timestep.
+4. Validate the semantic action mechanically.
+5. Execute a dispatch or WAIT and append audit records.
+6. Advance the clock by one timestep.
+7. Check completion first, then the configured horizon.
+8. Assert every runtime invariant.
+
+This makes arrivals available to the same-timestep decision while ensuring a dispatch
+never arrives during its own departure step.
+
+### Invalid-action semantics
+
+An invalid action returns a structured `TransitionResult` with a machine-readable
+rejection code and human-readable message. It does not advance time or mutate runtime
+state. Validation is transactional: arrivals are first evaluated on a working snapshot,
+but that snapshot is discarded if the action is rejected. The rejection audit record is
+returned in the result rather than inserted into the unchanged state log; retrying a
+valid action at the same timestep then processes the due arrivals exactly once.
+
+### Terminal semantics
+
+`ALL_EVACUATED` requires both zero remaining population and zero people in transit.
+Empty zones alone do not complete an episode. After incrementing the clock, an otherwise
+incomplete episode reaching `horizon_steps` terminates as `HORIZON_REACHED`; unserved
+people and pending in-transit events remain explicit in the terminal snapshot and no
+post-horizon arrivals are invented. Calls against any terminal state are rejected
+without advancing time.
+
+### Invariant checks
+
+Checks run after initialization and every accepted dispatch, WAIT, arrival-containing
+transition, and terminal transition. They verify:
+
+- global and per-source population conservation;
+- nonnegative zone populations, shelter occupancy/reservations/availability, and event
+  group sizes;
+- `occupancy_current + capacity_reserved <= capacity_total` for every shelter;
+- reservations equal the active in-transit events addressed to each shelter;
+- current occupancy equals initial occupants plus arrived evacuation events;
+- in-transit people equal the sum of active event groups;
+- runtime zone, shelter, and route IDs match the scenario;
+- event IDs, lag equations, references, and terminal reasons are coherent.
+
+### Tests and how verified
+
+```text
+Phase 3 transition suite: 60 passed
+Phase 2 schema suite:     52 passed
+legacy V1 suite:          43 passed
+full suite:              155 passed
+deterministic replay:     PASS
+```
+
+The scripted trace used the actual `example_v3_scenario.json` values:
+
+```text
+INITIAL: t=0 Z1_remaining=500 S1_occ=150 S1_reserved=0 S1_available=750 in_transit=0 safe=0
+ACTION Z1->S1: dispatched=50 event=dispatch-000001 arrival_t=2
+AFTER DISPATCH: t=1 Z1_remaining=450 S1_occ=150 S1_reserved=50 S1_available=700 in_transit=50 safe=0
+WAIT: arrivals=0
+AFTER WAIT: t=2 Z1_remaining=450 S1_occ=150 S1_reserved=50 S1_available=700 in_transit=50 safe=0
+WAIT: arrivals=[('dispatch-000001', 50)]
+AFTER ARRIVAL: t=3 Z1_remaining=450 S1_occ=200 S1_reserved=0 S1_available=700 in_transit=0 safe=50
+```
+
+The trace is generated from the engine, not hardcoded into application source.
+
+### Real vs. simulated
+
+All Phase 3 transitions operate on the Phase 2 **SIMULATED / FICTIONAL DEVELOPMENT
+FIXTURE — NOT REAL FLOOD OR SHELTER DATA**. The mechanics make no forecast and add no
+real Kerala geography, road network, shelter, population, or disaster event. The real
+NDMA source corpus and all V1/V2 measured artifacts remain unchanged.
+
+### Known limitations
+
+- The transition interface intentionally permits only one action per timestep even if a
+  future scenario configures a larger aggregate dispatch limit.
+- Multiple routes for the same zone/shelter pair are mechanically ambiguous because the
+  semantic action does not select a route; such an action is rejected rather than making
+  a hidden route choice.
+- Runtime-state serialization is a JSON-compatible audit view, not a checkpoint loader.
+- Rejected attempts are returned as audit records but are not persisted into the
+  unchanged state snapshot.
+
+### Deferred semantics
+
+There is still no stochastic flood model. There are still no road closures. There is no
+RL environment. There is no reward function. There are no planners. There are no RAG
+changes.
+
+Also deferred are stochastic travel, route failures, shelter degradation, scripted or
+sampled hazard evolution, congestion, route selection, Phase 5 safety thresholds and
+evidence rules, observation/action masking, reward accounting, planning, Gymnasium/PPO
+integration, and final terminal-deadline policy. `RESTRICTED` remains mechanically
+allowed until the safety phase freezes its operational treatment.
+
+### Commit
+
+See `git log` for *V3 Phase 3: deterministic multi-step evacuation simulator*.
 
 ---
