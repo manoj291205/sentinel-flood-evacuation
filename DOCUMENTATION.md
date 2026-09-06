@@ -1432,3 +1432,73 @@ dashboard, and held-out figures reported here were measured from the current che
 See `git log` for *V3 Phase 0: freeze baseline and create expansion branch*.
 
 ---
+
+## 2026-09-06 — V3 Phase 1: pre-register evaluation and decision gates
+
+**Goal.** Freeze how V3 will be judged before its simulator, stochastic parameters,
+planners, reward, or PPO results exist.
+
+### Added
+
+| Path | Purpose |
+| --- | --- |
+| `V3_EVALUATION_PLAN.md` | Pre-registers metrics, paired stochastic evaluation, baseline hierarchy, statistical reporting, PPO materiality rules, conclusion labels, governance, and the pre-PPO planning stop gate. |
+
+### Dependencies
+
+None. This phase adds scientific protocol only.
+
+### Frozen decisions
+
+- The primary operational metric is `NSU-practical`, a ratio of paired mean episode
+  returns relative to five-seed `random_valid` and the strongest validation-selected
+  practical planner.
+- Small exact-oracle results use the separate label `NSU-exact`. Exact and practical
+  normalization may not be pooled or shown as one number.
+- Near-zero denominators produce `NA`, never an adjusted or clipped score.
+- The principal PPO comparator is the strongest eligible practical non-learned baseline,
+  not whichever weak baseline PPO beats most easily.
+- Final PPO reporting uses five independent training seeds; three is permitted only by a
+  dated, pre-results resource amendment.
+- The V1 demo scenario is barred from checkpoint, reward, feature, hyperparameter,
+  baseline, and success decisions.
+
+PPO can support a claimed decision contribution only if it clears at least one material
+threshold: +0.02 `NSU-practical`, at least 5% lower exposure, or +0.02 tail-normalised
+utility. The paired bootstrap interval must support the claimed direction, the result
+must survive aggregation across training seeds, and unsafe-dispatch rate may not increase.
+
+The conclusion vocabulary is fixed in advance: **YES** for a combined material gain,
+**MIXED** for a pre-registered regime/tail/robustness gain only, and **NO** when planning
+remains sufficient or a gain requires worse safety.
+
+### How it was verified
+
+The metric computability audit maps every required value to a planned simulator ledger:
+population, arrivals, hazards, shelter capacity/reservations, route events, action masks,
+travel time, reward components, latency, and RNG provenance. `git diff --check` passes.
+
+Semantic choices that cannot honestly be made before the relevant implementation—route
+hazard aggregation, post-arrival shelter degradation, terminal in-transit handling, hard
+safety thresholds, reward bounds, and final suite replication count—are explicitly marked
+**to be fixed before experiment** in their owning phases.
+
+### Real vs. simulated
+
+No data or result was generated. This phase defines a future evaluation of simulated V3
+disaster dynamics. Existing real NDMA provenance, model-generated constraints, and
+measured V1/V2 results remain untouched.
+
+### Known limitations
+
+- Exact suite sizes depend on measured runtime and must be frozen before final results.
+- Reward-dependent denominator scale cannot be instantiated until the reward specification
+  declares a finite theoretical range.
+- The protocol reduces researcher degrees of freedom but cannot eliminate all design
+  judgment; every later amendment must remain visible and dated.
+
+### Commit
+
+See `git log` for *V3 Phase 1: pre-register evaluation metrics and decision gates*.
+
+---
