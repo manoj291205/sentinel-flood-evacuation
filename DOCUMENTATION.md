@@ -42,8 +42,8 @@ Each step gets one section containing:
 | Trained checkpoints | `models/` | **Built (Step 4)** — `maskable_ppo_shelter.zip` |
 | End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
 | Evaluation suite | `src/eval/` | **Built** — 60 held-out scenarios, baselines, ablations |
-| V3 deterministic simulator | `src/sim/` | **Built (V3 Phase 3)** — immutable runtime snapshots, event queue, reservation ledger, transitions, and invariants |
-| Tests | `tests/` | **Built** — 155 tests total: 60 Phase 3, 52 Phase 2, and 43 legacy tests |
+| V3 stochastic simulator | `src/sim/` | **Built through V3 Phase 4** — immutable runtime snapshots, event queue, reservations, forecasts, keyed stochastic dynamics, and invariants |
+| Tests | `tests/` | **Built** — 208 tests total: 53 Phase 4, 60 Phase 3, 52 Phase 2, and 43 legacy tests |
 | Measured results | `EVALUATION.md` | **Written** — including the unflattering ones |
 | Frozen v1 results | `EVALUATION_V1.md` | **Archived** — immutable comparison point for the evaluated v1 demo |
 | Reviewer material | `REVIEW_NOTES.md`, `DEMO_SCRIPT.md` | **Written** — defence sheet and five-minute walkthrough |
@@ -57,10 +57,10 @@ Each step gets one section containing:
 | Entrypoints | `run_demo.py`; `src/dashboard/app.py` |
 | Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/`, `src/sim/` |
 | Scenario and constraints | `data/scenario.json`, `data/constraints_output.json`, `data/scenarios_v3/example_v3_scenario.json` |
-| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json` |
+| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; Phase 4 process-only sanity artifact in `data/eval_v3/` |
 | Real source corpus | `data/raw_docs/README.md`, `MANIFEST.json`, and `ndma_flood_guidelines.pdf` |
 | Model artifact | `models/maskable_ppo_shelter.zip` |
-| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py` |
+| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py` |
 | Automated verification | `tests/`, `pytest.ini`, `.github/workflows/ci.yml` |
 | Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md` |
 | Runtime configuration | `requirements.txt`, `.python-version`, `.streamlit/config.toml`, `.gitignore` |
@@ -1811,5 +1811,306 @@ allowed until the safety phase freezes its operational treatment.
 ### Commit
 
 See `git log` for *V3 Phase 3: deterministic multi-step evacuation simulator*.
+
+---
+
+## 2026-09-07 — V3 Phase 4: stochastic flood, travel, route, and shelter dynamics
+
+### Goal
+
+Introduce explicit, controlled uncertainty without changing Phase 3 population,
+reservation, arrival, rejection, or terminal semantics. Future policies receive current
+realized state and imperfect one-step forecasts, never future realized draws.
+
+> **All stochastic parameters in Phase 4 are synthetic modeling assumptions and are not
+> empirically calibrated flood, road-closure, travel, or shelter-failure probabilities.**
+
+### Added
+
+| Path | Purpose |
+| --- | --- |
+| `src/sim/configs.py` | Frozen, validated `v3-low-v1`, `v3-medium-v1`, and `v3-high-v1` uncertainty configurations and mandatory disclaimer. |
+| `src/sim/randomness.py` | Stable SHA-256 keyed uniform/normal values in five independent stochastic namespaces. |
+| `src/sim/hazard.py` | Bounded regional/local flood evolution and observable one-step forecasts. |
+| `src/sim/routes.py` | Pre-geospatial route-hazard proxy, closure probability, absorbing closures, route expectations, and realized travel. |
+| `src/sim/stochastic.py` | Two-stage `observe()`/`step()` harness, private current latent context, shelter degradation, and stochastic transition ordering. |
+| `tests/test_v3_stochastic.py` | 53 tests covering timing, RNG independence, flood, forecasts, travel, closures, shelters, pairing, leakage, invariants, and sanity results. |
+| `scripts/phase4_stochastic_sanity.py` | Reproducible process-only study over fixed seeds 41000–41199. |
+| `data/eval_v3/phase4_stochastic_sanity.json` | Generated LOW/MEDIUM/HIGH process diagnostics; explicitly not a policy evaluation. |
+
+The existing schema documentation, event, state, transition, invariant, public-export,
+Phase 3 regression-test, and documentation files were extended only where required. No
+new scenario fixture was needed; the clearly fictional Phase 2 fixture supports all
+Phase 4 mechanics.
+
+### Arrival-timing regression
+
+The Phase 3 convention was correct and did not require a behavior change. A dispatch with
+`departure_timestep=0` and `arrival_timestep=2` is processed by the transition whose
+**pre-step** state has `current_timestep == 2`. Arrival audit occurs before that timestep's
+action, and the accepted post-step snapshot has `current_timestep == 3`. Both the Phase 3
+and Phase 4 suites now assert those values explicitly. V1/V2 results are unaffected.
+
+### RNG architecture
+
+No mutable global seed and no shared draw cursor exists. Each value is a pure function of:
+
+```text
+SHA-256(
+  generator-version,
+  scenario root seed,
+  uncertainty config ID,
+  replication ID,
+  subsystem namespace,
+  timestep/entity/event key,
+  digest lane
+)
+```
+
+Uniform values come directly from stable digest bits. Standard-normal values use two
+independently keyed digest lanes and the Box–Muller transform. The namespaces are
+`regional_hazard`, `local_hazard`, `travel`, `route_closure`, and
+`shelter_degradation`. Adding or removing one subsystem query cannot advance or shift an
+unrelated subsystem because there is no sequential stream position.
+
+The root seed remains the validated nonnegative scenario seed. `replication_id` creates a
+separate repeat of the same scenario/config without mixing environment and future policy
+exploration randomness.
+
+### Exogenous versus action-conditional randomness
+
+Exogenous values are keyed independently of actions:
+
+- regional hazard innovation by timestep;
+- local hazard innovation by entity kind, entity ID, and timestep;
+- closure outcome by route and timestep;
+- shelter degradation outcome by shelter and timestep.
+
+Travel is action-conditional and is keyed by departure timestep, route ID, and deterministic
+dispatch event ID. A dispatch on one policy path therefore cannot change another policy's
+weather, route-closure, or shelter-degradation values. Repeating the same dispatch key
+reproduces the exact travel value.
+
+### LOW / MEDIUM / HIGH configurations
+
+All hazard values use the normalized `[0,1]` scale. Travel noise is a fractional
+multiplier; closure/degradation values are synthetic per-timestep probabilities.
+
+| Parameter | LOW `v3-low-v1` | MEDIUM `v3-medium-v1` | HIGH `v3-high-v1` |
+| --- | ---: | ---: | ---: |
+| regional innovation sigma | 0.008 | 0.018 | 0.035 |
+| regional persistence | 0.30 | 0.50 | 0.65 |
+| local innovation sigma | 0.005 | 0.012 | 0.025 |
+| directed zone drift magnitude | 0.006 | 0.008 | 0.010 |
+| configured travel-noise fraction | 0.04 | 0.10 | 0.18 |
+| route-hazard travel factor | 0.20 | 0.30 | 0.45 |
+| base closure multiplier | 0.35 | 0.70 | 1.15 |
+| hazard-to-closure strength | 0.015 | 0.035 | 0.070 |
+| maximum closure probability | 0.12 | 0.25 | 0.40 |
+| restricted / closed status thresholds | 0.78 / 0.95 | 0.68 / 0.90 | 0.60 / 0.84 |
+| maximum per-step degradation coefficient | 0.006 | 0.018 | 0.040 |
+
+Travel multipliers are clipped to 0.60–1.60, 0.55–1.80, and 0.50–2.00 respectively.
+These configs were selected for interpretable, bounded, overlapping regimes—not to favor
+any future algorithm. Every active value, unit/scale, validation range, and description is
+version controlled.
+
+### Flood model
+
+At timestep `t > 0`, the simulator computes:
+
+```text
+regional_t = persistence * regional_(t-1) + keyed Normal(0, regional_sigma)
+severity_next = clip(current + directed_drift + regional_t + keyed_local_noise, 0, 1)
+```
+
+The regional term correlates entity movement and local terms prevent identical paths.
+Phase 4 explicitly interprets `RISING`/`FALLING` zone trend metadata as the sign of the
+config's small deterministic drift; `STEADY` and `UNKNOWN` add no drift. Shelter severity
+has no invented trend drift. This is a synthetic normalized process, not physical flood
+forecasting.
+
+### Forecast semantics
+
+Each decision view includes current/previous severity, observed recent change, next-step
+forecast mean, and configured forecast uncertainty. At `t=0`, the zone forecast uses the
+declared trend direction and shelters use persistence of their initial level. Later means
+extrapolate only the most recently observed change. Forecast standard deviation is the
+root-sum-square of configured regional and local innovation sigmas.
+
+The forecast function accepts no random stream and cannot inspect the latent regional
+component or next keyed innovation. Forecasts are therefore reproducible and imperfect,
+and uncertainty increases from LOW through HIGH.
+
+### Travel model
+
+Until graph routes exist, route hazard is the maximum of current source-zone and
+destination-shelter severity. It is explicitly a simplified endpoint proxy, not measured
+inundation along a road.
+
+```text
+expected travel = base mean * (1 + route_hazard_factor * hazard_proxy)
+noise sigma = config travel fraction + 0.25 * (static travel std / base mean)
+realized travel = expected travel * clipped(1 + keyed Normal(0, sigma))
+```
+
+Realized travel is finite and positive and retains Phase 3's
+`max(1, ceil(realized_minutes / timestep_minutes))` lag rule. Policy observations expose
+the expected time, uncertainty, proxy, and closure estimate—but not the travel realization
+for an action that has not occurred. Accepted events/audit records retain the realized
+value for later explanation.
+
+### Route-closure model
+
+For statically reachable routes:
+
+```text
+p_close = clip(
+  base_closure_probability * regime_multiplier
+  + hazard_to_closure_strength * route_hazard_proxy,
+  0,
+  maximum_closure_probability
+)
+```
+
+The function is monotonic in hazard and always bounded. Closures start at `t=1`, are
+exogenous/keyed per route/timestep, and are absorbing for the rest of Phase 4. Closure
+audits record route ID, current hazard proxy, modeled probability, timestep, and config ID.
+An already-departed dispatch keeps its realized arrival schedule if its route later
+closes; closures block new dispatches only.
+
+### Shelter degradation
+
+Shelter severity can cause monotonic `OPEN -> RESTRICTED -> CLOSED` degradation through
+synthetic status thresholds plus a small severity-scaled keyed degradation probability.
+There is no automatic reopening. `capacity_total` never changes.
+
+`RESTRICTED` remains mechanically usable, exactly as Phase 3 froze it. `CLOSED` blocks new
+dispatches. Existing reservations remain valid and their arrivals are processed even if
+the destination later closes; no evacuee is silently dropped or rerouted.
+
+### Transition timing
+
+The stochastic harness has an explicit two-stage interface so an action can react to the
+current realization:
+
+1. `observe()` prepares the timestep: arrivals first; then, for `t > 0`, flood evolution,
+   route estimates/closures, and shelter degradation; then public forecasts.
+2. The returned detached policy view contains that updated current state and forecast.
+3. `step(action)` validates against exactly the prepared state, realizes travel only for
+   an accepted dispatch, writes audit records, increments time, applies terminal rules,
+   and checks invariants.
+
+At `t=0`, initial scenario severities, route reachability, and shelter statuses are
+preserved for the first decision; forecasts and route expectations are available, but no
+hazard shock, closure, or shelter degradation is applied. Invalid actions transactionally
+discard the prepared changes, do not advance time, and reproduce the same keyed current
+state on retry.
+
+### Leakage prevention and paired-policy fairness
+
+Latent state consists only of the current regional AR(1) component and keyed-stream
+metadata held by the simulator harness. There is no pre-generated future schedule.
+`EpisodeState.to_policy_observation()` returns a fresh detached structure containing only
+current/past values, current availability, and forecasts. It omits root seed, replication
+metadata, latent regional state, future hazard/closure/shelter outcomes, action-conditioned
+travel realizations, and the audit log.
+
+The simulator exposes current internal metadata only through a separately named diagnostic
+snapshot that contains no future schedule. Tests mutate an observation without affecting
+runtime state, scan policy serialization for prohibited fields, and compare different
+action sequences under the same seed/config. Shared exogenous hazard, route, and shelter
+paths remain identical; only the path that dispatches receives a travel realization.
+
+### Process sanity statistics
+
+The committed artifact embeds each complete config, uses 200 fixed seeds per config
+(41000–41199), the fictional Phase 2 fixture, and WAIT at every timestep. Potential
+action-keyed travel is sampled only for process diagnostics. This is **not a performance
+benchmark** and contains no policy result.
+
+| Statistic | LOW | MEDIUM | HIGH |
+| --- | ---: | ---: | ---: |
+| mean absolute severity change | 0.00848 | 0.01925 | 0.03662 |
+| severity clipping frequency | 0.0000 | 0.0123 | 0.0958 |
+| fraction initially reachable routes ever closed | 0.2967 | 0.5017 | 0.7183 |
+| shelter restriction transitions / shelter-episode | 0.0075 | 0.0075 | 0.0600 |
+| shelter closure transitions / shelter-episode | 0.0100 | 0.0175 | 0.0725 |
+| mean realized/base travel ratio | 1.1263 | 1.1921 | 1.2871 |
+| travel-ratio standard deviation | 0.0926 | 0.1729 | 0.2946 |
+| mechanically actionable timestep fraction | 0.9971 | 0.9696 | 0.8442 |
+
+All regimes produce some closures without closing every route; clipping is limited; HIGH
+does not immediately eliminate almost all choices; travel stays finite; and every episode
+has at least one mechanically valid opportunity. The ordered severity movement, travel
+variability, and closure frequency confirm that the config labels broadly behave as
+intended without asserting episode-by-episode dominance.
+
+### Tests and how verified
+
+```text
+Phase 4 stochastic suite: 53 passed
+Phase 3 transition suite: 60 passed
+Phase 2 schema suite:     52 passed
+legacy V1 suite:          43 passed
+full suite:              208 passed
+same-seed replay:          PASS
+paired-action exogenous:   PASS
+policy-view leakage:       PASS
+```
+
+The sanity artifact is regenerated with:
+
+```text
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m scripts.phase4_stochastic_sanity
+```
+
+### Fixed-seed stochastic trace
+
+The actual MEDIUM `v3-medium-v1` fixture trace at root seed 12345 begins:
+
+```text
+decision t=0: Z1 current=0.680000, forecast(t=1)=0.688000 ±0.021633
+               R-Z1-S1 OPEN, p_close=0.058800, S1 OPEN
+action Z1->S1: accepted, realized travel=27.227090 min, arrival_t=3
+decision t=1: Z1 current=0.690030, forecast(t=2)=0.700060 ±0.021633
+               R-Z2-S1 closes (p=0.056926, proxy=0.426464); R-Z1-S1 remains OPEN
+action WAIT
+decision t=2: Z1 current=0.690285, forecast(t=3)=0.690539 ±0.021633
+action WAIT
+decision t=3: arrival dispatch-000001 processed before WAIT; Z1 current=0.671119
+post-step t=4: S1 occupancy=200, reservation=0, safe=50
+```
+
+Current realization, next forecast, action, and subsequent realization are distinct. The
+trace is generated from the engine and is not hardcoded into source.
+
+### Real versus simulated
+
+All Phase 4 stochastic values and the development scenario are synthetic/fictional. No
+web research, Kerala geography, OSM route, empirical flood calibration, official closure
+probability, or real shelter-failure rate was added. Existing real NDMA source provenance
+and every frozen V1/V2 measurement remain unchanged.
+
+### Known limitations
+
+- There is no geospatial or edge-level route state; endpoint maximum severity is only a
+  pre-geospatial proxy.
+- Closures and shelter degradation are absorbing; reopening is not modeled.
+- In-transit journeys are neither rerouted nor failed by later route/shelter closure.
+- Existing reservations arrive even after a destination closes.
+- There is no empirical calibration or learned forecasting model.
+- `observe()` must be used as the policy-facing interface; the committed post-step state
+  is a transition ledger snapshot until the next timestep is prepared.
+
+### Deferred work
+
+There is no planner, reward, V3 Gymnasium environment, PPO implementation, RAG/Gemini
+change, formal Phase 5 safety-threshold layer, geospatial routing, dashboard change, human
+override, or final evaluation suite. Those remain in their named later phases.
+
+### Commit
+
+See `git log` for *V3 Phase 4: stochastic flood, travel and closure dynamics*.
 
 ---

@@ -234,8 +234,14 @@ def test_arrival_is_processed_before_action_at_due_timestep(scenario):
     state = transition(
         scenario, initialize_episode(scenario), DispatchAction("Z1", "S1")
     ).state
+    event = state.pending_arrivals[0]
+    assert event.departure_timestep == 0
+    assert event.arrival_timestep == 2
     state = transition(scenario, state, WAIT).state
+    assert state.current_timestep == event.arrival_timestep == 2
     result = transition(scenario, state, DispatchAction("Z2", "S1"))
+    assert result.previous_timestep == 2
+    assert result.new_timestep == 3
     assert result.arrivals_processed[0].event_id == "dispatch-000001"
     assert result.arrivals_processed[0].status is DispatchStatus.ARRIVED
     assert result.audit_records[0].event_type is AuditEventType.ARRIVAL_PROCESSED
@@ -359,13 +365,11 @@ def test_no_population_is_rejected_without_empty_event(raw):
     assert result.events_created == ()
 
 
-def test_no_capacity_is_rejected(scenario):
-    state = _state_with_shelter(
-        initialize_episode(scenario),
-        "S1",
-        capacity_total=150,
-        occupancy_current=150,
-    )
+def test_no_capacity_is_rejected(raw):
+    shelter = next(item for item in raw["shelters"] if item["shelter_id"] == "S1")
+    shelter["capacity_total"] = shelter["occupancy_initial"]
+    scenario = ScenarioV3.from_dict(raw)
+    state = initialize_episode(scenario)
     result = transition(scenario, state, DispatchAction("Z1", "S1"))
     assert result.rejection_code is ActionRejectionCode.NO_CAPACITY
 

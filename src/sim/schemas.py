@@ -2,7 +2,7 @@
 
 This module defines configuration and *initial* values only. It intentionally does not
 model current population, current severity, reservations, closures, pending arrivals, or
-any transition behavior. Those values belong to mutable episode state in later phases.
+any transition behavior. Those values belong to separate immutable runtime snapshots.
 
 The schema uses standard-library frozen dataclasses to keep the contract lightweight and
 to avoid adding a validation dependency. Validation is explicit and error messages name
@@ -751,7 +751,11 @@ class HazardConfig:
 
 @dataclass(frozen=True)
 class StochasticModelConfig:
-    """Future Phase 4 parameter interface; loading performs no random draw."""
+    """Optional scenario-bound stochastic values; loading performs no random draw.
+
+    Phase 4's reusable LOW/MEDIUM/HIGH regimes live in ``sim.configs``. A development
+    scenario may remain deferred so the same static fixture can exercise every regime.
+    """
 
     parameter_status: StochasticParameterStatus = StochasticParameterStatus.DEFERRED_TO_PHASE_4
     regional_shock_std: float | None = None

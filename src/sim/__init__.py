@@ -1,4 +1,15 @@
-"""V3 scenario contracts and deterministic Phase 3 transition engine."""
+"""V3 scenario contracts plus deterministic and stochastic transition engines."""
+
+from .configs import (
+    HIGH,
+    LOW,
+    MEDIUM,
+    MODELING_ASSUMPTION_DISCLAIMER,
+    UNCERTAINTY_CONFIGS,
+    UncertaintyConfig,
+    UncertaintyLevel,
+    get_uncertainty_config,
+)
 
 from .events import (
     WAIT,
@@ -11,6 +22,13 @@ from .events import (
     WaitAction,
 )
 from .invariants import InvariantViolation, assert_episode_invariants
+from .randomness import EpisodeRandomStreams, RandomStream
+from .routes import (
+    TravelRealization,
+    modeled_closure_probability,
+    realize_dispatch_travel,
+    route_hazard_proxy,
+)
 
 from .schemas import (
     FleetConfig,
@@ -39,6 +57,7 @@ from .schemas import (
     load_v3_scenario,
 )
 from .state import EpisodeState, RouteState, ShelterState, TerminalReason, ZoneState
+from .stochastic import StochasticSimulator
 from .transition import (
     ActionValidation,
     TransitionResult,
@@ -49,6 +68,11 @@ from .transition import (
 )
 
 __all__ = [
+    "HIGH",
+    "LOW",
+    "MEDIUM",
+    "MODELING_ASSUMPTION_DISCLAIMER",
+    "UNCERTAINTY_CONFIGS",
     "WAIT",
     "ActionRejectionCode",
     "ActionValidation",
@@ -58,6 +82,7 @@ __all__ = [
     "DispatchEvent",
     "DispatchStatus",
     "EpisodeState",
+    "EpisodeRandomStreams",
     "FleetConfig",
     "HazardConfig",
     "LocationKind",
@@ -71,6 +96,7 @@ __all__ = [
     "ProvenanceClass",
     "ProvenanceComponent",
     "RouteDefinition",
+    "RandomStream",
     "RouteState",
     "ScenarioV3",
     "ScenarioValidationError",
@@ -78,17 +104,25 @@ __all__ = [
     "ShelterState",
     "ShelterStatus",
     "StochasticParameterStatus",
+    "StochasticSimulator",
     "StochasticModelConfig",
     "TimeConfig",
     "TerminalReason",
     "TransitionResult",
+    "TravelRealization",
     "Trend",
     "ZoneDefinition",
     "ZoneState",
+    "UncertaintyConfig",
+    "UncertaintyLevel",
     "SCHEMA_VERSION",
     "dump_v3_scenario",
     "initialize_episode",
+    "get_uncertainty_config",
     "load_v3_scenario",
+    "modeled_closure_probability",
+    "realize_dispatch_travel",
+    "route_hazard_proxy",
     "assert_episode_invariants",
     "step",
     "transition",

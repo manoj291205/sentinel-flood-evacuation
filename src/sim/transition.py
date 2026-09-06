@@ -333,6 +333,151 @@ def _rejected_result(
     )
 
 
+def _execute_accepted_action(
+    scenario: ScenarioV3,
+    state: EpisodeState,
+    action: SimulationAction,
+    validation: ActionValidation,
+    *,
+    base_travel_time_minutes: float | None = None,
+    realized_travel_time_minutes: float | None = None,
+    travel_multiplier: float = 1.0,
+    expected_travel_time_minutes: float | None = None,
+    travel_uncertainty_minutes: float | None = None,
+    uncertainty_config_id: str | None = None,
+) -> tuple[EpisodeState, int, tuple[DispatchEvent, ...], tuple[AuditRecord, ...]]:
+    """Execute an already validated action, optionally with realized stochastic travel."""
+    if isinstance(action, WaitAction):
+        record = AuditRecord(
+            event_type=AuditEventType.WAIT,
+            timestep=state.current_timestep,
+            uncertainty_config_id=uncertainty_config_id,
+            reason_code="WAIT_SELECTED",
+            message="no dispatch was requested for this timestep",
+        )
+        return state, 0, (), (record,)
+
+    zone = state.zone(action.zone_id)
+    shelter = state.shelter(action.shelter_id)
+    route = state.route(validation.route_id or "")
+    assert zone is not None and shelter is not None and route is not None
+    current_travel = route.travel_time_current
+    if current_travel is None:
+        raise ValueError("validated route has no current travel time")
+    base_minutes = base_travel_time_minutes or route.base_travel_time_minutes or current_travel
+    realized_minutes = realized_travel_time_minutes or current_travel
+    lag = max(1, math.ceil(realized_minutes / scenario.time.timestep_minutes))
+    people_dispatched = validation.people
+    event = DispatchEvent(
+        event_id=f"dispatch-{state.next_dispatch_sequence:06d}",
+        source_zone_id=action.zone_id,
+        destination_shelter_id=action.shelter_id,
+        people=people_dispatched,
+        departure_timestep=state.current_timestep,
+        arrival_timestep=state.current_timestep + lag,
+        route_id=route.route_id,
+        travel_lag_steps=lag,
+        base_travel_time_minutes=base_minutes,
+        realized_travel_time_minutes=realized_minutes,
+        travel_multiplier=travel_multiplier,
+        uncertainty_config_id=uncertainty_config_id,
+        status=DispatchStatus.IN_TRANSIT,
+    )
+    updated = replace(
+        state,
+        zones=tuple(
+            replace(item, population_remaining=item.population_remaining - people_dispatched)
+            if item.zone_id == action.zone_id
+            else item
+            for item in state.zones
+        ),
+        shelters=tuple(
+            replace(item, capacity_reserved=item.capacity_reserved + people_dispatched)
+            if item.shelter_id == action.shelter_id
+            else item
+            for item in state.shelters
+        ),
+        dispatch_events=state.dispatch_events + (event,),
+        dispatches_used_this_timestep=1,
+        next_dispatch_sequence=state.next_dispatch_sequence + 1,
+    )
+    records: list[AuditRecord] = []
+    if uncertainty_config_id is not None:
+        records.append(
+            AuditRecord(
+                event_type=AuditEventType.TRAVEL_TIME_REALIZED,
+                timestep=state.current_timestep,
+                event_id=event.event_id,
+                zone_id=event.source_zone_id,
+                shelter_id=event.destination_shelter_id,
+                route_id=event.route_id,
+                uncertainty_config_id=uncertainty_config_id,
+                value_before=base_minutes,
+                value_after=realized_minutes,
+                expected_value=expected_travel_time_minutes,
+                uncertainty=travel_uncertainty_minutes,
+                reason_code="KEYED_ACTION_CONDITIONAL_TRAVEL",
+                message="positive bounded travel time realized for accepted dispatch",
+            )
+        )
+    records.append(
+        AuditRecord(
+            event_type=AuditEventType.DISPATCH_CREATED,
+            timestep=state.current_timestep,
+            event_id=event.event_id,
+            zone_id=event.source_zone_id,
+            shelter_id=event.destination_shelter_id,
+            route_id=event.route_id,
+            people=event.people,
+            uncertainty_config_id=uncertainty_config_id,
+            reason_code="DISPATCH_ACCEPTED",
+            message="capacity reserved and evacuees entered transit",
+        )
+    )
+    return updated, people_dispatched, (event,), tuple(records)
+
+
+def _finalize_accepted_transition(
+    scenario: ScenarioV3,
+    state: EpisodeState,
+    action_records: tuple[AuditRecord, ...],
+) -> tuple[EpisodeState, tuple[AuditRecord, ...]]:
+    """Append action audit, increment time, and apply the frozen terminal rules."""
+    state = replace(
+        state,
+        current_timestep=state.current_timestep + 1,
+        audit_log=state.audit_log + action_records,
+    )
+    terminal_reason = None
+    if state.population_remaining == 0 and state.people_in_transit == 0:
+        terminal_reason = TerminalReason.ALL_EVACUATED
+    elif state.current_timestep >= scenario.time.horizon_steps:
+        terminal_reason = TerminalReason.HORIZON_REACHED
+
+    termination_records: tuple[AuditRecord, ...] = ()
+    if terminal_reason is not None:
+        termination_records = (
+            AuditRecord(
+                event_type=AuditEventType.EPISODE_TERMINATED,
+                timestep=state.current_timestep,
+                uncertainty_config_id=state.uncertainty_config_id,
+                reason_code=terminal_reason.value,
+                message=(
+                    "all evacuees arrived safely"
+                    if terminal_reason is TerminalReason.ALL_EVACUATED
+                    else "configured timestep horizon reached"
+                ),
+            ),
+        )
+        state = replace(
+            state,
+            terminal=True,
+            terminal_reason=terminal_reason,
+            audit_log=state.audit_log + termination_records,
+        )
+    return state, termination_records
+
+
 def transition(
     scenario: ScenarioV3, state: EpisodeState, action: SimulationAction | object
 ) -> TransitionResult:
@@ -358,98 +503,12 @@ def transition(
         # Discard arrivals in the working snapshot: rejected calls are all-or-nothing.
         return _rejected_result(state, action, validation)
 
-    action_records: tuple[AuditRecord, ...]
-    created: tuple[DispatchEvent, ...] = ()
-    people_dispatched = 0
-    if isinstance(action, WaitAction):
-        action_records = (
-            AuditRecord(
-                event_type=AuditEventType.WAIT,
-                timestep=state.current_timestep,
-                reason_code="WAIT_SELECTED",
-                message="no dispatch was requested for this timestep",
-            ),
-        )
-    else:
-        zone = working.zone(action.zone_id)
-        shelter = working.shelter(action.shelter_id)
-        assert zone is not None and shelter is not None and validation.route_id is not None
-        people_dispatched = validation.people
-        event = DispatchEvent(
-            event_id=f"dispatch-{working.next_dispatch_sequence:06d}",
-            source_zone_id=action.zone_id,
-            destination_shelter_id=action.shelter_id,
-            people=people_dispatched,
-            departure_timestep=state.current_timestep,
-            arrival_timestep=state.current_timestep + validation.travel_lag_steps,
-            route_id=validation.route_id,
-            travel_lag_steps=validation.travel_lag_steps,
-            status=DispatchStatus.IN_TRANSIT,
-        )
-        working = replace(
-            working,
-            zones=tuple(
-                replace(item, population_remaining=item.population_remaining - people_dispatched)
-                if item.zone_id == action.zone_id
-                else item
-                for item in working.zones
-            ),
-            shelters=tuple(
-                replace(item, capacity_reserved=item.capacity_reserved + people_dispatched)
-                if item.shelter_id == action.shelter_id
-                else item
-                for item in working.shelters
-            ),
-            dispatch_events=working.dispatch_events + (event,),
-            dispatches_used_this_timestep=1,
-            next_dispatch_sequence=working.next_dispatch_sequence + 1,
-        )
-        created = (event,)
-        action_records = (
-            AuditRecord(
-                event_type=AuditEventType.DISPATCH_CREATED,
-                timestep=state.current_timestep,
-                event_id=event.event_id,
-                zone_id=event.source_zone_id,
-                shelter_id=event.destination_shelter_id,
-                route_id=event.route_id,
-                people=event.people,
-                reason_code="DISPATCH_ACCEPTED",
-                message="capacity reserved and evacuees entered transit",
-            ),
-        )
-
-    working = replace(
-        working,
-        current_timestep=state.current_timestep + 1,
-        audit_log=working.audit_log + action_records,
+    working, people_dispatched, created, action_records = _execute_accepted_action(
+        scenario, working, action, validation
     )
-    terminal_reason = None
-    if working.population_remaining == 0 and working.people_in_transit == 0:
-        terminal_reason = TerminalReason.ALL_EVACUATED
-    elif working.current_timestep >= scenario.time.horizon_steps:
-        terminal_reason = TerminalReason.HORIZON_REACHED
-
-    termination_records: tuple[AuditRecord, ...] = ()
-    if terminal_reason is not None:
-        termination_records = (
-            AuditRecord(
-                event_type=AuditEventType.EPISODE_TERMINATED,
-                timestep=working.current_timestep,
-                reason_code=terminal_reason.value,
-                message=(
-                    "all evacuees arrived safely"
-                    if terminal_reason is TerminalReason.ALL_EVACUATED
-                    else "configured timestep horizon reached"
-                ),
-            ),
-        )
-        working = replace(
-            working,
-            terminal=True,
-            terminal_reason=terminal_reason,
-            audit_log=working.audit_log + termination_records,
-        )
+    working, termination_records = _finalize_accepted_transition(
+        scenario, working, action_records
+    )
 
     assert_episode_invariants(scenario, working)
     return TransitionResult(

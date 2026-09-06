@@ -1,4 +1,4 @@
-"""Deterministic Phase 3 actions and auditable evacuation events."""
+"""Semantic actions and auditable Phase 3/4 evacuation/environment events."""
 
 from __future__ import annotations
 
@@ -18,6 +18,11 @@ class AuditEventType(str, Enum):
     WAIT = "WAIT"
     ACTION_REJECTED = "ACTION_REJECTED"
     EPISODE_TERMINATED = "EPISODE_TERMINATED"
+    FLOOD_STATE_UPDATED = "FLOOD_STATE_UPDATED"
+    ROUTE_CLOSED = "ROUTE_CLOSED"
+    SHELTER_RESTRICTED = "SHELTER_RESTRICTED"
+    SHELTER_CLOSED = "SHELTER_CLOSED"
+    TRAVEL_TIME_REALIZED = "TRAVEL_TIME_REALIZED"
 
 
 class ActionRejectionCode(str, Enum):
@@ -69,6 +74,10 @@ class DispatchEvent:
     arrival_timestep: int
     route_id: str
     travel_lag_steps: int
+    base_travel_time_minutes: float
+    realized_travel_time_minutes: float
+    travel_multiplier: float
+    uncertainty_config_id: str | None
     status: DispatchStatus
 
     def to_dict(self) -> dict[str, Any]:
@@ -81,6 +90,10 @@ class DispatchEvent:
             "arrival_timestep": self.arrival_timestep,
             "route_id": self.route_id,
             "travel_lag_steps": self.travel_lag_steps,
+            "base_travel_time_minutes": self.base_travel_time_minutes,
+            "realized_travel_time_minutes": self.realized_travel_time_minutes,
+            "travel_multiplier": self.travel_multiplier,
+            "uncertainty_config_id": self.uncertainty_config_id,
             "status": self.status.value,
         }
 
@@ -96,6 +109,14 @@ class AuditRecord:
     people: int | None = None
     reason_code: str | None = None
     message: str | None = None
+    entity_kind: str | None = None
+    uncertainty_config_id: str | None = None
+    value_before: float | None = None
+    value_after: float | None = None
+    probability: float | None = None
+    hazard_proxy: float | None = None
+    expected_value: float | None = None
+    uncertainty: float | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -108,4 +129,12 @@ class AuditRecord:
             "people": self.people,
             "reason_code": self.reason_code,
             "message": self.message,
+            "entity_kind": self.entity_kind,
+            "uncertainty_config_id": self.uncertainty_config_id,
+            "value_before": self.value_before,
+            "value_after": self.value_after,
+            "probability": self.probability,
+            "hazard_proxy": self.hazard_proxy,
+            "expected_value": self.expected_value,
+            "uncertainty": self.uncertainty,
         }

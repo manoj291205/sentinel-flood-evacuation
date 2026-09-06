@@ -1,4 +1,4 @@
-"""Immutable runtime snapshots for the deterministic Phase 3 simulator."""
+"""Immutable runtime snapshots shared by deterministic and stochastic simulators."""
 
 from __future__ import annotations
 
@@ -20,12 +20,20 @@ class ZoneState:
     zone_id: str
     population_remaining: int
     flood_severity_current: float
+    flood_severity_previous: float | None = None
+    observed_severity_change: float = 0.0
+    forecast_mean_next: float | None = None
+    forecast_std_next: float | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "zone_id": self.zone_id,
             "population_remaining": self.population_remaining,
             "flood_severity_current": self.flood_severity_current,
+            "flood_severity_previous": self.flood_severity_previous,
+            "observed_severity_change": self.observed_severity_change,
+            "forecast_mean_next": self.forecast_mean_next,
+            "forecast_std_next": self.forecast_std_next,
         }
 
 
@@ -37,6 +45,10 @@ class ShelterState:
     capacity_reserved: int
     status_current: ShelterStatus
     flood_severity_current: float
+    flood_severity_previous: float | None = None
+    observed_severity_change: float = 0.0
+    forecast_mean_next: float | None = None
+    forecast_std_next: float | None = None
 
     @property
     def capacity_available(self) -> int:
@@ -52,6 +64,10 @@ class ShelterState:
             "capacity_available": self.capacity_available,
             "status_current": self.status_current.value,
             "flood_severity_current": self.flood_severity_current,
+            "flood_severity_previous": self.flood_severity_previous,
+            "observed_severity_change": self.observed_severity_change,
+            "forecast_mean_next": self.forecast_mean_next,
+            "forecast_std_next": self.forecast_std_next,
         }
 
 
@@ -62,6 +78,12 @@ class RouteState:
     destination_shelter_id: str
     reachable_current: bool
     travel_time_current: float | None
+    base_travel_time_minutes: float | None = None
+    expected_travel_time_minutes: float | None = None
+    travel_time_uncertainty_minutes: float | None = None
+    estimated_closure_probability: float = 0.0
+    route_hazard_proxy: float | None = None
+    closed_at_timestep: int | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -70,6 +92,12 @@ class RouteState:
             "destination_shelter_id": self.destination_shelter_id,
             "reachable_current": self.reachable_current,
             "travel_time_current": self.travel_time_current,
+            "base_travel_time_minutes": self.base_travel_time_minutes,
+            "expected_travel_time_minutes": self.expected_travel_time_minutes,
+            "travel_time_uncertainty_minutes": self.travel_time_uncertainty_minutes,
+            "estimated_closure_probability": self.estimated_closure_probability,
+            "route_hazard_proxy": self.route_hazard_proxy,
+            "closed_at_timestep": self.closed_at_timestep,
         }
 
 
@@ -89,6 +117,8 @@ class EpisodeState:
     terminal: bool
     terminal_reason: TerminalReason | None
     audit_log: tuple[AuditRecord, ...]
+    uncertainty_config_id: str | None = None
+    forecast_for_timestep: int | None = None
 
     @property
     def pending_dispatches(self) -> tuple[DispatchEvent, ...]:
@@ -120,10 +150,33 @@ class EpisodeState:
             None,
         )
 
+    def route(self, route_id: str) -> RouteState | None:
+        return next((route for route in self.routes if route.route_id == route_id), None)
+
+    def to_policy_observation(self) -> dict[str, Any]:
+        """Observable current/past state and forecasts, never future outcome draws."""
+        return {
+            "scenario_id": self.scenario_id,
+            "current_timestep": self.current_timestep,
+            "uncertainty_config_id": self.uncertainty_config_id,
+            "forecast_for_timestep": self.forecast_for_timestep,
+            "zones": [zone.to_dict() for zone in self.zones],
+            "shelters": [shelter.to_dict() for shelter in self.shelters],
+            "routes": [route.to_dict() for route in self.routes],
+            "population_remaining": self.population_remaining,
+            "people_in_transit": self.people_in_transit,
+            "people_safely_arrived": self.people_safely_arrived,
+            "dispatch_limit_per_timestep": self.dispatch_limit_per_timestep,
+            "terminal": self.terminal,
+            "terminal_reason": self.terminal_reason.value if self.terminal_reason else None,
+        }
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "scenario_id": self.scenario_id,
             "current_timestep": self.current_timestep,
+            "uncertainty_config_id": self.uncertainty_config_id,
+            "forecast_for_timestep": self.forecast_for_timestep,
             "zones": [zone.to_dict() for zone in self.zones],
             "shelters": [shelter.to_dict() for shelter in self.shelters],
             "routes": [route.to_dict() for route in self.routes],

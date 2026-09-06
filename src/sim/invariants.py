@@ -1,6 +1,8 @@
-"""Fail-fast conservation and identity checks for Phase 3 episode snapshots."""
+"""Fail-fast deterministic and stochastic episode-state invariants."""
 
 from __future__ import annotations
+
+import math
 
 from .events import DispatchStatus
 from .schemas import ScenarioV3
@@ -17,7 +19,7 @@ def _require(condition: bool, message: str) -> None:
 
 
 def assert_episode_invariants(scenario: ScenarioV3, state: EpisodeState) -> None:
-    """Validate all Phase 3 ledgers; return only when the snapshot is coherent."""
+    """Validate all Phase 3/4 ledgers; return only for a coherent snapshot."""
     _require(state.scenario_id == scenario.scenario_id, "state scenario_id mismatch")
     _require(state.current_timestep >= 0, "current timestep must be nonnegative")
     _require(state.next_dispatch_sequence >= 1, "next dispatch sequence must be positive")
@@ -69,6 +71,15 @@ def assert_episode_invariants(scenario: ScenarioV3, state: EpisodeState) -> None
             0.0 <= zone.flood_severity_current <= 1.0,
             f"invalid current severity in {zone.zone_id}",
         )
+        _require(
+            zone.forecast_std_next is None or zone.forecast_std_next >= 0,
+            f"negative forecast uncertainty in {zone.zone_id}",
+        )
+        _require(
+            zone.forecast_mean_next is None
+            or 0.0 <= zone.forecast_mean_next <= 1.0,
+            f"invalid forecast mean in {zone.zone_id}",
+        )
 
     event_ids = [event.event_id for event in state.dispatch_events]
     _require(len(event_ids) == len(set(event_ids)), "dispatch event IDs must be unique")
@@ -84,6 +95,27 @@ def assert_episode_invariants(scenario: ScenarioV3, state: EpisodeState) -> None
     for event in state.dispatch_events:
         _require(event.people > 0, f"event {event.event_id} must carry people")
         _require(event.travel_lag_steps >= 1, f"event {event.event_id} has invalid lag")
+        _require(
+            math.isfinite(event.realized_travel_time_minutes)
+            and event.realized_travel_time_minutes > 0,
+            f"event {event.event_id} has invalid realized travel",
+        )
+        _require(
+            math.isfinite(event.base_travel_time_minutes)
+            and event.base_travel_time_minutes > 0,
+            f"event {event.event_id} has invalid base travel",
+        )
+        _require(
+            event.travel_lag_steps
+            == max(
+                1,
+                math.ceil(
+                    event.realized_travel_time_minutes
+                    / scenario.time.timestep_minutes
+                ),
+            ),
+            f"event {event.event_id} lag does not match realized travel",
+        )
         _require(
             event.arrival_timestep == event.departure_timestep + event.travel_lag_steps,
             f"event {event.event_id} arrival does not match its lag",
@@ -133,6 +165,13 @@ def assert_episode_invariants(scenario: ScenarioV3, state: EpisodeState) -> None
         shelter.shelter_id: shelter.occupancy_initial for shelter in scenario.shelters
     }
     for shelter in state.shelters:
+        scenario_shelter = next(
+            item for item in scenario.shelters if item.shelter_id == shelter.shelter_id
+        )
+        _require(
+            shelter.capacity_total == scenario_shelter.capacity_total,
+            f"numeric capacity changed in {shelter.shelter_id}",
+        )
         _require(shelter.capacity_total >= 0, f"negative capacity in {shelter.shelter_id}")
         _require(shelter.occupancy_current >= 0, f"negative occupancy in {shelter.shelter_id}")
         _require(shelter.capacity_reserved >= 0, f"negative reservation in {shelter.shelter_id}")
@@ -140,6 +179,15 @@ def assert_episode_invariants(scenario: ScenarioV3, state: EpisodeState) -> None
         _require(
             0.0 <= shelter.flood_severity_current <= 1.0,
             f"invalid current severity in {shelter.shelter_id}",
+        )
+        _require(
+            shelter.forecast_std_next is None or shelter.forecast_std_next >= 0,
+            f"negative forecast uncertainty in {shelter.shelter_id}",
+        )
+        _require(
+            shelter.forecast_mean_next is None
+            or 0.0 <= shelter.forecast_mean_next <= 1.0,
+            f"invalid forecast mean in {shelter.shelter_id}",
         )
         _require(
             shelter.capacity_reserved == pending_by_shelter[shelter.shelter_id],
@@ -150,6 +198,38 @@ def assert_episode_invariants(scenario: ScenarioV3, state: EpisodeState) -> None
             == initial_occupancy[shelter.shelter_id]
             + arrived_by_shelter[shelter.shelter_id],
             f"occupancy ledger mismatch in {shelter.shelter_id}",
+        )
+
+    for route in state.routes:
+        _require(
+            0.0 <= route.estimated_closure_probability <= 1.0,
+            f"invalid closure probability on {route.route_id}",
+        )
+        _require(
+            route.travel_time_uncertainty_minutes is None
+            or route.travel_time_uncertainty_minutes >= 0,
+            f"negative travel uncertainty on {route.route_id}",
+        )
+        if route.expected_travel_time_minutes is not None:
+            _require(
+                math.isfinite(route.expected_travel_time_minutes)
+                and route.expected_travel_time_minutes > 0,
+                f"invalid expected travel on {route.route_id}",
+            )
+        if route.closed_at_timestep is not None:
+            _require(
+                not route.reachable_current,
+                f"closed route {route.route_id} became reachable",
+            )
+            _require(
+                0 <= route.closed_at_timestep <= state.current_timestep,
+                f"invalid closure timestep on {route.route_id}",
+            )
+
+    if state.uncertainty_config_id is not None:
+        _require(
+            state.forecast_for_timestep is not None,
+            "stochastic state requires a forecast target timestep",
         )
 
     if state.terminal:
