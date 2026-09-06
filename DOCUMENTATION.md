@@ -55,7 +55,7 @@ Each step gets one section containing:
 | Group | Current contents |
 | --- | --- |
 | Entrypoints | `run_demo.py`; `src/dashboard/app.py` |
-| Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/`, `src/sim/` |
+| Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/`, `src/sim/`, `src/safety/` |
 | Scenario and constraints | `data/scenario.json`, `data/constraints_output.json`, `data/scenarios_v3/example_v3_scenario.json` |
 | Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; Phase 4 process-only sanity artifact in `data/eval_v3/` |
 | Real source corpus | `data/raw_docs/README.md`, `MANIFEST.json`, and `ndma_flood_guidelines.pdf` |
@@ -2112,5 +2112,249 @@ override, or final evaluation suite. Those remain in their named later phases.
 ### Commit
 
 See `git log` for *V3 Phase 4: stochastic flood, travel and closure dynamics*.
+
+---
+
+## 2026-09-07 — V3 Phase 5: deterministic hard-safety engine and action masks
+
+### Goal
+
+Freeze a small, deterministic, auditable V3 safety layer before any Phase 6 planner or
+PPO result exists. The layer consumes the current simulator decision state, reports
+simulator-owned mechanical failures, applies one additional synthetic hard-safety rule,
+and returns a mask bundled with its canonical semantic actions.
+
+The normative rule registry and boundary semantics are frozen in
+[`V3_SAFETY_SPEC.md`](V3_SAFETY_SPEC.md).
+
+> **Phase 5 safety thresholds are synthetic modeling assumptions unless explicitly
+> documented otherwise. They are not official NDMA flood-safety cutoffs.**
+
+### Added
+
+| Path | Purpose |
+| --- | --- |
+| `V3_SAFETY_SPEC.md` | Pre-planner deterministic safety specification, rule registry, provenance, safety-OFF interpretation, and open limitations. |
+| `src/safety/models.py` | Frozen, serializable rule, action-evaluation, and aligned safety-snapshot models. |
+| `src/safety/hard_rules.py` | Versioned `v3-safety-v1` configuration and the minimal destination-hazard rule. |
+| `src/safety/masks.py` | Canonical semantic action enumeration and pure per-state action/mask evaluation. |
+| `src/safety/audit.py` | Translation of authoritative simulator validation into structured reasons, stable JSON serialization, and human-readable rendering. |
+| `src/safety/__init__.py` | Public Phase 5 safety API. |
+| `tests/test_v3_safety.py` | 37 focused tests spanning mechanics, hard safety, safety-OFF, WAIT, dynamics, ordering, audit, purity, leakage, and the committed sanity artifact. |
+| `scripts/phase5_safety_sanity.py` | Deterministic 1,080-state cyclic safety exercise and generated three-case example. |
+| `data/eval_v3/phase5_safety_sanity.json` | Summary-only safety-engine sanity artifact; not a policy benchmark or effectiveness result. |
+
+No planner, reward, V3 Gymnasium environment, PPO code, RAG/Gemini behavior, routing,
+dashboard, or human-override code was added.
+
+### Mechanical validity versus hard safety
+
+`src.sim.transition.validate_action` remains the single source of truth for whether an
+action can execute. The safety evaluator calls it once and translates its result into a
+`MECHANICAL` verdict with `SIMULATOR_MECHANIC` provenance. It does not independently
+recalculate routes, capacity, population, status, fleet, dispatch, travel, identifier, or
+terminal checks.
+
+Mechanical rejection continues to cover terminal episodes, unsupported action types,
+unknown zone/shelter IDs, missing/ambiguous/unreachable routes, invalid current travel,
+empty sources, `CLOSED` shelters, zero capacity, disabled evacuation, and unavailable
+dispatch opportunities. These checks remain enforced when hard safety is disabled.
+
+Phase 5 adds exactly one rule:
+
+```text
+SAFETY_DESTINATION_HAZARD
+pass iff current destination shelter severity < 0.70
+```
+
+It applies only after a dispatch passes simulator mechanics. Equality is explicitly
+unsafe: `0.70` fails, as does any value above it. A high-hazard `OPEN` or `RESTRICTED`
+shelter can therefore be mechanically usable but safety-excluded.
+
+### Safety configuration and provenance
+
+The frozen configuration is `v3-safety-v1`, version 1, with
+`max_destination_hazard=0.70`. The value preserves the V1 synthetic training-proxy
+boundary for project continuity; it was not selected from V3 planner/PPO performance and
+is not claimed as an official NDMA threshold. The comparison remains the V1 `>=` exclusion
+semantics, expressed positively as `severity < limit` to pass.
+
+Every verdict includes a rule ID, layer, pass/fail, machine reason code, human reason,
+current values, config version, enforcement flag, and provenance. Phase 5 emits only
+`SIMULATOR_MECHANIC` and `SYNTHETIC_SAFETY_RULE`. `DOCUMENT_POLICY` is future-compatible
+vocabulary only and produces no decisions yet.
+
+### Partial dispatch, RESTRICTED, horizon, and safe-arrival decisions
+
+Phase 3 partial sizing remains unchanged:
+
+```text
+dispatch_people = min(vehicle_capacity, source_remaining, capacity_available)
+```
+
+Thus 20 available places permit a valid 20-person dispatch; Phase 5 does not introduce a
+full-vehicle capacity rule. This resolves Phase 1's sufficient-capacity language using
+the actual executable batch.
+
+`RESTRICTED` remains mechanically and safety usable when current severity is below 0.70;
+the status word alone adds no unexplained exclusion. `CLOSED` remains mechanical.
+
+No arrival-before-horizon rule was invented. Existing Phase 3 horizon treatment remains:
+accepted journeys may remain in transit at horizon termination. Existing reservations
+also survive later route/shelter closure, and previously arrived people remain in the
+safe ledger after later shelter degradation. Numeric capacity does not degrade in the
+current simulator, so post-dispatch capacity loss remains a future specification issue if
+that mechanic is ever added.
+
+### Canonical actions and mask semantics
+
+`enumerate_canonical_actions()` uses the Phase 2 canonical ordering, independent of input
+JSON order:
+
+```text
+Z1->S1, Z1->S2, ..., Zn->Sm, WAIT
+```
+
+It is the zone-major Cartesian product of canonical zones and shelters, followed by WAIT.
+All pairs are represented even if a route is absent or unreachable, so their mechanical
+reason is visible. No flattened RL IDs exist yet.
+
+`SafetySnapshot` binds `canonical_actions`, `allowed_mask`, and structured evaluations in
+one immutable object. Construction fails if lengths, order, or Boolean outcomes disagree.
+The engine recomputes the snapshot on every call; hazard threshold crossings, closures,
+reservations, arrivals, source depletion, and terminal changes therefore update the mask
+without cache invalidation risk.
+
+Every false mask entry has at least one failed, enforced structured reason. A nonterminal
+WAIT passes mechanics and has no additional hard-safety predicate, so the legal action set
+cannot be empty. At terminal state every action, including WAIT, is mechanically rejected
+and the terminal mask is all false.
+
+### Safety ON/OFF and unsafe-dispatch mapping
+
+With `enable_hard_safety=True`, final allowance requires both mechanical validity and the
+destination-hazard rule. With it `False`, mechanics still apply and only the synthetic
+hard-safety exclusion is bypassed. The failed hard-safety verdict is still emitted with
+`enforced=false`; this retains the frozen unsafe label for later RQ1 scoring.
+
+Consistent with the frozen Phase 1 plan, an **executed unsafe dispatch** is an executed
+non-WAIT action whose Phase 5 hard-safety predicate failed at decision time. In this
+version that means current destination severity `>= 0.70`. Mechanical impossibilities are
+normally rejected, so they are attempt/rejection diagnostics rather than executed-action
+denominator events. Masked candidates are not counted as executed unsafe dispatches.
+
+### Policy-facing inputs, purity, and determinism
+
+The rule reads only action IDs and current destination severity after mechanical
+validation reads current route/status/capacity/population/fleet/terminal state. It does
+not access forecasts, future hazard, future closures, future degradation, unrealized
+travel, latent regional state, root/random keys, embeddings, Gemini, network services, or
+documents.
+
+Safety evaluation is read-only: it does not mutate the scenario or episode state, append
+to audit/event ledgers, change population/reservations, or query an RNG. Stable JSON from
+identical inputs is byte reproducible. Paired stochastic tests confirm inserting safety
+evaluation does not change later simulator observations or transition results.
+
+### 1,080-state safety sanity result
+
+The generated exercise used all LOW/MEDIUM/HIGH uncertainty configs, 30 deterministic
+seeds per config, and all 12 fixture decision timesteps: 1,080 states total. At each
+state, all four dispatch pairs plus WAIT were evaluated. A fixed cyclic selector rotates
+among currently allowed dispatches and uses WAIT every fourth timestep; it is deliberately
+not a planner or policy benchmark.
+
+```text
+states examined:                                      1,080
+candidate dispatch actions:                           4,320
+total candidates including WAIT:                      5,400
+mechanically invalid dispatch candidates:             2,011
+mechanically valid hard-safety exclusions:                 1
+finally allowed candidates including WAIT:            3,388
+allowed dispatches failing simulator validation:          0
+allowed actions violating enabled hard-safety rules:      0
+excluded actions missing a structured reason:             0
+nonterminal states with zero allowed actions incl WAIT:    0
+```
+
+The small number of hazard-only exclusions is a process result, not evidence that the
+threshold is effective: the development fixture begins with low shelter severities and
+the Phase 4 simulator may mechanically close a shelter as it degrades. Final safety
+effectiveness is intentionally not evaluated here.
+
+### Human-readable generated example
+
+The script modifies only current fixture shelter severities, evaluates the real engine,
+then formats its structured results:
+
+```text
+A. mechanically invalid
+Z2->S2
+MECHANICALLY INVALID
+reason: MECHANICAL_ROUTE_UNREACHABLE — route is unreachable
+
+B. mechanically valid but safety-excluded
+Z2->S1
+MECHANICALLY VALID
+HARD SAFETY: EXCLUDED
+reason: SAFETY_DESTINATION_HAZARD — current severity 0.75 is at/above limit 0.70
+
+C. mechanically valid and safety-allowed
+Z1->S2
+MECHANICALLY VALID
+HARD SAFETY: ALLOWED
+```
+
+The labels, reasons, values, and action outcomes come from the evaluation objects; the
+script does not hardcode the decisions.
+
+### Tests and how verified
+
+```text
+Phase 5 safety suite:      37 passed
+Phase 4 stochastic suite: 53 passed
+Phase 3 transition suite: 60 passed
+Phase 2 schema suite:     52 passed
+legacy V1 suite:          43 passed
+full suite:              245 passed
+1,080-state sanity:       PASS
+purity/no-RNG:             PASS
+future leakage:           PASS
+three-case rendering:     PASS
+```
+
+The sanity artifact and example are regenerated with:
+
+```text
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m scripts.phase5_safety_sanity
+```
+
+### Real versus simulated
+
+The safety threshold, test fixture, uncertainty processes, and sanity statistics are
+synthetic. The evaluator itself and its verification results are real software behavior.
+No real shelter, route, flood observation, empirical calibration, or new policy source
+was introduced. Existing NDMA documents and V1/V2 artifacts were not modified.
+
+### Known limitations
+
+- The rule set is intentionally minimal: destination hazard is the only added safety
+  predicate.
+- There is no RAG policy interpretation, document-backed dynamic safety rule, or Gemini
+  call.
+- Route hazard remains a simplified endpoint proxy; there is no geospatial edge flooding.
+- No terminal-arrival deadline safety rule is active.
+- No planner, reward, V3 Gymnasium environment, PPO, human override, dashboard change, or
+  final safety-effectiveness study exists.
+
+### Deferred work
+
+Phase 6 planners and every later phase remain deferred. In particular, no threshold may
+be retuned after inspecting planner/PPO results without an explicit versioned safety-spec
+change and disclosure.
+
+### Commit
+
+See `git log` for *V3 Phase 5: deterministic hard-safety engine and action masks*.
 
 ---
