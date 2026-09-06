@@ -1502,3 +1502,107 @@ measured V1/V2 results remain untouched.
 See `git log` for *V3 Phase 1: pre-register evaluation metrics and decision gates*.
 
 ---
+
+## 2026-09-07 — V3 Phase 2: dynamic scenario data contract
+
+**Goal.** Define the immutable, versioned inputs required by a future multi-zone,
+multi-shelter, multi-timestep, route-aware stochastic evacuation simulator, without
+implementing any simulator behavior.
+
+### Added
+
+| Path | Purpose |
+| --- | --- |
+| `src/sim/__init__.py` | Public exports for the V3 scenario contract. |
+| `src/sim/schemas.py` | Frozen standard-library dataclasses, enums, validation, canonical ordering, and JSON load/dump helpers for schema `3.0`. |
+| `data/scenarios_v3/example_v3_scenario.json` | Two-zone, two-shelter, four-route synthetic development fixture; one route is explicitly unreachable. |
+| `tests/test_v3_schemas.py` | 52 schema tests covering validation, references, serialization, immutability, provenance, ordering, and V1 separation. |
+
+### Dependencies
+
+None. Standard-library dataclasses were chosen instead of Pydantic because the contract's
+validation is compact and explicit; adding a new runtime validation dependency would not
+buy enough here.
+
+### Schema decisions
+
+- `schema_version` must equal `"3.0"`; V1 input is rejected with an explicit unsupported-
+  version error and continues to load through the unchanged V1 loader.
+- The top-level immutable definition contains provenance, time, zones, shelters, aggregate
+  fleet limits, route/network definitions, hazard-scale metadata, a Phase 4 stochastic-
+  parameter interface, and optional policy/evidence version references.
+- Locations use exactly one representation: abstract node, future graph node, or future
+  coordinates. The development fixture uses abstract nodes and invents no geography.
+- `vulnerable_population` and `medical_priority_population` are potentially overlapping
+  operational groups. Each may not exceed total population, but their sum may.
+- Shelter status is the explicit enum `OPEN`, `RESTRICTED`, or `CLOSED`; V1's more specific
+  strings are not silently collapsed or migrated.
+- Available shelter capacity is derived from total capacity minus initial occupancy. No
+  authoritative `capacity_remaining` is serialized.
+- Reachable routes require positive mean travel, nonnegative standard deviation, and a
+  closure probability in `[0,1]`. Unreachable routes use `reachable: false` and `null`
+  metrics, never a fake large travel-time sentinel.
+- Canonical zone, shelter, and route views sort by stable IDs without mutating or
+  reordering the source JSON.
+- The root seed is metadata for future independently derived Phase 4 streams. Loading the
+  schema performs no random draw.
+
+Mutable episode quantities—current population/severity/time, in-transit groups, shelter
+occupancy/reservations, road closures, and pending arrivals—are deliberately absent.
+
+### Validation invariants
+
+Validation covers nonempty/unique identities, nonnegative seed and populations, subgroup
+bounds, initial remaining population, shelter capacity/occupancy, normalized severity and
+accessibility, fleet consistency, route IDs and references, reachable/unreachable route
+semantics, normalized closure probability, valid time configuration, provenance enums,
+unknown fields, and the supported schema version.
+
+### How it was verified
+
+```text
+V3 schema tests: 52 passed in 0.14 s
+combined suite: 95 passed in 0.34 s
+legacy V1 tests: 43 unchanged and passing
+fixture JSON syntax: PASS
+example load: 2 zones, 2 shelters, 4 routes (3 reachable)
+canonical order: Z1/Z2 and S1/S2
+JSON dump/reload semantic equality: True
+```
+
+The current V1 scenario, model, cached constraints, and evaluation artifacts were checked
+for accidental changes and remain untouched.
+
+### Real vs. simulated
+
+The example is prominently labeled **SIMULATED / FICTIONAL DEVELOPMENT FIXTURE — NOT
+REAL FLOOD OR SHELTER DATA**. Its populations, shelters, initial severities, travel
+distributions, closure probabilities, accessibility scores, abstract nodes, and routes
+are invented solely to validate the schema. No real geospatial network or forecast is
+present. The provenance enum can separately label components `REAL`, `SIMULATED`,
+`FICTIONAL`, `MODEL_GENERATED`, or `MEASURED` when later scenarios legitimately mix them.
+
+### Semantics deferred to later phases
+
+- capacity reservation timing and arrival/overbooking behavior;
+- dispatch batch and partial-batch behavior;
+- timestep transition ordering and terminal in-transit handling;
+- exact LOW/MEDIUM/HIGH stochastic parameters and forecast semantics;
+- flood evolution, road closure, travel-noise, and shelter-degradation dynamics;
+- restricted-shelter hard-rule interpretation and other safety thresholds;
+- reward components and weights.
+
+### Known limitations
+
+- This is a data contract, not a dynamic simulator; nothing transitions over time yet.
+- Stochastic fields are typed placeholders and deliberately `null` in the fixture until
+  Phase 4 freezes their meaning and values.
+- `GRAPH_NODE` and `COORDINATES` are supported representations, but no graph, OSM data,
+  shortest-path calculation, or real coordinate is included.
+- `RESTRICTED` has no runtime intake semantics until the hard-safety phase.
+
+### Commit
+
+See `git log` for *V3 Phase 2: dynamic scenario schema and validation*.
+
+---

@@ -1,0 +1,58 @@
+"""Static V3 scenario contracts.
+
+Phase 2 deliberately contains no transition, reward, planning, or stochastic behavior.
+"""
+
+from .schemas import (
+    FleetConfig,
+    HazardConfig,
+    LocationKind,
+    LocationRef,
+    NetworkConfig,
+    NetworkMode,
+    OperationalPriorityFeature,
+    PolicyContext,
+    Provenance,
+    ProvenanceClass,
+    ProvenanceComponent,
+    RouteDefinition,
+    ScenarioV3,
+    ScenarioValidationError,
+    ShelterDefinition,
+    ShelterStatus,
+    StochasticParameterStatus,
+    StochasticModelConfig,
+    TimeConfig,
+    Trend,
+    ZoneDefinition,
+    SCHEMA_VERSION,
+    dump_v3_scenario,
+    load_v3_scenario,
+)
+
+__all__ = [
+    "FleetConfig",
+    "HazardConfig",
+    "LocationKind",
+    "LocationRef",
+    "NetworkConfig",
+    "NetworkMode",
+    "OperationalPriorityFeature",
+    "PolicyContext",
+    "Provenance",
+    "ProvenanceClass",
+    "ProvenanceComponent",
+    "RouteDefinition",
+    "ScenarioV3",
+    "ScenarioValidationError",
+    "ShelterDefinition",
+    "ShelterStatus",
+    "StochasticParameterStatus",
+    "StochasticModelConfig",
+    "TimeConfig",
+    "Trend",
+    "ZoneDefinition",
+    "SCHEMA_VERSION",
+    "dump_v3_scenario",
+    "load_v3_scenario",
+]

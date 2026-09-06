@@ -1,0 +1,191 @@
+{
+  "schema_version": "3.0",
+  "scenario_id": "v3-development-fixture-001",
+  "seed": 12345,
+  "provenance": {
+    "scenario_origin": {
+      "classification": "SIMULATED",
+      "description": "SIMULATED / FICTIONAL DEVELOPMENT FIXTURE. NOT REAL FLOOD OR SHELTER DATA.",
+      "source_refs": []
+    },
+    "geography_origin": {
+      "classification": "FICTIONAL",
+      "description": "Abstract node identifiers only; no real coordinates or place names are used.",
+      "source_refs": []
+    },
+    "population_origin": {
+      "classification": "SIMULATED",
+      "description": "Synthetic population counts created only to validate the V3 schema.",
+      "source_refs": []
+    },
+    "shelter_origin": {
+      "classification": "FICTIONAL",
+      "description": "Shelters, capacities, statuses, and accessibility scores are invented.",
+      "source_refs": []
+    },
+    "hazard_origin": {
+      "classification": "SIMULATED",
+      "description": "Initial normalized severity and trend indicators are modeling inputs, not forecasts.",
+      "source_refs": []
+    },
+    "travel_origin": {
+      "classification": "SIMULATED",
+      "description": "Travel distributions and closure probabilities are development-fixture values.",
+      "source_refs": []
+    },
+    "network_origin": {
+      "classification": "FICTIONAL",
+      "description": "The abstract route matrix is not an OSM or real road network.",
+      "source_refs": []
+    },
+    "notes": [
+      "SIMULATED / FICTIONAL DEVELOPMENT FIXTURE — NOT REAL FLOOD OR SHELTER DATA.",
+      "Vulnerable and medical-priority counts are potentially overlapping operational groups; each is bounded independently by total population.",
+      "No stochastic evolution or simulator transition is performed by this file."
+    ]
+  },
+  "time": {
+    "timestep_minutes": 10.0,
+    "horizon_steps": 12
+  },
+  "zones": [
+    {
+      "zone_id": "Z2",
+      "location": {
+        "kind": "ABSTRACT_NODE",
+        "node_id": "NODE_ZONE_B",
+        "latitude": null,
+        "longitude": null
+      },
+      "population_total": 350,
+      "population_initial_remaining": 350,
+      "vulnerable_population": 80,
+      "medical_priority_population": 25,
+      "initial_flood_severity": 0.42,
+      "initial_severity_trend": "RISING",
+      "priority_features": [
+        {
+          "name": "limited_mobility_fraction",
+          "value": 0.2,
+          "description": "Synthetic operational planning feature; not a measured demographic attribute."
+        }
+      ]
+    },
+    {
+      "zone_id": "Z1",
+      "location": {
+        "kind": "ABSTRACT_NODE",
+        "node_id": "NODE_ZONE_A",
+        "latitude": null,
+        "longitude": null
+      },
+      "population_total": 500,
+      "population_initial_remaining": 500,
+      "vulnerable_population": 120,
+      "medical_priority_population": 120,
+      "initial_flood_severity": 0.68,
+      "initial_severity_trend": "RISING",
+      "priority_features": []
+    }
+  ],
+  "shelters": [
+    {
+      "shelter_id": "S2",
+      "location": {
+        "kind": "ABSTRACT_NODE",
+        "node_id": "NODE_SHELTER_B",
+        "latitude": null,
+        "longitude": null
+      },
+      "capacity_total": 700,
+      "occupancy_initial": 100,
+      "status": "RESTRICTED",
+      "status_reason": "Synthetic reduced-intake state for schema validation.",
+      "initial_flood_severity": 0.2,
+      "accessibility_score": 0.7
+    },
+    {
+      "shelter_id": "S1",
+      "location": {
+        "kind": "ABSTRACT_NODE",
+        "node_id": "NODE_SHELTER_A",
+        "latitude": null,
+        "longitude": null
+      },
+      "capacity_total": 900,
+      "occupancy_initial": 150,
+      "status": "OPEN",
+      "status_reason": null,
+      "initial_flood_severity": 0.12,
+      "accessibility_score": 0.85
+    }
+  ],
+  "fleet": {
+    "evacuation_enabled": true,
+    "vehicle_count": 4,
+    "vehicle_capacity": 50,
+    "dispatches_per_timestep": 1
+  },
+  "network": {
+    "network_id": "fictional-development-route-matrix",
+    "mode": "ABSTRACT_ROUTES",
+    "routes": [
+      {
+        "route_id": "R-Z2-S2",
+        "source_zone_id": "Z2",
+        "destination_shelter_id": "S2",
+        "reachable": false,
+        "travel_time_mean": null,
+        "travel_time_std": null,
+        "base_closure_probability": null
+      },
+      {
+        "route_id": "R-Z1-S2",
+        "source_zone_id": "Z1",
+        "destination_shelter_id": "S2",
+        "reachable": true,
+        "travel_time_mean": 30.0,
+        "travel_time_std": 5.0,
+        "base_closure_probability": 0.08
+      },
+      {
+        "route_id": "R-Z2-S1",
+        "source_zone_id": "Z2",
+        "destination_shelter_id": "S1",
+        "reachable": true,
+        "travel_time_mean": 25.0,
+        "travel_time_std": 4.0,
+        "base_closure_probability": 0.06
+      },
+      {
+        "route_id": "R-Z1-S1",
+        "source_zone_id": "Z1",
+        "destination_shelter_id": "S1",
+        "reachable": true,
+        "travel_time_mean": 20.0,
+        "travel_time_std": 3.0,
+        "base_closure_probability": 0.05
+      }
+    ]
+  },
+  "hazard": {
+    "severity_min": 0.0,
+    "severity_max": 1.0,
+    "scale_description": "Normalized modeling scale: 0 is minimum simulated severity and 1 is maximum simulated severity.",
+    "thresholds_are_modeling_assumptions": true
+  },
+  "stochastic_model": {
+    "parameter_status": "DEFERRED_TO_PHASE_4",
+    "regional_shock_std": null,
+    "local_noise_std": null,
+    "shock_persistence": null,
+    "travel_noise_std": null,
+    "closure_hazard_coefficient": null,
+    "shelter_degradation_probability": null
+  },
+  "policy_context": {
+    "constraint_cache_version": null,
+    "policy_schema_version": "v3-interface-placeholder",
+    "document_corpus_fingerprint": null
+  }
+}
