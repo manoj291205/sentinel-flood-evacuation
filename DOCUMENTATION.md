@@ -1360,3 +1360,75 @@ inventory and cleanup describe repository state only.
 See `git log` for the repository-inventory and local-metadata cleanup commit.
 
 ---
+
+## 2026-09-06 — V3 Phase 0: freeze, audit, and baseline
+
+**Goal.** Create a reproducible baseline before any V3 simulator, stochastic dynamics,
+planner, or RL implementation begins.
+
+### Added
+
+| Path / ref | Purpose |
+| --- | --- |
+| branch `v3-dynamic-stochastic` | Isolates V3 work without rewriting `main`, `v2-resources`, or the frozen V1 tag. |
+| `V3_BASELINE.md` | Records commit/ref provenance, Python and dependency pins, test/model checks, held-out metrics, RAG state, demo output, dashboard smoke status, artifact hashes, and limitations. |
+
+The branch starts at `d998aac`, the tip of `v2-resources` after repository cleanup. This
+is intentional: `main` remains at the V1 capstone state, while the v2 branch contains the
+Gate 1A and Gate 1A.5 negative results that directly motivate V3's dynamic stochastic
+design. The tag `v1-capstone-demo` still resolves to `f19cccc`.
+
+### Dependencies
+
+None added. All nine direct dependencies remain pinned in `requirements.txt`; Phase 0
+records that the project has no transitive lockfile.
+
+### How it was verified
+
+```text
+43 passed in 0.31 s
+run_demo.py: exit 0 in explicit Hugging Face offline mode
+model load: MaskablePPO, observation Box(28), action Discrete(7)
+Chroma collection: flood_guidelines, 480 chunks
+Streamlit: localhost health "ok"; initial HTML returned
+Streamlit AppTest: 0 exceptions, 1 title
+```
+
+The offline demo used the committed PDF, local Chroma index, cached Gemini output, and
+committed checkpoint. It recommended S5 with constraints and S1 without them, exactly as
+the documented baseline states. No Gemini call or artifact rebuild occurred.
+
+### Measured results frozen
+
+From the unchanged 60-scenario evaluation artifact:
+
+| Measure | Result |
+| --- | ---: |
+| constrained RL held-out optimal rate | 73.33% (44/60) |
+| constrained greedy-oracle optimal rate | 93.33% (56/60) |
+| unsafe picks with constraints | 6.67% (4/60) |
+| unsafe picks without constraints | 40.00% (24/60) |
+
+The RAG baseline remains one distinct 168-page authoritative document, 480 page-scoped
+chunks, cached `gemini-3.6-flash` output, and 7/7 verbatim-verified demo citations.
+
+### Real vs. simulated
+
+The NDMA document and its provenance are real. The flood scenario and shelters are
+fictional. The constraint verdicts are model-generated. Test, retrieval, model-load,
+dashboard, and held-out figures reported here were measured from the current checkout.
+
+### Known limitations
+
+- The normal demo path tries Hugging Face metadata `HEAD` requests before using its local
+  cache; explicit `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1` avoids that delay.
+- Phase 0's dashboard check proves server health and exception-free app execution, not a
+  new pixel-level accessibility audit.
+- V1's policy remains worse than its greedy oracle. Phase 0 preserves that negative
+  result; it does not begin the V3 formulation intended to address it.
+
+### Commit
+
+See `git log` for *V3 Phase 0: freeze baseline and create expansion branch*.
+
+---
