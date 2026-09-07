@@ -1,0 +1,33 @@
+{
+  "artifact_kind": "DEBUG \u2014 NOT A PRIMARY RESULT",
+  "git_commit": "5b13c59c0774929b4df194ccf9f1668ffb72aa46",
+  "training_spec_version": "v3-ppo-training-spec-v1",
+  "environment_config_id": "v3-env-v1",
+  "reward_config_id": "v3-reward-balanced-v1",
+  "safety_config_id": "v3-safety-v1",
+  "training_seed": 1101,
+  "software": {
+    "python": "3.11.3",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "machine": "arm64",
+    "processor": "arm",
+    "logical_cpu_count": 8,
+    "torch": "2.13.0",
+    "gymnasium": "1.3.0",
+    "stable_baselines3": "2.9.0",
+    "sb3_contrib": "2.9.0",
+    "mps_available": false,
+    "torch_threads": 4,
+    "device": "cpu",
+    "deterministic_algorithms": true,
+    "exact_model_byte_reproducibility_guaranteed": false
+  },
+  "total_training_timesteps": 20000,
+  "checkpoint_timestep": 20000,
+  "validation_score": 0.2629506736551592,
+  "observation_dimension": 384,
+  "action_dimension": 55,
+  "wall_clock_seconds": 57.609375583000656,
+  "timesteps_per_second": 347.16571387212866,
+  "approximate_peak_memory": "not measured"
+}

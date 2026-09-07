@@ -24,7 +24,12 @@ from .rewards import (
     RewardProvider,
     reward_breakdown_to_info,
 )
-from .scenario_source import FixedScenarioSource, ResetContext, ScenarioSource
+from .scenario_source import (
+    FixedScenarioSource,
+    ResetContext,
+    ScenarioSelection,
+    ScenarioSource,
+)
 
 
 class EvacuationEnvV3(gym.Env[np.ndarray, int]):
@@ -181,9 +186,14 @@ class EvacuationEnvV3(gym.Env[np.ndarray, int]):
         options: dict[str, Any] | None = None,
     ) -> tuple[np.ndarray, dict[str, Any]]:
         super().reset(seed=seed)
-        scenario = self.scenario_source.next_scenario(
-            ResetContext(gym_seed=seed, episode_index=self._episode_index)
-        )
+        reset_context = ResetContext(gym_seed=seed, episode_index=self._episode_index)
+        selection = self.scenario_source.next_scenario(reset_context)
+        active_uncertainty = self.uncertainty_config
+        if isinstance(selection, ScenarioSelection):
+            scenario = selection.scenario
+            active_uncertainty = selection.uncertainty_config
+        else:
+            scenario = selection
         if not isinstance(scenario, ScenarioV3):
             raise TypeError("scenario source must return ScenarioV3")
         replication_id = int(seed) if seed is not None else self._auto_replication_id
@@ -194,7 +204,7 @@ class EvacuationEnvV3(gym.Env[np.ndarray, int]):
         self._action_mapping = FixedActionMap(scenario, self.config)
         self._simulator = StochasticSimulator(
             scenario,
-            self.uncertainty_config,
+            active_uncertainty,
             replication_id=replication_id,
         )
         self._public_observation = self._simulator.observe()
@@ -256,6 +266,17 @@ class EvacuationEnvV3(gym.Env[np.ndarray, int]):
                 "executed_action": executed.index,
                 "people_dispatched": result.people_dispatched,
                 "arrivals_processed": len(result.arrivals_processed),
+                "allowed_action_count_before": int(mask_before.sum()),
+                "safe_population_fraction": (
+                    result.state.people_safely_arrived
+                    / result.state.initial_evacuation_population
+                    if result.state.initial_evacuation_population > 0
+                    else 0.0
+                ),
+                "evacuation_complete": (
+                    result.state.people_safely_arrived
+                    == result.state.initial_evacuation_population
+                ),
                 "audit_events": [
                     {
                         "event_type": record.event_type.value,

@@ -32,6 +32,7 @@ from .scenario_source import (
     CallableScenarioSource,
     FixedScenarioSource,
     ResetContext,
+    ScenarioSelection,
     ScenarioSource,
 )
 from .rewards import (
@@ -75,6 +76,7 @@ __all__ = [
     "REWARD_MODELING_ASSUMPTION_DISCLAIMER",
     "ROUTE_FEATURES",
     "ResetContext",
+    "ScenarioSelection",
     "SHELTER_FEATURES",
     "ScenarioSource",
     "WAIT_INDEX",

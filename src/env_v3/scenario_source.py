@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, Protocol
 
-from src.sim import ScenarioV3
+from src.sim import ScenarioV3, UncertaintyConfig
 
 
 @dataclass(frozen=True)
@@ -14,8 +14,22 @@ class ResetContext:
     episode_index: int
 
 
+@dataclass(frozen=True)
+class ScenarioSelection:
+    """A scenario plus its episode-specific public-dynamics configuration.
+
+    The uncertainty label configures the simulator only. It is not added to the policy
+    observation or reset/step info.
+    """
+
+    scenario: ScenarioV3
+    uncertainty_config: str | UncertaintyConfig
+
+
 class ScenarioSource(Protocol):
-    def next_scenario(self, reset_context: ResetContext) -> ScenarioV3: ...
+    def next_scenario(
+        self, reset_context: ResetContext
+    ) -> ScenarioV3 | ScenarioSelection: ...
 
 
 @dataclass(frozen=True)

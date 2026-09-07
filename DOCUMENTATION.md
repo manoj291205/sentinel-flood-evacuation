@@ -3004,3 +3004,74 @@ five primary runs are permitted only after the exact commit named
 *V3 Phase 9A: freeze PPO training specification* exists. Phase 10 data remains unseen.
 
 ---
+
+## 2026-09-07 — V3 Phase 9B: trained pre-registered MaskablePPO policies
+
+### Outcome
+
+Executed the frozen Stage 9A contract without changing its generator, reward, safety,
+architecture, hyperparameters, validation suite, seeds, or budget. The detailed record is
+[`V3_TRAINING_RESULT.md`](V3_TRAINING_RESULT.md); structured results live under
+`data/eval_v3/training/`, and separately named best/final models plus metadata live under
+`models/v3/`.
+
+The 20k seed-1101 debug run was finite, mask-clean, save/load capable, and deterministic
+at inference. Repeating it reproduced every validation metric exactly, although ZIP bytes
+differed; exact model-byte reproducibility is not claimed.
+
+All five primary seeds completed exactly 250,000 timesteps and 25 deterministic
+150-scenario validations. No performance early stopping or seed replacement occurred.
+
+| Seed | Best step | Validation return | Safe pop. | Exposure | Completion | Invalid |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1101 | 240,000 | 0.282728 | 0.708929 | 0.231826 | 0.133333 | 0 |
+| 2202 | 200,000 | 0.282436 | 0.711290 | 0.238310 | 0.140000 | 0 |
+| 3303 | 220,000 | 0.278508 | 0.703620 | 0.234598 | 0.113333 | 0 |
+| 4404 | 200,000 | 0.279870 | 0.705327 | 0.234300 | 0.080000 | 0 |
+| 5505 | 190,000 | 0.273840 | 0.697315 | 0.236535 | 0.120000 | 0 |
+
+Mean validation return was `0.279477` with population standard deviation `0.003231`,
+range `0.273840`–`0.282728`. The frozen median-validation rule selects seed 4404 as the
+representative, but Phase 10 must evaluate every best checkpoint.
+
+### Learning and compute artifacts
+
+`learning_curves.csv` and `learning_curves.svg` report validation return, safe population,
+and exposure for every seed at every 10k interval plus cross-seed mean/std. Mean return
+moved from `0.240915` at 10k to `0.274342` at 250k. Per-episode CSV files retain reward,
+safe fraction, exposure, travel, completion, invalid actions, and allowed-action stats.
+
+All runs used CPU with four Torch threads and deterministic algorithms. Summed process
+wall time was 4,034 seconds; concurrent seed pairs shared the same machine. Peak memory
+was not measured.
+
+### Slot diagnostic — alarm triggered
+
+The frozen diagnostic evaluated all five best models on 30 base scenarios × five ID
+permutations (750 total pairs). Physical-feature and route remapping tests passed, so only
+semantic IDs/slots varied under deterministic paired dynamics.
+
+```text
+mean remapped action equivalence:             0.099608
+median absolute normalized return delta:      0.057137
+mean absolute safe-population delta:           0.096927
+alarm:                         POTENTIAL_SLOT_SHORTCUT
+```
+
+Both quantitative alarm thresholds (`0.05`) were exceeded, and every seed triggered.
+No generator change or retraining followed. V3 fixes the exact V1 permanent-S6/S7-mask
+data bug, but its flat MLP remains materially position sensitive despite broad opaque-ID
+randomization. This limitation must be reported in Phase 10.
+
+### Information boundary and stopping point
+
+The PPO observation still has only aggregate transit/reservation information; strong
+practical planners retain detailed pending-arrival metadata. Comparison remains
+conservative against PPO and not information matched. The Phase 10
+`OBSERVATION-MATCHED PLANNER DIAGNOSTIC` remains mandatory and unimplemented.
+
+Training/validation performance does not establish PPO superiority. No Phase 10 suite,
+planner comparison, oracle target, or college demo evaluation was run. Work stops after
+the Phase 9B commit.
+
+---
