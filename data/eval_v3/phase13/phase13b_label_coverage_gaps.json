@@ -1,0 +1,428 @@
+{
+  "artifact_type": "phase13b_retrieval_label_coverage_preflight",
+  "evaluation_version": "v3-retrieval-evaluation-ai-assisted-v1",
+  "benchmark_version": "v3-retrieval-benchmark-ai-assisted-v1",
+  "label_protocol": "v3-ai-relevance-labeler-v1",
+  "label_fingerprint": "bf46ffb139cbd314e1707409635b76346faea81739e5a95710317be07dd73b92",
+  "corpus_version": "v3-authoritative-corpus-v1",
+  "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+  "retrieval_config_version": "v3-retrieval-v1",
+  "question_count": 45,
+  "top_k": 5,
+  "phase13b_status": "NEEDS_LABEL_COVERAGE_EXTENSION",
+  "coverage_gate": {
+    "status": "FAIL",
+    "total_unique_top5_pairs": 434,
+    "labeled_pairs": 415,
+    "unlabeled_pairs": 19,
+    "affected_question_count": 4,
+    "affected_question_ids": [
+      "Q003",
+      "Q008",
+      "Q016",
+      "Q034"
+    ]
+  },
+  "coverage_gaps": [
+    {
+      "question_id": "Q003",
+      "effective_question": "Where should flood shelters and disaster relief centres be located so that they remain functional during floods?",
+      "retriever": [
+        "BM25"
+      ],
+      "rank": {
+        "BM25": 4
+      },
+      "method_id": {
+        "BM25": "bm25-okapi-v1"
+      },
+      "chunk_id": "ndma-flood-guidelines-2008-p62-c1",
+      "source_id": "ndma-flood-guidelines-2008",
+      "filename": "ndma_flood_guidelines.pdf",
+      "page": 62,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "3fbd5fbec3811db295c6dc0719894b2dbabc2af524c0142eae923391b81c4014"
+    },
+    {
+      "question_id": "Q003",
+      "effective_question": "Where should flood shelters and disaster relief centres be located so that they remain functional during floods?",
+      "retriever": [
+        "BM25"
+      ],
+      "rank": {
+        "BM25": 5
+      },
+      "method_id": {
+        "BM25": "bm25-okapi-v1"
+      },
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p115-c2",
+      "source_id": "ndma-national-disaster-management-plan-2019",
+      "filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "page": 115,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "1edb2944486171a1ac250058eb404071828c3870b32fbdb7256dcf237b4b63e6"
+    },
+    {
+      "question_id": "Q003",
+      "effective_question": "Where should flood shelters and disaster relief centres be located so that they remain functional during floods?",
+      "retriever": [
+        "Dense"
+      ],
+      "rank": {
+        "Dense": 5
+      },
+      "method_id": {
+        "Dense": "dense-minilm-v1"
+      },
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p149-c0",
+      "source_id": "ndma-national-disaster-management-plan-2019",
+      "filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "page": 149,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "8ad82b64fc2fb17ccfe0f758a36cfbdd0140a406d8c08ac05c299e273249b1a3"
+    },
+    {
+      "question_id": "Q003",
+      "effective_question": "Where should flood shelters and disaster relief centres be located so that they remain functional during floods?",
+      "retriever": [
+        "Hybrid"
+      ],
+      "rank": {
+        "Hybrid": 4
+      },
+      "method_id": {
+        "Hybrid": "hybrid-rrf-v1"
+      },
+      "chunk_id": "ndma-temporary-shelters-2019-p48-c2",
+      "source_id": "ndma-temporary-shelters-2019",
+      "filename": "ndma_temporary_shelters_2019.pdf",
+      "page": 48,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "1ab458095ff29ca93a679be04709b80d3159397bb6be79362006dc5fe7a71da7"
+    },
+    {
+      "question_id": "Q008",
+      "effective_question": "How should flood warning information be presented to affected communities?",
+      "retriever": [
+        "Dense",
+        "Hybrid"
+      ],
+      "rank": {
+        "Dense": 1,
+        "Hybrid": 3
+      },
+      "method_id": {
+        "Dense": "dense-minilm-v1",
+        "Hybrid": "hybrid-rrf-v1"
+      },
+      "chunk_id": "ndma-flood-guidelines-2008-p101-c0",
+      "source_id": "ndma-flood-guidelines-2008",
+      "filename": "ndma_flood_guidelines.pdf",
+      "page": 101,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "77d4731f216e6b861ab08b859c43a909c5cc2f7475d21160f5f606ad563bc8f2"
+    },
+    {
+      "question_id": "Q008",
+      "effective_question": "How should flood warning information be presented to affected communities?",
+      "retriever": [
+        "Dense",
+        "Hybrid"
+      ],
+      "rank": {
+        "Dense": 2,
+        "Hybrid": 5
+      },
+      "method_id": {
+        "Dense": "dense-minilm-v1",
+        "Hybrid": "hybrid-rrf-v1"
+      },
+      "chunk_id": "ndma-flood-guidelines-2008-p151-c0",
+      "source_id": "ndma-flood-guidelines-2008",
+      "filename": "ndma_flood_guidelines.pdf",
+      "page": 151,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "77a22a0d92dc7cf3bd97f6dbabf24a5d63a6043e5df5e2db790fe9c2e4e7ecb4"
+    },
+    {
+      "question_id": "Q008",
+      "effective_question": "How should flood warning information be presented to affected communities?",
+      "retriever": [
+        "Dense"
+      ],
+      "rank": {
+        "Dense": 5
+      },
+      "method_id": {
+        "Dense": "dense-minilm-v1"
+      },
+      "chunk_id": "ndma-flood-guidelines-2008-p22-c3",
+      "source_id": "ndma-flood-guidelines-2008",
+      "filename": "ndma_flood_guidelines.pdf",
+      "page": 22,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "efc45e5e89461c2608bba4fcdd5500cf652fd345f7d8a65abc5c6a8a624fb8a5"
+    },
+    {
+      "question_id": "Q008",
+      "effective_question": "How should flood warning information be presented to affected communities?",
+      "retriever": [
+        "Dense",
+        "Hybrid"
+      ],
+      "rank": {
+        "Dense": 4,
+        "Hybrid": 2
+      },
+      "method_id": {
+        "Dense": "dense-minilm-v1",
+        "Hybrid": "hybrid-rrf-v1"
+      },
+      "chunk_id": "ndma-flood-guidelines-2008-p64-c3",
+      "source_id": "ndma-flood-guidelines-2008",
+      "filename": "ndma_flood_guidelines.pdf",
+      "page": 64,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "6429a7e376a57c2c7f19f6f9ec21be4b608176bf46e2913263e911a9aaf292bb"
+    },
+    {
+      "question_id": "Q008",
+      "effective_question": "How should flood warning information be presented to affected communities?",
+      "retriever": [
+        "Dense",
+        "BM25",
+        "Hybrid"
+      ],
+      "rank": {
+        "Dense": 3,
+        "BM25": 5,
+        "Hybrid": 1
+      },
+      "method_id": {
+        "Dense": "dense-minilm-v1",
+        "BM25": "bm25-okapi-v1",
+        "Hybrid": "hybrid-rrf-v1"
+      },
+      "chunk_id": "ndma-flood-guidelines-2008-p89-c1",
+      "source_id": "ndma-flood-guidelines-2008",
+      "filename": "ndma_flood_guidelines.pdf",
+      "page": 89,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "a9143beff7738c9a85222d775a76f2ae552aad8c74655d070fee53d41e304675"
+    },
+    {
+      "question_id": "Q008",
+      "effective_question": "How should flood warning information be presented to affected communities?",
+      "retriever": [
+        "BM25"
+      ],
+      "rank": {
+        "BM25": 2
+      },
+      "method_id": {
+        "BM25": "bm25-okapi-v1"
+      },
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p237-c1",
+      "source_id": "ndma-national-disaster-management-plan-2019",
+      "filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "page": 237,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "7217a8adee2f2bb0a58b5299b8af21d6d03a1d879305797e28b620b323ea7896"
+    },
+    {
+      "question_id": "Q008",
+      "effective_question": "How should flood warning information be presented to affected communities?",
+      "retriever": [
+        "BM25",
+        "Hybrid"
+      ],
+      "rank": {
+        "BM25": 1,
+        "Hybrid": 4
+      },
+      "method_id": {
+        "BM25": "bm25-okapi-v1",
+        "Hybrid": "hybrid-rrf-v1"
+      },
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p85-c1",
+      "source_id": "ndma-national-disaster-management-plan-2019",
+      "filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "page": 85,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "63a43071943b6f09f24fb13d0957336e3707d3302507a51393961bab4fc57d47"
+    },
+    {
+      "question_id": "Q008",
+      "effective_question": "How should flood warning information be presented to affected communities?",
+      "retriever": [
+        "BM25"
+      ],
+      "rank": {
+        "BM25": 4
+      },
+      "method_id": {
+        "BM25": "bm25-okapi-v1"
+      },
+      "chunk_id": "ndma-temporary-shelters-2019-p44-c2",
+      "source_id": "ndma-temporary-shelters-2019",
+      "filename": "ndma_temporary_shelters_2019.pdf",
+      "page": 44,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "f18f7fc239737437778399ea6d24d8ef5528d00ff83662bf1354bc19e51b2345"
+    },
+    {
+      "question_id": "Q008",
+      "effective_question": "How should flood warning information be presented to affected communities?",
+      "retriever": [
+        "BM25"
+      ],
+      "rank": {
+        "BM25": 3
+      },
+      "method_id": {
+        "BM25": "bm25-okapi-v1"
+      },
+      "chunk_id": "ndma-temporary-shelters-2019-p45-c1",
+      "source_id": "ndma-temporary-shelters-2019",
+      "filename": "ndma_temporary_shelters_2019.pdf",
+      "page": 45,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "3908ded00ab111986b37a1662946512bc429f1138b27fbd5df533fcbba37317c"
+    },
+    {
+      "question_id": "Q016",
+      "effective_question": "What personnel, equipment, and procedures are needed to move patients safely during evacuation?",
+      "retriever": [
+        "BM25"
+      ],
+      "rank": {
+        "BM25": 4
+      },
+      "method_id": {
+        "BM25": "bm25-okapi-v1"
+      },
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p306-c0",
+      "source_id": "ndma-national-disaster-management-plan-2019",
+      "filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "page": 306,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "ce4efc1bc8b799e71ae6621dd0a0c0ac5b616b5685618cd5a390a31a9da8f9e9"
+    },
+    {
+      "question_id": "Q016",
+      "effective_question": "What personnel, equipment, and procedures are needed to move patients safely during evacuation?",
+      "retriever": [
+        "BM25"
+      ],
+      "rank": {
+        "BM25": 5
+      },
+      "method_id": {
+        "BM25": "bm25-okapi-v1"
+      },
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p310-c1",
+      "source_id": "ndma-national-disaster-management-plan-2019",
+      "filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "page": 310,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "ffa7d980b890330cb1ca1059998adf7fd955357dcbdfeff3d6c5b9779a459ba7"
+    },
+    {
+      "question_id": "Q016",
+      "effective_question": "What personnel, equipment, and procedures are needed to move patients safely during evacuation?",
+      "retriever": [
+        "Dense"
+      ],
+      "rank": {
+        "Dense": 5
+      },
+      "method_id": {
+        "Dense": "dense-minilm-v1"
+      },
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p310-c2",
+      "source_id": "ndma-national-disaster-management-plan-2019",
+      "filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "page": 310,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "a5f5827201e72bd9f72f39709151255e622de8de077bb24d48e0e973d992c5bf"
+    },
+    {
+      "question_id": "Q016",
+      "effective_question": "What personnel, equipment, and procedures are needed to move patients safely during evacuation?",
+      "retriever": [
+        "Dense"
+      ],
+      "rank": {
+        "Dense": 4
+      },
+      "method_id": {
+        "Dense": "dense-minilm-v1"
+      },
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p317-c0",
+      "source_id": "ndma-national-disaster-management-plan-2019",
+      "filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "page": 317,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "409701a877b4918a473ba10ab62b52bce2361357605aabc765c54db209706d30"
+    },
+    {
+      "question_id": "Q016",
+      "effective_question": "What personnel, equipment, and procedures are needed to move patients safely during evacuation?",
+      "retriever": [
+        "Hybrid"
+      ],
+      "rank": {
+        "Hybrid": 5
+      },
+      "method_id": {
+        "Hybrid": "hybrid-rrf-v1"
+      },
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p322-c0",
+      "source_id": "ndma-national-disaster-management-plan-2019",
+      "filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "page": 322,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "fc1c99cd671b6c81e3a36b2dc38b383d6ffccdbd7afd9d559283ea2ab0285fda"
+    },
+    {
+      "question_id": "Q034",
+      "effective_question": "What should authorities do when essential water, sanitation, or other services at a temporary shelter are disrupted?",
+      "retriever": [
+        "BM25"
+      ],
+      "rank": {
+        "BM25": 3
+      },
+      "method_id": {
+        "BM25": "bm25-okapi-v1"
+      },
+      "chunk_id": "ndma-temporary-shelters-2019-p33-c2",
+      "source_id": "ndma-temporary-shelters-2019",
+      "filename": "ndma_temporary_shelters_2019.pdf",
+      "page": 33,
+      "corpus_version": "v3-authoritative-corpus-v1",
+      "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+      "passage_sha256": "e1d98deadaaa7c2887c5675342a51c7742ef7e2cfb0dd8bf8fcabbae30c5d486"
+    }
+  ],
+  "official_retrieval_metrics_calculated": false,
+  "missing_labels_assumed_grade_0": false
+}

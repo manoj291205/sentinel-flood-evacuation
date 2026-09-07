@@ -14,29 +14,30 @@ intended to be read top-to-bottom as the story of how the prototype was built.
 
 ---
 
-## Current V3 status — Phase 13A.2 AI-assisted passage labels frozen
+## Current V3 status — Phase 13B preflight stopped for label coverage
 
 Phase 13A froze `v3-retrieval-benchmark-spec-v1` and prepared 60 `MACHINE_PROPOSED`
 questions plus 647 deduplicated passage-review rows. Phase 13A.1 preserves those
 historical artifacts and derives a balanced 45-question, 485-passage review set.
 
-The project owner adopted the supplied AI-assisted question recommendations,
-recorded as `PROJECT_OWNER_ADOPTED_AI_ASSISTED_QUESTION_REVIEW` with review method
+The project owner adopted the supplied AI-assisted question recommendations, recorded as
+`PROJECT_OWNER_ADOPTED_AI_ASSISTED_QUESTION_REVIEW` with review method
 `PROJECT_OWNER_ADOPTED_AI_ASSISTED_RECOMMENDATIONS`. This was not blind, independent, or
-multi-reviewer annotation. Question selection is complete at 45 retained questions, but
-all retained passage grades remain blank and `PENDING`; the current status is
-`WAITING_FOR_PASSAGE_RELEVANCE_REVIEW`.
+multi-reviewer annotation. The project owner later elected not to manually annotate all
+485 retained passages, so Phase 13A.2 froze the separate
+`v3-retrieval-benchmark-ai-assisted-v1` label set without altering the unfinished human
+review artifacts. **The benchmark's passage-level relevance judgments are AI-assisted,
+not independently human annotated.**
 
-**No retrieval-quality result has been calculated from machine-proposed or AI-assisted
-relevance labels.** Phase 13B has not started, and the original human-gold validation
-option remains unfinished.
+Phase 13B ran its required pre-metric coverage gate using the final 45 question texts.
+The three frozen retrievers produced 434 unique top-five question/chunk pairs; 415 have
+frozen labels and 19 do not. All gaps belong to the four project-owner-edited questions:
+`Q003`, `Q008`, `Q016`, and `Q034`. Status is
+`NEEDS_LABEL_COVERAGE_EXTENSION`.
 
-The project owner elected not to manually annotate all 485 retained passages. Phase
-13A.2 therefore freezes a separate `v3-retrieval-benchmark-ai-assisted-v1` label set
-without altering the unfinished human-review artifacts. **The benchmark's passage-level
-relevance judgments are AI-assisted, not independently human annotated.** The AI label
-set is complete and frozen, but Phase 13B retrieval evaluation has not started and no
-official retrieval-quality metric exists.
+**No official retrieval-quality metric, paired bootstrap interval, subgroup result, or
+hybrid-support verdict has been calculated.** A pre-metric label-coverage extension is
+required before Phase 13B can continue. Missing labels were not treated as grade 0.
 
 ### Frozen Phase 12 retrieval configuration
 
@@ -3836,5 +3837,104 @@ retrieval/corpus freeze. The complete suite contains 568 tests: 46 Phase 13A.2 t
 **No official retrieval-quality metrics have been calculated.** No real DirectHit,
 MRR, nDCG, pooled Recall, paired bootstrap, or hybrid-support decision was run. Phase
 13B has not started.
+
+---
+
+## 2026-09-08 — V3 Phase 13B: retrieval label-coverage preflight
+
+### Frozen inputs and AI-assisted benchmark status
+
+Phase 13B began with the mandatory pre-metric gate for evaluation version
+`v3-retrieval-evaluation-ai-assisted-v1`. The preflight verified the exact 45 final
+question texts, including the adopted edits to `Q003`, `Q008`, `Q016`, and `Q034`; the
+485-row `v3-ai-relevance-labeler-v1` label set; and label fingerprint
+`bf46ffb139cbd314e1707409635b76346faea81739e5a95710317be07dd73b92`.
+
+Question selection was project-owner adopted with disclosed AI assistance. Passage
+relevance labels were generated using a blind AI-assisted labeling protocol. The
+benchmark is therefore an AI-assisted relevance benchmark and should not be represented
+as independently human-annotated gold data.
+
+The corpus remains `v3-authoritative-corpus-v1`, with fingerprint
+`a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753`,
+three canonical documents, and 1,797 canonical chunks. Retrieval remains
+`v3-retrieval-v1`: `dense-minilm-v1`, `bm25-okapi-v1`, and `hybrid-rrf-v1` retain all
+Phase 12 parameters. No label, corpus content, tokenizer, embedding model, fusion rule,
+or candidate depth changed, and no reranker was added.
+
+### Coverage gate and stopping result
+
+Each frozen retriever was run at `k=5` for every final effective question, receiving
+only the query text and requested depth. The union was joined to labels by
+`question_id + chunk_id`, never chunk ID alone. The result was:
+
+| Coverage field | Result |
+| --- | ---: |
+| Unique top-five question/chunk pairs | 434 |
+| Frozen labeled pairs | 415 |
+| Unlabeled pairs | 19 |
+| Affected questions | 4 |
+
+The affected IDs are `Q003`, `Q008`, `Q016`, and `Q034`, exactly the four questions
+whose final wording differs from the original pooling query. The 19 unique gaps account
+for 25 retriever/rank occurrences. They are deduplicated by question/chunk in
+`data/eval_v3/phase13/phase13b_label_coverage_gaps.json`, with every contributing
+retriever and rank retained alongside canonical source, filename, physical PDF page,
+corpus identity, and deterministic SHA-256 of the exact chunk text. Passage text for
+coverage-extension labeling is reconstructed locally from the frozen corpus using
+`chunk_id`. The Git-tracked gap artifact stores provenance metadata rather than
+duplicating authoritative source text.
+
+The frozen status is:
+
+`PHASE13B_STATUS = NEEDS_LABEL_COVERAGE_EXTENSION`
+
+Missing pairs were not assigned, inferred, or defaulted to grade 0. The original 485 AI
+labels remain authoritative and byte-unchanged. The preflight script exits after writing
+the gap artifact, and its explicit guard rejects any official metric path unless the
+coverage status is `PASS` with zero unlabeled pairs.
+
+### Metrics, bootstrap, and hybrid verdict
+
+No `DirectHit@1`, `DirectHit@3`, `DirectHit@5`, `MRR@5`, `nDCG@5`, or pooled
+`Recall@5` value was calculated. The 10,000-resample paired bootstrap with seed `131313`
+was not run. Consequently there is no Hybrid-minus-Dense estimate, confidence interval,
+nDCG guardrail result, or `HYBRID_SUPPORTED`/`HYBRID_NOT_SUPPORTED` verdict.
+
+Topic and query-style subgroup metrics, Hybrid/Dense head-to-head counts, rank-level
+comparisons, source-distribution diagnostics, and post-metric failure analysis were also
+not performed. Those analyses require complete coverage and remain deferred; no
+retrieval behavior was tuned in response to the observed gaps.
+
+### Scientific boundaries
+
+This stopped preflight evaluates label coverage only. It establishes neither retrieval
+quality nor better disaster decisions, safer evacuation, or improved real-world
+outcomes. Passage relevance is also not claim entailment, and no conclusion about
+generated citation support is made. Phase 14 has not started. The frozen Phase 10 RL
+usefulness result remains `NO`.
+
+### Reproducibility, tests, artifact, and commit
+
+`scripts/phase13b_retrieval_preflight.py` verifies every frozen identifier, reconstructs
+the canonical corpus, runs the exact three retrievers, captures the top-five union, and
+writes deterministic gap output. Repeated execution produces the same 434/415/19 result
+and the same ranked gap records.
+
+`tests/test_v3_retrieval_evaluation.py` adds 26 checks covering exact evaluation,
+benchmark, label, corpus, and retrieval identities; final edited queries; actual gap
+counts; composite-key joining; canonical traceability; cross-retriever deduplication;
+local chunk reconstruction with provenance and text-hash validation; absence of tracked
+passage text; label immutability; grade-0 refusal; metric blocking; leakage isolation;
+deterministic replay; the complete-coverage control path; absence of results; and the
+no-reranker freeze. The complete suite contains 594 tests after adding these checks.
+
+- gap artifact: `data/eval_v3/phase13/phase13b_label_coverage_gaps.json`
+- reproducible preflight: `scripts/phase13b_retrieval_preflight.py`
+- regression tests: `tests/test_v3_retrieval_evaluation.py`
+- commit: `V3 Phase 13B preflight: identify retrieval label coverage gaps`
+
+Phase 13B stops here. A separately instructed pre-metric label-coverage extension is
+required before any official retrieval metric may be computed.
 
 ---
