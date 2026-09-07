@@ -5,7 +5,7 @@ from __future__ import annotations
 import time
 
 from .base import CandidateScore, PlannerDecision, PlannerInput, timed
-from .model import ModelState, terminal_estimate
+from .model import ModelState, terminal_action_estimates, terminal_estimate
 
 
 class LookaheadPlanner:
@@ -29,11 +29,20 @@ class LookaheadPlanner:
                 return terminal_estimate(state, exposure, transit)
             exposure += state.exposure()
             transit += state.transit
+            actions = state.allowed_actions()
+            if remaining == 1:
+                values = terminal_action_estimates(
+                    state, actions, exposure, transit
+                )
+                nodes += len(actions)
+                transitions += len(actions)
+                return max(values)
             best = float("-inf")
-            for action in state.allowed_actions():
+            for action in actions:
                 transitions += 1
                 child = state.advance(action)
-                best = max(best, search(child, remaining - 1, exposure, transit))
+                value = search(child, remaining - 1, exposure, transit)
+                best = max(best, value)
             return best
 
         scores = []

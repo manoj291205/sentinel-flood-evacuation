@@ -51,8 +51,9 @@ def _continuation_action(state: ModelState):
     dispatches = [item for item in state.allowed_actions() if isinstance(item, DispatchAction)]
     if not dispatches:
         return WAIT
-    best = max(_risk_score(state, action) for action in dispatches)
-    return next(action for action in dispatches if _risk_score(state, action) == best)
+    scores = [(_risk_score(state, action), action) for action in dispatches]
+    best = max(score for score, _ in scores)
+    return next(action for score, action in scores if score == best)
 
 
 class SampledMPCPlanner:

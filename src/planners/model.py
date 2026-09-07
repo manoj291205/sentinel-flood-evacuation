@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, replace
+from functools import cached_property
 
 from src.sim.events import WAIT, DispatchAction, SimulationAction
 
@@ -162,21 +163,30 @@ class ModelState:
             next_event=len(pending) + observation["people_safely_arrived"] + 1,
         )
 
+    @cached_property
+    def _zones_by_id(self) -> dict[str, ModelZone]:
+        return {item.zone_id: item for item in self.zones}
+
+    @cached_property
+    def _shelters_by_id(self) -> dict[str, ModelShelter]:
+        return {item.shelter_id: item for item in self.shelters}
+
+    @cached_property
+    def _routes_by_pair(self) -> dict[tuple[str, str], ModelRoute]:
+        return {(item.zone_id, item.shelter_id): item for item in self.routes}
+
+    @cached_property
+    def _routes_by_id(self) -> dict[str, ModelRoute]:
+        return {item.route_id: item for item in self.routes}
+
     def zone(self, zone_id: str) -> ModelZone | None:
-        return next((item for item in self.zones if item.zone_id == zone_id), None)
+        return self._zones_by_id.get(zone_id)
 
     def shelter(self, shelter_id: str) -> ModelShelter | None:
-        return next((item for item in self.shelters if item.shelter_id == shelter_id), None)
+        return self._shelters_by_id.get(shelter_id)
 
     def route(self, action: DispatchAction) -> ModelRoute | None:
-        return next(
-            (
-                item
-                for item in self.routes
-                if item.zone_id == action.zone_id and item.shelter_id == action.shelter_id
-            ),
-            None,
-        )
+        return self._routes_by_pair.get((action.zone_id, action.shelter_id))
 
     def allowed_actions(self) -> tuple[SimulationAction, ...]:
         if self.timestep >= self.horizon:
@@ -208,7 +218,7 @@ class ModelState:
     def exposure(self) -> float:
         result = sum(item.population * item.severity for item in self.zones)
         for pending in self.pending:
-            route = next(item for item in self.routes if item.route_id == pending.route_id)
+            route = self._routes_by_id[pending.route_id]
             result += pending.people * float(route.hazard_proxy or 0.0)
         return result
 
@@ -366,22 +376,266 @@ class ModelState:
         )
 
 
+def _finish_waiting(
+    state: ModelState,
+    *,
+    timestep: int,
+    zone_population: list[int],
+    zone_severity: list[float],
+    zone_forecast: list[float | None],
+    shelter_severity: list[float],
+    shelter_forecast: list[float | None],
+    route_hazard: dict[str, float | None],
+    pending: list[ModelPending],
+    safe: int,
+    exposure_sum: float,
+    transit_sum: float,
+) -> float:
+    """Allocation-free equivalent of advancing WAIT to the horizon."""
+    zone_index = {item.zone_id: index for index, item in enumerate(state.zones)}
+    shelter_index = {item.shelter_id: index for index, item in enumerate(state.shelters)}
+    route_entities = tuple(
+        (item.route_id, item.zone_id, item.shelter_id, item.base_travel)
+        for item in state.routes
+    )
+    exposure = exposure_sum
+    transit = transit_sum
+    while timestep < state.horizon:
+        exposure += sum(
+            population * severity
+            for population, severity in zip(zone_population, zone_severity)
+        )
+        for event in pending:
+            exposure += event.people * float(route_hazard[event.route_id] or 0.0)
+        transit += sum(event.people for event in pending)
+        new_timestep = timestep + 1
+        if new_timestep >= state.horizon:
+            timestep = new_timestep
+            break
+
+        due = [event for event in pending if event.arrival_timestep == new_timestep]
+        pending = [event for event in pending if event.arrival_timestep != new_timestep]
+        safe += sum(event.people for event in due)
+        previous_zone_severity = zone_severity
+        zone_severity = [
+            _clip(forecast if forecast is not None else severity)
+            for severity, forecast in zip(zone_severity, zone_forecast)
+        ]
+        zone_forecast = [
+            _clip(updated + (updated - previous))
+            for updated, previous in zip(zone_severity, previous_zone_severity)
+        ]
+        previous_shelter_severity = shelter_severity
+        shelter_severity = [
+            _clip(forecast if forecast is not None else severity)
+            for severity, forecast in zip(shelter_severity, shelter_forecast)
+        ]
+        shelter_forecast = [
+            _clip(updated + (updated - previous))
+            for updated, previous in zip(shelter_severity, previous_shelter_severity)
+        ]
+        for route_id, zone_id, shelter_id, base_travel in route_entities:
+            if base_travel is not None:
+                route_hazard[route_id] = max(
+                    zone_severity[zone_index[zone_id]],
+                    shelter_severity[shelter_index[shelter_id]],
+                )
+        timestep = new_timestep
+
+    denominator = state.initial_population * state.horizon
+    return (
+        SAFE_WEIGHT * (safe / state.initial_population)
+        - EXPOSURE_WEIGHT * (exposure / denominator)
+        - TRAVEL_WEIGHT * (transit / denominator)
+    )
+
+
 def terminal_estimate(
     state: ModelState,
     exposure_sum: float,
     transit_sum: float,
 ) -> float:
     """Propagate WAIT to the horizon and score the frozen Gate-6 utility."""
-    current = state
-    exposure = exposure_sum
-    transit = transit_sum
-    while current.timestep < current.horizon:
-        exposure += current.exposure()
-        transit += current.transit
-        current = current.advance(WAIT)
-    denominator = current.initial_population * current.horizon
-    return (
-        SAFE_WEIGHT * (current.safe / current.initial_population)
-        - EXPOSURE_WEIGHT * (exposure / denominator)
-        - TRAVEL_WEIGHT * (transit / denominator)
+    return _finish_waiting(
+        state,
+        timestep=state.timestep,
+        zone_population=[item.population for item in state.zones],
+        zone_severity=[item.severity for item in state.zones],
+        zone_forecast=[item.forecast for item in state.zones],
+        shelter_severity=[item.severity for item in state.shelters],
+        shelter_forecast=[item.forecast for item in state.shelters],
+        route_hazard={item.route_id: item.hazard_proxy for item in state.routes},
+        pending=list(state.pending),
+        safe=state.safe,
+        exposure_sum=exposure_sum,
+        transit_sum=transit_sum,
     )
+
+
+def terminal_estimate_after_action(
+    state: ModelState,
+    action: SimulationAction,
+    exposure_sum: float,
+    transit_sum: float,
+) -> float:
+    """Apply one action and finish with WAIT without allocating a child state."""
+    zone_population = [item.population for item in state.zones]
+    zone_severity = [item.severity for item in state.zones]
+    zone_forecast = [item.forecast for item in state.zones]
+    shelter_severity = [item.severity for item in state.shelters]
+    shelter_forecast = [item.forecast for item in state.shelters]
+    route_hazard = {item.route_id: item.hazard_proxy for item in state.routes}
+    pending = list(state.pending)
+    safe = state.safe
+    if isinstance(action, DispatchAction):
+        zone = state.zone(action.zone_id)
+        shelter = state.shelter(action.shelter_id)
+        route = state.route(action)
+        if zone is None or shelter is None or route is None or route.expected_travel is None:
+            raise ValueError("modeled dispatch is invalid")
+        people = min(state.vehicle_capacity, zone.population, shelter.available)
+        zone_slot = next(index for index, item in enumerate(state.zones) if item.zone_id == action.zone_id)
+        zone_population[zone_slot] -= people
+        lag = max(1, math.ceil(route.expected_travel / state.timestep_minutes))
+        pending.append(
+            ModelPending(
+                "terminal-fast-path",
+                action.zone_id,
+                action.shelter_id,
+                route.route_id,
+                people,
+                state.timestep + lag,
+            )
+        )
+
+    timestep = state.timestep + 1
+    if timestep < state.horizon:
+        due = [event for event in pending if event.arrival_timestep == timestep]
+        pending = [event for event in pending if event.arrival_timestep != timestep]
+        safe += sum(event.people for event in due)
+        previous_zone_severity = zone_severity
+        zone_severity = [
+            _clip(forecast if forecast is not None else severity)
+            for severity, forecast in zip(zone_severity, zone_forecast)
+        ]
+        zone_forecast = [
+            _clip(updated + (updated - previous))
+            for updated, previous in zip(zone_severity, previous_zone_severity)
+        ]
+        previous_shelter_severity = shelter_severity
+        shelter_severity = [
+            _clip(forecast if forecast is not None else severity)
+            for severity, forecast in zip(shelter_severity, shelter_forecast)
+        ]
+        shelter_forecast = [
+            _clip(updated + (updated - previous))
+            for updated, previous in zip(shelter_severity, previous_shelter_severity)
+        ]
+        zones = {item.zone_id: index for index, item in enumerate(state.zones)}
+        shelters = {item.shelter_id: index for index, item in enumerate(state.shelters)}
+        for route in state.routes:
+            if route.base_travel is not None:
+                route_hazard[route.route_id] = max(
+                    zone_severity[zones[route.zone_id]],
+                    shelter_severity[shelters[route.shelter_id]],
+                )
+    return _finish_waiting(
+        state,
+        timestep=timestep,
+        zone_population=zone_population,
+        zone_severity=zone_severity,
+        zone_forecast=zone_forecast,
+        shelter_severity=shelter_severity,
+        shelter_forecast=shelter_forecast,
+        route_hazard=route_hazard,
+        pending=pending,
+        safe=safe,
+        exposure_sum=exposure_sum,
+        transit_sum=transit_sum,
+    )
+
+
+def terminal_action_estimates(
+    state: ModelState,
+    actions: tuple[SimulationAction, ...],
+    exposure_sum: float,
+    transit_sum: float,
+) -> tuple[float, ...]:
+    """Vector-equivalent terminal scores for every final-depth action.
+
+    With only WAIT after this action, hazard evolution is action-independent. Compute
+    that common path once and add the exact population/transit deltas per dispatch.
+    """
+    base = terminal_estimate_after_action(state, WAIT, exposure_sum, transit_sum)
+    if state.timestep + 1 >= state.horizon:
+        return tuple(base for _ in actions)
+
+    zone_severity = [item.severity for item in state.zones]
+    zone_forecast = [item.forecast for item in state.zones]
+    shelter_severity = [item.severity for item in state.shelters]
+    shelter_forecast = [item.forecast for item in state.shelters]
+    zone_index = {item.zone_id: index for index, item in enumerate(state.zones)}
+    shelter_index = {item.shelter_id: index for index, item in enumerate(state.shelters)}
+    zone_paths = {item.zone_id: [] for item in state.zones}
+    route_paths = {item.route_id: [] for item in state.routes}
+    for _timestep in range(state.timestep + 1, state.horizon):
+        previous = zone_severity
+        zone_severity = [
+            _clip(forecast if forecast is not None else severity)
+            for severity, forecast in zip(zone_severity, zone_forecast)
+        ]
+        zone_forecast = [
+            _clip(updated + (updated - old))
+            for updated, old in zip(zone_severity, previous)
+        ]
+        previous_shelter = shelter_severity
+        shelter_severity = [
+            _clip(forecast if forecast is not None else severity)
+            for severity, forecast in zip(shelter_severity, shelter_forecast)
+        ]
+        shelter_forecast = [
+            _clip(updated + (updated - old))
+            for updated, old in zip(shelter_severity, previous_shelter)
+        ]
+        for item in state.zones:
+            zone_paths[item.zone_id].append(zone_severity[zone_index[item.zone_id]])
+        for route in state.routes:
+            if route.base_travel is None:
+                hazard = float(route.hazard_proxy or 0.0)
+            else:
+                hazard = max(
+                    zone_severity[zone_index[route.zone_id]],
+                    shelter_severity[shelter_index[route.shelter_id]],
+                )
+            route_paths[route.route_id].append(hazard)
+
+    denominator = state.initial_population * state.horizon
+    results = []
+    for action in actions:
+        if action == WAIT:
+            results.append(base)
+            continue
+        assert isinstance(action, DispatchAction)
+        zone = state.zone(action.zone_id)
+        shelter = state.shelter(action.shelter_id)
+        route = state.route(action)
+        assert zone is not None and shelter is not None and route is not None
+        assert route.expected_travel is not None
+        people = min(state.vehicle_capacity, zone.population, shelter.available)
+        lag = max(1, math.ceil(route.expected_travel / state.timestep_minutes))
+        arrival = state.timestep + lag
+        pending_steps = max(
+            0,
+            min(state.horizon, arrival) - (state.timestep + 1),
+        )
+        exposure_delta = -people * sum(zone_paths[action.zone_id])
+        exposure_delta += people * sum(route_paths[route.route_id][:pending_steps])
+        transit_delta = people * pending_steps
+        safe_delta = people if arrival < state.horizon else 0
+        results.append(
+            base
+            + SAFE_WEIGHT * (safe_delta / state.initial_population)
+            - EXPOSURE_WEIGHT * (exposure_delta / denominator)
+            - TRAVEL_WEIGHT * (transit_delta / denominator)
+        )
+    return tuple(results)

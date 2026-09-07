@@ -14,6 +14,97 @@ intended to be read top-to-bottom as the story of how the prototype was built.
 
 ---
 
+## Current V3 status — Phase 10 held-out planner-versus-PPO evaluation
+
+### Two-stage scientific firewall
+
+[`V3_PHASE10_EVAL_SPEC.md`](V3_PHASE10_EVAL_SPEC.md) was committed as Stage 10A before
+any held-out, permutation, or stress scenario was generated. It freezes
+`v3-phase10-eval-spec-v1`: all suite and policy seeds, 600 ordinary units (200 each
+LOW/MEDIUM/HIGH), replication 0, five best PPO checkpoints, six unchanged Phase 6
+planners, the observation-matched diagnostic, 10,000-draw two-level bootstrap, 100×5
+permutation diagnostic, five 50-unit stress categories, Phase 1 latency method, and the
+literal YES/NO/MIXED function. Phase 10 contains no training or checkpoint changes.
+
+The principal baseline is `risk_greedy`, selected before test generation from the sealed
+Gate 6 planner record. It was the stronger of the two safety-clean planners eligible
+under the frozen 100 ms p95 budget. Lookahead-2, lookahead-3, and sampled MPC remained in
+the full evaluation despite being ineligible for principal-baseline selection.
+
+### Held-out result
+
+The new `v3-heldout-generator-v1` uses disjoint seeds `1000000..1000599`, the supported
+4–6 zone × 6–9 shelter × horizon 10–16 envelope, opaque semantic IDs, and Phase 9's broad
+distributional basis under independent Phase 10 RNG namespaces. Every planner and all
+five best-validation PPO checkpoints completed all 600 paired units.
+
+| Policy | NSU-practical | Safe fraction | Exposure | CVaR10 | Completion |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Random valid | 0.0000 | 0.6595 | 1839.73 | 0.0004 | 0.0623 |
+| Nearest safe | 0.7615 | 0.7317 | 1384.40 | 0.0325 | 0.1783 |
+| Risk greedy (principal) | 1.0000 | 0.7596 | 1456.02 | 0.0509 | 0.1083 |
+| Lookahead-2 | 1.4752 | 0.8236 | 1322.76 | 0.1012 | 0.1900 |
+| Lookahead-3 | **1.5309** | 0.8300 | **1318.64** | **0.1030** | **0.2217** |
+| Sampled MPC | 1.4594 | **0.8308** | 1469.18 | 0.1020 | **0.2217** |
+| PPO five-seed family | 0.2091 | 0.6826 | 1817.49 | 0.0038 | 0.0963 |
+
+Against the principal comparator, PPO's paired NSU difference was `-0.7919` (95% CI
+`[-0.8384,-0.7453]`), exposure relative reduction was `-0.2483`
+(`[-0.2613,-0.2358]`; negative means more exposure), and tail-NSU difference was
+`-0.9314` (`[-1.1988,-0.8216]`). Unsafe-rate difference was zero. No LOW, MEDIUM, HIGH,
+or combined gate passed. All five PPO seeds were retained; individual NSU ranged from
+0.1632 to 0.2426.
+
+### Information and representation diagnostics
+
+The secondary `observation-matched-greedy-v1` consumes only the 384-vector, mask, and
+public fixed action map. It achieved NSU 0.5204 and still exceeded PPO-family mean return
+by 0.0269 while producing 258.56 fewer exposed person-timesteps. This does not remove the
+known richer pending-arrival information available to the original Phase 6 planners, but
+shows that the headline loss is not explained solely by that asymmetry.
+
+The independent held-out permutation suite used 100 separate bases, five variants per
+base, and all five PPO seeds (2,500 paired variants). Mean physical-action equivalence was
+0.1157, median absolute NSU delta 0.6092, and mean absolute safe-population delta 0.0929.
+The frozen result is again `POTENTIAL_SLOT_SHORTCUT`; Phase 9's original alarm is
+preserved.
+
+### Stress, safety, latency, and artifacts
+
+All policies completed 250 separate stress scenarios: sudden surge, correlated route
+closure cascade, high-capacity shelter failure, demand shift, and 1.75× travel lags. PPO
+NSU by category was respectively 0.1641, 0.3062, 0.2446, 0.1646, and -0.0044. No stress
+gate passed.
+
+Hard safety remained ON. Ordinary evaluation recorded zero unsafe dispatches, capacity
+violations, known-closed-route dispatches, post-departure route failures, or PPO masked
+invalid selections. The warmed one-process latency audit timed at least 1,000 decisions
+per policy from already-built input/mask to action. Principal risk-greedy measured 0.158
+ms median / 0.467 ms p95; PPO-family 0.638 / 1.895 ms; lookahead-2 13.479 / 47.299 ms;
+lookahead-3 189.992 / 1,442.111 ms; and sampled MPC 555.458 / 1,613.113 ms.
+
+The detailed result is [`V3_POLICY_EVALUATION.md`](V3_POLICY_EVALUATION.md). Structured
+artifacts are under `data/eval_v3/phase10/`; eleven reproducible SVGs are under
+`artifacts/figures/phase10/`. A policy-independent median-difficulty trace is stored in
+`qualitative_trace.json`. An allocation-free expected-model implementation optimization
+was checked against the original planner: argmax actions and full episode returns match,
+with only `2.8e-17` score roundoff and no horizon/sample/weight/pruning change.
+
+### Frozen conclusion
+
+`NO`
+
+Under the Phase 1 rule, neither the combined ordinary result, any uncertainty stratum,
+the tail criterion, nor any stress category supports a material PPO contribution. Strong
+non-learned planning remains sufficient for this synthetic formulation. Separately,
+representation robustness is `POTENTIAL_SLOT_SHORTCUT`.
+
+This result is limited to the synthetic V3 environment and synthetic reward; it does not
+establish real-world emergency-response effectiveness. Phase 10 stops after the Stage
+10B result commit. Phase 11 and model repair remain deferred.
+
+---
+
 ## Conventions used in this document
 
 Each step gets one section containing:
@@ -42,8 +133,8 @@ Each step gets one section containing:
 | Trained checkpoints | `models/` | **Built (Step 4)** — `maskable_ppo_shelter.zip` |
 | End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
 | Evaluation suite | `src/eval/` | **Built** — 60 held-out scenarios, baselines, ablations |
-| V3 sequential environment | `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` | **Built through V3 Phase 8** — stochastic simulator, hard safety, strong planners, fixed 6×9 Gymnasium API, and frozen auditable reward; no PPO training yet |
-| Tests | `tests/` | **Built** — 331 tests total: 24 Phase 8, 23 Phase 7, 39 Phase 6, 37 Phase 5, 53 Phase 4, 60 Phase 3, 52 Phase 2, and 43 legacy tests |
+| V3 sequential environment | `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` | **Built through V3 Phase 10** — stochastic simulator, hard safety, strong planners, fixed 6×9 Gymnasium API, frozen reward, five trained PPO seeds, and held-out evaluation |
+| Tests | `tests/` | **Built** — 383 tests total, including 30 Phase 10 evaluation tests and all earlier V3/V1 regression tests |
 | Measured results | `EVALUATION.md` | **Written** — including the unflattering ones |
 | Frozen v1 results | `EVALUATION_V1.md` | **Archived** — immutable comparison point for the evaluated v1 demo |
 | Reviewer material | `REVIEW_NOTES.md`, `DEMO_SCRIPT.md` | **Written** — defence sheet and five-minute walkthrough |
@@ -57,12 +148,12 @@ Each step gets one section containing:
 | Entrypoints | `run_demo.py`; `src/dashboard/app.py` |
 | Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/`, `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` |
 | Scenario and constraints | `data/scenario.json`, `data/constraints_output.json`, `data/scenarios_v3/example_v3_scenario.json` |
-| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; Phase 4/5 sanity, Gate 6, Phase 7 API-only sanity, and Phase 8 reward-only sanity artifacts in `data/eval_v3/` |
+| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; V3 sanity, Gate 6, training/validation, and frozen Phase 10 held-out/stress/permutation artifacts in `data/eval_v3/` |
 | Real source corpus | `data/raw_docs/README.md`, `MANIFEST.json`, and `ndma_flood_guidelines.pdf` |
 | Model artifact | `models/maskable_ppo_shelter.zip` |
-| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py`, `phase5_safety_sanity.py`, `run_gate6.py`, `phase7_env_sanity.py`, `phase8_reward_sanity.py` |
+| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py`, `phase5_safety_sanity.py`, `run_gate6.py`, `phase7_env_sanity.py`, `phase8_reward_sanity.py`, `run_phase10.py` |
 | Automated verification | `tests/`, `pytest.ini`, `.github/workflows/ci.yml` |
-| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md`, `V3_REWARD_SPEC.md` |
+| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md`, `V3_REWARD_SPEC.md`, `V3_TRAINING_SPEC.md`, `V3_TRAINING_RESULT.md`, `V3_PHASE10_EVAL_SPEC.md`, `V3_POLICY_EVALUATION.md` |
 | Runtime configuration | `requirements.txt`, `.python-version`, `.streamlit/config.toml`, `.gitignore` |
 
 Generated local state is intentionally not part of that inventory: `.venv/`,
@@ -3073,5 +3164,35 @@ conservative against PPO and not information matched. The Phase 10
 Training/validation performance does not establish PPO superiority. No Phase 10 suite,
 planner comparison, oracle target, or college demo evaluation was run. Work stops after
 the Phase 9B commit.
+
+---
+
+## 2026-09-07 — V3 Phase 10: frozen held-out planner-versus-PPO evaluation
+
+### Outcome
+
+Phase 10 followed a two-commit firewall. Stage 10A committed
+[`V3_PHASE10_EVAL_SPEC.md`](V3_PHASE10_EVAL_SPEC.md) before any held-out data was
+generated. Stage 10B then evaluated the unchanged six Phase 6 planners, all five frozen
+best-validation PPO checkpoints, and a secondary observation-matched greedy diagnostic.
+No training or checkpoint selection occurred.
+
+The independent `v3-heldout-generator-v1` suite contains 600 paired scenarios, balanced
+200/200/200 across LOW/MEDIUM/HIGH uncertainty, plus 250 separate stress scenarios and
+100 independent permutation bases with five variants each. Full structured outputs are
+stored in `data/eval_v3/phase10/`, and eleven reproducible figures are stored in
+`artifacts/figures/phase10/`.
+
+The pre-selected principal comparator was `risk_greedy`. PPO-family NSU-practical was
+`0.2091` versus `1.0000` for that comparator. The paired NSU difference was `-0.7919`
+with 95% CI `[-0.8384, -0.7453]`; none of the combined, uncertainty-stratum, tail, or
+stress gates passed. The frozen Phase 1 result is therefore `NO`. The fresh permutation
+diagnostic independently reproduced `POTENTIAL_SLOT_SHORTCUT`. Hard-safety and mechanical
+violation counts remained zero.
+
+The full scientific record, uncertainty and seed breakdowns, bootstrap intervals,
+latency measurements, stress results, limitations, and trace are documented in
+[`V3_POLICY_EVALUATION.md`](V3_POLICY_EVALUATION.md). This result applies only to the
+synthetic V3 environment and synthetic reward; Phase 11 was not started.
 
 ---

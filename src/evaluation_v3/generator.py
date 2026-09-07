@@ -248,6 +248,7 @@ def heldout_manifest() -> dict[str, Any]:
     ]
     return {
         "generator_version": HELDOUT_GENERATOR_VERSION,
+        "normalisation": "practical",
         "number_of_scenarios": len(entries),
         "replication_id": 0,
         "uncertainty_counts": {"LOW": 200, "MEDIUM": 200, "HIGH": 200},
@@ -266,6 +267,7 @@ def permutation_manifest() -> dict[str, Any]:
     return {
         "diagnostic_version": PERMUTATION_VERSION,
         "generator_version": HELDOUT_GENERATOR_VERSION,
+        "normalisation": "practical",
         "base_scenarios": bases,
         "permutations_per_base": 5,
         "paired_variants": 500,
@@ -295,6 +297,7 @@ def stress_manifest() -> dict[str, Any]:
         entries.append(generated.manifest_entry(index))
     return {
         "generator_version": STRESS_GENERATOR_VERSION,
+        "normalisation": "practical",
         "number_of_scenarios": len(entries),
         "scenarios_per_type": 50,
         "replication_id": 0,

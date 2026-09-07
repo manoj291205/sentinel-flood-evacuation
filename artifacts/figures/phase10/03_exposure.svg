@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="520" viewBox="0 0 980 520">
+<rect width="100%" height="100%" fill="#0b132b"/>
+<text x="40" y="42" fill="#f5f7ff" font-family="sans-serif" font-size="24">Exposed person-timesteps</text>
+<text x="40" y="68" fill="#a8b2d1" font-family="sans-serif" font-size="13">Lower is better · generated from Phase 10 JSON</text>
+<line x1="50" y1="430.00" x2="940" y2="430.00" stroke="#8090b0"/>
+<rect x="65.00" y="110.00" width="98" height="320.00" fill="#49c6a5"/>
+<text x="65.00" y="103.00" fill="#f5f7ff" font-family="sans-serif" font-size="11">1839.7252</text>
+<text transform="translate(73.00,455) rotate(35)" fill="#d9e1f2" font-family="sans-serif" font-size="11">random_valid</text>
+<rect x="186.43" y="189.20" width="98" height="240.80" fill="#49c6a5"/>
+<text x="186.43" y="182.20" fill="#f5f7ff" font-family="sans-serif" font-size="11">1384.4005</text>
+<text transform="translate(194.43,455) rotate(35)" fill="#d9e1f2" font-family="sans-serif" font-size="11">nearest_safe</text>
+<rect x="307.86" y="176.74" width="98" height="253.26" fill="#49c6a5"/>
+<text x="307.86" y="169.74" fill="#f5f7ff" font-family="sans-serif" font-size="11">1456.0237</text>
+<text transform="translate(315.86,455) rotate(35)" fill="#d9e1f2" font-family="sans-serif" font-size="11">risk_greedy</text>
+<rect x="429.29" y="199.92" width="98" height="230.08" fill="#49c6a5"/>
+<text x="429.29" y="192.92" fill="#f5f7ff" font-family="sans-serif" font-size="11">1322.7570</text>
+<text transform="translate(437.29,455) rotate(35)" fill="#d9e1f2" font-family="sans-serif" font-size="11">lookahead_k2</text>
+<rect x="550.71" y="200.64" width="98" height="229.36" fill="#49c6a5"/>
+<text x="550.71" y="193.64" fill="#f5f7ff" font-family="sans-serif" font-size="11">1318.6411</text>
+<text transform="translate(558.71,455) rotate(35)" fill="#d9e1f2" font-family="sans-serif" font-size="11">lookahead_k3</text>
+<rect x="672.14" y="174.45" width="98" height="255.55" fill="#49c6a5"/>
+<text x="672.14" y="167.45" fill="#f5f7ff" font-family="sans-serif" font-size="11">1469.1770</text>
+<text transform="translate(680.14,455) rotate(35)" fill="#d9e1f2" font-family="sans-serif" font-size="11">sampled_mpc</text>
+<rect x="793.57" y="113.87" width="98" height="316.13" fill="#49c6a5"/>
+<text x="793.57" y="106.87" fill="#f5f7ff" font-family="sans-serif" font-size="11">1817.4911</text>
+<text transform="translate(801.57,455) rotate(35)" fill="#d9e1f2" font-family="sans-serif" font-size="11">ppo_family</text>
+</svg>
