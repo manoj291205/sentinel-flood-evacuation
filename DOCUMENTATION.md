@@ -14,19 +14,21 @@ intended to be read top-to-bottom as the story of how the prototype was built.
 
 ---
 
-## Current V3 status — Phase 11 authoritative RAG corpus expansion
+## Current V3 status — Phase 12 dense, BM25, and hybrid retrieval
 
-Phase 11 freezes `v3-authoritative-corpus-v1`: three genuinely distinct, real NDMA
-documents (652 PDF pages, 635 text-readable pages) producing 1,797 page-scoped chunks.
-The manifest records publisher, provenance URLs, expected SHA-256 values, topics,
-authority class, relevant-page spot checks, and the deterministic corpus fingerprint
-`a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753`. The PDFs are
-committed locally, and normal ingestion/retrieval uses the unchanged local
-`all-MiniLM-L6-v2` dense model (384 dimensions) with no web dependency. Detailed source
-selection and limitations are in [`V3_CORPUS_AUDIT.md`](V3_CORPUS_AUDIT.md).
+Phase 12 freezes `v3-retrieval-v1`: `dense-minilm-v1`, `bm25-okapi-v1`, and
+`hybrid-rrf-v1` operate through one citation-compatible `RetrievedChunk` interface over
+the exact same 1,797 Phase 11 chunks. Dense preserves local 384-dimensional
+`all-MiniLM-L6-v2` cosine-distance retrieval; lexical retrieval uses explicit Okapi BM25
+parameters and deterministic Unicode tokenization; hybrid joins stable chunk IDs with
+reciprocal rank fusion (`RRF_K=60`) over `max(20, requested_k)` candidates per component.
+The Chroma index refuses a mismatched corpus version, fingerprint, or chunk count.
+Detailed frozen behavior is in [`V3_RETRIEVAL_SPEC.md`](V3_RETRIEVAL_SPEC.md).
 
-Corpus expansion changes the evidence base only. It does not change the frozen Phase 10
-decision-policy result.
+Phase 12 introduces retrieval alternatives but does not establish that BM25 or hybrid
+retrieval is superior to dense retrieval. Retrieval quality will be evaluated only after
+Phase 13 creates a human-reviewed relevance benchmark. The frozen Phase 10
+decision-policy result remains unchanged.
 
 ### Frozen Phase 10 scientific firewall
 
@@ -138,7 +140,7 @@ Each step gets one section containing:
 | --- | --- | --- |
 | Scenario data | `data/scenario.json` | **Built (Step 1)** — fictional grid, 9 cells, 7 shelters |
 | Real source documents | `data/raw_docs/` | **Expanded (V3 Phase 11)** — 3 distinct real NDMA PDFs, 652 pages, provenance registry and exclusion log |
-| Local RAG (embed + retrieve) | `src/rag/` | **Expanded (V3 Phase 11)** — 1,797 page-scoped chunks in versioned local Chroma |
+| Local RAG (embed + retrieve) | `src/rag/` | **Expanded (V3 Phase 12)** — dense, BM25, and hybrid-RRF over 1,797 fingerprint-checked chunks |
 | Gemini constraint step | `src/constraints/` | **Built (Step 3)** — 7/7 verdicts, all citations verified |
 | Gymnasium env + training | `src/env/` | **Built (Step 4)** — MaskablePPO. Current measured figure is **73% optimal on the held-out suite** (`EVALUATION.md` §2); the 91.5% below is the superseded pre-retrain training-distribution number. |
 | Streamlit dashboard | `src/dashboard/` | **Built (Step 5)** — verified rendering in a real browser |
@@ -146,7 +148,7 @@ Each step gets one section containing:
 | End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
 | Evaluation suite | `src/eval/` | **Built** — 60 held-out scenarios, baselines, ablations |
 | V3 sequential environment | `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` | **Built through V3 Phase 10** — stochastic simulator, hard safety, strong planners, fixed 6×9 Gymnasium API, frozen reward, five trained PPO seeds, and held-out evaluation |
-| Tests | `tests/` | **Built** — 405 tests total, including 22 Phase 11 corpus tests, 30 Phase 10 evaluation tests, and all earlier V3/V1 regression tests |
+| Tests | `tests/` | **Built** — 453 tests total, including 48 Phase 12 retrieval tests, 22 Phase 11 corpus tests, and all earlier V3/V1 regressions |
 | Measured results | `EVALUATION.md` | **Written** — including the unflattering ones |
 | Frozen v1 results | `EVALUATION_V1.md` | **Archived** — immutable comparison point for the evaluated v1 demo |
 | Reviewer material | `REVIEW_NOTES.md`, `DEMO_SCRIPT.md` | **Written** — defence sheet and five-minute walkthrough |
@@ -160,12 +162,12 @@ Each step gets one section containing:
 | Entrypoints | `run_demo.py`; `src/dashboard/app.py` |
 | Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/`, `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` |
 | Scenario and constraints | `data/scenario.json`, `data/constraints_output.json`, `data/scenarios_v3/example_v3_scenario.json` |
-| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; V3 sanity, Gate 6, training/validation, frozen Phase 10 held-out/stress/permutation artifacts, and the Phase 11 corpus summary in `data/eval_v3/` |
+| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; V3 sanity, Gate 6, training/validation, frozen Phase 10 artifacts, and Phase 11/12 engineering summaries in `data/eval_v3/` |
 | Real source corpus | `data/raw_docs/README.md`, `MANIFEST.json`, `excluded_sources.json`, and three canonical NDMA PDFs |
 | Model artifact | `models/maskable_ppo_shelter.zip` |
-| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py`, `phase5_safety_sanity.py`, `run_gate6.py`, `phase7_env_sanity.py`, `phase8_reward_sanity.py`, `run_phase10.py` |
+| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py`, `phase5_safety_sanity.py`, `run_gate6.py`, `phase7_env_sanity.py`, `phase8_reward_sanity.py`, `run_phase10.py`, `phase12_retrieval_sanity.py` |
 | Automated verification | `tests/`, `pytest.ini`, `.github/workflows/ci.yml` |
-| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md`, `V3_REWARD_SPEC.md`, `V3_TRAINING_SPEC.md`, `V3_TRAINING_RESULT.md`, `V3_PHASE10_EVAL_SPEC.md`, `V3_POLICY_EVALUATION.md`, `V3_CORPUS_AUDIT.md` |
+| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md`, `V3_REWARD_SPEC.md`, `V3_TRAINING_SPEC.md`, `V3_TRAINING_RESULT.md`, `V3_PHASE10_EVAL_SPEC.md`, `V3_POLICY_EVALUATION.md`, `V3_CORPUS_AUDIT.md`, `V3_RETRIEVAL_SPEC.md` |
 | Runtime configuration | `requirements.txt`, `.python-version`, `.streamlit/config.toml`, `.gitignore` |
 
 Generated local state is intentionally not part of that inventory: `.venv/`,
@@ -3347,5 +3349,154 @@ The detailed audit is [`V3_CORPUS_AUDIT.md`](V3_CORPUS_AUDIT.md); the machine-re
 sanity record is `data/eval_v3/phase11_corpus_summary.json`; the rejection history is
 `data/raw_docs/excluded_sources.json`. The change is committed as
 `V3 Phase 11: expand authoritative disaster-guidance corpus`. Phase 12 is not started.
+
+---
+
+## 2026-09-07 — V3 Phase 12: dense, BM25, and hybrid retrieval
+
+### Goal and scientific boundary
+
+Phase 12 asks whether Sentinel-Agent can expose dense, lexical, and hybrid retrieval
+through one clean, reproducible, offline interface over the exact same 1,797 chunks. It
+does not ask which method is most accurate. `V3_RETRIEVAL_SPEC.md` freezes
+`v3-retrieval-v1` before any Phase 13 relevance labels exist.
+
+> Phase 12 introduces retrieval alternatives but does not establish that BM25 or hybrid
+> retrieval is superior to dense retrieval. Retrieval quality will be evaluated only
+> after Phase 13 creates a human-reviewed relevance benchmark.
+
+No Hit@k, Recall, MRR, nDCG, gold labels, or reranker were created. The corpus, chunking,
+Gemini prompt, production constraint cache, simulator, reward, planners, PPO checkpoints,
+and frozen Phase 10 result (`NO`) are unchanged.
+
+### Retrieval terminology and common interface
+
+- **Dense retrieval** finds chunks whose vector embeddings are semantically close to a
+  query, even when exact wording differs.
+- **BM25** is a lexical ranking algorithm that rewards query terms appearing in a chunk
+  while accounting for term rarity and chunk length.
+- **Hybrid retrieval** uses more than one retrieval strategy.
+- **Reciprocal Rank Fusion (RRF)** combines ranked lists using rank positions instead of
+  directly comparing incompatible raw scores.
+
+All three implementations expose `retrieve(query: str, k: int) -> list[RetrievedChunk]`
+and are selected centrally through `get_retriever()`. The common immutable result carries
+stable chunk ID, source ID, filename/source document, page, original citation text,
+method ID, output rank, component scores/ranks, and corpus version/fingerprint. The old
+module-level dense `retrieve()` and the original `score`, `source_document`, and
+`citation()` fields remain compatible with Gemini and the demo.
+
+Stable IDs have the form `<source_id>-p<page>-c<chunk_index>`. Dense, BM25, and hybrid
+therefore refer to the same logical passages, including multiple chunks on one page.
+Fusion joins only by chunk ID and rejects mismatched source/page/text metadata. It never
+joins by text, page, filename, or rank.
+
+### Dense baseline
+
+`dense-minilm-v1` preserves the existing local `all-MiniLM-L6-v2` model, 384 dimensions,
+raw query behavior, page-scoped chunks, and cosine-space Chroma collection. Chroma emits
+cosine **distance**, so `dense_score` is lower-is-better and is not called similarity.
+Exact score ties resolve by ascending chunk ID. Model loading explicitly uses
+`local_files_only=True`.
+
+The rebuilt local collection records both `v3-authoritative-corpus-v1` and fingerprint
+`a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753`. Dense retrieval
+fails loudly if collection version, fingerprint, or the expected 1,797 count differs.
+
+### BM25 and tokenizer
+
+`bm25-okapi-v1` is a small explicit local Okapi implementation, so no package, server,
+or model download was added. Parameters are frozen at `k1=1.5`, `b=0.75`, and
+`epsilon=0.25`; negative Robertson/Sparck-Jones IDF values use the documented epsilon
+floor. It rebuilds in deterministic source-ID/page/chunk-index/chunk-ID order from the
+same verified `PreparedCorpus`. Its IDs exactly equal the canonical chunk IDs.
+
+Tokenizer `nfkc-casefold-alphanumeric-v1` applies Unicode NFKC, `casefold()`, and Unicode
+alphanumeric word runs using regex `[^\W_]+`. It performs no stopword removal, stemming,
+or lemmatization. Normalization is internal only: returned citation text is unchanged.
+An empty/whitespace query raises `ValueError`; no-vocabulary-overlap returns `[]`, not
+arbitrary zero-score passages. BM25 ranks by decreasing score and ascending chunk ID.
+
+### Hybrid reciprocal-rank fusion
+
+`hybrid-rrf-v1` retrieves `max(20, requested_k)` candidates independently from dense and
+BM25 and unions them by stable chunk ID. For 1-based component ranks:
+
+```text
+RRF_score(chunk) = Σ_system 1 / (60 + rank_system(chunk))
+```
+
+A passage in both lists receives both contributions; a passage in only one receives one.
+If BM25 has no lexical overlap, hybrid still returns dense-derived results. A real dense
+backend failure propagates instead of silently becoming BM25-only. Results sort by
+decreasing fusion score and ascending chunk ID, with `fusion_rank=1..N`. No artificial
+source diversity is imposed.
+
+### Validation, determinism, citations, and offline operation
+
+All methods reject `k <= 0`, prevent duplicate result IDs, and safely cap output at the
+available candidates. Repeated calls for the fixed smoke inputs produced identical ranked
+IDs and component metadata for dense, BM25, and hybrid. The synthetic A/B/C versus C/A/D
+unit fixture verifies the exact RRF values and deterministic A/C/B/D order.
+
+All methods preserve identical source ID, filename, PDF page, and original text for the
+same chunk. Existing verbatim citation verification accepts the expanded result object;
+no Gemini behavior or cache changed. After the already-established model/dependencies
+are local, index construction and every normal query require no web access. SHA-256, not
+Python's randomized `hash()`, protects corpus identity.
+
+### Engineering smoke and latency
+
+The offline sanity script ran top-five dense, BM25, and hybrid retrieval for
+`evacuation`, `temporary shelter`, `flood-safe location`, `vulnerable groups`,
+`transport access`, `relief camp sanitation`, and `route accessibility`. Each method
+returned citable source/page/chunk metadata, and each method's combined results included
+all three canonical source IDs. Examples show exact terms contributing to BM25 and
+passages receiving both dense and lexical contributions in hybrid; these observations
+are not correctness judgments.
+
+Warmed timings use 35 calls per method and exclude one-time MiniLM/Chroma loading and
+BM25 construction. BM25 construction took 14,534.94 ms on this machine.
+
+| Retriever | Median (ms) | p90 (ms) | p95 (ms) |
+| --- | ---: | ---: | ---: |
+| Dense | 8.611 | 8.938 | 9.038 |
+| BM25 | 0.393 | 0.617 | 0.642 |
+| Hybrid RRF | 10.030 | 10.220 | 10.281 |
+
+These are local engineering timings, not retrieval-quality metrics. Full result metadata,
+startup scopes, and samples are in `data/eval_v3/phase12_retrieval_sanity.json`.
+
+### Tests and verification
+
+`tests/test_v3_retrieval.py` adds 48 offline tests covering the frozen corpus identity,
+1,797 IDs and three sources, tokenizer behavior, dense metadata and offline loading,
+explicit BM25 parameters and lexical behavior, deterministic ties, exact synthetic RRF
+math, component contributions, fusion integrity/fallback, factory selection, query/`k`
+validation, fingerprint/version rejection, no-network operation, and citation
+compatibility. Phase 12 passes 48/48, Phase 11 passes 22/22, and the complete suite passes
+453/453 including every earlier V3 and all 43 legacy V1 tests.
+
+### Real versus computed data and limitations
+
+The three NDMA PDFs and their source metadata remain real authoritative documents.
+Chunks, token statistics, BM25 scores, dense distances, fusion scores, ranks, and latency
+are locally computed. Smoke results are not human relevance judgments.
+
+- Only three canonical documents are present, all from NDMA.
+- No human-reviewed relevance labels or official accuracy figures exist yet.
+- The BM25 tokenizer is intentionally simple and the dense model is unchanged from V1.
+- `RRF_K=60` and candidate pool 20 are frozen retrieval design choices, not physical
+  facts or empirically proven optima.
+- There is no cross-encoder reranker.
+- Source authority does not prove passage relevance; relevance does not prove citation
+  entailment. Phase 13 and Phase 14 respectively address those questions.
+
+### Artifacts and commit
+
+The frozen design is [`V3_RETRIEVAL_SPEC.md`](V3_RETRIEVAL_SPEC.md); the reproducible
+script is `scripts/phase12_retrieval_sanity.py`; its structured engineering artifact is
+`data/eval_v3/phase12_retrieval_sanity.json`. The change is committed as
+`V3 Phase 12: dense, BM25 and hybrid retrieval interfaces`. Phase 13 is not started.
 
 ---

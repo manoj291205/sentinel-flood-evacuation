@@ -17,6 +17,7 @@ from typing import Any
 from .corpus import (
     CORPUS_VERSION,
     RAW_DOCS_DIR,
+    corpus_fingerprint,
     load_manifest,
     validate_manifest,
 )
@@ -142,6 +143,8 @@ def build_index(
     prepared: PreparedCorpus | None = None,
 ) -> int:
     prepared = prepared or prepare_corpus()
+    manifest = load_manifest()
+    fingerprint = corpus_fingerprint(validate_manifest(manifest))
     print(f"Total chunks to embed: {len(prepared.documents)}")
     if model is None:
         print(f"Loading embedding model '{EMBED_MODEL_NAME}' (local, CPU)...")
@@ -170,6 +173,7 @@ def build_index(
         metadata={
             "hnsw:space": "cosine",
             "corpus_version": CORPUS_VERSION,
+            "corpus_fingerprint": fingerprint,
             "embedding_model": EMBED_MODEL_NAME,
             "embedding_dimension": EMBEDDING_DIMENSION,
         },

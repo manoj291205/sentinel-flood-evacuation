@@ -177,6 +177,8 @@ def test_vector_ingestion_succeeds_offline(tmp_path: Path, prepared: PreparedCor
         COLLECTION_NAME
     )
     assert collection.count() == len(prepared.documents)
+    assert set(collection.get(include=[])["ids"]) == set(prepared.ids)
+    assert collection.metadata["corpus_fingerprint"] == load_manifest()["fingerprint"]
     sample = collection.get(limit=10, include=["metadatas"])["metadatas"]
     assert all({"source_id", "source_document", "page"} <= metadata.keys() for metadata in sample)
 
@@ -187,8 +189,17 @@ def test_retrieval_can_return_multiple_source_ids(monkeypatch: pytest.MonkeyPatc
             return np.ones((1, EMBEDDING_DIMENSION), dtype=np.float32)
 
     class FakeCollection:
+        metadata = {
+            "corpus_version": CORPUS_VERSION,
+            "corpus_fingerprint": load_manifest()["fingerprint"],
+        }
+
+        def count(self):
+            return 1797
+
         def query(self, **_kwargs):
             return {
+                "ids": [["flood-p4-c0", "plan-p8-c0", "shelter-p12-c0"]],
                 "documents": [["flood text", "plan text", "shelter text"]],
                 "metadatas": [[
                     {"source_document": "flood.pdf", "source_id": "flood", "page": 4},
