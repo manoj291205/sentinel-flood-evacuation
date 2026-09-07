@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Callable
 
 import gymnasium as gym
 import numpy as np
 from gymnasium import spaces
 
 from src.safety import V3_SAFETY_V1, evaluate_actions
-from src.sim import ScenarioV3, StochasticSimulator, TerminalReason
+from src.sim import AuditRecord, EpisodeState, ScenarioV3, StochasticSimulator, TerminalReason
 
 from .action_space import DecodedAction, FixedActionMap
 from .config import (
@@ -46,6 +46,10 @@ class EvacuationEnvV3(gym.Env[np.ndarray, int]):
         uncertainty_config: str = "v3-medium-v1",
         config: EnvV3Config = DEFAULT_ENV_CONFIG,
         reward_provider: RewardProvider | None = None,
+        simulator_intervention: Callable[
+            [ScenarioV3, EpisodeState], tuple[EpisodeState, tuple[AuditRecord, ...]]
+        ]
+        | None = None,
     ) -> None:
         super().__init__()
         if (scenario is None) == (scenario_source is None):
@@ -64,6 +68,7 @@ class EvacuationEnvV3(gym.Env[np.ndarray, int]):
             dtype=np.float32,
         )
         self._reward_provider = reward_provider or ZERO_PLACEHOLDER_REWARD
+        self._simulator_intervention = simulator_intervention
         self.reward_range = (
             (
                 self._reward_provider.config.episode_return_min,
@@ -206,6 +211,7 @@ class EvacuationEnvV3(gym.Env[np.ndarray, int]):
             scenario,
             active_uncertainty,
             replication_id=replication_id,
+            intervention=self._simulator_intervention,
         )
         self._public_observation = self._simulator.observe()
         self._done = False

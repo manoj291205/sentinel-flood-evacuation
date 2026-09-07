@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Any
+from typing import Any, Callable
 
 from .configs import UncertaintyConfig, get_uncertainty_config
 from .events import (
@@ -110,6 +110,10 @@ def _prepare_timestep(
     scenario: ScenarioV3,
     committed_state: EpisodeState,
     context: _StochasticContext,
+    intervention: Callable[
+        [ScenarioV3, EpisodeState], tuple[EpisodeState, tuple[AuditRecord, ...]]
+    ]
+    | None = None,
 ) -> tuple[
     EpisodeState,
     _StochasticContext,
@@ -143,6 +147,10 @@ def _prepare_timestep(
         state, shelter_records = _degrade_shelters(state, next_context)
         exogenous_records += shelter_records
 
+    if intervention is not None:
+        state, intervention_records = intervention(scenario, state)
+        exogenous_records += intervention_records
+
     state = update_observable_forecasts(scenario, state, context.config)
     state = replace(
         state,
@@ -168,6 +176,10 @@ class StochasticSimulator:
         config: str | UncertaintyConfig,
         *,
         replication_id: int = 0,
+        intervention: Callable[
+            [ScenarioV3, EpisodeState], tuple[EpisodeState, tuple[AuditRecord, ...]]
+        ]
+        | None = None,
     ) -> None:
         self._scenario = scenario
         selected = get_uncertainty_config(config)
@@ -179,12 +191,13 @@ class StochasticSimulator:
             ),
             config=selected,
         )
+        self._intervention = intervention
         base = replace(
             initialize_episode(scenario),
             uncertainty_config_id=selected.config_id,
         )
         prepared, next_context, arrivals, records = _prepare_timestep(
-            scenario, base, self._context
+            scenario, base, self._context, self._intervention
         )
         self.state = prepared
         self._context = next_context
@@ -202,7 +215,7 @@ class StochasticSimulator:
     def _ensure_prepared(self):
         if self._prepared is None:
             self._prepared = _prepare_timestep(
-                self._scenario, self.state, self._context
+                self._scenario, self.state, self._context, self._intervention
             )
         return self._prepared
 
