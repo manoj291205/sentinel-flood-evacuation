@@ -1,0 +1,1211 @@
+{
+  "benchmark_spec_version": "v3-retrieval-benchmark-spec-v1",
+  "candidate_benchmark_version": "v3-retrieval-benchmark-candidate-v1",
+  "future_human_gold_version_reserved": "v3-retrieval-benchmark-gold-v1",
+  "created_at_utc": "2026-09-07T18:44:32.120077+00:00",
+  "corpus_version": "v3-authoritative-corpus-v1",
+  "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+  "retrieval_config": "v3-retrieval-v1",
+  "retrieval_methods": [
+    "dense-minilm-v1",
+    "bm25-okapi-v1",
+    "hybrid-rrf-v1"
+  ],
+  "candidate_count": 60,
+  "target_human_accepted_count": 45,
+  "target_final_topic_count_each": 9,
+  "target_final_query_style_count_each": 15,
+  "candidate_topic_counts": {
+    "flood_management": 12,
+    "evacuation_movement": 12,
+    "temporary_shelters_relief_camps": 12,
+    "vulnerable_groups_accessibility": 12,
+    "logistics_transport_coordination": 12
+  },
+  "candidate_query_style_counts": {
+    "LEXICAL": 20,
+    "SEMANTIC_PARAPHRASE": 20,
+    "OPERATIONAL_TASK": 20
+  },
+  "machine_seed_source_counts": {
+    "ndma-flood-guidelines-2008": 20,
+    "ndma-national-disaster-management-plan-2019": 19,
+    "ndma-temporary-shelters-2019": 21
+  },
+  "machine_proposed_multi_source_candidate_count": 28,
+  "human_accepted_questions": 0,
+  "human_passage_labels": 0,
+  "human_review_status": "WAITING_FOR_HUMAN_REVIEW",
+  "official_retrieval_metrics_calculated": false,
+  "_warning": "All questions, seed evidence, explanations, and suggested grades are MACHINE_PROPOSED and are not human-confirmed gold truth.",
+  "candidates": [
+    {
+      "question": "What is the purpose of flood plain zoning in reducing flood damage?",
+      "primary_topic": "flood_management",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 78,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p78-c0",
+      "machine_proposed_supporting_excerpt": "Na t i oNa l Di s a s t e r MaNa g eMeNt gu iDe l iNe s - MaNa g eMeNt o f fl o oDs 46 Regulation and Enforcement 6 6.1 Flood Plain Zoning 6.1.1 Concept The basic concept of flood plain zoning is to regulate land use in the flood plains to restrict the damage caused by floods. Flood plain zoning, therefore, aims at determining the locations and the extent of areas for developmental activities in such a fashion that the damage is reduced to a minimum. It, therefore, envisages laying down limitations on development of both the unprotected as well as protected areas. In the unprotected areas, boundaries of areas in which developmental",
+      "machine_explanation": "The source explains the land-use purpose and limits of flood-plain zoning.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q001"
+    },
+    {
+      "question": "What information should flood forecasting and warning systems provide to exposed areas?",
+      "primary_topic": "flood_management",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 96,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p96-c1",
+      "machine_proposed_supporting_excerpt": "\u2022 Preparation of flood vulnerability/flood risk/ flood hazard maps. \u2022 Putting in place DSS for FM including preparedness, rescue, relief, rehabilitation and recovery. \u2022 Developing reliable and country-wide FF and W systems in the public domain for all the flood prone areas with sufficient lead time and giving information on prevailing water levels, area inundated, expected water levels and area likely to be inundated with depth and duration of flooding in a manner easily understood by all. \u2022 Implementation of adequately designed, maintained and sustained structural measures for prevention of flooding and improvement of drainage, leading to",
+      "machine_explanation": "The implementation plan lists information expected from forecasting and warning systems.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q002"
+    },
+    {
+      "question": "How should flood shelters and disaster relief centres be located?",
+      "primary_topic": "flood_management",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 56,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p56-c0",
+      "machine_proposed_supporting_excerpt": "that can remain functional during floods. \u2022 Setting up of Flood shelters. \u2022 Suitably locating flood disaster relief centres/basic infrastructure like hospitals, stores, etc., on high ground, so that they remain functional during floods. \u2022 Creating and maintaining an adequately trained disaster response force. \u2022 Identif ying road transport/rail/ communication networks that connect flood disaster relief/supply centres to flood prone areas and including construction of new rail/road infrastructure that may be reliably used during floods. \u2022 Identif ying suitable high grounds where people can be shifted during floods. \u2022 Strengthening the flood",
+      "machine_explanation": "The preparedness measures directly address shelter and relief-centre siting.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008",
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q003"
+    },
+    {
+      "question": "What mapping activities belong in flood management plans?",
+      "primary_topic": "flood_management",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 96,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p96-c1",
+      "machine_proposed_supporting_excerpt": "\u2022 Preparation of flood vulnerability/flood risk/ flood hazard maps. \u2022 Putting in place DSS for FM including preparedness, rescue, relief, rehabilitation and recovery. \u2022 Developing reliable and country-wide FF and W systems in the public domain for all the flood prone areas with sufficient lead time and giving information on prevailing water levels, area inundated, expected water levels and area likely to be inundated with depth and duration of flooding in a manner easily understood by all. \u2022 Implementation of adequately designed, maintained and sustained structural measures for prevention of flooding and improvement of drainage, leading to",
+      "machine_explanation": "The guideline enumerates hazard, risk, and vulnerability mapping activities.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q004"
+    },
+    {
+      "question": "Why can development in areas naturally used by rivers increase disaster losses?",
+      "primary_topic": "flood_management",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 64,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p64-c0",
+      "machine_proposed_supporting_excerpt": "plains, which are basically its domain. Extensive and often unplanned use of flood plains by man disregarding the basic fact that it is part and parcel of the river leads to damage. This is one of the main factors responsible for the flood damage reported from different parts of the country in spite of substantial investments in the flood sector . The basic concept of flood plain zoni",
+      "machine_explanation": "The source links unplanned flood-plain use to reported damage.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q005"
+    },
+    {
+      "question": "How can modelling future situations help authorities prepare for flooding?",
+      "primary_topic": "flood_management",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 86,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p86-c0",
+      "machine_proposed_supporting_excerpt": "Scenario analysis and simulation modelling are extremely useful for undertaking long-term DM programmes and for strengthening flood preparedness, mitigation and response efforts. Risk assessment and scenario projections require data on the existing built-environment, infrastructure, and economic activities. Absence of such data can lead to assumption-based scenarios. The MOWR will, with the support of the CWC, NRSA and the state governments arrange for systematic collection of data and incorporate the same in its data bank with an efficient retrieval system. It will encourage the development of standardised methods for flood risk assessment",
+      "machine_explanation": "The research section describes scenario analysis and simulation as preparedness tools.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q006"
+    },
+    {
+      "question": "What health problems can follow when flooding damages essential infrastructure?",
+      "primary_topic": "flood_management",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 66,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p66-c0",
+      "machine_proposed_supporting_excerpt": "potential of precipitating the incidences of mass casualties. There is the risk of drowning and physical trauma along with the threat of diseases associated with contamination of water and the creation of mosquito- breeding sites. Direct health effects of a flood may include: drowning; injuries like cuts, sprains, fractures, electric shocks; diarrhoea, vector-and rodent-borne diseases like malaria, leptospirosis; skin and eye infections; and psychological stress. The indirect health consequences of floods are usually due to damage caused to health care infrastructure and loss of essential drugs, damage to water and sanitation",
+      "machine_explanation": "The medical-preparedness passage links flooding, damaged services, and health effects.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q007"
+    },
+    {
+      "question": "Why should warnings use information that local communities can readily understand?",
+      "primary_topic": "flood_management",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 96,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p96-c1",
+      "machine_proposed_supporting_excerpt": "for FM including preparedness, rescue, relief, rehabilitation and recovery. \u2022 Developing reliable and country-wide FF and W systems in the public domain for all the flood prone areas with sufficient lead time and giving information on prevailing water levels, area inundated, expected water levels and area likely to be inundated with depth and duration of flooding in a manner easily understood by all. \u2022 Implementation of adequately designed, maintained and sustained structural measures for prevention of flooding and improvement of drainage, leading to feeling of security against floods and overall development in the flood prone areas. \u2022",
+      "machine_explanation": "The plan calls for public warning information presented in an understandable form.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q008"
+    },
+    {
+      "question": "Which infrastructure connections should planners identify to keep relief moving during floods?",
+      "primary_topic": "flood_management",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 56,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p56-c0",
+      "machine_proposed_supporting_excerpt": "to the public. \u2022 Establishing a dedicated communication network that can remain functional during floods. \u2022 Setting up of Flood shelters. \u2022 Suitably locating flood disaster relief centres/basic infrastructure like hospitals, stores, etc., on high ground, so that they remain functional during floods. \u2022 Creating and maintaining an adequately trained disaster response force. \u2022 Identif ying road transport/rail/ communication networks that connect flood disaster relief/supply centres to flood prone areas and including construction of new rail/road infrastructure that may be reliably used during floods. \u2022 Identif ying suitable high grounds",
+      "machine_explanation": "The preparedness list identifies transport and communication links to relief centres.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q009"
+    },
+    {
+      "question": "How should officials decide the scale and coordination level of a flood response?",
+      "primary_topic": "flood_management",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 89,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p89-c0",
+      "machine_proposed_supporting_excerpt": "The scale of response for floods and the corresponding role players will be identified and mobilised at the district, state or national levels depending on the magnitude and the severity of the event. Systems will be institutionlised by the DMAs, at various levels, for coordination between the various agencies like central government ministries and departments, state governments, district administration, ULBs, PRIs and other stakeholders for effective post-flood response. 8.1",
+      "machine_explanation": "The response chapter ties mobilization level to event magnitude and severity.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q010"
+    },
+    {
+      "question": "What should a local flood plan document before an emergency occurs?",
+      "primary_topic": "flood_management",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 96,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p96-c0",
+      "machine_proposed_supporting_excerpt": "the state governments, the district authorities, the rural and urban local bodies and other stakeholders. The salient activities to be covered in the FMPs will include: \u2022 Identification of flood prone areas: village/ block/tehsil or taluka/district wise and delineation thereof on maps. \u2022 Preparation of flood vulnerability/flood risk/ flood hazard maps. \u2022 Putting in place DSS for FM including preparedness, rescue, relief, rehabilitati",
+      "machine_explanation": "The source lists advance planning activities for flood-management plans.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q011"
+    },
+    {
+      "question": "What resources should authorities arrange to sustain flood rescue and relief operations?",
+      "primary_topic": "flood_management",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 92,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p92-c0",
+      "machine_proposed_supporting_excerpt": "na t i o n a l di s a s t eR Ma n a g eMe n t gu i d e l i n e s - Ma n a g eMe n t oF Fl o o d s 60 of hospitals, power and telecommunication, relief supplies, search and rescue equipment, water pumps and transport and logistics for movement of relief supplies to the extent possible. For instance the Construction Federation of India (CFI) has set up the India Disaster Response Network (IDRN), which can also be associated with the task of emergency response. State governments and district authorities will develop appropriate mechanisms to receive and optimally utilise all such assistance. 8.7 Specialised T eams for Response 8.7.1 National",
+      "machine_explanation": "The response passage identifies infrastructure, equipment, supplies, and logistics support.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q012"
+    },
+    {
+      "question": "What elements should an emergency evacuation plan establish and test?",
+      "primary_topic": "evacuation_movement",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 89,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p89-c3",
+      "machine_proposed_supporting_excerpt": "uality/emergency ii) Preparing plans of all the organisations involved in the emergency evacuation for all types of emergencies; validating plans; evaluating staff competency; testing the established emergency operational procedures",
+      "machine_explanation": "The evacuation section lists planning, validation, competence, and procedure testing.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q013"
+    },
+    {
+      "question": "Which agencies support evacuation of people and animals during a major disaster?",
+      "primary_topic": "evacuation_movement",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 310,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p310-c1",
+      "machine_proposed_supporting_excerpt": "stranded in remote Himalayan regions because of inclement weather, landslides, \ufb02ash \ufb02oods and avalanches \u2022 Evacuation of \ufb01shermen from the high seas in case of a cyclone Lead Agencies: DMD$ Support Agencies: State/UT, SDMA, SDRF, RD, SEOC, F&ES, DDMA, CDEF, all other relevant Depts. \u2022 Quick assessment of evacuation needs such as the number of people and animals to be evacuated and mode of evacuation \u2022 Special atiention to evacuation of PWD \u2022 Mobilize transport and resources for evacuation \u2022 Identify and prepare sites for temporary relocation of a\ufb00ected people and animals \u2022 Identify requirements of resources for evacuation such as",
+      "machine_explanation": "The national response matrix names lead and supporting bodies for evacuation.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q014"
+    },
+    {
+      "question": "What should authorities identify and display when planning evacuation routes?",
+      "primary_topic": "evacuation_movement",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 306,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p306-c1",
+      "machine_proposed_supporting_excerpt": "DDMA, SEOC, SDRF, F&ES, ULBs, PRIs, CUD, TOD, SPWD \u2022 Safety of the people who engage with the Museums / Cultural Heritage sites and Precincts. \u2022 Comprehensive plan including evacuation, immediate response protocols and procedures, etc. considering the speci\ufb01c challenges presented by the site/precinct \u2022 Creating an emergency team that includes the management, administrators and sta\ufb00 of the site or precinct as well as representatives from local stakeholders \u2022 Identi\ufb01cation of evacuation routes, spaces that may act as temporary refuge areas, and displaying these routes and 58 National DM Guidelines for Cultural Heritage Sites, Museums and",
+      "machine_explanation": "The preparedness matrix specifies route and refuge-area identification.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019",
+        "ndma-flood-guidelines-2008"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q015"
+    },
+    {
+      "question": "What does a patient evacuation plan need for safe medical movement?",
+      "primary_topic": "evacuation_movement",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 66,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p66-c2",
+      "machine_proposed_supporting_excerpt": "and anti-diarrhoea drugs will be the most commonly needed medical resources. Large- scale medical stores from where these materials can be procured will be identified. 3.8.5 Patient Evacuation Plan State governments/SDMAs will make available emergency medical equipment and drugs for resuscitation. Paramedical staff must be trained for resuscitation, triage and to maintain vital parameters like pulse, blood pressure, respiration and intravenous drip during evacuation. Heli- am",
+      "machine_explanation": "The medical section describes personnel, equipment, triage, and movement needs.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q016"
+    },
+    {
+      "question": "How should planners account for people who may need extra help leaving a hazardous area?",
+      "primary_topic": "evacuation_movement",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 115,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p115-c1",
+      "machine_proposed_supporting_excerpt": " is for the involvement of PWD in DRR-related activities. The survey also emphasized the need for supportive policies, laws and promotion of support systems involving neighbours and local community. DRR e\ufb00orts must speci\ufb01cally address the vulnerabilities of PWD among the a\ufb00ected population , rather than clubbing them with others. Special atiention must be paid to ensure that no PWD is abandoned atier a disaster. Local community -based e\ufb00orts and support system including promoting a buddy- system whereby each PWD have one or more persons in the neighbourhood who are responsible to act as a buddy to assist. The neighbours must be made aware of",
+      "machine_explanation": "The disability discussion addresses evacuation barriers and locally organized assistance.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019",
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q017"
+    },
+    {
+      "question": "When might residents need to move after water has already entered their community?",
+      "primary_topic": "evacuation_movement",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 89,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p89-c1",
+      "machine_proposed_supporting_excerpt": "based on warning indicators, prior to impact, in order to protect flood-threatened persons from the full effects of the disasters. Evacuation may also be necessary after the area has been flooded in order to move persons from a flood-affected area to safer and better surroundings. For carrying out successful evacuation, the threat perception on the part of DM officials is essential. Continuous dialogue with stakeholders such as, early warning providers, transportation authorities, health-care authorities/ pers",
+      "machine_explanation": "The flood guideline distinguishes precautionary and post-inundation movement.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q018"
+    },
+    {
+      "question": "How should response plans handle visitors stranded in remote mountain areas?",
+      "primary_topic": "evacuation_movement",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 310,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p310-c1",
+      "machine_proposed_supporting_excerpt": "cuation of visitors/pilgrims stranded in remote Himalayan regions because of inclement weather, landslides, \ufb02ash \ufb02oods and avalanches \u2022 Evacuation of \ufb01shermen from the high seas in case of a cyclone Lead Agencies: DMD$ Support Agencies: State/UT, SDMA, SDRF, RD, SEOC, F&ES, DDMA, CDEF, all other relevant Depts. \u2022 Quick assessment of evacuation needs such as the number of people and animals to be evacuated and mode of evacuation \u2022 Special atiention to evacuation of PWD \u2022 Mobilize transport and resources for evacuation \u2022 Identify and prepare sites for temporary relocation of a\ufb00ected people and animals \u2022 Identify requirements of resources for",
+      "machine_explanation": "The national matrix gives remote stranded visitors as a special evacuation situation.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q019"
+    },
+    {
+      "question": "Why are several reliable ways into and out of a shelter area important?",
+      "primary_topic": "evacuation_movement",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 256,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p256-c2",
+      "machine_proposed_supporting_excerpt": "sibility \u2013 State 1 \u2022 Shelters, evacuation, and support facilities \u2022 Multiple routes for reliable access and escape \u2022 Decontamination facilities MOEFCC*, NDMA, NLRTI** Recurring/ Regular (RR) Technical support DMD$, SDMA, INDD, SPCB, DISH, DDMA, PRIs, ULBs, IBTA Short Term (T1) \u2022 Identi\ufb01cation of shelters with basic facilities like drinking water and \ufb01rst aid for chemical exposure \u2022 Ensuring water storage facilities and sources for water for accident containment and \ufb01re\ufb01ghting operations Medium Term (T2) \u2022 Providing wide roads and multiple routes in the industrial area to allow quick access by \ufb01rst responders and to ensure escape pathways",
+      "machine_explanation": "The plan calls for multiple routes supporting access and escape.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019",
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q020"
+    },
+    {
+      "question": "When should officials begin moving flood-threatened people to safer surroundings?",
+      "primary_topic": "evacuation_movement",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 89,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p89-c1",
+      "machine_proposed_supporting_excerpt": "nment ministries and departments, state governments, district administration, ULBs, PRIs and other stakeholders for effective post-flood response. 8.1.3 Evacuation Plan Evacuation of human population and livestock is the only prescribed means to save them from the fury of floods. Evacuation of flood affected communities can be one of the most difficult response operations, especially, when it involves large population. Evacuation needs to be carried out as a precautionary measure based on warning indicators, prior to impact, in order to protect flood-threatened persons from the full effects of the disasters. Evacuation may also be necessary",
+      "machine_explanation": "The passage explains precautionary evacuation based on warning indicators before impact.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q021"
+    },
+    {
+      "question": "Who should be involved in coordinating a large community evacuation?",
+      "primary_topic": "evacuation_movement",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 89,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p89-c2",
+      "machine_proposed_supporting_excerpt": "icials is essential. Continuous dialogue with stakeholders such as, early warning providers, transportation authorities, health-care authorities/ personnel, food and essential commodity suppliers, civil societies, NGOs and last but not the least, the communities including the Decision Support System (DSS) and inputs based on Geographical Information System (GIS) platform are essential for carrying out successful evacuation. Responsibilities of each organisation need to be fixed beforehand in the form of SOPs. Other important points that need to be considered for the development of evacuation plan including the action points, are listed",
+      "machine_explanation": "The source lists warning, transport, health, supply, civil-society, and community actors.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q022"
+    },
+    {
+      "question": "How should an evacuation route within a shelter site accommodate people with disabilities?",
+      "primary_topic": "evacuation_movement",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 40,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p40-c0",
+      "machine_proposed_supporting_excerpt": "vii) Existing service infrastructure should be used and strengthened as much as possible. If the required site infrastructure is not in place or is damaged, it should be restored on priority basis or additional arrangements should be made until such time. viii) Ideally, there should be at least one disability-friendly route within the site boundary, connecting public transportation stops, all public facilities and residential units to the maximum extent feasible, while coinciding with the route of the general public. ix) Access to site should be cleared of rubble and debris. x) For relocation sites, transportation systems should be planned",
+      "machine_explanation": "The shelter standard describes an accessible route linking transport, facilities, and residences.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q023"
+    },
+    {
+      "question": "What national support may a state request for moving people and animals from threatened areas?",
+      "primary_topic": "evacuation_movement",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 310,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p310-c0",
+      "machine_proposed_supporting_excerpt": "Preparedness and Response SN Emergency Function* Central/ State Ministries/ Departments and their Responsibilities Centre Responsibility \u2013 Centre State Responsibility \u2013 State described in the relevant NDMA guideline \u2022 Ensure appropriate compilation/ analysis of received data \u2022 Use of satellite imageries and other scienti\ufb01c methods for risk assessment and forecasting 7 Evacuation of People and Animals Lead Agency: MHA Support Agencies: MOD, CAPF, MRTH, MOR, MOCI, ministries/ depts. with hazard-speci\ufb01c responsibilities, NDRF, CDEF On request, support the a\ufb00ected state government in evacuation of people and animals from areas likely to be",
+      "machine_explanation": "The response matrix specifies central support on a state's request.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q024"
+    },
+    {
+      "question": "What typologies are used to describe temporary shelter options?",
+      "primary_topic": "temporary_shelters_relief_camps",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 33,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p33-c0",
+      "machine_proposed_supporting_excerpt": "Section 5 TYPOLOGIES OF TEMPORARY SHELTERS Temporary shelters can be understood in following three typologies. 1. Assembly based shelters such as shelter kits, tents, pre-fab units, shipping containers, etc. 2. Construction based shelters that are to be constructed in-situ or ex-situ with construction materials like bricks, stones, timber, bamboos, steel, cement, mud or other such materials. 3. Rental accommodation that the affected people can \ufb01nd in already existing undamaged houses that survive the disaster. This is not really a typology but an alternative way of accessing accommodation temporarily and ful\ufb01l needs for short-term and",
+      "machine_explanation": "The shelter guideline defines assembly, construction, and rental options.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q025"
+    },
+    {
+      "question": "How do emergency shelters differ from intermediate shelters in the recovery process?",
+      "primary_topic": "temporary_shelters_relief_camps",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 21,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p21-c1",
+      "machine_proposed_supporting_excerpt": "effective practice for temporary shelter response during early recovery phase prior to permanent shelter reconstruction. It starts with an immediate shelter response termed as \u2018emergency shelters\u2019 to address short-term urgent need of protection after a disaster. The next increment comes in the form of \u2018intermediate shelters\u2019, which involves addressing and ful\ufb01lling needs for the mid-term duration until permanent houses are rebuilt. We classify both these types of shelters as \u2018Temporary Shelters\u2019, explained further in this document. Qualifying with the above perspective, the term \u2018Temporary Shelters\u2019 is continued to be used in this",
+      "machine_explanation": "The guideline distinguishes immediate protection from mid-term shelter needs.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q026"
+    },
+    {
+      "question": "Which technical subjects are covered when planning temporary shelters?",
+      "primary_topic": "temporary_shelters_relief_camps",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 37,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p37-c0",
+      "machine_proposed_supporting_excerpt": "developed, keeping in mind the implementation framework guidelines mentioned earlier to ensure people-centred reconstruction. These guidelines and standards include aspects of site selection and planning, shelter design, materials, and technology, with considerations for inclusion of gender, vulnerability and disability, wherever necessary. The technical guidelines are organised as follows: 1. Identi\ufb01cation and Selection of Sites for Temporary Shelters 2. Site Planning and Services 3. Design of Temporary Shelters 4. Materials and Construction Technology (Assembly-based Shelters and Construction based Shelters) 5. Rental Assistance for",
+      "machine_explanation": "The technical overview enumerates site, services, design, materials, and technology.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q027"
+    },
+    {
+      "question": "Which basic services must be arranged at temporary shelter sites?",
+      "primary_topic": "temporary_shelters_relief_camps",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 63,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p63-c0",
+      "machine_proposed_supporting_excerpt": "Themes Centre State District/Block/Local Bodies(District Administration and DDMA) Non-Governmental Organizations/ Private Sector House-owners Provide water / Sanitation / Electricity / Communication / Transport / cooking fuel etc. for those in temporary (emergency and intermediate) shelter sites. (If temporary (emergency or intermediate) shelters are on relocation sites, make temporary arrangements for basic services. (State Govt., CoR, Health, Power, Transport Departments) If existing services (drinking water, sanitation, electricity, communication, access, transportation, etc.) are disrupted or critically de\ufb01cient, provide alternate",
+      "machine_explanation": "The responsibility matrix lists essential site services and alternatives after disruption.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q028"
+    },
+    {
+      "question": "How should shelter support change as families progress toward permanent housing?",
+      "primary_topic": "temporary_shelters_relief_camps",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 25,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p25-c1",
+      "machine_proposed_supporting_excerpt": "d recovery needs to evolve continuously, beginning with emergency makeshift shelters to intermediate shelters in early recovery phase and \ufb01nally permanent housing in rehabilitation and reconstruction phase. In small disasters, affected community may quickly move from relief camps or temporary emergency shelters to permanent housing, requiring small repairs and retro\ufb01tting as per need. However, in case of major disasters, there is likely to be transition from relief camps and short-term emergency makeshift shelters to mid-term intermediate shelters. In such cases, the need for provision of basic services and civic infrastructure becomes more",
+      "machine_explanation": "The approach section describes continuously evolving shelter needs.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q029"
+    },
+    {
+      "question": "How can authorities avoid overlooking affected households absent from existing beneficiary lists?",
+      "primary_topic": "temporary_shelters_relief_camps",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 29,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p29-c0",
+      "machine_proposed_supporting_excerpt": "extent of damage incurred. According to these guidelines, the owner shall receive due compensation only if his or her house was authorized by a competent authority. The list of bene\ufb01ciaries is often drawn on the basis on already existing lists maintained in the village/ward level of\ufb01ces, which may not completely include the landless, Scheduled castes and Scheduled Tribes (SC/ST) communities, socially excluded families, women-headed households, squatters and tenant population, who are often the most vulnerable and in dire need of support. It is important to establish a system of identifying all genuinely affected families to ensure that aid",
+      "machine_explanation": "The eligibility passage warns that existing lists can omit vulnerable households.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q030"
+    },
+    {
+      "question": "Why should emergency accommodation not continue unchanged for an excessive period?",
+      "primary_topic": "temporary_shelters_relief_camps",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 25,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p25-c1",
+      "machine_proposed_supporting_excerpt": "may begin with relief camps for which NDMA has prepared separate detailed guidelines. Here it is important to note that it\u2019s essential to ensure that relief camps do not continue unduly long, as they fail to cater to continuously changing shelter needs. Long-time use of schools as relief camps may 7",
+      "machine_explanation": "The source warns that prolonged relief camps fail to meet changing shelter needs.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q031"
+    },
+    {
+      "question": "Why should temporary housing assistance be treated as part of recovery rather than a passive handout?",
+      "primary_topic": "temporary_shelters_relief_camps",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 23,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p23-c0",
+      "machine_proposed_supporting_excerpt": "of the affected people. Affected people are entitled to non-discriminatory, equitable, inclusive and respectful access to support from the state and other public agencies for housing including temporary shelters. An entitlement perspective of recovery support automatically implies accountability and transparency by all the stakeholders including homeowners, communities, other agencies including NGOs and donors, and the Government. 2. Affected people should not be treated as hapless passive recipients of relief but as resourceful agency. Housing, particularly, is a people-led process. But after a disaster when people are in shock, they",
+      "machine_explanation": "The guiding principles frame affected people as agents in a people-led recovery process.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q032"
+    },
+    {
+      "question": "What safety and privacy issues should be checked when laying out an intermediate shelter camp?",
+      "primary_topic": "temporary_shelters_relief_camps",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 39,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p39-c0",
+      "machine_proposed_supporting_excerpt": "xiii) Safety and privacy of all members of the affected community should be ensured while planning and layout of intermediate shelter camps. Dark, deserted spaces and blind spots, which are prone to dangerous incidents should be avoided. The selected site should be safe for women, elderly and children as well as safe and accessible to people with disabilities. xiv) Such a site should be chosen, which can later be vacated after the purpose of temporary shelters is ful\ufb01lled, and permanent housing is constructed. In order to see that the affected family vacates the temporary shelter voluntarily, it is necessary to involve them right from the",
+      "machine_explanation": "The site guidance addresses blind spots, dangerous spaces, privacy, and safety.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q033"
+    },
+    {
+      "question": "What should a shelter manager do when water or sanitation services are disrupted?",
+      "primary_topic": "temporary_shelters_relief_camps",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 63,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p63-c0",
+      "machine_proposed_supporting_excerpt": "/ cooking fuel etc. for those in temporary (emergency and intermediate) shelter sites. (If temporary (emergency or intermediate) shelters are on relocation sites, make temporary arrangements for basic services. (State Govt., CoR, Health, Power, Transport Departments) If existing services (drinking water, sanitation, electricity, communication, access, transportation, etc.) are disrupted or critically de\ufb01cient, provide alternate arrangements and simultaneously repair existing infrastructure to restore the services. (If temporary (emergency or intermediate) shelters are on relocation sites, make temporary arrangements for basic services.",
+      "machine_explanation": "The matrix requires alternate arrangements while damaged infrastructure is repaired.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q034"
+    },
+    {
+      "question": "What factors should guide selection of a safe location for temporary accommodation?",
+      "primary_topic": "temporary_shelters_relief_camps",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 37,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p37-c0",
+      "machine_proposed_supporting_excerpt": "considerations for inclusion of gender, vulnerability and disability, wherever necessary. The technical guidelines are organised as follows: 1. Identi\ufb01cation and Selection of Sites for Temporary Shelters 2. Site Planning and Services 3. Design of Temporary Shelters 4. Materials and Construction Technology (Assembly-based Shelters and Construction based Shelters) 5. Rental Assistance for Temporary Shelters 1. Identi\ufb01cation and Selection of Sites for Temporary Shelters In pos",
+      "machine_explanation": "The technical guidance establishes source-based site selection and planning considerations.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q035"
+    },
+    {
+      "question": "What access features should planners require around shelters used during an emergency?",
+      "primary_topic": "temporary_shelters_relief_camps",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 256,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p256-c2",
+      "machine_proposed_supporting_excerpt": "sibility \u2013 State 1 \u2022 Shelters, evacuation, and support facilities \u2022 Multiple routes for reliable access and escape \u2022 Decontamination facilities MOEFCC*, NDMA, NLRTI** Recurring/ Regular (RR) Technical support DMD$, SDMA, INDD, SPCB, DISH, DDMA, PRIs, ULBs, IBTA Short Term (T1) \u2022 Identi\ufb01cation of shelters with basic facilities like drinking water and \ufb01rst aid for chemical exposure \u2022 Ensuring water storage facilities and sources for water for accident containment and \ufb01re\ufb01ghting operations Medium Term (T2) \u2022 Providing wide roads and multiple routes in the industrial area to allow quick access by \ufb01rst responders and to ensure escape pathways",
+      "machine_explanation": "The national plan pairs shelter facilities with reliable access and escape routes.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019",
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q036"
+    },
+    {
+      "question": "Which groups receive explicit attention in inclusive disaster risk management?",
+      "primary_topic": "vulnerable_groups_accessibility",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 108,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p108-c1",
+      "machine_proposed_supporting_excerpt": "ng: 1. Gender-based Vulnerabilities 2. Scheduled Castes and Scheduled Tribes (SC&ST) 3. Elderly 4. Children and 5. Persons with Disabilities (PWD) 4.2 Gender Perspective and DRR 4.2.1 Gender-based Vulnerabilities In general, gender concerns arise from a complex mix of dynamic factors that include di\ufb00erentiated roles and responsibilities, skills and capabilities, vulnerabilities, power relations, institutional structures, and long-standing traditions and atitudes. The speci\ufb01cities of gender relations may vary depending on the socio-cultural values of a society. However, the fundamental gender -based divisions of roles, responsibilities and",
+      "machine_explanation": "The social-inclusion chapter enumerates groups needing explicit attention.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q037"
+    },
+    {
+      "question": "Why must disaster planning consider the specific requirements and strengths of older people?",
+      "primary_topic": "vulnerable_groups_accessibility",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 113,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p113-c0",
+      "machine_proposed_supporting_excerpt": "tion of more extreme climate and disaster events coupled with the failure to adapt DRR responses to the ageing demographic trend has the poten tial to increase older people\u2019s vulnerability to risks and disasters. Yet, the speci\ufb01c requirements and strengths of older people are otien not given appropriate consideration in DRR. A report of the Government of India, \u2018Elderly in India\u2019 (CSO 2016), presents detailed statistical pro\ufb01le of the elderly population based on various o\ufb03cial data. The report states that like other na tions, India too has undergone changes in the age structure of the population with the proportion of older persons",
+      "machine_explanation": "The elderly section explains why generic responses may overlook older people's needs.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q038"
+    },
+    {
+      "question": "What local support measures can improve evacuation for persons with disabilities?",
+      "primary_topic": "vulnerable_groups_accessibility",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 115,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p115-c1",
+      "machine_proposed_supporting_excerpt": " is for the involvement of PWD in DRR-related activities. The survey also emphasized the need for supportive policies, laws and promotion of support systems involving neighbours and local community. DRR e\ufb00orts must speci\ufb01cally address the vulnerabilities of PWD among the a\ufb00ected population , rather than clubbing them with others. Special atiention must be paid to ensure that no PWD is abandoned atier a disaster. Local community -based e\ufb00orts and support system including promoting a buddy- system whereby each PWD have one or more persons in the neighbourhood who are responsible to act as a buddy to assist. The neighbours must be made aware of",
+      "machine_explanation": "The passage addresses local networks and advance identification of assistance needs.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019",
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q039"
+    },
+    {
+      "question": "How should post-disaster housing programmes account for widows and single women?",
+      "primary_topic": "vulnerable_groups_accessibility",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 110,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p110-c0",
+      "machine_proposed_supporting_excerpt": "To promote gender equity, the reconstructed houses need to be registered in the joint names of husband and wife. Widows and single women, who do not have land titles, should not be leti out from receiving shelters. Women feel more secure, con\ufb01dent and feel that they will never be without a roof over their head in their life. Owner Driven Reconstruction (ODR) can be followed where women can take leadership role in monitoring implementation of safe housing technology. Programs shall be designed and aimed at empowering women through access to social security measures and income generation activities. Women Self Help Groups can be formed for",
+      "machine_explanation": "The gender section warns against excluding women without land titles from shelter support.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019",
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q040"
+    },
+    {
+      "question": "Why can treating all disaster survivors as one uniform group produce unfair outcomes?",
+      "primary_topic": "vulnerable_groups_accessibility",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 107,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p107-c0",
+      "machine_proposed_supporting_excerpt": "on normative social order and structural inequalities which need to be reckoned with for an inclusive disaster response. Disaster management tend to view the a\ufb00ected people as a homogenous group \u2013 as internally undi\ufb00erentiated \u2018victims\u2019 or \u2018survivors\u2019, particularly in the relief and recovery processes. This leads to an inherent inability to address the existing disparities and inequities across gender, caste, or class (Fordham 1999). While hazards do not discriminate, people do. Disaster management could become unfair by being blind to prevailing inequities. Existing socio-economic conditions mean that disasters can lead to dissimilar",
+      "machine_explanation": "The inclusion chapter links homogeneous treatment to overlooked structural inequalities.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q041"
+    },
+    {
+      "question": "How can people facing several forms of exclusion disappear from emergency programmes?",
+      "primary_topic": "vulnerable_groups_accessibility",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 108,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p108-c0",
+      "machine_proposed_supporting_excerpt": "Exclusion is otien most acute when people su\ufb00er multiple layers of discrimination and they are embedded in unequal relations of power. To make matiers worse, they otien remain \u2018invisible\u2019 in disaster reduction or emergency response programs, even in many cases where they constitute a signi\ufb01cant proportion of population. The socially excluded groups have context speci\ufb01c and di\ufb00erentiated needs before, during and atier a disaster, which are not taken into consideration in DMPs. Inclusive Disaster Risk Management is about equality of rights and opportunities, dignity of the individual, acknowledging diversity, and contributing to resilience for",
+      "machine_explanation": "The passage describes layered discrimination and invisibility in response programs.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q042"
+    },
+    {
+      "question": "Why may sexual and gender minorities encounter greater barriers to disaster protection?",
+      "primary_topic": "vulnerable_groups_accessibility",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 110,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p110-c2",
+      "machine_proposed_supporting_excerpt": "have highlighted the fate of sexual and gender minorities in disaster. Most of the research on disaster-related vulnerabilities faced by the sexual and gender minorities concur that they are otien more severely a\ufb00ected by disasters because they face barriers or lack of access to the means of protection available to others. The highly marginalized conditions of sexual and gender minorities in everyday life thus places them at higher risk when confronted with disaster situations. Their vulnerabilities will be aggravated if DRR policies and practices remain blind to the social realities. There is greater likelihood of addressing the concerns of",
+      "machine_explanation": "The source relates marginalization to barriers accessing protection.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q043"
+    },
+    {
+      "question": "Which households are most likely to be missed when aid uses only pre-existing local lists?",
+      "primary_topic": "vulnerable_groups_accessibility",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 29,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p29-c0",
+      "machine_proposed_supporting_excerpt": "authority. The list of bene\ufb01ciaries is often drawn on the basis on already existing lists maintained in the village/ward level of\ufb01ces, which may not completely include the landless, Scheduled castes and Scheduled Tribes (SC/ST) communities, socially excluded families, women-headed households, squatters and tenant population, who are often the most vulnerable and in dire need of support. It is important to establish a system of identifying all genuinely affected families to ensure that aid and relief reaches the truly needy. Population lists such as Census and Socio Eco",
+      "machine_explanation": "The eligibility section identifies several groups omitted from beneficiary lists.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q044"
+    },
+    {
+      "question": "How should a camp layout protect women, older people, children, and people with disabilities?",
+      "primary_topic": "vulnerable_groups_accessibility",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 39,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p39-c0",
+      "machine_proposed_supporting_excerpt": "xiii) Safety and privacy of all members of the affected community should be ensured while planning and layout of intermediate shelter camps. Dark, deserted spaces and blind spots, which are prone to dangerous incidents should be avoided. The selected site should be safe for women, elderly and children as well as safe and accessible to people with disabilities. xiv) Such a site should be chosen, which can later be vacated after the purpose of temporary shelters is ful\ufb01lled, and permanent housing is constructed. In order to see that the affected family vacates the temporary shelter voluntarily, it is necessary to involve them right from the",
+      "machine_explanation": "The layout guidance explicitly addresses safety and accessibility for these groups.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q045"
+    },
+    {
+      "question": "What should connect a disability-friendly route through a temporary shelter site?",
+      "primary_topic": "vulnerable_groups_accessibility",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 40,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p40-c0",
+      "machine_proposed_supporting_excerpt": "vii) Existing service infrastructure should be used and strengthened as much as possible. If the required site infrastructure is not in place or is damaged, it should be restored on priority basis or additional arrangements should be made until such time. viii) Ideally, there should be at least one disability-friendly route within the site boundary, connecting public transportation stops, all public facilities and residential units to the maximum extent feasible, while coinciding with the route of the general public. ix) Access to site should be cleared of rubble and debris. x) For relocation sites, transportation systems should be planned",
+      "machine_explanation": "The standard specifies connections among transport, public facilities, and residential units.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q046"
+    },
+    {
+      "question": "Who is responsible for ensuring facilities for persons with disabilities in temporary shelters?",
+      "primary_topic": "vulnerable_groups_accessibility",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 49,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p49-c0",
+      "machine_proposed_supporting_excerpt": "has been mentioned as an indicative authority, but depending upon the State work allocation the concerned Department should discharge the duties as per this Matrix. 2. Ensure provisions and facilities for Persons with Disabilities in emergency and intermediate shelters. 31 NATIONAL GUI",
+      "machine_explanation": "The stakeholder matrix makes disability provision an explicit shelter responsibility.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q047"
+    },
+    {
+      "question": "How can local authorities identify residents who will need additional evacuation assistance?",
+      "primary_topic": "vulnerable_groups_accessibility",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 115,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p115-c2",
+      "machine_proposed_supporting_excerpt": "workplace, home, or school. The more people who can assist are there so much the betier. It is also important for PWD to keep their helpers or buddies well informed about their special needs and for the helpers to remain in regular touch with those they are responsible for. A detailed disaster response planning at the local level must include lists of PWD in need special care. In the post disaster situation, the agencies responsible for disaster management may set up temporary facilities that are barrier-free and friendly to PWD. The administration can provide special arrangements to protect the property and assets of PWD, if required. 4.7",
+      "machine_explanation": "The disability section proposes local information and support arrangements before evacuation.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019",
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q048"
+    },
+    {
+      "question": "What temporary shelter materials should be stockpiled in regional stores?",
+      "primary_topic": "logistics_transport_coordination",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 53,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p53-c0",
+      "machine_proposed_supporting_excerpt": "Themes Centre State District/Block/Local Bodies(District Administration and DDMA) Non-Governmental Organizations/ Private Sector House-owners Stockpile tents, shelter kits, tarpaulins, bamboo and temporary shelter material in regional warehouses/ stores/ ERCs and have tie-ups with forest depots for bamboo, timber, etc. (State Govt., CoR, Revenue Dept.) Develop material banks/depots and tie- ups with local vendors. Based on the request of the District Administration, assist the District /Block/ /Gram Panchayat in distribution of tents, shelter kits, prefabricated shelters, tarpaulins, bamboo, CGI sheets and other temporary shelter materials.",
+      "machine_explanation": "The stakeholder matrix lists materials for regional stocks and vendor arrangements.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q049"
+    },
+    {
+      "question": "What is the role of regional logistics facilities in temporary shelter response?",
+      "primary_topic": "logistics_transport_coordination",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 54,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p54-c0",
+      "machine_proposed_supporting_excerpt": "on the directives of the State Government. temporary shelter materials in coordination with District/Block/Gram Panchayat as per their directives and avoid duplication. Establish regional logistics facilities, coordinated with National Disaster Response Force teams to keep stocks of temporary shelters, tents and other non-food items. (MHA, National Disaster Response Force) Deploy a dedicated local team to receive the temporary shelter supplies. (State Govt., CoR, SDMA) Deploy a dedicated local team to receive the temporary shelter supplies. On request, facilitate the district administration in logistics / supplies. Depending upon the requ",
+      "machine_explanation": "The source links logistics facilities with response teams and non-food-item stocks.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q050"
+    },
+    {
+      "question": "Which transportation services and routes require rapid restoration after a disaster?",
+      "primary_topic": "logistics_transport_coordination",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 321,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p321-c1",
+      "machine_proposed_supporting_excerpt": "tree cutiers, fork litiers and other required equipment either at strategic locations or centralized \u2022 Quick deployment of resources and equipment for quick repairs/ restoration of roads and highways for movement of rescue and relief teams with their supplies \u2022 Operational plans are in place to transport heavy machinery (like dewatering pumps, boats, etc.) through road in close coordination with the relevant Ministries \u2022 Operational plans are in place for quick restoration of train services, providing additional railway wagons, containers and passenger coaches for movement of relief supplies/rescue equipment and Lead Agencies:",
+      "machine_explanation": "The response matrix covers roads, public transport, rail, and equipment movement.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q051"
+    },
+    {
+      "question": "What emergency support resources can be mobilized for moving relief supplies?",
+      "primary_topic": "logistics_transport_coordination",
+      "query_style": "LEXICAL",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 92,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p92-c0",
+      "machine_proposed_supporting_excerpt": "na t i o n a l di s a s t eR Ma n a g eMe n t gu i d e l i n e s - Ma n a g eMe n t oF Fl o o d s 60 of hospitals, power and telecommunication, relief supplies, search and rescue equipment, water pumps and transport and logistics for movement of relief supplies to the extent possible. For instance the Construction Federation of India (CFI) has set up the India Disaster Response Network (IDRN), which can also be associated with the task of emergency response. State governments and district authorities will develop appropriate mechanisms to receive and optimally utilise all such assistance. 8.7 Specialised T eams for Response 8.7.1 National",
+      "machine_explanation": "The flood response passage names transport, logistics, pumps, equipment, and supplies.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q052"
+    },
+    {
+      "question": "What practical burden should be considered when families must carry shelter materials from distribution points?",
+      "primary_topic": "logistics_transport_coordination",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 45,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p45-c0",
+      "machine_proposed_supporting_excerpt": "Double layered tents that provide better protection from heat and cold are preferable, as compared to the single layered. ii) Regional storage and stockpiling of tents should be done in a dry and ventilated environment, to ensure protection from sun, rain and vermin, which may lead to rotting of the canvas. iii) Transport over long distances should be feasible and economical, and with consideration for the homeowners and vulnerable individuals to carry them from the distribution sites to their own sites. iv) For non-displaced people, tents are useful in allowing people to remain on their own land, when their houses have been destroyed.",
+      "machine_explanation": "The tent guidance considers distance, economics, homeowners, and vulnerable individuals.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q053"
+    },
+    {
+      "question": "How should essential site services continue while damaged infrastructure is being fixed?",
+      "primary_topic": "logistics_transport_coordination",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 63,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p63-c0",
+      "machine_proposed_supporting_excerpt": "/ cooking fuel etc. for those in temporary (emergency and intermediate) shelter sites. (If temporary (emergency or intermediate) shelters are on relocation sites, make temporary arrangements for basic services. (State Govt., CoR, Health, Power, Transport Departments) If existing services (drinking water, sanitation, electricity, communication, access, transportation, etc.) are disrupted or critically de\ufb01cient, provide alternate arrangements and simultaneously repair existing infrastructure to restore the services. (If temporary (emergency or intermediate) shelters are on relocation sites, make temporary arrangements for basic services.",
+      "machine_explanation": "The matrix requires temporary alternatives alongside repair and restoration.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q054"
+    },
+    {
+      "question": "Why do industrial emergency areas need more than one route for responders and evacuees?",
+      "primary_topic": "logistics_transport_coordination",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 256,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p256-c2",
+      "machine_proposed_supporting_excerpt": "sibility \u2013 State 1 \u2022 Shelters, evacuation, and support facilities \u2022 Multiple routes for reliable access and escape \u2022 Decontamination facilities MOEFCC*, NDMA, NLRTI** Recurring/ Regular (RR) Technical support DMD$, SDMA, INDD, SPCB, DISH, DDMA, PRIs, ULBs, IBTA Short Term (T1) \u2022 Identi\ufb01cation of shelters with basic facilities like drinking water and \ufb01rst aid for chemical exposure \u2022 Ensuring water storage facilities and sources for water for accident containment and \ufb01re\ufb01ghting operations Medium Term (T2) \u2022 Providing wide roads and multiple routes in the industrial area to allow quick access by \ufb01rst responders and to ensure escape pathways",
+      "machine_explanation": "The plan connects multiple routes with responder access and escape pathways.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q055"
+    },
+    {
+      "question": "How should authorities use assistance offered by outside organizations during flood response?",
+      "primary_topic": "logistics_transport_coordination",
+      "query_style": "SEMANTIC_PARAPHRASE",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 92,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p92-c0",
+      "machine_proposed_supporting_excerpt": "na t i o n a l di s a s t eR Ma n a g eMe n t gu i d e l i n e s - Ma n a g eMe n t oF Fl o o d s 60 of hospitals, power and telecommunication, relief supplies, search and rescue equipment, water pumps and transport and logistics for movement of relief supplies to the extent possible. For instance the Construction Federation of India (CFI) has set up the India Disaster Response Network (IDRN), which can also be associated with the task of emergency response. State governments and district authorities will develop appropriate mechanisms to receive and optimally utilise all such assistance. 8.7 Specialised T eams for Response 8.7.1 National",
+      "machine_explanation": "The source requires mechanisms to receive and optimally use assistance.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q056"
+    },
+    {
+      "question": "Which transport and communication links should a district verify before relief supplies are needed?",
+      "primary_topic": "logistics_transport_coordination",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-flood-guidelines-2008",
+      "machine_proposed_filename": "ndma_flood_guidelines.pdf",
+      "machine_proposed_page": 56,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-flood-guidelines-2008-p56-c0",
+      "machine_proposed_supporting_excerpt": "and educating people to cope up with floods at district/block levels. \u2022 Securing prompt and people-friendly dissemination of information to the public. \u2022 Establishing a dedicated communication network that can remain functional during floods. \u2022 Setting up of Flood shelters. \u2022 Suitably locating flood disaster relief centres/basic infrastructure like hospitals, stores, etc., on high ground, so that they remain functional during floods. \u2022 Creating and maintaining an adequately trained disaster response force. \u2022 Identif ying road transport/rail/ communication networks that connect flood disaster relief/supply centres to flood prone areas and",
+      "machine_explanation": "The preparedness list calls for identifying reliable supply-centre connections.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-flood-guidelines-2008",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q057"
+    },
+    {
+      "question": "How should transport agencies support movement of essential goods during recovery?",
+      "primary_topic": "logistics_transport_coordination",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 321,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p321-c1",
+      "machine_proposed_supporting_excerpt": "e post-disaster transportation needs to ensure that the emergency response and recovery e\ufb00orts are carried out in a timely manner; restore the public transport; resumption of the movement of essential goods \u2022 Pool heavy duty earth moving machineries, tree cutiers, fork litiers and other required equipment either at strategic locations or centralized \u2022 Quick deployment of resources and equipment for quick repairs/ restoration of roads and highways for movement of rescue and relief teams with their supplies \u2022 Operational plans are in place to transport heavy machinery (like dewatering pumps, boats, etc.) through road in close coordination with",
+      "machine_explanation": "The response matrix describes transport restoration for response and recovery needs.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q058"
+    },
+    {
+      "question": "What airport actions help relief teams, equipment, supplies, and stranded passengers move again?",
+      "primary_topic": "logistics_transport_coordination",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-national-disaster-management-plan-2019",
+      "machine_proposed_filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "machine_proposed_page": 322,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-national-disaster-management-plan-2019-p322-c1",
+      "machine_proposed_supporting_excerpt": "rescue \u2022 Plan is in place for quick restoration of airport runway and restoration of air tra\ufb03c for facilitation of transport of relief teams/ supply/ equipment, stranded passengers, etc. \u2022 Control room gets activated for smooth coordination in receiving and dispatching resources and equipment in close coordination with the State Government",
+      "machine_explanation": "The aviation response passage covers runway restoration and relief movement.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": false,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q059"
+    },
+    {
+      "question": "How should local teams coordinate incoming temporary shelter supplies without duplicating work?",
+      "primary_topic": "logistics_transport_coordination",
+      "query_style": "OPERATIONAL_TASK",
+      "machine_proposed_answerable": true,
+      "machine_proposed_source_id": "ndma-temporary-shelters-2019",
+      "machine_proposed_filename": "ndma_temporary_shelters_2019.pdf",
+      "machine_proposed_page": 54,
+      "page_convention": "one-based physical PDF page index",
+      "machine_proposed_chunk_id": "ndma-temporary-shelters-2019-p54-c0",
+      "machine_proposed_supporting_excerpt": "materials, based on the directives of the State Government. temporary shelter materials in coordination with District/Block/Gram Panchayat as per their directives and avoid duplication. Establish regional logistics facilities, coordinated with National Disaster Response Force teams to keep stocks of temporary shelters, tents and other non-food items. (MHA, National Disaster Response Force) Deploy a dedicated local team to receive the temporary shelter supplies. (State Govt., CoR, SDMA) Deploy a dedicated local team to receive the temporary shelter supplies. On request, facilitate the district administration in logistics / supplies.",
+      "machine_explanation": "The stakeholder matrix addresses receipt, coordination, and avoidance of duplicate supply activity.",
+      "machine_proposed_supporting_source_ids": [
+        "ndma-temporary-shelters-2019",
+        "ndma-national-disaster-management-plan-2019"
+      ],
+      "machine_proposed_multi_source": true,
+      "proposal_status": "MACHINE_PROPOSED",
+      "candidate_question_id": "Q060"
+    }
+  ]
+}

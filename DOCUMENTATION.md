@@ -14,7 +14,21 @@ intended to be read top-to-bottom as the story of how the prototype was built.
 
 ---
 
-## Current V3 status — Phase 12 dense, BM25, and hybrid retrieval
+## Current V3 status — Phase 13A waiting for human retrieval review
+
+Phase 13A freezes `v3-retrieval-benchmark-spec-v1` and prepares 60
+`MACHINE_PROPOSED` questions plus 647 deduplicated passage-review rows. Candidate topics
+are balanced 12 each across five categories; query styles are balanced 20 each across
+lexical, semantic-paraphrase, and operational forms. All three canonical documents
+provide source-derived seeds. Human question status is `PENDING` for all 60 candidates,
+all 647 human passage grades are blank, and the consistency-audit sheet awaits selection
+from the future accepted set.
+
+**No retrieval-quality result has been calculated from machine-proposed relevance
+labels.** The current status is `WAITING FOR HUMAN REVIEW`; Phase 13B cannot run until a
+real reviewer completes the question and passage sheets.
+
+### Frozen Phase 12 retrieval configuration
 
 Phase 12 freezes `v3-retrieval-v1`: `dense-minilm-v1`, `bm25-okapi-v1`, and
 `hybrid-rrf-v1` operate through one citation-compatible `RetrievedChunk` interface over
@@ -148,7 +162,7 @@ Each step gets one section containing:
 | End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
 | Evaluation suite | `src/eval/` | **Built** — 60 held-out scenarios, baselines, ablations |
 | V3 sequential environment | `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` | **Built through V3 Phase 10** — stochastic simulator, hard safety, strong planners, fixed 6×9 Gymnasium API, frozen reward, five trained PPO seeds, and held-out evaluation |
-| Tests | `tests/` | **Built** — 453 tests total, including 48 Phase 12 retrieval tests, 22 Phase 11 corpus tests, and all earlier V3/V1 regressions |
+| Tests | `tests/` | **Built** — 496 tests total, including 43 Phase 13A benchmark-safety tests, 48 Phase 12 retrieval tests, and all earlier V3/V1 regressions |
 | Measured results | `EVALUATION.md` | **Written** — including the unflattering ones |
 | Frozen v1 results | `EVALUATION_V1.md` | **Archived** — immutable comparison point for the evaluated v1 demo |
 | Reviewer material | `REVIEW_NOTES.md`, `DEMO_SCRIPT.md` | **Written** — defence sheet and five-minute walkthrough |
@@ -162,12 +176,12 @@ Each step gets one section containing:
 | Entrypoints | `run_demo.py`; `src/dashboard/app.py` |
 | Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/`, `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` |
 | Scenario and constraints | `data/scenario.json`, `data/constraints_output.json`, `data/scenarios_v3/example_v3_scenario.json` |
-| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; V3 sanity, Gate 6, training/validation, frozen Phase 10 artifacts, and Phase 11/12 engineering summaries in `data/eval_v3/` |
+| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; V3 sanity, Gate 6, training/validation, frozen Phase 10 artifacts, Phase 11/12 engineering summaries, and pending Phase 13A review sheets in `data/eval_v3/` |
 | Real source corpus | `data/raw_docs/README.md`, `MANIFEST.json`, `excluded_sources.json`, and three canonical NDMA PDFs |
 | Model artifact | `models/maskable_ppo_shelter.zip` |
-| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py`, `phase5_safety_sanity.py`, `run_gate6.py`, `phase7_env_sanity.py`, `phase8_reward_sanity.py`, `run_phase10.py`, `phase12_retrieval_sanity.py` |
+| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py`, `phase5_safety_sanity.py`, `run_gate6.py`, `phase7_env_sanity.py`, `phase8_reward_sanity.py`, `run_phase10.py`, `phase12_retrieval_sanity.py`, `phase13a_prepare_review.py` |
 | Automated verification | `tests/`, `pytest.ini`, `.github/workflows/ci.yml` |
-| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md`, `V3_REWARD_SPEC.md`, `V3_TRAINING_SPEC.md`, `V3_TRAINING_RESULT.md`, `V3_PHASE10_EVAL_SPEC.md`, `V3_POLICY_EVALUATION.md`, `V3_CORPUS_AUDIT.md`, `V3_RETRIEVAL_SPEC.md` |
+| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md`, `V3_REWARD_SPEC.md`, `V3_TRAINING_SPEC.md`, `V3_TRAINING_RESULT.md`, `V3_PHASE10_EVAL_SPEC.md`, `V3_POLICY_EVALUATION.md`, `V3_CORPUS_AUDIT.md`, `V3_RETRIEVAL_SPEC.md`, `V3_RETRIEVAL_BENCHMARK_SPEC.md`, `V3_RETRIEVAL_HUMAN_REVIEW.md` |
 | Runtime configuration | `requirements.txt`, `.python-version`, `.streamlit/config.toml`, `.gitignore` |
 
 Generated local state is intentionally not part of that inventory: `.venv/`,
@@ -3498,5 +3512,152 @@ The frozen design is [`V3_RETRIEVAL_SPEC.md`](V3_RETRIEVAL_SPEC.md); the reprodu
 script is `scripts/phase12_retrieval_sanity.py`; its structured engineering artifact is
 `data/eval_v3/phase12_retrieval_sanity.json`. The change is committed as
 `V3 Phase 12: dense, BM25 and hybrid retrieval interfaces`. Phase 13 is not started.
+
+---
+
+## 2026-09-08 — V3 Phase 13A: human retrieval benchmark preparation
+
+### Goal and human-label requirement
+
+Phase 13A freezes the methodology and prepares review material; it does not evaluate
+retriever accuracy. Machine generation may propose questions, seed passages,
+explanations, and suggested grades, but those are explicitly `MACHINE_PROPOSED` and
+cannot become gold truth. Only an actual human reviewer can accept/edit/reject a question
+or assign passage relevance.
+
+> **No retrieval-quality result has been calculated from machine-proposed relevance
+> labels.**
+
+The candidate version is `v3-retrieval-benchmark-candidate-v1`; the reserved future
+human-reviewed version `v3-retrieval-benchmark-gold-v1` does not yet exist. Phase 13B
+readiness fails until exactly 45 reviewed questions and all their passage grades satisfy
+the frozen checks.
+
+### Candidate question creation and balance
+
+Sixty questions were drafted from direct inspection of canonical chunks before running
+retrieval pools. Each records a stable source ID, filename, one-based physical PDF page,
+chunk ID, verbatim supporting excerpt, and machine explanation. Questions avoid page
+references, document-title hints, copied long answers, trivial metadata, and synthetic
+policy facts. The simulator's `0.70` threshold is not treated as NDMA guidance.
+
+The candidate set intentionally provides rejection room above the final 45-question
+target:
+
+| Primary topic | Candidates | Human-reviewed final target |
+| --- | ---: | ---: |
+| Flood risk / flood management | 12 | 9 |
+| Evacuation / movement planning | 12 | 9 |
+| Temporary shelters / relief camps | 12 | 9 |
+| Vulnerable groups / accessibility | 12 | 9 |
+| Logistics / transport / coordination | 12 | 9 |
+
+Each topic contains four lexical, four semantic-paraphrase, and four operational
+questions, yielding 20 candidates per query style. Final targets are 15 per style. Seed
+coverage is 20 questions from the Flood Guidelines, 19 from the National Plan, and 21
+from Temporary Shelters. Twenty-eight questions are machine-proposed as potentially
+multi-source; all claimed sources appear in their review pools, but humans must determine
+whether those passages are actually directly relevant.
+
+### Frozen pooling method
+
+For each already-written question, the unchanged `v3-retrieval-v1` systems contribute
+top 10 Dense, top 10 BM25, and top 10 Hybrid results. The union is deduplicated by stable
+chunk ID, and the source-derived seed is forcibly included even when retrieval misses it.
+The review reduction retains the seed, every method's top five, and passages appearing in
+at least two method lists; it then orders seed first, best pooled rank ascending, and
+chunk ID ascending, with a cap of 18 passages per question.
+
+This produced 647 passage-review rows. Every source/page/text tuple was checked against
+the canonical 1,797-chunk catalog. Retrieval rank metadata is preserved without changing
+the original citation text.
+
+> Relevance judgments are based on a pooled candidate set from the three evaluated
+> retrieval systems plus source-derived seed evidence. Relevant chunks outside the pool
+> may exist.
+
+### Relevance grades and human workflow
+
+The human relevance scale is frozen:
+
+- `2 — DIRECTLY RELEVANT`: directly answers or materially supports the question and
+  could reasonably be cited.
+- `1 — PARTIALLY RELEVANT`: useful context but insufficient by itself.
+- `0 — NOT RELEVANT`: does not materially help answer the exact question.
+
+Grade 2 defines direct gold evidence. Seed evidence carries only a machine-suggested
+grade and is not pre-locked. `question_review.csv` asks the project owner to mark each
+question `ACCEPT`, `EDIT`, or `REJECT`; edits require human wording. `human_review.csv`
+requires a grade for every pooled passage belonging to a retained question. All 60
+question statuses currently remain `PENDING`; all 647 human grades are blank and passage
+statuses `PENDING`.
+
+After the first review, exactly ten accepted questions will be selected deterministically
+with seed `131313` for a second-pass, single-reviewer consistency audit. This is not
+independent inter-rater reliability. The consistency CSV currently contains only its
+header because no question has been accepted.
+
+### Frozen metrics and claim rule
+
+The primary metric for future Phase 13B is mean `DirectHit@5` over exactly 45 questions:
+one when a human grade-2 passage appears in the first five, zero otherwise. Secondary
+metrics are `DirectHit@1`, `DirectHit@3`, `DirectHit@5`, `MRR@5`, graded `nDCG@5`, and
+`pooled Recall@5`. Pooled recall uses all human grade-2 passages in the judged pool as its
+denominator and is not exhaustive corpus recall.
+
+The principal comparison remains Hybrid versus Dense; BM25 comparisons are secondary.
+Uncertainty uses 10,000 paired bootstrap resamples of whole questions with seed `131313`
+and 95% percentile intervals. `HYBRID_SUPPORTED` requires all of:
+
+1. Hybrid minus Dense DirectHit@5 of at least `0.05`;
+2. a paired 95% CI lower bound strictly above zero;
+3. Hybrid nDCG@5 no lower than Dense nDCG@5 minus `0.02`.
+
+Otherwise the future result is `HYBRID_NOT_SUPPORTED`. No actual method scores or claim
+were calculated in Phase 13A. Synthetic metric fixtures only verify the arithmetic.
+
+### Review safeguards and tests
+
+`src/rag/benchmark.py` validates candidate provenance, applies the frozen pool rule,
+implements an explicit Phase 13B readiness gate, deterministically selects the future
+consistency subset, and provides metric/bootstrap helpers for synthetic tests. Readiness
+requires exactly nine retained questions per topic, fifteen per style, complete human
+grades, a grade-2 passage for every question, grade-2 evidence from each canonical source
+for at least eight questions, and at least eight genuinely multi-source grade-2 questions.
+
+`tests/test_v3_retrieval_benchmark.py` adds 43 tests covering versions, corpus/retrieval
+freeze, 60-question balance, unique questions and seed traceability, three-source
+coverage, pool deduplication/cap/top-five/seed retention, rank and citation integrity,
+blank human fields, readiness failures, consistency selection, metric formulas, paired
+question bootstrap, and the absence of results/reranking. Phase 13A passes 43/43; the
+full suite passes 496/496, including all Phase 12, Phase 11, earlier V3, and 43 legacy V1
+tests.
+
+### Real, machine-proposed, and human-reviewed status
+
+The NDMA source text, PDFs, page locations, and corpus hashes remain real authoritative
+material. Retrieval results and ranks are measured/computed. Questions, explanations,
+multi-source suggestions, seed-grade suggestions, and selection proposals are machine
+generated and not verified. There are currently zero human-accepted questions and zero
+human passage labels.
+
+Limitations include pooled rather than exhaustive judgments, one intended project-owner
+reviewer, possible machine wording/selection bias, only three documents from one
+publisher, and no current evidence about which retriever performs better. No answer
+generation or entailment evaluation occurs here.
+
+### Artifacts, commit, and stopping point
+
+- methodology: `V3_RETRIEVAL_BENCHMARK_SPEC.md`
+- human-readable packet: `V3_RETRIEVAL_HUMAN_REVIEW.md`
+- provenance manifest: `data/eval_v3/phase13/candidate_question_manifest.json`
+- question review: `data/eval_v3/phase13/question_review.csv`
+- passage review: `data/eval_v3/phase13/human_review.csv`
+- consistency template: `data/eval_v3/phase13/review_consistency.csv`
+- reproducible generator: `scripts/phase13a_prepare_review.py`
+
+The change is committed as
+`V3 Phase 13A: freeze human retrieval benchmark and review packet`. Current status is
+`WAITING FOR HUMAN REVIEW`. Phase 13B has not started.
 
 ---
