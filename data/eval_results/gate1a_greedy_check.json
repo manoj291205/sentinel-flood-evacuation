@@ -1,0 +1,163 @@
+{
+  "_note": "Gate 1A decision experiment for EXPANSION_PLAN.md Phase 1. Fictional instances. The gate is decided on the STRONGEST heuristic, not the myopic one, so that a weak baseline cannot green-light the rebuild.",
+  "distribution": {
+    "n_instances": 10,
+    "seed": 20260905,
+    "cells": 4,
+    "timesteps": 6,
+    "resources": [
+      "water",
+      "medical"
+    ],
+    "population_per_cell": "randint(50, 400) rounded to 10",
+    "need_water_per_cell": "randint(1, 2) units",
+    "need_medical_per_cell": "1 unit",
+    "severity_t0": "uniform(0.05, 0.95)",
+    "severity_path": "per cell, one of rise/fall/flat; step = uniform(0.10, 0.30), clipped to [0,1]",
+    "depot_stock_water": "randint(1, 3) units",
+    "depot_stock_medical": "randint(1, 2) units",
+    "deliveries_per_timestep": 1,
+    "delivery_lag_per_cell": "randint(0, 2) timesteps (variant B)",
+    "note": "Stock is deliberately scarce relative to total demand, so the instances contain genuine contention. All values are FICTIONAL, invented for this experiment."
+  },
+  "results": [
+    {
+      "policy": "random_allowed",
+      "optimal_pct": 0.0,
+      "mean_gap_pct": 212.1869956101711,
+      "median_gap_pct": 189.6115169636186,
+      "p90_gap_pct": 310.1376235704594,
+      "max_gap_pct": 515.5078710644677
+    },
+    {
+      "policy": "myopic_pure",
+      "optimal_pct": 20.0,
+      "mean_gap_pct": 183.47305732855872,
+      "median_gap_pct": 158.98322556268792,
+      "p90_gap_pct": 289.00626736447634,
+      "max_gap_pct": 496.48613193403304
+    },
+    {
+      "policy": "myopic_tiebreak",
+      "optimal_pct": 50.0,
+      "mean_gap_pct": 73.21458404127257,
+      "median_gap_pct": 1.9909699178588973,
+      "p90_gap_pct": 110.02495840266222,
+      "max_gap_pct": 515.5078710644677
+    },
+    {
+      "policy": "bundle_aware",
+      "optimal_pct": 30.0,
+      "mean_gap_pct": 13.685792829495952,
+      "median_gap_pct": 8.469085031323583,
+      "p90_gap_pct": 36.57047724750277,
+      "max_gap_pct": 56.40304968663179
+    }
+  ],
+  "strongest_heuristic": "myopic_tiebreak",
+  "verdict": "IDEAL -- proceed to Phase 1",
+  "degenerate_instances": 0,
+  "total_brute_force_leaves": 1156075,
+  "instances": [
+    {
+      "optimum": 0.1067,
+      "scores": {
+        "random_allowed": -0.4434,
+        "myopic_pure": -0.4231,
+        "myopic_tiebreak": -0.4434,
+        "bundle_aware": 0.0966
+      },
+      "leaves": 132274
+    },
+    {
+      "optimum": 1.3575,
+      "scores": {
+        "random_allowed": -1.4476,
+        "myopic_pure": -1.2076,
+        "myopic_tiebreak": 1.3575,
+        "bundle_aware": 1.2225
+      },
+      "leaves": 150409
+    },
+    {
+      "optimum": 0.7412,
+      "scores": {
+        "random_allowed": -0.6374,
+        "myopic_pure": 0.7412,
+        "myopic_tiebreak": 0.7412,
+        "bundle_aware": 0.7412
+      },
+      "leaves": 155989
+    },
+    {
+      "optimum": 0.2885,
+      "scores": {
+        "random_allowed": -0.2689,
+        "myopic_pure": -0.2321,
+        "myopic_tiebreak": -0.0289,
+        "bundle_aware": 0.2426
+      },
+      "leaves": 72184
+    },
+    {
+      "optimum": 1.1011,
+      "scores": {
+        "random_allowed": -0.3801,
+        "myopic_pure": -0.3067,
+        "myopic_tiebreak": 1.1011,
+        "bundle_aware": 1.089
+      },
+      "leaves": 22279
+    },
+    {
+      "optimum": 1.0812,
+      "scores": {
+        "random_allowed": -0.3429,
+        "myopic_pure": -0.3429,
+        "myopic_tiebreak": 0.8351,
+        "bundle_aware": 0.6858
+      },
+      "leaves": 120904
+    },
+    {
+      "optimum": 0.3677,
+      "scores": {
+        "random_allowed": -0.0475,
+        "myopic_pure": 0.3677,
+        "myopic_tiebreak": 0.353,
+        "bundle_aware": 0.3677
+      },
+      "leaves": 193234
+    },
+    {
+      "optimum": 0.6366,
+      "scores": {
+        "random_allowed": -1.1634,
+        "myopic_pure": -1.1634,
+        "myopic_tiebreak": 0.6366,
+        "bundle_aware": 0.6366
+      },
+      "leaves": 122704
+    },
+    {
+      "optimum": 0.5418,
+      "scores": {
+        "random_allowed": 0.2792,
+        "myopic_pure": -0.2032,
+        "myopic_tiebreak": 0.1091,
+        "bundle_aware": 0.5015
+      },
+      "leaves": 53824
+    },
+    {
+      "optimum": 0.6191,
+      "scores": {
+        "random_allowed": -1.3009,
+        "myopic_pure": -1.1701,
+        "myopic_tiebreak": 0.6191,
+        "bundle_aware": 0.2699
+      },
+      "leaves": 132274
+    }
+  ]
+}

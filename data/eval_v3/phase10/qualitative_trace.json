@@ -1,0 +1,171 @@
+{
+  "important_timesteps": [
+    0,
+    3,
+    7,
+    13
+  ],
+  "interpretation": "Explanatory example only; it provides no evidence of superiority.",
+  "metadata": {
+    "artifact_note": "Synthetic V3 evaluation; not real emergency-response evidence.",
+    "evaluation_parent_commit": "c92173dc0001e60cd7db69d89fab8f391d202905",
+    "evaluation_source_note": "Evaluation code is recorded in the Phase 10B result commit; hash covers the pre-commit source tree.",
+    "evaluation_source_sha256": "1cf1c69f717b43ceeebe45d0b15c6c41404a6bf07f6b9cf4b772378c8801506a",
+    "hard_safety": true,
+    "normalisation": "practical",
+    "phase10_spec_version": "v3-phase10-eval-spec-v1",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "processor": "arm",
+    "python": "3.11.3",
+    "replication_id": 0,
+    "reward": "v3-reward-balanced-v1",
+    "safety": "v3-safety-v1",
+    "stage10a_commit": "c92173dc0001e60cd7db69d89fab8f391d202905",
+    "timing_clock": "time.perf_counter_ns"
+  },
+  "ppo_representative_seed_4404": [
+    {
+      "action": {
+        "action_type": "DISPATCH",
+        "index": 45,
+        "physical_shelter": "P10-heldout-SHELTER-02",
+        "physical_zone": "P10-heldout-ZONE-04",
+        "shelter_id": "S147",
+        "shelter_slot": 0,
+        "zone_id": "Z814",
+        "zone_slot": 5
+      },
+      "timestep": 0
+    },
+    {
+      "action": {
+        "action_type": "DISPATCH",
+        "index": 40,
+        "physical_shelter": "P10-heldout-SHELTER-05",
+        "physical_zone": "P10-heldout-ZONE-00",
+        "shelter_id": "S638",
+        "shelter_slot": 4,
+        "zone_id": "Z803",
+        "zone_slot": 4
+      },
+      "timestep": 3
+    },
+    {
+      "action": {
+        "action_type": "DISPATCH",
+        "index": 12,
+        "physical_shelter": "P10-heldout-SHELTER-01",
+        "physical_zone": "P10-heldout-ZONE-05",
+        "shelter_id": "S364",
+        "shelter_slot": 3,
+        "zone_id": "Z293",
+        "zone_slot": 1
+      },
+      "timestep": 7
+    },
+    {
+      "action": {
+        "action_type": "WAIT",
+        "index": 54
+      },
+      "timestep": 13
+    }
+  ],
+  "risk_greedy": [
+    {
+      "action": {
+        "action_type": "DISPATCH",
+        "physical_shelter": "P10-heldout-SHELTER-03",
+        "physical_zone": "P10-heldout-ZONE-03",
+        "shelter_id": "S904",
+        "zone_id": "Z654"
+      },
+      "timestep": 0
+    },
+    {
+      "action": {
+        "action_type": "DISPATCH",
+        "physical_shelter": "P10-heldout-SHELTER-00",
+        "physical_zone": "P10-heldout-ZONE-04",
+        "shelter_id": "S156",
+        "zone_id": "Z814"
+      },
+      "timestep": 3
+    },
+    {
+      "action": {
+        "action_type": "DISPATCH",
+        "physical_shelter": "P10-heldout-SHELTER-00",
+        "physical_zone": "P10-heldout-ZONE-04",
+        "shelter_id": "S156",
+        "zone_id": "Z814"
+      },
+      "timestep": 7
+    },
+    {
+      "action": {
+        "action_type": "WAIT"
+      },
+      "timestep": 13
+    }
+  ],
+  "scenario": {
+    "generation_attempt": 0,
+    "generator_seed": 1000599,
+    "horizon_steps": 14,
+    "index": 599,
+    "replication_id": 0,
+    "scenario_id": "v3-heldout-generator-v1-00000000000f4497",
+    "scenario_root_seed": 286345600110306762,
+    "scenario_sha256": "da91d3114cf8f1757ebf045b81d3a748cdb655c19815482ded824aa9b8e0cc91",
+    "shelters": 7,
+    "stress_type": null,
+    "suite": "heldout",
+    "uncertainty_config_id": "v3-high-v1",
+    "zones": 6
+  },
+  "selection_rule": "median initial population-weighted zone severity plus mean reachable travel/55; manifest index tie-break",
+  "selection_score": 1.0532620677927018,
+  "strongest_practical_planner": {
+    "decisions": [
+      {
+        "action": {
+          "action_type": "DISPATCH",
+          "physical_shelter": "P10-heldout-SHELTER-03",
+          "physical_zone": "P10-heldout-ZONE-03",
+          "shelter_id": "S904",
+          "zone_id": "Z654"
+        },
+        "timestep": 0
+      },
+      {
+        "action": {
+          "action_type": "DISPATCH",
+          "physical_shelter": "P10-heldout-SHELTER-00",
+          "physical_zone": "P10-heldout-ZONE-04",
+          "shelter_id": "S156",
+          "zone_id": "Z814"
+        },
+        "timestep": 3
+      },
+      {
+        "action": {
+          "action_type": "DISPATCH",
+          "physical_shelter": "P10-heldout-SHELTER-00",
+          "physical_zone": "P10-heldout-ZONE-04",
+          "shelter_id": "S156",
+          "zone_id": "Z814"
+        },
+        "timestep": 7
+      },
+      {
+        "action": {
+          "action_type": "WAIT"
+        },
+        "timestep": 13
+      }
+    ],
+    "note": "The frozen strongest latency-eligible planner is risk_greedy, so this is intentionally the same trace.",
+    "policy": "risk_greedy"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "_note": "Gate 1A.5 analysis. Q3 null and Q4 latency per PHASE1_PLAN.md.",
+  "q1_metrics": {
+    "random_allowed": {
+      "pct_optimal": 0.5,
+      "ratio_gap_mean_pct": 641.7089175472296,
+      "norm_median": 0.0,
+      "norm_p10": 0.0,
+      "abs_regret_median": 1.1355,
+      "abs_regret_mean": 1.1708596249999998
+    },
+    "myopic_tiebreak": {
+      "pct_optimal": 38.5,
+      "ratio_gap_mean_pct": 135.55846556266437,
+      "norm_median": 0.9054226306944115,
+      "norm_p10": 0.044977777777777846,
+      "abs_regret_median": 0.10419999999999999,
+      "abs_regret_mean": 0.25213299999999994
+    },
+    "bundle_aware": {
+      "pct_optimal": 48.5,
+      "ratio_gap_mean_pct": 49.71353605387385,
+      "norm_median": 0.9918445605649396,
+      "norm_p10": 0.7721658466332437,
+      "abs_regret_median": 0.010535000000000017,
+      "abs_regret_mean": 0.08896884999999999
+    },
+    "lookahead_k2": {
+      "pct_optimal": 89.5,
+      "ratio_gap_mean_pct": 12.515499329491597,
+      "norm_median": 1.0,
+      "norm_p10": 0.9906928533838039,
+      "abs_regret_median": 0.0,
+      "abs_regret_mean": 0.017401475000000003
+    },
+    "lookahead_k3": {
+      "pct_optimal": 92.5,
+      "ratio_gap_mean_pct": 10.048923336159994,
+      "norm_median": 1.0,
+      "norm_p10": 1.0,
+      "abs_regret_median": 0.0,
+      "abs_regret_mean": 0.0107173
+    },
+    "beam_w5": {
+      "pct_optimal": 13.5,
+      "ratio_gap_mean_pct": 388.51206030432354,
+      "norm_median": 0.3790750568612585,
+      "norm_p10": 0.0,
+      "abs_regret_median": 0.542635,
+      "abs_regret_mean": 0.6558975499999999
+    }
+  },
+  "q2_regret_concentration": {
+    "top10pct_share": 46.35740486698433,
+    "top5pct_share": 28.11394100294654,
+    "mean_regret_share_of_optimum": 17.267776267127044
+  },
+  "q3_structure": {
+    "real_auc": 0.6236111111111111,
+    "null_mean": 0.49597569444444445,
+    "null_p95": 0.6119444444444443,
+    "perm_p": 0.025,
+    "structured": true
+  },
+  "q4_latency": {
+    "random_allowed": {
+      "norm_median": 0.0,
+      "ms_per_decision": 0.003152106666561849,
+      "x_vs_policy": 0.02533977896534566
+    },
+    "myopic_tiebreak": {
+      "norm_median": 0.9054226306944115,
+      "ms_per_decision": 0.016896352499505458,
+      "x_vs_policy": 0.1358297427558304
+    },
+    "bundle_aware": {
+      "norm_median": 0.9918445605649396,
+      "ms_per_decision": 0.011802793332170342,
+      "x_vs_policy": 0.09488263115698203
+    },
+    "lookahead_k2": {
+      "norm_median": 1.0,
+      "ms_per_decision": 1.641338380832546,
+      "x_vs_policy": 13.194715844752956
+    },
+    "lookahead_k3": {
+      "norm_median": 1.0,
+      "ms_per_decision": 8.353275554169008,
+      "x_vs_policy": 67.15196488263088
+    },
+    "beam_w5": {
+      "norm_median": 0.3790750568612585,
+      "ms_per_decision": 0.2095215024983569,
+      "x_vs_policy": 1.6843429247229469
+    }
+  },
+  "rl_reference_ms": 0.12439361333311656,
+  "strongest_planner": "lookahead_k2",
+  "verdict": "JUDGEMENT -- solvable (1.000) but at 13x policy latency. The case for a learned policy becomes LATENCY, not quality, and must be stated as such."
+}

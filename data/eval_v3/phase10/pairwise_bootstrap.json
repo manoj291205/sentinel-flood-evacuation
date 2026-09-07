@@ -1,0 +1,176 @@
+{
+  "bootstrap_resamples": 10000,
+  "bootstrap_seed": 10010007,
+  "combined": {
+    "effects": {
+      "exposure_reduction": {
+        "estimate": -0.2482564981868462,
+        "invalid_draws": 0,
+        "invalid_fraction": 0.0,
+        "lower": -0.26130282847731845,
+        "upper": -0.23575231335957295,
+        "valid_draws": 10000
+      },
+      "nsu_difference": {
+        "estimate": -0.7918570617421963,
+        "invalid_draws": 0,
+        "invalid_fraction": 0.0,
+        "lower": -0.8384153355232448,
+        "upper": -0.7452843973226156,
+        "valid_draws": 10000
+      },
+      "tail_nsu_difference": {
+        "estimate": -0.9314235220827378,
+        "invalid_draws": 0,
+        "invalid_fraction": 0.0,
+        "lower": -1.1987757518545286,
+        "upper": -0.8215875286004596,
+        "valid_draws": 10000
+      },
+      "unsafe_difference": {
+        "estimate": 0.0,
+        "invalid_draws": 0,
+        "invalid_fraction": 0.0,
+        "lower": 0.0,
+        "upper": 0.0,
+        "valid_draws": 10000
+      }
+    },
+    "passes": false,
+    "supported_benefits": []
+  },
+  "metadata": {
+    "artifact_note": "Synthetic V3 evaluation; not real emergency-response evidence.",
+    "evaluation_parent_commit": "c92173dc0001e60cd7db69d89fab8f391d202905",
+    "evaluation_source_note": "Evaluation code is recorded in the Phase 10B result commit; hash covers the pre-commit source tree.",
+    "evaluation_source_sha256": "1cf1c69f717b43ceeebe45d0b15c6c41404a6bf07f6b9cf4b772378c8801506a",
+    "hard_safety": true,
+    "normalisation": "practical",
+    "phase10_spec_version": "v3-phase10-eval-spec-v1",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "processor": "arm",
+    "python": "3.11.3",
+    "replication_id": 0,
+    "reward": "v3-reward-balanced-v1",
+    "safety": "v3-safety-v1",
+    "stage10a_commit": "c92173dc0001e60cd7db69d89fab8f391d202905",
+    "timing_clock": "time.perf_counter_ns"
+  },
+  "method": "two-level training-seed then paired scenario-cluster percentile bootstrap",
+  "strata": {
+    "v3-high-v1": {
+      "effects": {
+        "exposure_reduction": {
+          "estimate": -0.22033682346144196,
+          "invalid_draws": 0,
+          "invalid_fraction": 0.0,
+          "lower": -0.2438642301508546,
+          "upper": -0.19822729373137296,
+          "valid_draws": 10000
+        },
+        "nsu_difference": {
+          "estimate": -0.6876868007501872,
+          "invalid_draws": 0,
+          "invalid_fraction": 0.0,
+          "lower": -0.7753240060143001,
+          "upper": -0.5932901022875461,
+          "valid_draws": 10000
+        },
+        "tail_nsu_difference": {
+          "estimate": -0.5787936933205486,
+          "invalid_draws": 4,
+          "invalid_fraction": 0.0004,
+          "lower": -1.0846046684103967,
+          "upper": -0.27308226711845274,
+          "valid_draws": 9996
+        },
+        "unsafe_difference": {
+          "estimate": 0.0,
+          "invalid_draws": 0,
+          "invalid_fraction": 0.0,
+          "lower": 0.0,
+          "upper": 0.0,
+          "valid_draws": 10000
+        }
+      },
+      "passes": false,
+      "supported_benefits": []
+    },
+    "v3-low-v1": {
+      "effects": {
+        "exposure_reduction": {
+          "estimate": -0.26448030963517205,
+          "invalid_draws": 0,
+          "invalid_fraction": 0.0,
+          "lower": -0.28799626871049105,
+          "upper": -0.24220399412546978,
+          "valid_draws": 10000
+        },
+        "nsu_difference": {
+          "estimate": -0.872837737644358,
+          "invalid_draws": 0,
+          "invalid_fraction": 0.0,
+          "lower": -0.9627520126385881,
+          "upper": -0.7784870317009499,
+          "valid_draws": 10000
+        },
+        "tail_nsu_difference": {
+          "estimate": -1.1169283094945166,
+          "invalid_draws": 0,
+          "invalid_fraction": 0.0,
+          "lower": -1.521991787594015,
+          "upper": -0.92455074898317,
+          "valid_draws": 10000
+        },
+        "unsafe_difference": {
+          "estimate": 0.0,
+          "invalid_draws": 0,
+          "invalid_fraction": 0.0,
+          "lower": 0.0,
+          "upper": 0.0,
+          "valid_draws": 10000
+        }
+      },
+      "passes": false,
+      "supported_benefits": []
+    },
+    "v3-medium-v1": {
+      "effects": {
+        "exposure_reduction": {
+          "estimate": -0.2621213095367486,
+          "invalid_draws": 0,
+          "invalid_fraction": 0.0,
+          "lower": -0.284970909900454,
+          "upper": -0.24086696604585406,
+          "valid_draws": 10000
+        },
+        "nsu_difference": {
+          "estimate": -0.8120915496592392,
+          "invalid_draws": 0,
+          "invalid_fraction": 0.0,
+          "lower": -0.8911640809300879,
+          "upper": -0.7340030175680035,
+          "valid_draws": 10000
+        },
+        "tail_nsu_difference": {
+          "estimate": -1.1473318311388607,
+          "invalid_draws": 0,
+          "invalid_fraction": 0.0,
+          "lower": -1.664566219580063,
+          "upper": -0.8681340807180443,
+          "valid_draws": 10000
+        },
+        "unsafe_difference": {
+          "estimate": 0.0,
+          "invalid_draws": 0,
+          "invalid_fraction": 0.0,
+          "lower": 0.0,
+          "upper": 0.0,
+          "valid_draws": 10000
+        }
+      },
+      "passes": false,
+      "supported_benefits": []
+    }
+  }
+}

@@ -1,0 +1,484 @@
+{
+  "artifact_kind": "REWARD_ARITHMETIC_SANITY_NOT_POLICY_PERFORMANCE",
+  "micro_case_checks": {
+    "arrival_credit_delayed": true,
+    "arrived_vs_in_transit": true,
+    "early_vs_late": true,
+    "short_vs_long_travel": true,
+    "successful_vs_wait": true,
+    "wait_has_no_fixed_penalty": true
+  },
+  "micro_cases": {
+    "arrival_timing": {
+      "components": [
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": -0.005555555555555556,
+          "travel_burden": 0.1111111111111111,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.005555555555555556
+        },
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 1.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": 0.55,
+          "travel_burden": 0,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.55,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.0
+        }
+      ],
+      "return": 0.5444444444444445,
+      "step_rewards": [
+        -0.005555555555555556,
+        0.55
+      ],
+      "terminal_reason": "ALL_EVACUATED"
+    },
+    "arrived_before_horizon": {
+      "components": [
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": -0.010000000000000002,
+          "travel_burden": 0.2,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.010000000000000002
+        },
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 1.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": 0.55,
+          "travel_burden": 0,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.55,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.0
+        }
+      ],
+      "return": 0.54,
+      "step_rewards": [
+        -0.010000000000000002,
+        0.55
+      ],
+      "terminal_reason": "ALL_EVACUATED"
+    },
+    "doing_nothing": {
+      "components": [
+        {
+          "exposure": 0.15,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": -0.045,
+          "travel_burden": 0,
+          "weighted_exposure": -0.045,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.0
+        },
+        {
+          "exposure": 0.15,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": -0.045,
+          "travel_burden": 0,
+          "weighted_exposure": -0.045,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.0
+        },
+        {
+          "exposure": 0.15,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": -0.045,
+          "travel_burden": 0,
+          "weighted_exposure": -0.045,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.0
+        },
+        {
+          "exposure": 0.15,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 1.0,
+          "total_reward": -0.14500000000000002,
+          "travel_burden": 0,
+          "weighted_exposure": -0.045,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.1,
+          "weighted_travel": -0.0
+        }
+      ],
+      "return": -0.28,
+      "step_rewards": [
+        -0.045,
+        -0.045,
+        -0.045,
+        -0.14500000000000002
+      ],
+      "terminal_reason": "HORIZON_REACHED"
+    },
+    "early_evacuation": {
+      "components": [
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": -0.004545454545454546,
+          "travel_burden": 0.09090909090909091,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.004545454545454546
+        },
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 1.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": 0.55,
+          "travel_burden": 0,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.55,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.0
+        }
+      ],
+      "return": 0.5454545454545455,
+      "step_rewards": [
+        -0.004545454545454546,
+        0.55
+      ],
+      "terminal_reason": "ALL_EVACUATED"
+    },
+    "in_transit_at_horizon": {
+      "components": [
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": -0.02142857142857143,
+          "travel_burden": 0.42857142857142855,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.02142857142857143
+        },
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 1.0,
+          "total_reward": -0.1,
+          "travel_burden": 0,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.1,
+          "weighted_travel": -0.0
+        }
+      ],
+      "return": -0.12142857142857144,
+      "step_rewards": [
+        -0.02142857142857143,
+        -0.1
+      ],
+      "terminal_reason": "HORIZON_REACHED"
+    },
+    "late_equivalent_evacuation": {
+      "components": [
+        {
+          "exposure": 0.12,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": -0.036,
+          "travel_burden": 0,
+          "weighted_exposure": -0.036,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.0
+        },
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": -0.004545454545454546,
+          "travel_burden": 0.09090909090909091,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.004545454545454546
+        },
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 1.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": 0.55,
+          "travel_burden": 0,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.55,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.0
+        }
+      ],
+      "return": 0.5094545454545455,
+      "step_rewards": [
+        -0.036,
+        -0.004545454545454546,
+        0.55
+      ],
+      "terminal_reason": "ALL_EVACUATED"
+    },
+    "long_travel": {
+      "components": [
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": -0.010000000000000002,
+          "travel_burden": 0.2,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.010000000000000002
+        },
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": 0.0,
+          "travel_burden": 0,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.0
+        },
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 1.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": 0.55,
+          "travel_burden": 0,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.55,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.0
+        }
+      ],
+      "return": 0.54,
+      "step_rewards": [
+        -0.010000000000000002,
+        0.0,
+        0.55
+      ],
+      "terminal_reason": "ALL_EVACUATED"
+    },
+    "short_travel": {
+      "components": [
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": -0.0038461538461538464,
+          "travel_burden": 0.07692307692307693,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.0038461538461538464
+        },
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 1.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": 0.55,
+          "travel_burden": 0,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.55,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.0
+        }
+      ],
+      "return": 0.5461538461538462,
+      "step_rewards": [
+        -0.0038461538461538464,
+        0.55
+      ],
+      "terminal_reason": "ALL_EVACUATED"
+    },
+    "successful_short_evacuation": {
+      "components": [
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": -0.005555555555555556,
+          "travel_burden": 0.1111111111111111,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.005555555555555556
+        },
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 1.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": 0.55,
+          "travel_burden": 0,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.55,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.0
+        }
+      ],
+      "return": 0.5444444444444445,
+      "step_rewards": [
+        -0.005555555555555556,
+        0.55
+      ],
+      "terminal_reason": "ALL_EVACUATED"
+    },
+    "wait_when_no_dispatch_possible": {
+      "components": [
+        {
+          "exposure": 0.0,
+          "reward_config_id": "v3-reward-balanced-v1",
+          "reward_defined": true,
+          "safe_gain": 0.0,
+          "terminal_unfinished": 0.0,
+          "total_reward": 0.0,
+          "travel_burden": 0,
+          "weighted_exposure": -0.0,
+          "weighted_safe": 0.0,
+          "weighted_terminal": -0.0,
+          "weighted_travel": -0.0
+        }
+      ],
+      "return": 0.0,
+      "step_rewards": [
+        0.0
+      ],
+      "terminal_reason": null
+    }
+  },
+  "monotonicity_checks": {
+    "more_exposure_decreases": true,
+    "more_safe_increases": true,
+    "more_travel_decreases": true,
+    "more_unfinished_decreases": true
+  },
+  "phase": 8,
+  "ppo_training_performed": false,
+  "primary_reward_config_id": "v3-reward-balanced-v1",
+  "random_trajectory_reward_statistics": {
+    "episodes": 200,
+    "infinity_count": 0,
+    "maximum_episode_return": 0.31809451242234077,
+    "maximum_observed_step_reward": 0.17467979905811323,
+    "mean_episode_return": 0.04125422920287309,
+    "mean_step_reward": 0.004125422920287309,
+    "minimum_episode_return": -0.1975093346784043,
+    "minimum_observed_step_reward": -0.10403151030392677,
+    "nan_count": 0,
+    "step_count": 2000,
+    "uncertainty_counts": {
+      "HIGH": 66,
+      "LOW": 67,
+      "MEDIUM": 67
+    }
+  },
+  "reward_configs": [
+    {
+      "config_id": "v3-reward-balanced-v1",
+      "description": "Primary balanced safe-arrival, current-exposure, travel, and horizon reward.",
+      "disclaimer": "SYNTHETIC PROJECT MODELING CHOICES \u2014 NOT OFFICIAL DISASTER-MANAGEMENT UTILITY WEIGHTS.",
+      "episode_return_max": 0.55,
+      "episode_return_min": -0.45,
+      "exposure_weight": 0.3,
+      "safe_weight": 0.55,
+      "terminal_weight": 0.1,
+      "travel_weight": 0.05,
+      "version": 1
+    },
+    {
+      "config_id": "v3-reward-evacuation-v1",
+      "description": "Sensitivity configuration emphasizing completed safe arrivals.",
+      "disclaimer": "SYNTHETIC PROJECT MODELING CHOICES \u2014 NOT OFFICIAL DISASTER-MANAGEMENT UTILITY WEIGHTS.",
+      "episode_return_max": 0.65,
+      "episode_return_min": -0.35,
+      "exposure_weight": 0.2,
+      "safe_weight": 0.65,
+      "terminal_weight": 0.1,
+      "travel_weight": 0.05,
+      "version": 1
+    },
+    {
+      "config_id": "v3-reward-exposure-v1",
+      "description": "Sensitivity configuration emphasizing rapid exposure reduction.",
+      "disclaimer": "SYNTHETIC PROJECT MODELING CHOICES \u2014 NOT OFFICIAL DISASTER-MANAGEMENT UTILITY WEIGHTS.",
+      "episode_return_max": 0.5,
+      "episode_return_min": -0.5,
+      "exposure_weight": 0.4,
+      "safe_weight": 0.5,
+      "terminal_weight": 0.05,
+      "travel_weight": 0.05,
+      "version": 1
+    }
+  ],
+  "reward_weights_selected_from_results": false,
+  "training_ready_verification": {
+    "frozen_real_provider": true,
+    "placeholder": false
+  }
+}

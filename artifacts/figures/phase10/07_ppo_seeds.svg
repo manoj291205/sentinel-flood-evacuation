@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="520" viewBox="0 0 980 520">
+<rect width="100%" height="100%" fill="#0b132b"/>
+<text x="40" y="42" fill="#f5f7ff" font-family="sans-serif" font-size="24">Five-seed PPO NSU variability</text>
+<text x="40" y="68" fill="#a8b2d1" font-family="sans-serif" font-size="13">Higher is better · generated from Phase 10 JSON</text>
+<line x1="50" y1="430.00" x2="940" y2="430.00" stroke="#8090b0"/>
+<rect x="65.00" y="137.11" width="142" height="292.89" fill="#49c6a5"/>
+<text x="65.00" y="130.11" fill="#f5f7ff" font-family="sans-serif" font-size="11">0.2220</text>
+<text transform="translate(73.00,455) rotate(35)" fill="#d9e1f2" font-family="sans-serif" font-size="11">1101</text>
+<rect x="235.00" y="164.94" width="142" height="265.06" fill="#49c6a5"/>
+<text x="235.00" y="157.94" fill="#f5f7ff" font-family="sans-serif" font-size="11">0.2009</text>
+<text transform="translate(243.00,455) rotate(35)" fill="#d9e1f2" font-family="sans-serif" font-size="11">2202</text>
+<rect x="405.00" y="110.00" width="142" height="320.00" fill="#49c6a5"/>
+<text x="405.00" y="103.00" fill="#f5f7ff" font-family="sans-serif" font-size="11">0.2426</text>
+<text transform="translate(413.00,455) rotate(35)" fill="#d9e1f2" font-family="sans-serif" font-size="11">3303</text>
+<rect x="575.00" y="143.74" width="142" height="286.26" fill="#49c6a5"/>
+<text x="575.00" y="136.74" fill="#f5f7ff" font-family="sans-serif" font-size="11">0.2170</text>
+<text transform="translate(583.00,455) rotate(35)" fill="#d9e1f2" font-family="sans-serif" font-size="11">4404</text>
+<rect x="745.00" y="214.71" width="142" height="215.29" fill="#49c6a5"/>
+<text x="745.00" y="207.71" fill="#f5f7ff" font-family="sans-serif" font-size="11">0.1632</text>
+<text transform="translate(753.00,455) rotate(35)" fill="#d9e1f2" font-family="sans-serif" font-size="11">5505</text>
+</svg>

@@ -1,0 +1,75 @@
+{
+  "artifact_type": "corpus_quality_and_provenance_summary",
+  "corpus_version": "v3-authoritative-corpus-v1",
+  "fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+  "fingerprint_algorithm": "SHA-256 of UTF-8 lines sorted by source_id: <source_id>\\t<sha256>\\n",
+  "ingestion_commit": "the commit named 'V3 Phase 11: expand authoritative disaster-guidance corpus' containing this artifact",
+  "canonical_document_count": 3,
+  "publisher_count": 1,
+  "page_count": 652,
+  "text_page_count": 635,
+  "chunk_count": 1797,
+  "chunks_by_source": {
+    "ndma-flood-guidelines-2008": 480,
+    "ndma-national-disaster-management-plan-2019": 1099,
+    "ndma-temporary-shelters-2019": 218
+  },
+  "embedding_model": "all-MiniLM-L6-v2",
+  "embedding_dimension": 384,
+  "vector_store": "Chroma",
+  "collection_name": "v3_authoritative_corpus_v1",
+  "canonical_mirror_url_count": 1,
+  "duplicate_url_count": 2,
+  "near_duplicate_url_count": 1,
+  "excluded_candidate_count": 5,
+  "topic_coverage": {
+    "flood_management": [
+      "ndma-flood-guidelines-2008",
+      "ndma-national-disaster-management-plan-2019"
+    ],
+    "evacuation": [
+      "ndma-flood-guidelines-2008",
+      "ndma-national-disaster-management-plan-2019",
+      "ndma-temporary-shelters-2019"
+    ],
+    "shelter": [
+      "ndma-flood-guidelines-2008",
+      "ndma-national-disaster-management-plan-2019",
+      "ndma-temporary-shelters-2019"
+    ],
+    "vulnerability_accessibility": [
+      "ndma-national-disaster-management-plan-2019",
+      "ndma-temporary-shelters-2019"
+    ],
+    "logistics_transport": [
+      "ndma-flood-guidelines-2008",
+      "ndma-national-disaster-management-plan-2019",
+      "ndma-temporary-shelters-2019"
+    ]
+  },
+  "retrieval_smoke_test": {
+    "queries": [
+      "evacuation",
+      "relief shelter",
+      "flood-safe location",
+      "vulnerable groups",
+      "transport access"
+    ],
+    "top_k": 5,
+    "distinct_source_ids_returned": [
+      "ndma-flood-guidelines-2008",
+      "ndma-national-disaster-management-plan-2019",
+      "ndma-temporary-shelters-2019"
+    ],
+    "all_results_had_source_id_filename_and_page": true,
+    "quality_claim": "smoke test only; no retrieval-accuracy claim"
+  },
+  "offline_status": "PDF ingestion, cached-model embedding, Chroma retrieval, tests, and demo retrieval require no network",
+  "phase10_policy_result_changed": false,
+  "limitations": [
+    "The corpus is deliberately small and all retained documents have one publisher.",
+    "Vulnerability/accessibility coverage is moderate because the dedicated official disability guideline lacks a usable text layer without OCR.",
+    "Several documents are older policy publications.",
+    "Source authority does not prove retrieval relevance or generated-claim entailment."
+  ]
+}

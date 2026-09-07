@@ -1,0 +1,60 @@
+{
+  "_note": "Gate 1A horizon sweep. Fictional instances.",
+  "sizes": [
+    {
+      "cfg": {
+        "cells": 3,
+        "timesteps": 3,
+        "stock_scale": 1
+      },
+      "n": 200,
+      "bundle_aware_optimal_pct": 100.0,
+      "bundle_aware_mean_gap_pct": 0.0,
+      "myopic_tiebreak_optimal_pct": 62.0
+    },
+    {
+      "cfg": {
+        "cells": 3,
+        "timesteps": 4,
+        "stock_scale": 1
+      },
+      "n": 200,
+      "bundle_aware_optimal_pct": 99.5,
+      "bundle_aware_mean_gap_pct": 0.05019640852974182,
+      "myopic_tiebreak_optimal_pct": 58.0
+    },
+    {
+      "cfg": {
+        "cells": 3,
+        "timesteps": 5,
+        "stock_scale": 2
+      },
+      "n": 150,
+      "bundle_aware_optimal_pct": 98.0,
+      "bundle_aware_mean_gap_pct": 0.3450205333309142,
+      "myopic_tiebreak_optimal_pct": 54.666666666666664
+    },
+    {
+      "cfg": {
+        "cells": 4,
+        "timesteps": 5,
+        "stock_scale": 2
+      },
+      "n": 100,
+      "bundle_aware_optimal_pct": 95.0,
+      "bundle_aware_mean_gap_pct": 0.38786762346904446,
+      "myopic_tiebreak_optimal_pct": 37.0
+    },
+    {
+      "cfg": {
+        "cells": 4,
+        "timesteps": 6,
+        "stock_scale": 2
+      },
+      "n": 60,
+      "bundle_aware_optimal_pct": 91.66666666666667,
+      "bundle_aware_mean_gap_pct": 0.3951456521907418,
+      "myopic_tiebreak_optimal_pct": 31.666666666666668
+    }
+  ]
+}

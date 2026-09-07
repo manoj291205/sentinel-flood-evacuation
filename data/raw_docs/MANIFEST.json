@@ -1,7 +1,13 @@
 {
-  "_note": "Provenance record for the REAL source documents in this directory. Every file listed here was downloaded from the URL shown and verified to start with the %PDF magic bytes. Nothing in this directory is generated, synthesised, or fabricated. Where mirror_urls is non-empty, those URLs were verified to serve byte-identical content (same sha256) and are therefore NOT separate documents.",
+  "schema_version": "2.0",
+  "corpus_version": "v3-authoritative-corpus-v1",
+  "fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+  "fingerprint_algorithm": "SHA-256 of UTF-8 lines sorted by source_id: <source_id>\\t<sha256>\\n",
+  "frozen_at_utc": "2026-09-07T16:26:28Z",
+  "_note": "Provenance registry for REAL AUTHORITATIVE DOCUMENTS. Canonical entries are distinct by content and policy purpose. Mirror URLs never count as additional sources. Scenario data and generated constraints remain simulated/model-generated and are not part of this corpus.",
   "documents": [
     {
+      "source_id": "ndma-flood-guidelines-2008",
       "filename": "ndma_flood_guidelines.pdf",
       "url": "https://ndma.gov.in/sites/default/files/PDF/Guidelines/flood.pdf",
       "mirror_urls": [
@@ -9,11 +15,137 @@
       ],
       "publisher": "National Disaster Management Authority (NDMA), Government of India",
       "title": "National Disaster Management Guidelines: Management of Floods",
-      "dated": "17 January 2008 (per the signed foreword inside the document)",
+      "dated": "17 January 2008",
+      "document_type": "national_disaster_management_guideline",
+      "authority_class": "INDIA_NATIONAL_GOVERNMENT",
       "sha256": "2fc4518a29c249c91d223eb6edb6f5cba23d3fa85eaaa8a71d319bdde451981f",
       "bytes": 6120219,
       "pages": 168,
-      "retrieved_at_utc": "2026-09-01T19:06:59+00:00"
+      "retrieved_at_utc": "2026-09-01T19:06:59+00:00",
+      "topics": [
+        "flood_management",
+        "evacuation",
+        "shelter",
+        "logistics_transport"
+      ],
+      "duplicate_of": null,
+      "access_note": "Publicly accessible official NDMA PDF; an NIDM URL serves the byte-identical file.",
+      "notes": "Retained as the primary India-specific flood-management source. The signed foreword date is authoritative; embedded PDF creation metadata is unreliable.",
+      "spot_checks": [
+        {
+          "page": 56,
+          "section": "Preparedness measures",
+          "relevance": "Calls for flood shelters and flood-safe relief centres on high ground with resilient communications."
+        },
+        {
+          "page": 63,
+          "section": "Response arrangements",
+          "relevance": "Assigns evacuation, rescue, and relief responsibilities during severe flooding."
+        },
+        {
+          "page": 66,
+          "section": "Patient Evacuation Plan",
+          "relevance": "Addresses medical evacuation equipment, staffing, triage, and patient movement."
+        }
+      ]
+    },
+    {
+      "source_id": "ndma-national-disaster-management-plan-2019",
+      "filename": "ndma_national_disaster_management_plan_2019.pdf",
+      "url": "https://ndma.gov.in/sites/default/files/PDF/ndmp-2019.pdf",
+      "mirror_urls": [],
+      "publisher": "National Disaster Management Authority (NDMA), Government of India",
+      "title": "National Disaster Management Plan 2019",
+      "dated": "November 2019",
+      "document_type": "national_disaster_management_plan",
+      "authority_class": "INDIA_NATIONAL_GOVERNMENT",
+      "sha256": "32b34c66222187a3c1080f5d4a7b87a54e0b702efe869eeffa67ef57c97785d5",
+      "bytes": 20743176,
+      "pages": 384,
+      "retrieved_at_utc": "2026-09-07T16:26:28Z",
+      "topics": [
+        "flood_management",
+        "evacuation",
+        "shelter",
+        "vulnerability_accessibility",
+        "logistics_transport"
+      ],
+      "duplicate_of": null,
+      "access_note": "Publicly accessible official NDMA PDF linked from the Ministry of Home Affairs NDM India policy portal.",
+      "notes": "Retained as the cross-hazard national planning framework. Some extracted ligatures contain NUL characters, but 379 of 384 pages have substantial readable text.",
+      "spot_checks": [
+        {
+          "page": 111,
+          "section": "Social inclusion in disaster response",
+          "relevance": "Requires inclusive early warning, evacuation, relief, and rehabilitation practices."
+        },
+        {
+          "page": 115,
+          "section": "Persons with disabilities",
+          "relevance": "Discusses evacuation difficulty, local support networks, and lists of people needing additional assistance."
+        },
+        {
+          "page": 256,
+          "section": "Shelters and evacuation facilities",
+          "relevance": "Calls for shelters, support facilities, and multiple reliable access and escape routes."
+        },
+        {
+          "page": 306,
+          "section": "Evacuation route planning",
+          "relevance": "Requires identification and display of evacuation routes and temporary refuge areas."
+        },
+        {
+          "page": 313,
+          "section": "Relief logistics",
+          "relevance": "Covers relief camps, temporary shelters, supplier arrangements, and regional logistics."
+        }
+      ]
+    },
+    {
+      "source_id": "ndma-temporary-shelters-2019",
+      "filename": "ndma_temporary_shelters_2019.pdf",
+      "url": "https://nidm.gov.in/PDF/pubs/NDMA/24.pdf",
+      "mirror_urls": [],
+      "publisher": "National Disaster Management Authority (NDMA), Government of India",
+      "title": "National Guidelines for Temporary Shelters",
+      "dated": "September 2019",
+      "document_type": "national_disaster_management_guideline",
+      "authority_class": "INDIA_NATIONAL_GOVERNMENT",
+      "sha256": "aa0d2269d9ee47c2db2143766489c4d98b43cc1b006ed24939ca5da62debfca3",
+      "bytes": 10337300,
+      "pages": 100,
+      "retrieved_at_utc": "2026-09-07T16:26:28Z",
+      "topics": [
+        "evacuation",
+        "shelter",
+        "vulnerability_accessibility",
+        "logistics_transport"
+      ],
+      "duplicate_of": null,
+      "access_note": "Publicly accessible NDMA publication hosted by NIDM, Ministry of Home Affairs, Government of India.",
+      "notes": "Retained for operational shelter siting, services, inclusive design, and supply logistics. Ninety-four of 100 pages have extractable text.",
+      "spot_checks": [
+        {
+          "page": 37,
+          "section": "Technical guidelines overview",
+          "relevance": "Covers site selection, planning, design, materials, gender, vulnerability, and disability."
+        },
+        {
+          "page": 40,
+          "section": "Water and sanitation",
+          "relevance": "Specifies hygienic water and sanitation planning for temporary shelter sites."
+        },
+        {
+          "page": 49,
+          "section": "Institutional responsibility matrix",
+          "relevance": "Requires facilities and provisions for persons with disabilities in emergency and intermediate shelters."
+        },
+        {
+          "page": 54,
+          "section": "Shelter logistics",
+          "relevance": "Calls for regional logistics facilities and coordinated stocks of shelters, tents, and non-food items."
+        }
+      ]
     }
   ]
 }

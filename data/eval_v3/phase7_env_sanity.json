@@ -1,0 +1,33 @@
+{
+  "action_dimension": 55,
+  "artifact_kind": "ENVIRONMENT_API_SANITY_ONLY_NOT_POLICY_PERFORMANCE",
+  "check_env_status": "PASS",
+  "different_seed_variation_status": "PASS",
+  "environment_config_id": "v3-env-v1",
+  "leakage_checks": "PASS",
+  "mask_compatibility_status": "PASS",
+  "observation_dimension": 384,
+  "padding_checks": "PASS",
+  "phase": 7,
+  "placeholder_reward_warning": "PHASE7_PLACEHOLDER_ZERO: zero has no research meaning; training_ready=false",
+  "policy_performance_measured": false,
+  "ppo_training_performed": false,
+  "safety_on_off_checks": "PASS",
+  "same_seed_replay_status": "PASS",
+  "scenario_sizes_tested": [
+    {
+      "shelters": 3,
+      "zones": 2
+    },
+    {
+      "shelters": 5,
+      "zones": 4
+    },
+    {
+      "shelters": 9,
+      "zones": 6
+    }
+  ],
+  "vectorization_status": "PASS",
+  "wait_index": 54
+}
