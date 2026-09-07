@@ -2923,3 +2923,84 @@ special implementation-artifact penalty.
 See `git log` for *V3 Phase 8B: integrate frozen RL reward*.
 
 ---
+
+## 2026-09-07 — V3 Phase 9A: frozen MaskablePPO training specification
+
+### Pre-training publication and cleanliness check
+
+Before Phase 9 work, the remote branch was queried directly. Both Phase 8 commits were
+already published: `origin/v3-dynamic-stochastic` and local `HEAD` resolved to
+`318989fedf29396ac90c9e48e131cb7dc39a18c1`, and the working tree was clean. No history
+was rewritten.
+
+### Frozen training contract
+
+[`V3_TRAINING_SPEC.md`](V3_TRAINING_SPEC.md) freezes
+`v3-ppo-training-spec-v1` before any `model.learn(...)` call. The primary algorithm is
+sb3-contrib `MaskablePPO` with `MlpPolicy`, two 256-unit ReLU layers, hard safety ON, and
+the balanced Phase 8 reward. Five seeds (`1101`, `2202`, `3303`, `4404`, `5505`) each
+receive exactly 250,000 CPU timesteps with no performance early stopping.
+
+The frozen optimizer/advantage values are learning rate `3e-4`, 10 epochs, gamma `0.99`,
+GAE lambda `0.95`, clip `0.2`, entropy coefficient `0.01`, value coefficient `0.5`, and
+maximum gradient norm `0.5`. Four synchronous environments collect 1,250 steps each,
+giving an exact 5,000-transition rollout divided into 250-example batches. This
+pre-results choice replaces the suggested 1,024/256 pair so checkpoints and validation
+occur at exact 10,000-step boundaries and SB3 cannot overshoot the exact 250,000 budget.
+
+The installed training environment is Python `3.11.3`, Gymnasium `1.3.0`,
+Stable-Baselines3 `2.9.0`, sb3-contrib `2.9.0`, and PyTorch `2.13.0` on arm64 macOS.
+PyTorch reports MPS unavailable, so CPU is frozen for debug and every primary seed.
+
+### Procedural generator and semantic slots
+
+`src/training_v3/` defines immutable config, `v3-ppo-train-generator-v1`, validation
+manifest construction, deterministic stream-key derivation, and semantic-ID permutation.
+The generator samples zones uniformly from 4–6, shelters from 6–9, horizon from 10–16,
+and LOW/MEDIUM/HIGH uncertainty uniformly. It randomizes all required physical entity,
+fleet, and route properties and ensures usable dispatch choices exist at reset.
+
+Physical profiles receive independently randomized opaque IDs. Canonical sorting thus
+moves a feature profile among every available slot without changing the within-episode
+mapping. This directly prevents the fixed S6/S7-style identity association seen in V1.
+
+### Validation and permutation manifests
+
+`data/eval_v3/training/validation_manifest.json` freezes 150 scenarios under
+`v3-ppo-validation-v1`, with exactly 50 per uncertainty level. Every entry commits its
+generator seed, environment root seed, sizes, horizon, uncertainty ID, generation
+attempt, and SHA-256 of the full scenario. Seeds `930000`–`930149` are disjoint from the
+five training roots and both Gate 6 seed ranges.
+
+Checkpoint ranking is deterministic masked evaluation by mean undiscounted balanced
+reward. Ties use lower cumulative normalized exposure, higher safe fraction, then the
+earlier checkpoint. This validation criterion is not a final claim metric and no planner,
+oracle, demo, or Phase 10 result participates.
+
+`permutation_manifest.json` freezes 30 validation bases and five semantic-ID
+permutations each. Since Phase 4 stochastic draws themselves use entity IDs as keys, this
+diagnostic pre-registers a deterministic transform of the selected uncertainty config;
+it removes random innovations, closures, degradation, and travel noise solely so IDs are
+the only difference between each paired trajectory. Training and ordinary validation
+still use the unmodified LOW/MEDIUM/HIGH configurations.
+
+The alarm label is `POTENTIAL_SLOT_SHORTCUT`, triggered by median absolute normalized
+return delta above `0.05`, mean absolute safe-population delta above `0.05`, or a large
+systematic conditioned slot-selection bias. An alarm is reported and stops silent
+generator changes; it does not justify post-hoc retraining.
+
+### Information boundary and deferred comparison
+
+The feed-forward PPO observation still omits exact individual pending-arrival schedules,
+while existing strong planners may consume them. Planner-versus-PPO comparison is
+therefore conservative against PPO and is not perfectly information matched. Phase 10
+must include the frozen `OBSERVATION-MATCHED PLANNER DIAGNOSTIC`; Phase 9 does not alter
+Phase 6 or enlarge the observation.
+
+### Training gate
+
+No optimizer or gradient update was run in Stage 9A. The 20,000-step debug run and all
+five primary runs are permitted only after the exact commit named
+*V3 Phase 9A: freeze PPO training specification* exists. Phase 10 data remains unseen.
+
+---
