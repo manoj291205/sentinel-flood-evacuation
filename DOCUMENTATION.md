@@ -42,8 +42,8 @@ Each step gets one section containing:
 | Trained checkpoints | `models/` | **Built (Step 4)** — `maskable_ppo_shelter.zip` |
 | End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
 | Evaluation suite | `src/eval/` | **Built** — 60 held-out scenarios, baselines, ablations |
-| V3 stochastic simulator | `src/sim/` | **Built through V3 Phase 4** — immutable runtime snapshots, event queue, reservations, forecasts, keyed stochastic dynamics, and invariants |
-| Tests | `tests/` | **Built** — 208 tests total: 53 Phase 4, 60 Phase 3, 52 Phase 2, and 43 legacy tests |
+| V3 sequential environment | `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` | **Built through V3 Phase 7** — stochastic simulator, hard safety, strong planners, and fixed 6×9 Gymnasium API; Phase 7 reward is placeholder-only |
+| Tests | `tests/` | **Built** — 307 tests total: 23 Phase 7, 39 Phase 6, 37 Phase 5, 53 Phase 4, 60 Phase 3, 52 Phase 2, and 43 legacy tests |
 | Measured results | `EVALUATION.md` | **Written** — including the unflattering ones |
 | Frozen v1 results | `EVALUATION_V1.md` | **Archived** — immutable comparison point for the evaluated v1 demo |
 | Reviewer material | `REVIEW_NOTES.md`, `DEMO_SCRIPT.md` | **Written** — defence sheet and five-minute walkthrough |
@@ -55,14 +55,14 @@ Each step gets one section containing:
 | Group | Current contents |
 | --- | --- |
 | Entrypoints | `run_demo.py`; `src/dashboard/app.py` |
-| Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/`, `src/sim/`, `src/safety/`, `src/planners/` |
+| Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/`, `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` |
 | Scenario and constraints | `data/scenario.json`, `data/constraints_output.json`, `data/scenarios_v3/example_v3_scenario.json` |
-| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; Phase 4 process-only sanity artifact in `data/eval_v3/` |
+| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; Phase 4/5 sanity, Gate 6, and Phase 7 API-only sanity artifacts in `data/eval_v3/` |
 | Real source corpus | `data/raw_docs/README.md`, `MANIFEST.json`, and `ndma_flood_guidelines.pdf` |
 | Model artifact | `models/maskable_ppo_shelter.zip` |
-| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py` |
+| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py`, `phase5_safety_sanity.py`, `run_gate6.py`, `phase7_env_sanity.py` |
 | Automated verification | `tests/`, `pytest.ini`, `.github/workflows/ci.yml` |
-| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md` |
+| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md` |
 | Runtime configuration | `requirements.txt`, `.python-version`, `.streamlit/config.toml`, `.gitignore` |
 
 Generated local state is intentionally not part of that inventory: `.venv/`,
@@ -2554,5 +2554,202 @@ starts without project-owner direction.
 ### Commit
 
 See `git log` for *V3 Phase 6B: strong planners and planning-headroom gate*.
+
+---
+
+## 2026-09-07 — V3 Phase 7: fixed-dimension Gymnasium evacuation environment
+
+### Goal
+
+Wrap the validated V3 stochastic simulator in an RL-compatible interface without
+training a policy or defining the Phase 8 reward. The normative pre-implementation
+contract is [`V3_ENV_SPEC.md`](V3_ENV_SPEC.md), version `v3-env-v1`.
+
+### Why fixed dimensions are necessary
+
+MaskablePPO and standard MLP policies require stable Gymnasium spaces across episodes.
+Variable scenario sizes therefore use one fixed 6-zone × 9-shelter envelope rather than
+changing action or observation dimensions. Real entities occupy canonical leading slots;
+padding is explicitly identified and masked.
+
+### Environment configuration and files
+
+The `src/env_v3/` package adds:
+
+- `config.py`: authoritative `v3-env-v1` dimensions, WAIT index, fallback, and
+  placeholder-reward boundary;
+- `action_space.py`: canonical ID slots, integer encode/decode, fixed-mask alignment,
+  and envelope errors;
+- `observation.py`: policy-safe normalization and the 384-element flat vector;
+- `scenario_source.py`: fixed and callable scenario-provider interfaces without a
+  training distribution;
+- `evacuation_env.py`: Gymnasium reset/step/mask wrapper around `StochasticSimulator`;
+- `__init__.py`: public Phase 7 API.
+
+`tests/test_v3_env.py` provides behavioral verification. The compact executable trace is
+`scripts/phase7_env_sanity.py`; its API-only artifact is
+`data/eval_v3/phase7_env_sanity.json`.
+
+### Maximum slots and action mapping
+
+```text
+MAX_ZONES = 6
+MAX_SHELTERS = 9
+dispatch index = zone_slot * 9 + shelter_slot
+dispatch indices = 0..53
+WAIT index = 54
+action space = Discrete(55)
+```
+
+Zones and shelters are sorted by ID, independent of source JSON order. Scenarios over the
+envelope, and ambiguous multiple routes for one zone-shelter pair, fail loudly instead of
+being truncated. Real entity pairs without routes and every padded combination are
+masked. WAIT remains the final stable action.
+
+### Observation features and dimension
+
+The environment returns `Box(low=0, high=1, shape=(384,), dtype=float32)`:
+
+| Group | Slots × features | Features |
+| --- | ---: | --- |
+| Zones | 6 × 6 | presence, remaining fraction, current severity, normalized observed trend, public forecast mean, monotonic forecast-uncertainty transform |
+| Shelters | 9 × 8 | presence, available/occupied/reserved fractions, current severity, OPEN/RESTRICTED/CLOSED one-hot |
+| Routes | 54 × 5 | presence, reachability, monotonic expected-travel transform, monotonic travel-uncertainty transform, closure probability |
+| Global | 6 | timestep, remaining/transit/safe fractions, vehicle-capacity transform, any allowed dispatch |
+
+Zone population uses the static zone total. Global population fractions use initial
+evacuation population. Travel values use `x/(x+horizon_minutes)`, forecast uncertainty
+uses `x/(x+1)`, and vehicle capacity uses `capacity/(capacity+initial_population)`.
+Every transform is finite and bounded; zero denominators have explicit behavior.
+Subgroup features are not fabricated because V3 currently dispatches undifferentiated
+people.
+
+### Padding and presence semantics
+
+Every entity group begins with a presence indicator. An absent slot has presence zero and
+all remaining features zero, distinguishing padding from a real entity whose physical
+value is zero. Observations are rebuilt on each reset, and the verified large-to-small
+reset leaves no stale padded values.
+
+### Scenario source and stochastic reset
+
+`FixedScenarioSource` supports deterministic tests and a callable adapter permits future
+episode-varying scenarios without freezing the Phase 9 distribution. Every provided
+scenario is checked against the fixed envelope.
+
+`reset(seed=s)` calls Gymnasium's standard superclass reset and maps `s` directly to the
+Phase 4 replication ID while retaining the scenario root seed. The replication ID/root
+seed remain private. With no reset seed, a private episode counter supplies replications.
+Same scenario + reset seed + integer actions exactly reproduces observations, masks,
+semantic requests/executions, physical state, audit events, and termination. Different
+seeds produced different trajectories in the stochastic sanity check.
+
+### Safety masks and invalid-action fallback
+
+`action_masks()` has Boolean shape `(55,)` and aligns real dispatches with Phase 5's
+canonical `evaluate_actions()` results. No mechanical or hard-safety rule is duplicated.
+Safety OFF bypasses only enforcement of the synthetic hazard predicate; missing/closed
+routes, zero capacity, fleet mechanics, padding, and terminal exclusions still apply.
+
+An in-range masked action is converted to WAIT before simulator execution. The requested
+invalid dispatch never executes, time advances normally, and info records requested vs.
+executed semantics plus diagnostic counts. Phase 7 adds no penalty. Out-of-range or
+non-integral actions fail clearly, and stepping after episode end requires reset.
+
+### Termination semantics
+
+```text
+ALL_EVACUATED   -> terminated=True,  truncated=False
+HORIZON_REACHED -> terminated=False, truncated=True
+```
+
+Normal episode endings never set both flags.
+
+### Placeholder reward
+
+> **Phase 7 reward is an API-required zero placeholder. It has no research meaning and
+> the environment is not approved for PPO training until Phase 8 freezes and integrates
+> the RL reward.**
+
+Every transition returns exactly `0.0`, with
+`reward_spec_version=PHASE7_PLACEHOLDER_ZERO`, `reward_defined=False`, and
+`training_ready=False`. There is no exposure, safe-population, transit, terminal, or
+invalid-action reward component. The provider boundary exists only for clean Phase 8
+integration.
+
+### Leakage boundary and planner/PPO parity
+
+The numeric vector is built from the detached public Phase 4 observation plus current
+Phase 5 mask results. It exposes current hazard, forecast, capacity, categorical shelter
+status, expected travel, travel uncertainty, reachability, closure probability, time,
+population, and vehicle scale. It omits root seed, replication ID, regional latent state,
+future exact hazard/closure/travel, oracle values, Gate 6 scores, algorithm identity, and
+literal uncertainty labels.
+
+Two simulators with the same public state and different hidden environment seeds produce
+identical Gym observations and masks. Step info includes only sanitized current audit
+event type/timestep/reason, not realized future travel values. Compared with practical
+planners, the flat Phase 7 vector retains essential decision quantities but only aggregate
+in-transit population, not individual pending-arrival records; this is documented as a
+future observation-adequacy limitation rather than silently changed.
+
+### Gymnasium verification and tests
+
+Installed and verified versions are Gymnasium `1.3.0`, Stable-Baselines3 `2.9.0`, and
+sb3-contrib `2.9.0`.
+
+```text
+Phase 7 environment suite: 23 passed
+Phase 6 planner suite:     39 passed
+Phase 5 safety suite:      37 passed
+Phase 4 stochastic suite:  53 passed
+Phase 3 transition suite:  60 passed
+Phase 2 schema suite:      52 passed
+legacy V1 suite:           43 passed
+full suite:               307 passed
+Gymnasium check_env:       PASS
+DummyVecEnv (2 envs):      PASS
+sb3-contrib mask support:  PASS
+same-seed replay:          PASS
+different-seed variation: PASS
+large-to-small padding:    PASS
+hidden-future leakage:     PASS
+safety ON/OFF:             PASS
+```
+
+The sanity artifact is regenerated without training by:
+
+```text
+PYTHONDONTWRITEBYTECODE=1 PYTHONHASHSEED=0 \
+  .venv/bin/python -m scripts.phase7_env_sanity
+```
+
+### Real versus simulated
+
+The environment behavior and test outcomes are real software results. The exercised
+scenarios, uncertainty regimes, and safety threshold remain explicit synthetic modeling
+assumptions or fictional data. No real-world evacuation effectiveness claim is made.
+
+### Known limitations
+
+- no PPO or MaskablePPO training and only a meaningless zero reward;
+- fixed 6×9 envelope and flat MLP-style representation;
+- no recurrent or graph policy and no subgroup-specific dispatch action;
+- no individual pending-arrival encoding in the numeric observation;
+- canonical slot identity can become a shortcut if a future generator correlates IDs
+  with attributes;
+- no geospatial route graph, RAG/Gemini change, dashboard work, human override, or final
+  held-out evaluation.
+
+### Deferred work
+
+Phase 8 must independently freeze and integrate the real RL reward before any training.
+Phase 9 must define the training distribution, randomize entity attributes, and include
+slot/entity permutation diagnostics and evaluation under permuted slot identity. No
+Phase 8 work was started here.
+
+### Commit
+
+See `git log` for *V3 Phase 7: fixed-dimension Gymnasium evacuation environment*.
 
 ---
