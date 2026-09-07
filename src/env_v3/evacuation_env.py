@@ -14,21 +14,24 @@ from src.sim import ScenarioV3, StochasticSimulator, TerminalReason
 from .action_space import DecodedAction, FixedActionMap
 from .config import (
     DEFAULT_ENV_CONFIG,
-    PLACEHOLDER_REWARD_VERSION,
-    ZERO_PLACEHOLDER_REWARD,
     EnvV3Config,
 )
 from .observation import OBSERVATION_DIM, build_observation, observation_dimension
+from .rewards import (
+    REWARD_CONFIGS,
+    ZERO_PLACEHOLDER_REWARD,
+    FrozenV3RewardProvider,
+    RewardProvider,
+    reward_breakdown_to_info,
+)
 from .scenario_source import FixedScenarioSource, ResetContext, ScenarioSource
 
 
 class EvacuationEnvV3(gym.Env[np.ndarray, int]):
-    """Fixed-space interface only; Phase 7 has no meaningful training reward."""
+    """Fixed-space interface with explicit placeholder or frozen reward provider."""
 
     metadata = {"render_modes": []}
     reward_range = (0.0, 0.0)
-    reward_spec_version = PLACEHOLDER_REWARD_VERSION
-    training_ready = False
 
     def __init__(
         self,
@@ -37,6 +40,7 @@ class EvacuationEnvV3(gym.Env[np.ndarray, int]):
         scenario_source: ScenarioSource | None = None,
         uncertainty_config: str = "v3-medium-v1",
         config: EnvV3Config = DEFAULT_ENV_CONFIG,
+        reward_provider: RewardProvider | None = None,
     ) -> None:
         super().__init__()
         if (scenario is None) == (scenario_source is None):
@@ -54,7 +58,15 @@ class EvacuationEnvV3(gym.Env[np.ndarray, int]):
             shape=(observation_dimension(config),),
             dtype=np.float32,
         )
-        self._reward_provider = ZERO_PLACEHOLDER_REWARD
+        self._reward_provider = reward_provider or ZERO_PLACEHOLDER_REWARD
+        self.reward_range = (
+            (
+                self._reward_provider.config.episode_return_min,
+                self._reward_provider.config.episode_return_max,
+            )
+            if isinstance(self._reward_provider, FrozenV3RewardProvider)
+            else (0.0, 0.0)
+        )
         self._episode_index = 0
         self._auto_replication_id = 0
         self._scenario: ScenarioV3 | None = None
@@ -75,6 +87,34 @@ class EvacuationEnvV3(gym.Env[np.ndarray, int]):
         if self._action_mapping is None:
             raise RuntimeError("environment must be reset before action-map access")
         return self._action_mapping
+
+    @property
+    def reward_spec_version(self) -> str:
+        return self._reward_provider.version
+
+    @property
+    def training_ready(self) -> bool:
+        if not isinstance(self._reward_provider, FrozenV3RewardProvider):
+            return False
+        if self._reward_provider.version not in REWARD_CONFIGS or self._scenario is None:
+            return False
+        if self.current_state.initial_evacuation_population <= 0:
+            return False
+        return (
+            self.action_space.n == self.config.action_count
+            and self.observation_space.shape == (observation_dimension(self.config),)
+            and self.observation_space.dtype == np.dtype(np.float32)
+            and np.all(self.observation_space.low == 0.0)
+            and np.all(self.observation_space.high == 1.0)
+            and V3_SAFETY_V1.config_id == "v3-safety-v1"
+        )
+
+    def assert_training_ready(self) -> None:
+        if not self.training_ready:
+            raise RuntimeError(
+                "environment is not training-ready: reset a positive-population scenario "
+                "with a recognized frozen non-placeholder reward provider"
+            )
 
     @property
     def current_state(self):
@@ -183,6 +223,7 @@ class EvacuationEnvV3(gym.Env[np.ndarray, int]):
         semantic = executed.semantic
         if semantic is None:
             raise AssertionError("masked fallback failed to produce WAIT")
+        previous_state = self.current_state
         result = self._simulator.step(semantic)
         if not result.accepted:
             raise RuntimeError("environment mask/fallback disagrees with simulator mechanics")
@@ -197,7 +238,13 @@ class EvacuationEnvV3(gym.Env[np.ndarray, int]):
             self._public_observation = self._simulator.observe()
         next_mask = self.action_masks()
         observation = self._observation()
-        reward = self._reward_provider.reward(result)
+        breakdown = self._reward_provider.calculate(
+            previous_state,
+            result,
+            result.state,
+            self.scenario,
+        )
+        reward = float(breakdown.total_reward)
         info = self._base_info(int(next_mask.sum()))
         info.update(
             {
@@ -219,6 +266,7 @@ class EvacuationEnvV3(gym.Env[np.ndarray, int]):
                 ],
             }
         )
+        info.update(reward_breakdown_to_info(breakdown))
         return observation, reward, terminated, truncated, info
 
     def render(self) -> None:

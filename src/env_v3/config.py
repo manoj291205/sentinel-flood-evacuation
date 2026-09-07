@@ -47,24 +47,3 @@ class EnvV3Config:
 DEFAULT_ENV_CONFIG = EnvV3Config()
 WAIT_INDEX = DEFAULT_ENV_CONFIG.wait_index
 ACTION_COUNT = DEFAULT_ENV_CONFIG.action_count
-
-
-class RewardProvider:
-    """Narrow Phase 8 injection boundary; no meaningful reward exists in Phase 7."""
-
-    version: str
-    defined: bool
-
-    def reward(self, transition_result: object) -> float:
-        raise NotImplementedError
-
-
-class ZeroPlaceholderReward(RewardProvider):
-    version = PLACEHOLDER_REWARD_VERSION
-    defined = False
-
-    def reward(self, transition_result: object) -> float:
-        return 0.0
-
-
-ZERO_PLACEHOLDER_REWARD = ZeroPlaceholderReward()

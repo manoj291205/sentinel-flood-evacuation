@@ -1,4 +1,4 @@
-"""Fixed-dimensional Gymnasium API for Sentinel-Agent V3 Phase 7."""
+"""Fixed-dimensional Gymnasium API and frozen reward for Sentinel-Agent V3."""
 
 from .action_space import (
     DecodedAction,
@@ -16,7 +16,6 @@ from .config import (
     PLACEHOLDER_REWARD_VERSION,
     WAIT_INDEX,
     EnvV3Config,
-    ZeroPlaceholderReward,
 )
 from .evacuation_env import EvacuationEnvV3
 from .observation import (
@@ -35,16 +34,35 @@ from .scenario_source import (
     ResetContext,
     ScenarioSource,
 )
+from .rewards import (
+    BALANCED_REWARD,
+    EVACUATION_REWARD,
+    EXPOSURE_REWARD,
+    REWARD_CONFIGS,
+    REWARD_MODELING_ASSUMPTION_DISCLAIMER,
+    ZERO_PLACEHOLDER_REWARD,
+    FrozenV3RewardProvider,
+    RewardBreakdown,
+    RewardConfig,
+    RewardProvider,
+    ZeroPlaceholderReward,
+    combine_reward_components,
+    get_reward_config,
+    reward_breakdown_to_info,
+)
 
 __all__ = [
     "ACTION_COUNT",
+    "BALANCED_REWARD",
     "CallableScenarioSource",
     "DEFAULT_ENV_CONFIG",
     "DecodedAction",
     "ENV_CONFIG_ID",
+    "EVACUATION_REWARD",
     "EnvV3Config",
     "EnvironmentConfigurationError",
     "EvacuationEnvV3",
+    "EXPOSURE_REWARD",
     "FixedActionMap",
     "FixedScenarioSource",
     "GLOBAL_FEATURES",
@@ -53,6 +71,8 @@ __all__ = [
     "OBSERVATION_DIM",
     "ObservationValueError",
     "PLACEHOLDER_REWARD_VERSION",
+    "REWARD_CONFIGS",
+    "REWARD_MODELING_ASSUMPTION_DISCLAIMER",
     "ROUTE_FEATURES",
     "ResetContext",
     "SHELTER_FEATURES",
@@ -60,8 +80,16 @@ __all__ = [
     "WAIT_INDEX",
     "ZONE_FEATURES",
     "ZeroPlaceholderReward",
+    "ZERO_PLACEHOLDER_REWARD",
+    "FrozenV3RewardProvider",
+    "RewardBreakdown",
+    "RewardConfig",
+    "RewardProvider",
     "build_observation",
+    "combine_reward_components",
     "decode_action",
     "encode_dispatch",
+    "get_reward_config",
     "observation_dimension",
+    "reward_breakdown_to_info",
 ]

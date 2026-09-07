@@ -42,8 +42,8 @@ Each step gets one section containing:
 | Trained checkpoints | `models/` | **Built (Step 4)** — `maskable_ppo_shelter.zip` |
 | End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
 | Evaluation suite | `src/eval/` | **Built** — 60 held-out scenarios, baselines, ablations |
-| V3 sequential environment | `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` | **Built through V3 Phase 7** — stochastic simulator, hard safety, strong planners, and fixed 6×9 Gymnasium API; Phase 7 reward is placeholder-only |
-| Tests | `tests/` | **Built** — 307 tests total: 23 Phase 7, 39 Phase 6, 37 Phase 5, 53 Phase 4, 60 Phase 3, 52 Phase 2, and 43 legacy tests |
+| V3 sequential environment | `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` | **Built through V3 Phase 8** — stochastic simulator, hard safety, strong planners, fixed 6×9 Gymnasium API, and frozen auditable reward; no PPO training yet |
+| Tests | `tests/` | **Built** — 331 tests total: 24 Phase 8, 23 Phase 7, 39 Phase 6, 37 Phase 5, 53 Phase 4, 60 Phase 3, 52 Phase 2, and 43 legacy tests |
 | Measured results | `EVALUATION.md` | **Written** — including the unflattering ones |
 | Frozen v1 results | `EVALUATION_V1.md` | **Archived** — immutable comparison point for the evaluated v1 demo |
 | Reviewer material | `REVIEW_NOTES.md`, `DEMO_SCRIPT.md` | **Written** — defence sheet and five-minute walkthrough |
@@ -57,12 +57,12 @@ Each step gets one section containing:
 | Entrypoints | `run_demo.py`; `src/dashboard/app.py` |
 | Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/`, `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` |
 | Scenario and constraints | `data/scenario.json`, `data/constraints_output.json`, `data/scenarios_v3/example_v3_scenario.json` |
-| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; Phase 4/5 sanity, Gate 6, and Phase 7 API-only sanity artifacts in `data/eval_v3/` |
+| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; Phase 4/5 sanity, Gate 6, Phase 7 API-only sanity, and Phase 8 reward-only sanity artifacts in `data/eval_v3/` |
 | Real source corpus | `data/raw_docs/README.md`, `MANIFEST.json`, and `ndma_flood_guidelines.pdf` |
 | Model artifact | `models/maskable_ppo_shelter.zip` |
-| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py`, `phase5_safety_sanity.py`, `run_gate6.py`, `phase7_env_sanity.py` |
+| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py`, `phase5_safety_sanity.py`, `run_gate6.py`, `phase7_env_sanity.py`, `phase8_reward_sanity.py` |
 | Automated verification | `tests/`, `pytest.ini`, `.github/workflows/ci.yml` |
-| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md` |
+| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md`, `V3_REWARD_SPEC.md` |
 | Runtime configuration | `requirements.txt`, `.python-version`, `.streamlit/config.toml`, `.gitignore` |
 
 Generated local state is intentionally not part of that inventory: `.venv/`,
@@ -2814,5 +2814,112 @@ change either frozen interface merely to claim parity.
 ### Commit
 
 See `git log` for *V3 Phase 8A: freeze RL reward specification*.
+
+---
+
+## 2026-09-07 — V3 Phase 8B: integrated frozen RL reward
+
+### Implementation and provider architecture
+
+Added `src/env_v3/rewards.py` with immutable registered reward configurations, a pure
+`FrozenV3RewardProvider`, structured JSON-serializable `RewardBreakdown`, the retained
+`ZeroPlaceholderReward`, and an explicit component-combination function. The calculator
+accepts the prepared previous state, finalized transition result/state, and scenario. It
+does not mutate inputs, consume RNG, import planners, call a network/model, or inspect
+future simulator context.
+
+The breakdown records raw normalized safe gain, exposure, travel, and terminal unfinished
+components; signed weighted contributions; total reward; and config identity. Gym returns
+only the scalar total and places the full breakdown in debug/evaluation `info`, never the
+policy observation.
+
+### Gym integration and training readiness
+
+`EvacuationEnvV3` now accepts an explicit `reward_provider`. Omitting it preserves Phase
+7 placeholder behavior:
+
+```text
+PHASE7_PLACEHOLDER_ZERO
+reward_defined=False
+training_ready=False
+```
+
+Supplying a recognized frozen provider on a reset positive-population scenario exposes
+the selected reward version, returns the physical reward, and sets `training_ready=True`.
+`assert_training_ready()` additionally verifies the recognized provider, valid safety
+configuration, fixed 55-action space, fixed 384-element float32 observation space, and
+positive population. Zero-population scenarios remain finite but fail readiness.
+
+### Tests and verification
+
+```text
+Phase 8 reward suite:      24 passed
+Phase 7 environment suite: 23 passed
+Phase 6 planner suite:     39 passed
+Phase 5 safety suite:      37 passed
+Phase 4 stochastic suite:  53 passed
+Phase 3 transition suite:  60 passed
+Phase 2 schema suite:      52 passed
+legacy V1 suite:           43 passed
+full suite:               331 passed
+```
+
+Tests cover exact weights, config immutability, arrival timing, post-action exposure,
+horizon normalization, realized-travel transform, terminal unfinished population,
+monotonicity, all required micro-case orderings, consequence-only WAIT, initial shelter
+occupants, masked fallback equivalence, purity, deterministic replay, safety independence,
+planner independence, serializability, scalar Gym output, readiness, zero population,
+extreme finite travel, and NaN/infinity rejection.
+
+### Reward sanity study
+
+`scripts/phase8_reward_sanity.py` ran 200 fixed synthetic random-valid episodes across
+LOW/MEDIUM/HIGH (`67/67/66`) without a learned policy. The artifact is
+`data/eval_v3/phase8_reward_sanity.json`.
+
+```text
+episodes:                    200
+steps:                     2,000
+minimum step reward:    -0.104032
+maximum step reward:     0.174680
+minimum episode return: -0.197509
+maximum episode return:  0.318095
+NaN count:                       0
+infinity count:                  0
+micro-case checks:          6/6 PASS
+monotonicity checks:        4/4 PASS
+```
+
+These are reward-magnitude and semantic diagnostics only. No policy ranking was inferred,
+and the Stage 8A weights were not changed after observing them.
+
+### No-leakage, safety, and planner independence
+
+Reward reads only arrivals and realized travel belonging to the completed transition,
+post-action current zone state, and final terminal ledgers. It does not use forecast or
+next-step hazards, future closure/arrival/failure values, root seed, stochastic context,
+or policy observation changes. Source and behavioral checks confirm no `src.planners`
+dependency, Gate-6/oracle/lookahead/MPC term, or Phase 5 `0.70` branch.
+
+Safety ON masks a high-destination-hazard dispatch; safety OFF may execute it. In both
+cases the reward itself contains only ordinary physical components and does not recreate
+the hard rule. A masked request receives the executed WAIT transition reward without a
+special implementation-artifact penalty.
+
+### Known limitations
+
+- No PPO, optimizer, gradient update, discount-factor choice, checkpoint, or learned
+  policy evaluation exists.
+- Reward weights and all sanity scenarios are synthetic project modeling choices, not
+  official disaster-management utility weights.
+- PPO remains feed-forward and partially observable because individual pending-arrival
+  timing is absent; frozen practical planners retain more detailed pending metadata.
+- No vulnerability/medical subgroup reward exists because subgroup movement is absent.
+- No reward normalization wrapper, adaptive scaling, clipping, RAG/Gemini, geospatial,
+  dashboard, recurrent, graph-policy, or final held-out work was added.
+
+### Commit
+
+See `git log` for *V3 Phase 8B: integrate frozen RL reward*.
 
 ---
