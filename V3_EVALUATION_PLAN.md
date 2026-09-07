@@ -438,3 +438,31 @@ natural-language judgment.
 - [x] Demo scenario isolated from scientific choices.
 - [x] Metric-amendment governance and planner STOP condition recorded.
 - [x] No V3 implementation or result was created in this phase.
+
+---
+
+## Pre-results clarification for Gate 6 — 2026-09-07
+
+Phase 1 froze NSU normalization but deliberately deferred the future PPO episode reward
+and its bounds to Phase 8. Gate 6 nevertheless requires a scalar physical utility for
+exact-oracle headroom before Phase 8 exists. Before any comparative planner result, Stage
+6A therefore freezes the separate `GATE-6 PLANNING UTILITY` in
+`V3_PLANNER_SPEC.md`:
+
+```text
+G6U = 0.70 * safely_arrived_population/P0
+    - 0.25 * exposed_person_timesteps/(P0*H)
+    - 0.05 * in_transit_person_timesteps/(P0*H)
+```
+
+Hard safety is enforced lexically before utility optimization. The utility uses only
+already pre-registered physical outcomes, has theoretical range `[-0.30, 0.70]`, and
+therefore gives Gate 6 `epsilon_den = 0.01`. It is independent of planner implementation
+and was fixed before Gate 6 results. It is not the Phase 8 PPO training reward and does
+not modify the final project's primary `NSU-practical` protocol.
+
+For Gate 6 per-unit exact headroom, the lower reference is the Phase 1 arithmetic mean of
+five independently seeded `random_valid` runs, and the upper reference is the exact
+clairvoyant oracle. Units with `oracle - lower <= 0.01` are `NA`; values are not clipped.
+Median and p10 per-unit headroom drive the already-frozen STOP gate. This clarification
+does not change the `0.99`, `0.97`, or 100 ms thresholds.

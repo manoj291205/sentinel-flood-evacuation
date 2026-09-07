@@ -2358,3 +2358,94 @@ change and disclosure.
 See `git log` for *V3 Phase 5: deterministic hard-safety engine and action masks*.
 
 ---
+
+## 2026-09-07 — V3 Phase 6A: pre-results planner and gate specification
+
+### Goal
+
+Freeze every decision that could otherwise be tuned after observing planner results.
+Stage 6B comparative execution is prohibited until this specification commit exists.
+The normative contract is [`V3_PLANNER_SPEC.md`](V3_PLANNER_SPEC.md), version
+`v3-planner-spec-v1`.
+
+### Planning objective
+
+Phase 1 defined NSU but deferred raw reward to Phase 8, so a dated pre-results
+clarification was appended—not overwritten—to `V3_EVALUATION_PLAN.md`. The bounded
+Gate-6-only utility is:
+
+```text
+G6U = 0.70 * safe population fraction
+    - 0.25 * normalized exposed person-timesteps
+    - 0.05 * normalized in-transit person-timesteps
+```
+
+Its range is `[-0.30,0.70]`, making `epsilon_den=0.01`. Hard safety applies before score
+optimization. G6U is not the future PPO reward and does not replace final
+`NSU-practical`.
+
+### Frozen planner definitions
+
+- `random_valid` follows Phase 1 literally and samples uniformly from every allowed
+  action including WAIT, using independent policy seeds.
+- `nearest_safe` selects the highest-current-severity source, then its lowest expected
+  travel destination.
+- `risk_greedy` freezes six normalized components and weights: urgency `0.30`, destination
+  safety `0.20`, useful capacity `0.25`, travel `0.10`, closure safety `0.10`, travel
+  certainty `0.05`.
+- `lookahead_k2` and `lookahead_k3` exhaustively search depths 2 and 3 in a separate
+  deterministic expected model built only from policy-visible state. No beam pruning or
+  clone of the real stochastic simulator is allowed.
+- sampled MPC freezes `N=16`, `H=3`, arithmetic-mean aggregation, risk-greedy sampled
+  continuation, and planner-owned SHA-256 randomness rooted at master seed `76001`.
+- `oracle_small` is an exhaustive, five-second-limited **CLAIRVOYANT UPPER BOUND — NOT A
+  PRACTICAL POLICY**, isolated behind a separate oracle-only interface.
+
+Every deterministic tie selects the earliest Phase 5 canonical semantic action.
+
+### Information and RNG boundaries
+
+Practical planners receive a detached policy observation, current safety snapshot, public
+time/fleet metadata, and the public uncertainty configuration. They do not receive the
+scenario root seed, replication ID, simulator, private stochastic context, latent state,
+random stream, audit log, or future outcome. MPC/random-valid randomness is independent
+of the environment.
+
+### Frozen synthetic suites
+
+Generator `v3-gate6-generator-v1` uses explicit fixed synthetic distributions and a
+separate SHA-derived environment seed. Acceptance requires schema validity and one
+mechanically and safety-allowed t0 dispatch only; it never conditions on future outcomes
+or planner performance.
+
+- Exact: 120 scenarios (`610000..610119`), 2 zones, 2 shelters, horizon 5, 40 each
+  LOW/MEDIUM/HIGH, replication 0.
+- Practical: 120 scenarios (`620000..620119`), 4 zones, 5 shelters, horizon 10, 40 each
+  LOW/MEDIUM/HIGH, replication 0, no oracle claim.
+
+The Phase 5 observation of one hard-safety exclusion in 4,320 candidates is recorded but
+does not alter the threshold or generator.
+
+### NSU-exact, latency, and STOP rule
+
+The exact lower reference is the mean of five random-valid policy seeds `73001..73005`;
+the upper reference is the exact clairvoyant oracle. Per-unit denominators `<=0.01` are
+`NA`, scores are not clipped, and more than 5% invalid or timed-out units makes the gate
+inconclusive.
+
+Timing uses `perf_counter_ns`, 20 warm-ups, and excludes input construction, safety
+evaluation, transition, logging, and imports. The recorded reference is an Apple M1
+MacBook Air with 8 cores/8 GB, arm64 macOS 26.6.2, Python 3.11.3. Phase 1's absolute p95
+limit remains 100 ms; the prior mistake of comparing only against a very fast neural
+forward-pass multiple is not repeated.
+
+The unchanged gate requires one practical non-clairvoyant planner to achieve median
+NSU-exact `>=0.99`, p10 `>=0.97`, and p95 latency `<=100 ms`. Passing means `STOP_RL`;
+otherwise `PROCEED_TO_RL`, unless a genuine exactness, leakage, timeout, or normalization
+failure makes the gate inconclusive.
+
+### Commit
+
+See `git log` for *V3 Phase 6A: freeze planner and planning-gate specification*.
+
+---
