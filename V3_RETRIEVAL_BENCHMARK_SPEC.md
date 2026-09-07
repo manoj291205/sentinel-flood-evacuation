@@ -234,3 +234,39 @@ Dense/BM25/Hybrid benchmark scores must not be computed until human review is co
 Phase 13A ends with status `WAITING FOR HUMAN REVIEW`; no
 `final_benchmark_results.json` exists and no natural-language answer generation or
 entailment evaluation is performed.
+
+## Phase 13A.1 review procedure actually used
+
+After the Phase 13A candidate set and pool were frozen, the project owner explicitly
+adopted AI-assisted question-review recommendations. This event is recorded as
+`PROJECT_OWNER_ADOPTED_AI_ASSISTED_QUESTION_REVIEW`, with:
+
+- `question_review_method=PROJECT_OWNER_ADOPTED_AI_ASSISTED_RECOMMENDATIONS`;
+- `reviewer_role=project_owner`;
+- `ai_assistance=true`.
+
+This was **not blind, independent, or multi-reviewer human annotation**. The project
+owner supplied the final question decisions and four edited wordings after seeing
+AI-assisted recommendations. That procedure resolves question selection only. It does
+not adopt, confirm, or otherwise transform any machine-proposed passage relevance grade
+into a human grade.
+
+The adopted set contains exactly 45 questions: 41 accepted without edits and four
+accepted with edits. Fifteen candidates were rejected. The retained set has exactly nine
+questions per frozen topic and fifteen per frozen query style. The original 60-question
+candidate manifest and original 647-row passage pool remain preserved as historical
+Phase 13A artifacts.
+
+The derived retained passage pool is a strict question-level subset of the frozen pool:
+no chunk, excerpt, rank, seed flag, or machine suggestion is changed. Retriever identity
+and rank are omitted from the main passage-review view to reduce reviewer anchoring, but
+remain available in a technical appendix and in the machine-readable retained CSV.
+
+The already-frozen consistency selection needs no amendment. Applying seed `131313` to
+the sorted retained question IDs selects ten retained questions; rejected questions are
+ineligible by construction. First- and second-pass passage grades remain blank.
+
+The current status is `WAITING_FOR_PASSAGE_RELEVANCE_REVIEW`. Phase 13B readiness still
+fails because no retained passage has an actual human relevance grade. No real
+DirectHit, MRR, nDCG, pooled Recall, bootstrap interval, or hybrid-support decision may
+be calculated until passage review is complete.

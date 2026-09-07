@@ -190,9 +190,16 @@ def test_question_review_sheet_has_all_candidates(question_rows, manifest):
     ]
 
 
-def test_all_human_question_fields_are_pending_or_blank(question_rows):
-    assert all(row["human_question_status"] == "PENDING" for row in question_rows)
-    assert all(row["human_edited_question"] == "" for row in question_rows)
+def test_question_fields_record_adopted_decisions_without_passage_claims(question_rows):
+    assert Counter(row["human_question_status"] for row in question_rows) == {
+        "ACCEPT": 41,
+        "EDIT": 4,
+        "REJECT": 15,
+    }
+    assert all(
+        bool(row["human_edited_question"]) == (row["human_question_status"] == "EDIT")
+        for row in question_rows
+    )
     assert all(row["human_notes"] == "" for row in question_rows)
     assert all(row["machine_proposed_answerable"] == "MACHINE_PROPOSED_TRUE" for row in question_rows)
 
@@ -264,10 +271,12 @@ def test_no_human_confirmation_is_fabricated():
     assert "human_verified" not in combined
 
 
-def test_consistency_audit_waits_for_accepted_questions():
+def test_consistency_audit_uses_only_selected_retained_questions():
     with CONSISTENCY_PATH.open(newline="") as handle:
         rows = list(csv.DictReader(handle))
-    assert rows == []
+    assert len({row["question_id"] for row in rows}) == 10
+    assert all(row["second_pass_status"] == "PENDING" for row in rows)
+    assert all(row["first_pass_grade"] == row["second_pass_grade"] == "" for row in rows)
     assert "second_pass_grade" in CONSISTENCY_PATH.read_text().splitlines()[0]
 
 
@@ -281,7 +290,7 @@ def test_human_packet_contains_all_questions_and_grade_definitions(manifest):
 
 
 def test_pending_review_cannot_become_gold(question_rows, passage_rows):
-    with pytest.raises(ValueError, match="question review is incomplete"):
+    with pytest.raises(ValueError, match="human passage review is incomplete"):
         assert_phase13b_ready(question_rows, passage_rows)
 
 

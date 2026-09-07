@@ -14,19 +14,22 @@ intended to be read top-to-bottom as the story of how the prototype was built.
 
 ---
 
-## Current V3 status — Phase 13A waiting for human retrieval review
+## Current V3 status — Phase 13A.1 waiting for passage relevance review
 
-Phase 13A freezes `v3-retrieval-benchmark-spec-v1` and prepares 60
-`MACHINE_PROPOSED` questions plus 647 deduplicated passage-review rows. Candidate topics
-are balanced 12 each across five categories; query styles are balanced 20 each across
-lexical, semantic-paraphrase, and operational forms. All three canonical documents
-provide source-derived seeds. Human question status is `PENDING` for all 60 candidates,
-all 647 human passage grades are blank, and the consistency-audit sheet awaits selection
-from the future accepted set.
+Phase 13A froze `v3-retrieval-benchmark-spec-v1` and prepared 60 `MACHINE_PROPOSED`
+questions plus 647 deduplicated passage-review rows. Phase 13A.1 preserves those
+historical artifacts and derives a balanced 45-question, 485-passage review set.
+
+The project owner adopted the supplied AI-assisted question recommendations,
+recorded as `PROJECT_OWNER_ADOPTED_AI_ASSISTED_QUESTION_REVIEW` with review method
+`PROJECT_OWNER_ADOPTED_AI_ASSISTED_RECOMMENDATIONS`. This was not blind, independent, or
+multi-reviewer annotation. Question selection is complete at 45 retained questions, but
+all retained passage grades remain blank and `PENDING`; the current status is
+`WAITING_FOR_PASSAGE_RELEVANCE_REVIEW`.
 
 **No retrieval-quality result has been calculated from machine-proposed relevance
-labels.** The current status is `WAITING FOR HUMAN REVIEW`; Phase 13B cannot run until a
-real reviewer completes the question and passage sheets.
+labels.** Phase 13B cannot run until a real reviewer completes passage-level relevance
+review.
 
 ### Frozen Phase 12 retrieval configuration
 
@@ -162,7 +165,7 @@ Each step gets one section containing:
 | End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
 | Evaluation suite | `src/eval/` | **Built** — 60 held-out scenarios, baselines, ablations |
 | V3 sequential environment | `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` | **Built through V3 Phase 10** — stochastic simulator, hard safety, strong planners, fixed 6×9 Gymnasium API, frozen reward, five trained PPO seeds, and held-out evaluation |
-| Tests | `tests/` | **Built** — 496 tests total, including 43 Phase 13A benchmark-safety tests, 48 Phase 12 retrieval tests, and all earlier V3/V1 regressions |
+| Tests | `tests/` | **Built** — 522 tests total, including 26 Phase 13A.1 question-review tests, 43 Phase 13A benchmark-safety tests, 48 Phase 12 retrieval tests, and all earlier V3/V1 regressions |
 | Measured results | `EVALUATION.md` | **Written** — including the unflattering ones |
 | Frozen v1 results | `EVALUATION_V1.md` | **Archived** — immutable comparison point for the evaluated v1 demo |
 | Reviewer material | `REVIEW_NOTES.md`, `DEMO_SCRIPT.md` | **Written** — defence sheet and five-minute walkthrough |
@@ -179,9 +182,9 @@ Each step gets one section containing:
 | Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; V3 sanity, Gate 6, training/validation, frozen Phase 10 artifacts, Phase 11/12 engineering summaries, and pending Phase 13A review sheets in `data/eval_v3/` |
 | Real source corpus | `data/raw_docs/README.md`, `MANIFEST.json`, `excluded_sources.json`, and three canonical NDMA PDFs |
 | Model artifact | `models/maskable_ppo_shelter.zip` |
-| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py`, `phase5_safety_sanity.py`, `run_gate6.py`, `phase7_env_sanity.py`, `phase8_reward_sanity.py`, `run_phase10.py`, `phase12_retrieval_sanity.py`, `phase13a_prepare_review.py` |
+| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py`, `phase5_safety_sanity.py`, `run_gate6.py`, `phase7_env_sanity.py`, `phase8_reward_sanity.py`, `run_phase10.py`, `phase12_retrieval_sanity.py`, `phase13a_prepare_review.py`, `phase13a1_apply_question_review.py` |
 | Automated verification | `tests/`, `pytest.ini`, `.github/workflows/ci.yml` |
-| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md`, `V3_REWARD_SPEC.md`, `V3_TRAINING_SPEC.md`, `V3_TRAINING_RESULT.md`, `V3_PHASE10_EVAL_SPEC.md`, `V3_POLICY_EVALUATION.md`, `V3_CORPUS_AUDIT.md`, `V3_RETRIEVAL_SPEC.md`, `V3_RETRIEVAL_BENCHMARK_SPEC.md`, `V3_RETRIEVAL_HUMAN_REVIEW.md` |
+| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md`, `V3_REWARD_SPEC.md`, `V3_TRAINING_SPEC.md`, `V3_TRAINING_RESULT.md`, `V3_PHASE10_EVAL_SPEC.md`, `V3_POLICY_EVALUATION.md`, `V3_CORPUS_AUDIT.md`, `V3_RETRIEVAL_SPEC.md`, `V3_RETRIEVAL_BENCHMARK_SPEC.md`, `V3_RETRIEVAL_HUMAN_REVIEW.md`, `V3_RETRIEVAL_FINAL_PASSAGE_REVIEW.md` |
 | Runtime configuration | `requirements.txt`, `.python-version`, `.streamlit/config.toml`, `.gitignore` |
 
 Generated local state is intentionally not part of that inventory: `.venv/`,
@@ -3659,5 +3662,79 @@ generation or entailment evaluation occurs here.
 The change is committed as
 `V3 Phase 13A: freeze human retrieval benchmark and review packet`. Current status is
 `WAITING FOR HUMAN REVIEW`. Phase 13B has not started.
+
+---
+
+## 2026-09-08 — V3 Phase 13A.1: adopted question review and final passage packet
+
+### Actual question-review provenance
+
+The project owner explicitly adopted AI-assisted recommendations for all 60 candidate
+questions. The provenance record uses:
+
+- status: `PROJECT_OWNER_ADOPTED_AI_ASSISTED_QUESTION_REVIEW`;
+- method: `PROJECT_OWNER_ADOPTED_AI_ASSISTED_RECOMMENDATIONS`;
+- reviewer role: `project_owner`;
+- AI assistance: `true`.
+
+This was not blind, independent, or multi-reviewer human annotation. It is accurately
+described as project-owner adoption of AI-assisted question recommendations. This step
+does not adopt any machine-proposed passage grade and does not constitute passage-level
+human relevance review.
+
+### Final question decisions and balance
+
+The adopted decisions retain 45 questions: 41 `ACCEPT` decisions and four `EDIT`
+decisions. Fifteen candidates are `REJECT`. The edited effective questions are:
+
+- `Q003`: Where should flood shelters and disaster relief centres be located so that
+  they remain functional during floods?
+- `Q008`: How should flood warning information be presented to affected communities?
+- `Q016`: What personnel, equipment, and procedures are needed to move patients safely
+  during evacuation?
+- `Q034`: What should authorities do when essential water, sanitation, or other services
+  at a temporary shelter are disrupted?
+
+The retained set satisfies the frozen balance exactly: nine questions in each of the
+five topics and fifteen questions in each of the lexical, semantic-paraphrase, and
+operational/task-oriented styles. The original 60-question candidate manifest remains
+byte-for-byte unchanged.
+
+### Retained passage review
+
+Rejected question IDs are absent from the derived retained files, while the historical
+647-row Phase 13A pool remains preserved. The retained pool contains 485 rows over 45
+questions: mean 10.78 passages per question, minimum 9, and maximum 14. Every retained
+row preserves its original chunk ID, source, filename, physical PDF page, authoritative
+excerpt, Dense/BM25/Hybrid ranks, seed flag, and machine suggestion.
+
+All 485 `human_grade` fields remain blank and all passage statuses remain `PENDING`.
+The main final-review packet hides retriever identity, rank, seed status, and machine
+suggestions to reduce anchoring during judgment. Its technical appendix preserves those
+values. Exact duplicate text may be grouped only for presentation; underlying chunk
+rows remain separate in the CSV.
+
+The frozen seed-`131313` consistency selection now applies to the retained set and
+selects `Q006`, `Q012`, `Q030`, `Q033`, `Q035`, `Q037`, `Q041`, `Q045`, `Q055`, and
+`Q056`. No rejected question is selected, so no methodology amendment is required.
+First- and second-pass consistency grades remain blank.
+
+`tests/test_v3_retrieval_question_review.py` adds 26 Phase 13A.1 checks for the exact
+decisions and edits, retained balance and provenance, immutable candidate history,
+frozen passage metadata, blank human grades, consistency selection, bias-reduced packet,
+unchanged corpus/retrievers, absence of reranking, and absence of official result files.
+Together with the prior 496 tests, the complete suite contains 522 tests.
+
+### Artifacts and stopping point
+
+- retained questions: `data/eval_v3/phase13/retained_question_review.csv`
+- retained passages: `data/eval_v3/phase13/retained_passage_review.csv`
+- review provenance: `data/eval_v3/phase13/question_review_provenance.json`
+- bias-reduced passage packet: `V3_RETRIEVAL_FINAL_PASSAGE_REVIEW.md`
+- reproducible decision application: `scripts/phase13a1_apply_question_review.py`
+
+No actual `DirectHit@1/3/5`, `MRR@5`, `nDCG@5`, pooled `Recall@5`, paired bootstrap, or
+hybrid-support decision has been calculated. Current status is
+`WAITING_FOR_PASSAGE_RELEVANCE_REVIEW`. Phase 13B has not started.
 
 ---
