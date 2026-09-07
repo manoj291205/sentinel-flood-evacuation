@@ -1,0 +1,50 @@
+{
+  "audit_date_utc": "2026-09-07",
+  "urls_examined": 8,
+  "candidate_files_downloaded_in_phase11": 6,
+  "exact_duplicate_urls": 2,
+  "near_duplicate_urls": 1,
+  "canonical_documents_retained": 3,
+  "excluded": [
+    {
+      "title": "National Disaster Management Guidelines: Management of Floods",
+      "url": "https://nidm.gov.in/PDF/guidelines/floods.pdf",
+      "publisher": "National Institute of Disaster Management (NIDM), Government of India",
+      "reason": "exact_duplicate",
+      "duplicate_of": "ndma-flood-guidelines-2008",
+      "notes": "Previously verified byte-identical to the retained NDMA PDF; preserved as a mirror URL, not a source."
+    },
+    {
+      "title": "National Disaster Management Guidelines on Disability Inclusive Disaster Risk Reduction",
+      "url": "https://ndma.gov.in/sites/default/files/PDF/Guidelines/DIDRR.pdf",
+      "publisher": "National Disaster Management Authority (NDMA), Government of India",
+      "reason": "text_extraction_unusable",
+      "duplicate_of": null,
+      "notes": "Official 106-page PDF, but only 8 pages and 6,780 characters were extractable without OCR. OCR is unavailable and out of Phase 11 scope."
+    },
+    {
+      "title": "National Disaster Management Guidelines on Disability Inclusive Disaster Risk Reduction",
+      "url": "https://nidm.gov.in/pdf/guidelines/new/didrr.pdf",
+      "publisher": "National Institute of Disaster Management (NIDM), Government of India",
+      "reason": "exact_duplicate",
+      "duplicate_of": "excluded DIDRR NDMA copy",
+      "notes": "Byte-identical to the rejected NDMA-hosted PDF and therefore has the same unusable text layer."
+    },
+    {
+      "title": "National Disaster Management Guidelines on Disability Inclusive Disaster Risk Reduction",
+      "url": "https://gidm.gujarat.gov.in/sites/default/files/educate_your_self_document/2Guidelines%20on%20Disability%20Inclusive%20Disaster%20Risk%20Reduction.pdf",
+      "publisher": "Gujarat Institute of Disaster Management, Government of Gujarat",
+      "reason": "near_duplicate_text_extraction_unusable",
+      "duplicate_of": "excluded DIDRR NDMA copy",
+      "notes": "Repackaged copy of the same 2019 guideline; pypdf reports malformed page-tree objects, so it is not safe to index."
+    },
+    {
+      "title": "Guidelines on Minimum Standards of Relief",
+      "url": "https://nidm.gov.in/PDF/pubs/NDMA/19.pdf",
+      "publisher": "National Disaster Management Authority (NDMA), Government of India",
+      "reason": "text_extraction_unusable",
+      "duplicate_of": null,
+      "notes": "Relevant and authoritative, but the official six-page scan exposes no extractable text without OCR."
+    }
+  ]
+}

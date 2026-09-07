@@ -1,4 +1,4 @@
-"""Local retrieval over the indexed NDMA/NIDM guideline chunks.
+"""Local dense retrieval over the frozen authoritative guideline chunks.
 
 This is the module Step 3 (the Gemini constraint step) imports to get real guideline
 text to ground its citations in. Runs entirely locally -- no API key, no network.
@@ -21,6 +21,7 @@ class RetrievedChunk:
     source_document: str
     page: int
     score: float  # cosine distance; lower is closer
+    source_id: str = ""  # populated by the V3 corpus; default preserves V1 compatibility
 
     def citation(self) -> str:
         return f"{self.source_document}, page {self.page}"
@@ -30,7 +31,7 @@ class RetrievedChunk:
 def _model():
     from sentence_transformers import SentenceTransformer
 
-    return SentenceTransformer(EMBED_MODEL_NAME)
+    return SentenceTransformer(EMBED_MODEL_NAME, local_files_only=True)
 
 
 @lru_cache(maxsize=1)
@@ -65,6 +66,7 @@ def retrieve(query: str, k: int = 3) -> list[RetrievedChunk]:
                 source_document=meta["source_document"],
                 page=int(meta["page"]),
                 score=float(distance),
+                source_id=str(meta.get("source_id", "")),
             )
         )
     return chunks

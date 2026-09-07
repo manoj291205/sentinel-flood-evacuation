@@ -1,11 +1,7 @@
-"""Chunk and embed the real guideline PDFs into a local Chroma collection.
+"""Page-scoped dense ingestion for the frozen local authoritative corpus.
 
-Everything in this module runs locally on CPU:
-  - text extraction: pypdf
-  - embeddings: sentence-transformers all-MiniLM-L6-v2 (downloads ~90MB once, then offline)
-  - vector store: Chroma PersistentClient on disk
-
-No API key and no network call is involved once the embedding model is cached.
+Text extraction, MiniLM embeddings, and Chroma storage all run locally. The committed
+PDFs and cached embedding model make normal ingestion independent of web access.
 
 Run:  .venv/bin/python -m src.rag.ingest
 """
@@ -14,24 +10,42 @@ from __future__ import annotations
 
 import shutil
 import sys
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
+
+from .corpus import (
+    CORPUS_VERSION,
+    RAW_DOCS_DIR,
+    load_manifest,
+    validate_manifest,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-RAW_DOCS_DIR = PROJECT_ROOT / "data" / "raw_docs"
 CHROMA_DIR = Path(__file__).resolve().parent / "chroma_db"
 
-COLLECTION_NAME = "flood_guidelines"
+COLLECTION_NAME = "v3_authoritative_corpus_v1"
 EMBED_MODEL_NAME = "all-MiniLM-L6-v2"
+EMBEDDING_DIMENSION = 384
 
-# Chunking is page-scoped: a chunk never spans a page boundary, so every chunk keeps an
-# exact page number and Step 3 can cite "document, page N" truthfully.
+# Existing page-scoped chunking remains the dense baseline for later retrieval phases.
 CHUNK_CHARS = 1000
 CHUNK_OVERLAP = 150
-MIN_CHUNK_CHARS = 200  # drops cover pages, page furniture, stray headers
+MIN_CHUNK_CHARS = 200
+
+
+@dataclass(frozen=True)
+class PreparedCorpus:
+    documents: list[str]
+    metadatas: list[dict[str, Any]]
+    ids: list[str]
+    source_chunk_counts: dict[str, int]
+    page_count: int
+    text_page_count: int
 
 
 def extract_pages(pdf_path: Path) -> list[tuple[int, str]]:
-    """Return [(1-based page number, text)] for pages that have a usable text layer."""
+    """Return readable 1-based PDF pages, preserving the citation boundary."""
     from pypdf import PdfReader
 
     reader = PdfReader(str(pdf_path))
@@ -39,21 +53,22 @@ def extract_pages(pdf_path: Path) -> list[tuple[int, str]]:
     for index, page in enumerate(reader.pages, start=1):
         try:
             text = page.extract_text() or ""
-        except Exception as exc:  # noqa: BLE001 - a bad page shouldn't kill the run
+        except Exception as exc:  # noqa: BLE001 - isolate a bad page, do not hide it
             print(f"    page {index}: extraction error ({exc}) -- skipped")
             continue
-        # Normalise whitespace; PDF extraction is noisy about line breaks.
-        text = " ".join(text.split())
+        # Corel-generated NDMA PDFs encode a common "ti" ligature as NUL. Repairing that
+        # extraction artifact makes words such as evacuation searchable without changing
+        # the underlying page or citation. Whitespace normalization is the existing rule.
+        text = " ".join(text.replace("\x00", "ti").split())
         if text:
             pages.append((index, text))
     return pages
 
 
 def chunk_page(text: str) -> list[str]:
-    """Split one page's text into overlapping windows."""
+    """Split one page into the unchanged overlapping character windows."""
     if len(text) <= CHUNK_CHARS:
         return [text]
-
     chunks: list[str] = []
     start = 0
     while start < len(text):
@@ -65,38 +80,28 @@ def chunk_page(text: str) -> list[str]:
     return chunks
 
 
-def build_index() -> int:
-    pdf_paths = sorted(RAW_DOCS_DIR.glob("*.pdf"))
-    if not pdf_paths:
-        print(
-            "No PDFs in data/raw_docs/.\n"
-            "Run:  .venv/bin/python -m src.rag.fetch_docs\n"
-            "This step will not invent a corpus -- it needs real documents."
-        )
-        return 1
-
-    print(f"Found {len(pdf_paths)} document(s) in data/raw_docs/\n")
-
+def prepare_corpus(*, raw_docs_dir: Path = RAW_DOCS_DIR) -> PreparedCorpus:
+    """Verify canonical files, extract pages, and create stable chunk records."""
+    manifest = load_manifest(raw_docs_dir / "MANIFEST.json")
+    canonical = validate_manifest(manifest, raw_docs_dir=raw_docs_dir)
     documents: list[str] = []
-    metadatas: list[dict] = []
+    metadatas: list[dict[str, Any]] = []
     ids: list[str] = []
+    source_chunk_counts: dict[str, int] = {}
+    text_page_count = 0
 
-    for pdf_path in pdf_paths:
+    for source in canonical:
+        pdf_path = raw_docs_dir / source["filename"]
         print(f"[{pdf_path.name}]")
         pages = extract_pages(pdf_path)
-        total_chars = sum(len(t) for _, t in pages)
-        print(f"  pages with a text layer: {len(pages)}")
+        total_chars = sum(len(text) for _, text in pages)
+        text_page_count += len(pages)
+        print(f"  pages with a text layer: {len(pages)}/{source['pages']}")
         print(f"  characters extracted: {total_chars:,}")
-
-        # A scanned PDF has no text layer; pypdf returns almost nothing and OCR is out of
-        # scope for this prototype. Surface that loudly instead of indexing emptiness.
-        if total_chars < 5000:
-            print(
-                f"  WARNING: very little text extracted from {pdf_path.name}. This PDF may be\n"
-                f"           a scanned image rather than digital text. No OCR fallback exists\n"
-                f"           in this prototype."
+        if total_chars < 5_000:
+            raise ValueError(
+                f"unusable extraction for {pdf_path.name}: only {total_chars} characters"
             )
-
         kept = 0
         for page_number, page_text in pages:
             for chunk_index, chunk in enumerate(chunk_page(page_text)):
@@ -105,55 +110,84 @@ def build_index() -> int:
                 documents.append(chunk)
                 metadatas.append(
                     {
-                        # Field name matches the Step 3 constraint schema's source_document.
-                        "source_document": pdf_path.name,
+                        "source_document": source["filename"],
+                        "source_id": source["source_id"],
+                        "source_sha256": source["sha256"],
+                        "corpus_version": CORPUS_VERSION,
                         "page": page_number,
                         "chunk_index": chunk_index,
                     }
                 )
-                ids.append(f"{pdf_path.stem}-p{page_number}-c{chunk_index}")
+                ids.append(f"{source['source_id']}-p{page_number}-c{chunk_index}")
                 kept += 1
+        source_chunk_counts[source["source_id"]] = kept
         print(f"  chunks kept: {kept}\n")
 
     if not documents:
-        print("No chunks survived filtering -- nothing to index.")
-        return 1
-
-    print(f"Total chunks to embed: {len(documents)}")
-    print(f"Loading embedding model '{EMBED_MODEL_NAME}' (local, CPU)...")
-
-    from sentence_transformers import SentenceTransformer
-
-    model = SentenceTransformer(EMBED_MODEL_NAME)
-    embeddings = model.encode(
-        documents, batch_size=64, show_progress_bar=True, convert_to_numpy=True
+        raise ValueError("no chunks survived filtering")
+    return PreparedCorpus(
+        documents,
+        metadatas,
+        ids,
+        source_chunk_counts,
+        sum(int(source["pages"]) for source in canonical),
+        text_page_count,
     )
+
+
+def build_index(
+    *,
+    model: Any | None = None,
+    chroma_dir: Path = CHROMA_DIR,
+    prepared: PreparedCorpus | None = None,
+) -> int:
+    prepared = prepared or prepare_corpus()
+    print(f"Total chunks to embed: {len(prepared.documents)}")
+    if model is None:
+        print(f"Loading embedding model '{EMBED_MODEL_NAME}' (local, CPU)...")
+        from sentence_transformers import SentenceTransformer
+
+        model = SentenceTransformer(EMBED_MODEL_NAME, local_files_only=True)
+    embeddings = model.encode(
+        prepared.documents,
+        batch_size=64,
+        show_progress_bar=True,
+        convert_to_numpy=True,
+    )
+    if embeddings.shape != (len(prepared.documents), EMBEDDING_DIMENSION):
+        raise ValueError(f"unexpected embedding shape: {embeddings.shape}")
     print(f"Embedded {embeddings.shape[0]} chunks, dimension {embeddings.shape[1]}")
 
-    # Rebuild from scratch so re-running is idempotent rather than duplicating chunks.
-    if CHROMA_DIR.exists():
-        shutil.rmtree(CHROMA_DIR)
-    CHROMA_DIR.mkdir(parents=True, exist_ok=True)
+    if chroma_dir.exists():
+        shutil.rmtree(chroma_dir)
+    chroma_dir.mkdir(parents=True, exist_ok=True)
 
     import chromadb
 
-    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
-    # No embedding_function is set: we pass our own vectors, so Chroma never silently
-    # falls back to downloading and using its default embedding model.
+    client = chromadb.PersistentClient(path=str(chroma_dir))
     collection = client.create_collection(
-        name=COLLECTION_NAME, metadata={"hnsw:space": "cosine"}
+        name=COLLECTION_NAME,
+        metadata={
+            "hnsw:space": "cosine",
+            "corpus_version": CORPUS_VERSION,
+            "embedding_model": EMBED_MODEL_NAME,
+            "embedding_dimension": EMBEDDING_DIMENSION,
+        },
     )
     collection.add(
-        ids=ids,
-        documents=documents,
-        metadatas=metadatas,
+        ids=prepared.ids,
+        documents=prepared.documents,
+        metadatas=prepared.metadatas,
         embeddings=embeddings.tolist(),
     )
-
     print(f"\nIndexed {collection.count()} chunks into '{COLLECTION_NAME}'")
-    print(f"Chroma store: {CHROMA_DIR}  (gitignored -- regenerate with this script)")
+    print(f"Chroma store: {chroma_dir}  (gitignored; regenerated entirely offline)")
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(build_index())
+    try:
+        sys.exit(build_index())
+    except (FileNotFoundError, ValueError) as exc:
+        print(exc)
+        sys.exit(1)

@@ -14,9 +14,21 @@ intended to be read top-to-bottom as the story of how the prototype was built.
 
 ---
 
-## Current V3 status — Phase 10 held-out planner-versus-PPO evaluation
+## Current V3 status — Phase 11 authoritative RAG corpus expansion
 
-### Two-stage scientific firewall
+Phase 11 freezes `v3-authoritative-corpus-v1`: three genuinely distinct, real NDMA
+documents (652 PDF pages, 635 text-readable pages) producing 1,797 page-scoped chunks.
+The manifest records publisher, provenance URLs, expected SHA-256 values, topics,
+authority class, relevant-page spot checks, and the deterministic corpus fingerprint
+`a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753`. The PDFs are
+committed locally, and normal ingestion/retrieval uses the unchanged local
+`all-MiniLM-L6-v2` dense model (384 dimensions) with no web dependency. Detailed source
+selection and limitations are in [`V3_CORPUS_AUDIT.md`](V3_CORPUS_AUDIT.md).
+
+Corpus expansion changes the evidence base only. It does not change the frozen Phase 10
+decision-policy result.
+
+### Frozen Phase 10 scientific firewall
 
 [`V3_PHASE10_EVAL_SPEC.md`](V3_PHASE10_EVAL_SPEC.md) was committed as Stage 10A before
 any held-out, permutation, or stress scenario was generated. It freezes
@@ -125,8 +137,8 @@ Each step gets one section containing:
 | Area | Path | Status |
 | --- | --- | --- |
 | Scenario data | `data/scenario.json` | **Built (Step 1)** — fictional grid, 9 cells, 7 shelters |
-| Real source documents | `data/raw_docs/` | **Built (Step 2)** — 1 real NDMA PDF, 168 pages |
-| Local RAG (embed + retrieve) | `src/rag/` | **Built (Step 2)** — 480 chunks in local Chroma |
+| Real source documents | `data/raw_docs/` | **Expanded (V3 Phase 11)** — 3 distinct real NDMA PDFs, 652 pages, provenance registry and exclusion log |
+| Local RAG (embed + retrieve) | `src/rag/` | **Expanded (V3 Phase 11)** — 1,797 page-scoped chunks in versioned local Chroma |
 | Gemini constraint step | `src/constraints/` | **Built (Step 3)** — 7/7 verdicts, all citations verified |
 | Gymnasium env + training | `src/env/` | **Built (Step 4)** — MaskablePPO. Current measured figure is **73% optimal on the held-out suite** (`EVALUATION.md` §2); the 91.5% below is the superseded pre-retrain training-distribution number. |
 | Streamlit dashboard | `src/dashboard/` | **Built (Step 5)** — verified rendering in a real browser |
@@ -134,7 +146,7 @@ Each step gets one section containing:
 | End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
 | Evaluation suite | `src/eval/` | **Built** — 60 held-out scenarios, baselines, ablations |
 | V3 sequential environment | `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` | **Built through V3 Phase 10** — stochastic simulator, hard safety, strong planners, fixed 6×9 Gymnasium API, frozen reward, five trained PPO seeds, and held-out evaluation |
-| Tests | `tests/` | **Built** — 383 tests total, including 30 Phase 10 evaluation tests and all earlier V3/V1 regression tests |
+| Tests | `tests/` | **Built** — 405 tests total, including 22 Phase 11 corpus tests, 30 Phase 10 evaluation tests, and all earlier V3/V1 regression tests |
 | Measured results | `EVALUATION.md` | **Written** — including the unflattering ones |
 | Frozen v1 results | `EVALUATION_V1.md` | **Archived** — immutable comparison point for the evaluated v1 demo |
 | Reviewer material | `REVIEW_NOTES.md`, `DEMO_SCRIPT.md` | **Written** — defence sheet and five-minute walkthrough |
@@ -148,12 +160,12 @@ Each step gets one section containing:
 | Entrypoints | `run_demo.py`; `src/dashboard/app.py` |
 | Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/`, `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` |
 | Scenario and constraints | `data/scenario.json`, `data/constraints_output.json`, `data/scenarios_v3/example_v3_scenario.json` |
-| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; V3 sanity, Gate 6, training/validation, and frozen Phase 10 held-out/stress/permutation artifacts in `data/eval_v3/` |
-| Real source corpus | `data/raw_docs/README.md`, `MANIFEST.json`, and `ndma_flood_guidelines.pdf` |
+| Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; V3 sanity, Gate 6, training/validation, frozen Phase 10 held-out/stress/permutation artifacts, and the Phase 11 corpus summary in `data/eval_v3/` |
+| Real source corpus | `data/raw_docs/README.md`, `MANIFEST.json`, `excluded_sources.json`, and three canonical NDMA PDFs |
 | Model artifact | `models/maskable_ppo_shelter.zip` |
 | Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py`, `phase5_safety_sanity.py`, `run_gate6.py`, `phase7_env_sanity.py`, `phase8_reward_sanity.py`, `run_phase10.py` |
 | Automated verification | `tests/`, `pytest.ini`, `.github/workflows/ci.yml` |
-| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md`, `V3_REWARD_SPEC.md`, `V3_TRAINING_SPEC.md`, `V3_TRAINING_RESULT.md`, `V3_PHASE10_EVAL_SPEC.md`, `V3_POLICY_EVALUATION.md` |
+| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md`, `V3_REWARD_SPEC.md`, `V3_TRAINING_SPEC.md`, `V3_TRAINING_RESULT.md`, `V3_PHASE10_EVAL_SPEC.md`, `V3_POLICY_EVALUATION.md`, `V3_CORPUS_AUDIT.md` |
 | Runtime configuration | `requirements.txt`, `.python-version`, `.streamlit/config.toml`, `.gitignore` |
 
 Generated local state is intentionally not part of that inventory: `.venv/`,
@@ -3194,5 +3206,146 @@ The full scientific record, uncertainty and seed breakdowns, bootstrap intervals
 latency measurements, stress results, limitations, and trace are documented in
 [`V3_POLICY_EVALUATION.md`](V3_POLICY_EVALUATION.md). This result applies only to the
 synthetic V3 environment and synthetic reward; Phase 11 was not started.
+
+---
+
+## 2026-09-07 — V3 Phase 11: authoritative disaster-guidance corpus expansion
+
+### Goal and baseline
+
+Phase 11 expands the evidence base used by RAG while leaving retrieval architecture and
+the frozen decision-policy experiment alone. The baseline was one genuinely distinct
+NDMA flood guideline: 168 pages and 480 page-scoped chunks. The target was three to eight
+high-quality canonical documents covering complementary flood-response policy topics,
+with no mirrors, rescans, or cosmetic variants counted as independent evidence.
+
+Corpus expansion changes the evidence base only. It does not change the frozen Phase 10
+decision-policy result.
+
+### Candidate-source methodology and authority criteria
+
+Candidate research prioritized Government of India, NDMA, and NIDM publication channels.
+A document was eligible only when its institutional publisher and stable title were
+identifiable, its provenance URL and local file could be recorded, its text was
+meaningfully extractable, its content supported a project policy topic on inspected
+pages, and its SHA-256 did not duplicate a retained source. Publication date, stable PDF
+pagination, and direct official hosting were preferred. Title overlap triggered a
+version/near-duplicate review rather than automatic inclusion.
+
+Eight URLs were examined and six candidate files were downloaded during this phase.
+Three canonical sources were retained. The five exclusion-log entries include two exact
+duplicate URLs, one near-duplicate URL, and documents whose text layer was unusable
+without OCR. The existing NIDM flood URL remains a provenance mirror of the byte-identical
+NDMA document and never becomes a second source.
+
+### Documents retained and spot checks
+
+All three retained items are **REAL AUTHORITATIVE DOCUMENTS** published by India's
+National Disaster Management Authority:
+
+| Source ID | Document | Date | PDF pages | Readable pages | Chunks | Inspected pages/sections |
+| --- | --- | --- | ---: | ---: | ---: | --- |
+| `ndma-flood-guidelines-2008` | *National Disaster Management Guidelines: Management of Floods* | 17 Jan 2008 | 168 | 162 | 480 | pp. 56 preparedness/flood-safe shelters; 63 evacuation and relief responsibilities; 66 patient evacuation |
+| `ndma-national-disaster-management-plan-2019` | *National Disaster Management Plan 2019* | Nov 2019 | 384 | 379 | 1,099 | pp. 111 inclusive response; 115 disability support; 256 shelter access; 306 evacuation routes; 313 relief logistics |
+| `ndma-temporary-shelters-2019` | *National Guidelines for Temporary Shelters* | Sep 2019 | 100 | 94 | 218 | pp. 37 inclusive site/design guidance; 40 water and sanitation; 49 disability facilities; 54 shelter logistics |
+
+The dedicated *Disability Inclusive Disaster Risk Reduction* guideline was authoritative
+and relevant but rejected: its 106-page official PDF exposed only eight pages and 6,780
+characters without OCR. The NIDM copy was byte-identical, while a Gujarat-hosted
+repackaging was a malformed near duplicate. The official *Guidelines on Minimum
+Standards of Relief* scan exposed no extractable text. Exact titles, URLs, publishers,
+relationships, and reasons are preserved in `data/raw_docs/excluded_sources.json`.
+
+### Manifest, duplicate handling, and fingerprint
+
+`data/raw_docs/MANIFEST.json` is now the schema-2 canonical registry. Each entry records
+source ID, title, publisher, date, document type, canonical and alternate URLs, local
+filename, SHA-256, bytes, PDF page count, retrieval time, topics, authority class,
+duplicate relationship, notes, and at least three relevance spot checks. Validation
+rejects missing files, size/hash drift, duplicate canonical IDs, filenames or hashes,
+invalid topics/authority classes, and fingerprint drift. `src/rag/fetch_docs.py` fetches
+only registered URLs and fails loudly if downloaded content differs from the expected
+hash; an intentional update therefore requires reviewing the new file and updating the
+manifest/version explicitly.
+
+The version is `v3-authoritative-corpus-v1`. Its fingerprint is
+`a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753`, defined as SHA-256
+over UTF-8 records `<source_id>\t<source_sha256>\n`, sorted lexicographically by source
+ID. This makes it deterministic and independent of manifest ordering.
+
+### Topic coverage
+
+| Topic | Supporting source IDs | Coverage note |
+| --- | --- | --- |
+| Flood management | flood guideline; national plan | Strong domestic national coverage |
+| Evacuation | all three | Planning, response duties, routes, and shelter movement |
+| Relief shelter | all three | Strongest in the dedicated temporary-shelter guideline |
+| Vulnerability/accessibility | national plan; temporary-shelter guideline | Moderate; dedicated disability PDF could not be safely extracted |
+| Logistics/transport | all three | Response movement, access routes, stocks, and regional logistics |
+
+### Ingestion, chunk counts, and offline capability
+
+Manifest-driven ingestion verifies all local PDFs before extracting page-scoped text.
+The existing 1,000-character windows, 150-character overlap, and 200-character minimum
+were retained. The embedding baseline is unchanged: local `all-MiniLM-L6-v2`, 384
+dimensions. The versioned Chroma collection `v3_authoritative_corpus_v1` was rebuilt
+successfully with 1,797 chunks across 652 PDF pages (635 pages with usable text).
+
+Every chunk carries source filename, source ID, source SHA-256, corpus version, 1-based
+PDF page, and within-page chunk index. The three PDFs are committed, and embedding model
+loading explicitly uses local files only. Normal ingestion, retrieval, dashboard use,
+and tests therefore have no PDF-download dependency; the local model cache remains a
+documented runtime prerequisite when rebuilding embeddings.
+
+### Retrieval smoke test and citation compatibility
+
+Top-five dense smoke queries were `evacuation`, `relief shelter`, `flood-safe location`,
+`vulnerable groups`, and `transport access`. Retrieval executed against the rebuilt
+collection; together the returned results represented all three canonical source IDs,
+and every result retained source ID, filename, page, text, and score. This is an
+interface/metadata smoke test only, not evidence of retrieval accuracy. Hybrid search,
+BM25, reranking, and retrieval evaluation remain Phase 12/13 work.
+
+`RetrievedChunk` gained an additive `source_id` field with a backward-compatible default.
+The existing verbatim citation-grounding check continues to consume source filename,
+page, text, and score; no Gemini regeneration or production constraint-cache change was
+made.
+
+### Tests and verification
+
+`tests/test_v3_corpus.py` adds 22 offline tests covering manifest loading, unique IDs and
+filenames, valid and matching hashes, canonical counting, exact-duplicate rejection,
+fingerprint determinism/order independence, publisher/provenance/topic integrity, PDF
+page and extraction checks, spot-check records, vector ingestion, chunk provenance,
+three-source coverage, multi-source retrieval output, exclusion/summary reconciliation,
+and citation compatibility. The Phase 11 module passes 22/22; the full suite passes
+405/405, including all 383 earlier V1/V3 regressions. The production corpus was also
+rebuilt using the real cached MiniLM model and returned 1,797 384-dimensional vectors.
+
+### Real versus simulated
+
+The retained PDFs, publishers, publication metadata, bytes, hashes, and inspected text
+are real authoritative evidence. Chunk counts, embeddings, vector distances, and smoke
+results are locally measured/computed. Scenario data and shelter entities remain
+simulated; generated constraints remain model-generated. An authoritative source does
+not by itself make a generated claim entailed or operationally correct.
+
+### Known limitations
+
+- The corpus is deliberately small and all retained documents share one publisher.
+- Vulnerability/accessibility coverage is weaker than intended because the dedicated
+  disability guideline needs OCR, which was unavailable and outside this phase.
+- Several policy documents are older and may not capture later operational practice.
+- PDF extraction quality varies; some retained PDF pages lacked useful text, and a known
+  NUL-encoded `ti` ligature is repaired during extraction.
+- Source presence does not prove retrieval relevance, and institutional authority does
+  not prove a generated claim is entailed. Phase 13 and Phase 14 address those questions.
+
+### Artifacts and commit
+
+The detailed audit is [`V3_CORPUS_AUDIT.md`](V3_CORPUS_AUDIT.md); the machine-readable
+sanity record is `data/eval_v3/phase11_corpus_summary.json`; the rejection history is
+`data/raw_docs/excluded_sources.json`. The change is committed as
+`V3 Phase 11: expand authoritative disaster-guidance corpus`. Phase 12 is not started.
 
 ---

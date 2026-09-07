@@ -16,12 +16,14 @@ from .retrieve import retrieve
 # The query the kickoff prompt asks for, plus two probes shaped like the questions the
 # Step 3 constraint step will actually need to answer about each candidate shelter.
 QUERIES = [
-    "flood evacuation shelter capacity",
-    "relief camp minimum capacity standards",
-    "shelter site selection flood-free elevated land",
+    "evacuation",
+    "relief shelter",
+    "flood-safe location",
+    "vulnerable groups",
+    "transport access",
 ]
 
-TOP_K = 3
+TOP_K = 5
 
 
 def main() -> int:
@@ -41,7 +43,10 @@ def main() -> int:
             return 1
 
         for rank, chunk in enumerate(chunks, start=1):
-            print(f"\n--- #{rank}  [{chunk.citation()}]  cosine distance {chunk.score:.4f}")
+            print(
+                f"\n--- #{rank}  [{chunk.source_id}; {chunk.citation()}]  "
+                f"cosine distance {chunk.score:.4f}"
+            )
             print(chunk.text)
         print()
 
