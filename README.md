@@ -1,291 +1,566 @@
-# Sentinel-Agent Sprint
+## Sentinel-Agent V3
 
-A disaster-response decision-support **prototype**: given a flooded zone and a set of
-candidate shelters, it retrieves real government flood-management guidelines, uses one
-structured LLM call to mark each shelter allowed or excluded with a cited clause, and
-feeds that as an action mask to a small reinforcement-learning policy that picks where to
-send evacuees — all shown in an explainable dashboard.
+**Sentinel-Agent** is an evidence-grounded decision-support prototype for dynamic flood evacuation under uncertainty.
 
-> **This is a fast, zero-budget prototype built for a capstone demo. It is not
-> production software and not a rigorous research system.** It runs entirely on free
-> tiers and local models. Read *[What is real and what is not](#what-is-real-and-what-is-not)*
-> before drawing any conclusion from it, and
-> **[EVALUATION.md](EVALUATION.md)** for measured results — including the ones that
-> undercut the system.
+The project investigates how a disaster-response system can combine:
 
----
+- authoritative disaster-management guidance,
+- retrieval-augmented generation,
+- deterministic safety constraints,
+- stochastic multi-step evacuation simulation,
+- strong planning algorithms,
+- reinforcement learning,
+- reproducible evaluation,
+- and an auditable human-facing decision interface.
 
-## What it demonstrates
+The project deliberately follows a **measurement-first approach**. Algorithms are not retained simply because they are more complex. Every major component is compared against strong baselines, and negative experimental results are preserved.
 
-The scenario is deliberately built so the **safest-looking answer is wrong**. Shelter S1
-is the nearest at 8 minutes and has 900 spare places for 700 evacuees — on capacity and
-travel cost alone it is the single most attractive option, scoring a perfect 1.0. It also
-sits in a cell with flood severity 0.85.
-
-```
-with the RAG-grounded constraints : S5  (severity 0.05, score 0.6500)
-with NO constraints at all        : S1  (severity 0.85, score 1.0000)
-```
-
-**Without the constraint layer, this system recommends a shelter inside the flood zone.**
-The dashboard has a toggle that demonstrates this live, and the comparison is computed by
-actually re-running the policy on an unmasked action space — not hardcoded.
-
-This is not a one-off. Across a 60-scenario held-out suite, the unconstrained policy picks
-an unsafe shelter **40% of the time**; with the constraint layer that falls to **7%**, and
-every remaining case is a scenario where *no* safe shelter existed at all
-([EVALUATION.md](EVALUATION.md) §1).
-
-Note the constrained pick above is **S5, not the optimal S4** (0.724) — the policy is
-suboptimal here by 0.074, and the dashboard says so rather than calling it "best
-available". That honesty costs nothing: the safety claim does not depend on the policy
-being optimal, only on the unsafe option being unselectable.
+> **Important:** The current flood scenarios, evacuation populations, shelter capacities, stochastic flood evolution, road disruptions, and reward weights are simulation/modeling assumptions unless explicitly identified as real data. The system is a research prototype and does not claim real-world emergency-response effectiveness.
 
 ---
 
-## What is real and what is not
+### Research Goal
 
-| | Status |
-| --- | --- |
-| **The guideline document** | **Real.** *National Disaster Management Guidelines: Management of Floods*, National Disaster Management Authority (NDMA), Government of India, signed 17 January 2008. 168 pages, 6,120,219 bytes, SHA-256 `2fc4518a…`. Committed to this repo; provenance in `data/raw_docs/MANIFEST.json`. |
-| **Every quoted clause** | **Real.** Extracted verbatim from that PDF and machine-checked to appear in the retrieved text. |
-| **The 2018 Kerala flood background** | **Real.** The floods peaked mid-August 2018; severely affected districts included Idukki, Ernakulam, Alappuzha, Thrissur and Wayanad; flooding was worsened by controlled dam releases including from the Idukki reservoir. Used **only as background inspiration** — no number in this project derives from it. |
-| **The grid, cells and coordinates** | **Fictional.** A 3×3 grid of 9 cells addressed by `(row, col)` indices. No latitude, longitude, ward name or agency name appears anywhere. |
-| **All seven shelters** | **Fictional.** Their existence, capacities, occupancies, operational statuses, and travel costs are invented. |
-| **All flood-severity values** | **Fictional.** |
-| **The evacuee population (700)** | **Fictional.** |
-| **The allowed/excluded verdicts and reasons** | **Model-generated.** These are `gemini-3.6-flash`'s judgements about fictional shelters. They are **not** determinations by NDMA or any agency, and must never be presented as such. |
+The central decision-making question is:
 
-Every fictional element is also labelled inside `data/scenario.json` itself, under
-`provenance.fictional_elements`, and restated in a banner at the top of the dashboard.
+> **When, if ever, does reinforcement learning provide a meaningful advantage over strong deterministic planning for stochastic multi-step flood evacuation?**
 
-**Explicitly out of scope** — cut, not deferred: IoT/sensor feeds, satellite imagery, and
-traffic APIs. `travel_cost_minutes` is a static number written into the scenario file; it
-is **not** derived from any road network, routing engine, or traffic source. There are no
-live government API calls anywhere.
+The project also studies:
+
+1. whether safety constraints reduce unsafe evacuation decisions;
+2. whether evidence-grounded retrieval improves the traceability of policy constraints;
+3. how decision strategies behave under flood, travel-time, route-closure, and shelter uncertainty;
+4. whether learned policies remain robust when the identities and positions of zones and shelters are permuted.
 
 ---
 
-## Free-tier services used
+## Current V3 Architecture
 
-| Component | What it uses | Cost |
-| --- | --- | --- |
-| Embeddings | `sentence-transformers` `all-MiniLM-L6-v2` | Free, **runs locally on CPU** |
-| Vector store | Chroma, on disk | Free, local, no server |
-| Constraint generation | Google Gemini API, `gemini-3.6-flash` | **Free tier**, no credit card. One call per scenario, cached |
-| RL | `gymnasium`, `stable-baselines3`, `sb3-contrib` (`MaskablePPO`) | Free, local, CPU |
-| Dashboard | Streamlit | Free, local |
-
-**No paid API is used anywhere.** The only network call is the single Gemini request, and
-its result is cached to `data/constraints_output.json`, so **the demo runs with no
-network at all**.
-
-> **Free-tier quota, measured 2026-09-02:** `gemini-3.6-flash` allows **20 requests per
-> day** (`GenerateRequestsPerDayPerProjectPerModel-FreeTier`) — per *day*, not per minute.
-> Ample for the demo, which makes one cached call, but it is the reason the evaluation in
-> §3–§4 of [EVALUATION.md](EVALUATION.md) covers 9 scenarios rather than 20, scored
-> across two days.
-
-> **Note on the model id.** This project was specified against `gemini-2.5-flash` /
-> `gemini-2.5-flash-lite`. As of 2 September 2026 both return
-> `404 — "no longer available to new users. Please update your code to use
-> models/gemini-3.6-flash"`. It uses `gemini-3.6-flash` instead. Be aware that
-> `client.models.list()` still *advertises* the 2.5 models — the failure only appears on
-> an actual generate call, so listing the catalogue is not a valid availability check.
-
----
-
-## Setup
-
-Requires **Python 3.11+**.
-
-```bash
-python3.11 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-export GEMINI_API_KEY="..."   # free from Google AI Studio; only needed to regenerate constraints
-```
-
-## Run it
-
-**Everything, end to end, one command:**
-
-```bash
-.venv/bin/python run_demo.py
-```
-
-It rebuilds anything missing (fetches the PDF, embeds the corpus, trains the policy) and
-skips whatever already exists, so a rerun takes seconds. Flags: `--rebuild-index`,
-`--refresh-constraints`, `--retrain`.
-
-**The dashboard** (this is the part to show):
-
-```bash
-.venv/bin/streamlit run src/dashboard/app.py
-```
-
-**The evaluation:**
-
-```bash
-.venv/bin/python -m src.eval.generate_scenarios      # held-out suite (seeded)
-.venv/bin/python -m src.eval.run_study               # ablation + baselines
-.venv/bin/python -m src.eval.constraint_agreement    # LLM agreement + RAG ablation
-.venv/bin/python -m pytest tests/                    # 43 offline tests
-```
-
-**Individual steps**, if you want to see one in isolation:
-
-```bash
-.venv/bin/python -m src.rag.fetch_docs           # download the real PDF
-.venv/bin/python -m src.rag.ingest               # chunk + embed locally -> Chroma
-.venv/bin/python -m src.rag.test_retrieval       # prove retrieval returns real text
-.venv/bin/python -m src.constraints.test_constraints --refresh   # the Gemini call
-.venv/bin/python -m src.env.train                # train MaskablePPO
-.venv/bin/python -m src.env.evaluate             # example decisions
+```text
+Authoritative Disaster Guidance
+            |
+            v
+      Local RAG Pipeline
+            |
+            v
+ Evidence / Constraint Layer
+            |
+            v
++-------------------------------+
+| Deterministic Safety Engine   |
+|                               |
+| capacity | status | routes    |
+| hazard   | action masks       |
++---------------+---------------+
+                |
+                v
++-------------------------------------------+
+| Dynamic Stochastic Evacuation Simulator   |
+|                                           |
+| zones | shelters | routes | flood state   |
+| travel lag | closures | in-transit groups |
++--------------------+----------------------+
+                     |
+           +---------+----------+
+           |                    |
+           v                    v
+   Planning Algorithms      MaskablePPO
+           |                    |
+           +---------+----------+
+                     |
+                     v
+             Held-Out Evaluation
+                     |
+                     v
+          Decision-Support Interface
 ```
 
 ---
 
-## How it works
+## Development Status
 
-```
-data/scenario.json          fictional flood scenario (severity + shelter status only)
-        |
-        v
-src/rag/                    real NDMA PDF -> 480 page-scoped chunks -> local embeddings -> Chroma
-        |
-        v
-src/constraints/            ONE structured Gemini call -> allowed/excluded + cited clause
-        |                   validated against the schema, retried once, citations verified
-        v
-src/env/                    Gymnasium single-decision env; constraints become an action
-        |                   mask so excluded shelters are STRUCTURALLY unselectable
-        v
-src/dashboard/              Streamlit: recommendation, hazard grid, per-exclusion evidence
+The current V3 development branch is:
+
+```text
+v3-dynamic-stochastic
 ```
 
-Chunks are **page-scoped** — no chunk spans a page boundary — so every citation's page
-number is truthful.
+### Completed Phases
 
-### How citations are kept honest
-
-Three independent defences, because "the model said so" is not evidence:
-
-1. **Schema validation.** Exactly one verdict per shelter, no missing and no invented
-   shelter ids, valid status, non-empty reason and excerpt. Failure triggers one retry
-   with the errors fed back.
-2. **`source_document` must be a real file** listed in `data/raw_docs/MANIFEST.json`. A
-   citation naming a document not in the corpus is the most plausible-looking way a
-   fabricated source would slip past a reader.
-3. **Verbatim grounding.** Every `source_excerpt` must appear, whitespace-normalised and
-   case-insensitive, inside a chunk actually retrieved. Failure retries once; if it still
-   fails, the result is **kept but flagged `citation_verified: false`** and rendered
-   **UNVERIFIED** on the dashboard rather than silently trusted.
-
-On the current run: **7 of 7 citations verified verbatim.**
-
-The retry is not decorative — on the first real run the model returned
-`"ndma_flood_guidelines.pdf (page 89)"` as a filename and was corrected on the retry.
+| Phase | Component                                              | Status      |
+| ----- | ------------------------------------------------------ | ----------- |
+| 0     | V1 baseline freeze and repository audit                | ✅ Complete |
+| 1     | Pre-registered evaluation framework                    | ✅ Complete |
+| 2     | Versioned V3 scenario/data contract                    | ✅ Complete |
+| 3     | Deterministic multi-timestep evacuation simulator      | ✅ Complete |
+| 4     | Stochastic flood, travel, closure and shelter dynamics | ✅ Complete |
+| 5     | Deterministic hard-safety engine and action masks      | ✅ Complete |
+| 6     | Strong planning baselines and pre-PPO headroom gate    | ✅ Complete |
+| 7     | Fixed-dimension Gymnasium environment                  | ✅ Complete |
+| 8     | Pre-registered RL reward and integration               | ✅ Complete |
+| 9     | Five-seed MaskablePPO training                         | ✅ Complete |
+| 10    | Frozen held-out planner-vs-PPO evaluation              | ✅ Complete |
+| 11    | Authoritative RAG corpus expansion                     | 🔄 Next     |
+| 12    | Dense + BM25 + hybrid retrieval                        | ⏳ Planned  |
+| 13    | Human-reviewed retrieval benchmark                     | ⏳ Planned  |
+| 14    | Citation relevance / entailment verification           | ⏳ Planned  |
+| 15    | Evidence-grounded policy constraint integration        | ⏳ Planned  |
+| 16–17 | Geospatial road network and hazard-aware routing       | ⏳ Planned  |
+| 18    | Human-in-the-loop override and audit trail             | ⏳ Planned  |
+| 19–20 | Final dashboard and accessibility verification         | ⏳ Planned  |
 
 ---
 
-## Known limitations
+## Dynamic Simulation
 
-Stated plainly, because these are the questions a reviewer should ask.
+V3 replaces the original one-step shelter-selection formulation with a multi-step stochastic evacuation environment.
 
-- **The corpus is one document, not two.** The NDMA URL and the NIDM URL
-  (`nidm.gov.in/PDF/guidelines/floods.pdf`) return **byte-identical files** — same
-  SHA-256. NIDM mirrors the NDMA document. The fetcher deduplicates by content hash and
-  records the second URL as a mirror. One document clears the bar this prototype set,
-  but it is not a corpus.
-  - Related: the NIDM URL is **case-sensitive** — `/pdf/` returns 404, `/PDF/` works. That
-    host also answers `HEAD` with 404 while answering `GET` with 200.
-- **The training-time action mask is not the LLM.** Training runs 40,000 episodes;
-  calling Gemini once per episode would be neither free nor fast. Training uses a
-  deterministic proxy rule (severe flooding / no headroom / not operational) that
-  imitates the *kind* of exclusions the LLM makes. **The real Gemini mask is used only at
-  demo and inference time.** Do not describe the policy as "trained against
-  LLM-generated constraints".
-- **RL is not justified on this task, and that is now measured.** The reward is fully
-  computable from the observation, so a one-line greedy argmax over the allowed set *is*
-  the oracle. On a held-out suite it scores **93%** against the trained policy's **73%** —
-  and a 5× longer training run gave no improvement (72%). The contextual-bandit framing
-  is scaffolding for the multi-step problem where greedy stops being optimal; it does not
-  win here. See [EVALUATION.md](EVALUATION.md) §2.
-- **Retrieval does not change the verdicts — it makes them evidenceable.** Measured by
-  ablation: removing the retrieved excerpts flipped **7 of 63** verdicts (11.1%) — but
-  **none of them on an unsafe shelter**, so no safety outcome changed. Citations
-  verifiable verbatim fell from **63/63 to 0/63**. The RAG layer is doing *evidentiary*
-  work first and marginal-judgement work second; it is not what decides whether an unsafe
-  shelter gets excluded. Do not describe it as driving the reasoning. (An earlier
-  21-verdict sample showed 0 flips and this section said retrieval changed nothing at all
-  — see [EVALUATION.md](EVALUATION.md) §4 for how that was overturned.)
-- **Retrieval surfaces front matter.** A table-of-contents line and the abbreviations
-  list occasionally appear among lower-ranked results. Top hits are substantive.
-- **The evaluation suite is synthetic and small in places.** There is now a 60-scenario
-  held-out suite with baselines and an ablation ([EVALUATION.md](EVALUATION.md)), but the
-  LLM-agreement and retrieval-ablation results rest on **63 verdicts from 9 scenarios** —
-  the free tier allows only 20 requests *per day*. Directionally interesting, not
-  statistically strong: growing that sample from 21 verdicts already overturned one
-  conclusion.
-- **Nothing is validated against real evacuation outcomes.** Still the largest gap.
-- **The reward weights (0.65 capacity / 0.35 travel) are a modelling choice**, not a
-  figure from any source or standard.
-- **No OCR.** If a source PDF were a scan rather than digital text, ingestion would warn
-  and index nothing rather than silently proceeding.
+The simulator currently supports:
+
+- multiple evacuation zones;
+- multiple shelters;
+- finite shelter capacity;
+- reserved capacity for in-transit evacuees;
+- deterministic and stochastic travel delays;
+- evolving flood severity;
+- correlated regional and local hazard uncertainty;
+- route closures;
+- shelter degradation;
+- in-transit evacuation groups;
+- finite decision horizons;
+- reproducible seeded stochastic episodes.
+
+Population conservation is enforced throughout an episode:
+
+```text
+initial population
+=
+population remaining
++ population in transit
++ population safely arrived
+```
+
+Shelter reservations prevent multiple in-transit groups from overbooking the same capacity.
 
 ---
 
-## What would need to change for a rigorous version
+## Safety Architecture
 
-Written from the gaps this build actually exposed, not from a wishlist.
+Operational mechanics and safety policy are deliberately separated.
 
-1. **A real corpus, versioned.** One 2008 national guideline is not an evidence base.
-   The rigorous version needs state-level SOPs, district disaster management plans, and
-   current amendments, with document versioning — guidance changes, and a citation to a
-   superseded clause is worse than no citation.
-2. **Constraint generation inside the training loop.** Today the policy trains against a
-   proxy rule and only meets real constraints at inference. A rigorous system would
-   either generate constraints at scale offline and train on that distribution, or
-   distil the constraint step into a fast local model that can run per episode.
-3. **Real geography.** The fictional 3×3 grid would become actual ward or block
-   geometry, with routing over a real road network and travel times that respond to
-   flooding — which means the road-network and hazard-extent inputs this prototype
-   deliberately cut.
-4. **A real decision problem.** This is a single decision picking one shelter for one
-   population. The real problem is **multi-step and multi-shelter**: splitting a
-   population across shelters, sequencing departures, respecting vehicle and staffing
-   limits, and re-planning as conditions change.
-5. **Live hazard input.** Static severity values would become real forecast and gauge
-   data (IMD, CWC), with the uncertainty carried through to the decision rather than
-   collapsed to a point estimate.
-6. **Validation against outcomes.** The single largest gap: **nothing here is validated
-   against real evacuation outcomes.** A rigorous version needs historical replay,
-   comparison against expert decisions and simple baselines, and measured performance
-   under distribution shift — plus adversarial testing of the constraint step, since
-   correctly excluding an unsafe shelter is a safety property, not a preference.
-7. **Human-in-the-loop by design.** This is decision *support*. A deployable version
-   needs an operator override path, an audit trail of what was recommended and why, and
-   explicit accountability for who accepts a recommendation.
+### Mechanical constraints
+
+Examples include:
+
+```text
+closed route
+unreachable destination
+zero shelter capacity
+closed shelter
+empty evacuation zone
+```
+
+These constraints can never be disabled.
+
+### Hard-safety layer
+
+V3 currently includes a versioned synthetic destination-hazard rule:
+
+```text
+v3-safety-v1
+maximum destination hazard = 0.70
+```
+
+A destination must have severity strictly below `0.70` to pass this rule.
+
+The value is a **project modeling assumption reused for continuity with V1**. It is not claimed to be an official NDMA flood-safety threshold.
+
+The safety layer can be disabled experimentally while mechanical constraints remain active, allowing a clean safety-ablation study.
 
 ---
 
-## Repository layout
+## Planning Algorithms
 
-```
-data/scenario.json              the fictional scenario (severity + shelter status only)
-data/raw_docs/                  the real NDMA PDF + MANIFEST.json provenance record
-data/constraints_output.json    cached Gemini output — lets the demo run offline
-src/rag/                        fetch, chunk, embed locally, retrieve
-src/constraints/                the single structured Gemini call + validation
-src/env/                        Gymnasium env, MaskablePPO training, evaluation
-src/dashboard/app.py            the Streamlit app
-models/                         trained policy checkpoint
-run_demo.py                     the whole pipeline, one command
-src/eval/                       held-out suite, baselines, ablation studies
-tests/                          43 offline invariant tests (pytest, run in CI)
-EVALUATION.md                   measured results, including the unflattering ones
-DOCUMENTATION.md                per-step build log: every addition, and why
+The following non-learned decision policies were implemented before reinforcement learning:
+
+- Random Valid
+- Nearest Safe
+- Risk Greedy
+- 2-Step Lookahead
+- 3-Step Lookahead
+- Sampled Model Predictive Control
+- Clairvoyant exhaustive oracle for small tractable scenarios
+
+Practical planners receive current observable information and forecasts but cannot inspect exact future stochastic outcomes.
+
+The clairvoyant oracle is used only as an experimental upper bound on small instances.
+
+---
+
+## Why Reinforcement Learning Was Tested
+
+A pre-PPO planning gate was established before training.
+
+The gate required a fast practical planner to capture:
+
+```text
+median exact headroom >= 0.99
+and
+p10 exact headroom >= 0.97
 ```
 
-`DOCUMENTATION.md` records each step in detail, including the problems found along the
-way and how they were fixed.
+while satisfying the frozen latency requirement.
+
+The strongest median planner, 3-step lookahead, achieved:
+
+```text
+Median NSU-exact: 0.9954
+p10 NSU-exact:    0.4306
+```
+
+The median was near the clairvoyant upper bound, but lower-tail performance remained far below the pre-registered threshold.
+
+Therefore the gate result was:
+
+```text
+PROCEED_TO_RL
+```
+
+This result justified **testing** reinforcement learning. It did not imply that reinforcement learning would be superior.
+
+---
+
+## Reinforcement Learning
+
+The V3 learned policy uses:
+
+```text
+Algorithm:      MaskablePPO
+Policy:         MLP [256, 256], ReLU
+Observation:    384-dimensional normalized vector
+Action space:   Discrete(55)
+Maximum zones:  6
+Maximum shelters: 9
+Training seeds: 5
+Timesteps/seed: 250,000
+Total primary training timesteps: 1,250,000
+```
+
+Five independent primary training seeds were frozen before training:
+
+```text
+1101
+2202
+3303
+4404
+5505
+```
+
+All five models were retained regardless of performance.
+
+No held-out test data were used for checkpoint selection.
+
+---
+
+## RL Reward
+
+The primary reward was frozen before PPO training:
+
+```text
+v3-reward-balanced-v1
+```
+
+with:
+
+```text
+reward =
++ 0.55 × safe-arrival gain
+- 0.30 × flood exposure
+- 0.05 × travel burden
+- 0.10 × unfinished population at horizon
+```
+
+The reward does not reproduce the hard-safety cutoff and does not use planner or oracle information.
+
+Reward weights are synthetic project modeling choices rather than official emergency-management utility weights.
+
+---
+
+# Primary Held-Out Result
+
+The final RL comparison used:
+
+```text
+600 unseen held-out scenarios
+200 LOW uncertainty
+200 MEDIUM uncertainty
+200 HIGH uncertainty
+```
+
+plus:
+
+```text
+250 distribution-shift stress scenarios
+```
+
+All five PPO checkpoints and all planning baselines were evaluated on paired stochastic worlds.
+
+### Main Results
+
+| Policy                                | NSU-Practical | Safe Population |    Exposure |     CVaR10 |
+| ------------------------------------- | ------------: | --------------: | ----------: | ---------: |
+| Random Valid                          |        0.0000 |          0.6595 |     1839.73 |     0.0004 |
+| Nearest Safe                          |        0.7615 |          0.7317 |     1384.40 |     0.0325 |
+| Risk Greedy                           |        1.0000 |          0.7596 |     1456.02 |     0.0509 |
+| Lookahead-2                           |        1.4752 |          0.8236 |     1322.76 |     0.1012 |
+| Lookahead-3                           |        1.5309 |          0.8300 |     1318.64 |     0.1030 |
+| MPC                                   |        1.4594 |          0.8308 |     1469.18 |     0.1020 |
+| **MaskablePPO — five-seed aggregate** |    **0.2091** |      **0.6826** | **1817.49** | **0.0038** |
+
+`NSU-Practical` is normalized against the frozen practical reference policies. Values greater than `1.0` are possible when a policy performs better than the reference planner used for normalization.
+
+---
+
+## Pre-Registered RL Conclusion
+
+The principal practical comparator for the frozen RL usefulness test was:
+
+```text
+Risk Greedy
+```
+
+PPO produced:
+
+```text
+NSU difference:
+-0.7919
+
+95% paired bootstrap CI:
+[-0.8384, -0.7453]
+
+Exposure:
+24.8% higher than the principal comparator
+
+Unsafe-dispatch difference:
+0.0
+```
+
+PPO also failed the pre-registered usefulness criteria separately under:
+
+```text
+LOW uncertainty
+MEDIUM uncertainty
+HIGH uncertainty
+flood-surge stress
+route-closure stress
+shelter-failure stress
+demand-shift stress
+long-travel stress
+```
+
+The frozen Phase 1 result is therefore:
+
+```text
+RL USEFULNESS RESULT: NO
+```
+
+This result is intentionally preserved.
+
+The project does **not** replace the result by retraining PPO until it wins.
+
+---
+
+## Observation-Matched Diagnostic
+
+The strongest practical planner has access to somewhat richer pending-arrival information than the PPO observation.
+
+To investigate whether that information advantage explains PPO's deficit, an observation-matched heuristic was also evaluated using only information available to the learned policy.
+
+Results:
+
+```text
+Observation-matched planner NSU: 0.5204
+MaskablePPO NSU:                 0.2091
+```
+
+Therefore the information asymmetry does not fully explain the learned policy's lower performance.
+
+---
+
+## Representation Robustness
+
+A pre-registered semantic slot-permutation test was used to detect whether the flat MLP learns shortcuts based on entity positions rather than physical scenario features.
+
+The held-out test measured:
+
+```text
+Action equivalence after remapping: 0.1157
+Median absolute NSU change:         0.6092
+Mean absolute safe-population Δ:    0.0929
+```
+
+Result:
+
+```text
+POTENTIAL_SLOT_SHORTCUT
+```
+
+This indicates material sensitivity to zone/shelter slot permutation.
+
+The issue is preserved as a limitation rather than repaired after observing the held-out result.
+
+Permutation-aware representations such as set-based, attention-based, recurrent, or graph architectures are treated as future research rather than replacements for the frozen primary experiment.
+
+---
+
+## Safety and Mechanical Integrity
+
+Across the primary Phase 10 evaluation:
+
+```text
+Unsafe dispatches:            0
+Capacity violations:          0
+Closed-route dispatches:      0
+Invalid PPO masked actions:   0
+```
+
+The simulator, safety layer, and action masks therefore maintained their intended operational invariants throughout the evaluation.
+
+---
+
+## Testing
+
+The repository currently contains:
+
+```text
+383 passing tests
+```
+
+covering areas including:
+
+- scenario validation;
+- population/capacity conservation;
+- stochastic reproducibility;
+- RNG independence;
+- future-information leakage;
+- safety masks;
+- planner information boundaries;
+- exact-oracle correctness;
+- Gymnasium compatibility;
+- reward semantics;
+- MaskablePPO integration;
+- checkpoint loading;
+- slot-permutation diagnostics;
+- paired held-out evaluation;
+- bootstrap statistics.
+
+Historical V1 tests and artifacts remain preserved.
+
+---
+
+## Experimental Philosophy
+
+Sentinel-Agent deliberately avoids assuming that the most complex algorithm is the best algorithm.
+
+Several project hypotheses have been rejected after measurement.
+
+The V3 RL study is one example:
+
+```text
+Hypothesis:
+Sequential uncertainty may make reinforcement learning preferable.
+
+Experiment:
+Strong planners + five-seed MaskablePPO + held-out evaluation.
+
+Result:
+PPO did not provide a material advantage.
+
+Decision:
+Retain strong planning as the primary decision approach.
+```
+
+A negative result is considered a valid research outcome.
+
+---
+
+## Next Development Stages
+
+The decision-policy study is now frozen.
+
+The remaining V3 work focuses on strengthening the evidence and application layers:
+
+```text
+Phase 11
+Expand the authoritative disaster-guidance corpus
+
+Phase 12
+Benchmark dense, BM25 and hybrid retrieval
+
+Phase 13
+Create a human-reviewed retrieval benchmark
+
+Phase 14
+Verify whether cited evidence actually supports generated claims
+
+Phase 15
+Integrate deterministic safety with evidence-grounded policy constraints
+
+Phase 16–17
+Add cached real road topology and hazard-aware routing
+
+Phase 18
+Add human operator override and audit logging
+
+Phase 19–20
+Build and verify the final geospatial Streamlit decision-support dashboard
+```
+
+---
+
+## Data and Provenance
+
+Sentinel-Agent explicitly distinguishes:
+
+### Real
+
+- authoritative disaster-management source documents;
+- later cached public road-network topology where identified as such.
+
+### Simulated
+
+- evacuation populations;
+- flood progression;
+- shelter capacities unless explicitly verified;
+- road closures;
+- travel disturbances;
+- stochastic scenarios.
+
+### Model-Generated
+
+- natural-language policy interpretations or constraint explanations.
+
+### Measured
+
+- benchmark scores;
+- evaluation results;
+- latency measurements;
+- safety statistics;
+- retrieval metrics.
+
+This distinction is maintained throughout the project to avoid presenting synthetic experimental data as real disaster-response evidence.
+
+---
+
+## Disclaimer
+
+Sentinel-Agent is a research and educational decision-support prototype.
+
+It is **not**:
+
+- an official disaster-management system;
+- an operational flood forecasting platform;
+- a replacement for emergency authorities;
+- validated for real-world evacuation deployment.
+
+The current evaluation demonstrates behavior only within the project's controlled synthetic experimental environment.
