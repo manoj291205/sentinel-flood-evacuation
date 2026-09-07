@@ -2753,3 +2753,66 @@ Phase 8 work was started here.
 See `git log` for *V3 Phase 7: fixed-dimension Gymnasium evacuation environment*.
 
 ---
+
+## 2026-09-07 — V3 Phase 8A: frozen RL reward specification
+
+### Goal
+
+Freeze the exact scalar RL reward before implementing it or running any PPO optimization.
+The normative contract is [`V3_REWARD_SPEC.md`](V3_REWARD_SPEC.md). No reward result or
+learned-policy experiment exists in Stage 8A.
+
+### Reward design and normalization
+
+For initial evacuation population `N0`, horizon steps `H`, and horizon minutes `M`, the
+primary `v3-reward-balanced-v1` transition reward is:
+
+```text
++ 0.55 * newly arrived people / N0
+- 0.30 * post-action current zone exposure / (N0 * H)
+- 0.05 * (dispatched people / N0) * realized_travel / (realized_travel + M)
+- 0.10 * horizon-terminal unfinished people / N0
+```
+
+Arrival credit is paid only when a pending event processes, not at dispatch. Exposure
+uses post-action population and current already-realized hazard. Travel uses the realized
+duration only after the dispatch transition. The unfinished term applies only to
+`HORIZON_REACHED`; in-transit people remain unfinished. WAIT has no arbitrary constant.
+
+Population-zero schema/test cases remain numerically safe but are not training-ready.
+Under frozen simulator invariants the primary conservative episode range is
+`[-0.45,0.55]`, giving Phase 1 `epsilon_den=0.01`.
+
+### Primary and sensitivity weights
+
+| Config | Safe | Exposure | Travel | Terminal |
+| --- | ---: | ---: | ---: | ---: |
+| `v3-reward-balanced-v1` (primary) | 0.55 | 0.30 | 0.05 | 0.10 |
+| `v3-reward-evacuation-v1` | 0.65 | 0.20 | 0.05 | 0.10 |
+| `v3-reward-exposure-v1` | 0.50 | 0.40 | 0.05 | 0.05 |
+
+The alternatives are frozen for later sensitivity reporting, not post-results selection.
+
+### Safety separation and assumptions
+
+Reward includes no Phase 5 `0.70` threshold, unsafe-action penalty, closed-route penalty,
+or invalid-mask penalty. Safety remains structural. Safety-OFF reward does not secretly
+recreate the hard rule. Vulnerability and medical weights are omitted because subgroup
+movement is not represented.
+
+> **Reward weights are synthetic project modeling choices frozen before PPO training.
+> They are not official disaster-management utility weights.**
+
+### Pending-arrival partial observability
+
+The feed-forward PPO observation has aggregate transit and reservations but no individual
+arrival countdown. Delayed arrival reward therefore preserves partial observability.
+The existing practical-planner boundary actually includes pending-event arrival metadata,
+so later comparisons must disclose that planner information advantage; Stage 8A does not
+change either frozen interface merely to claim parity.
+
+### Commit
+
+See `git log` for *V3 Phase 8A: freeze RL reward specification*.
+
+---
