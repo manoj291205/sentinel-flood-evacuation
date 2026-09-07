@@ -14,7 +14,7 @@ intended to be read top-to-bottom as the story of how the prototype was built.
 
 ---
 
-## Current V3 status — Phase 13A.1 waiting for passage relevance review
+## Current V3 status — Phase 13A.2 AI-assisted passage labels frozen
 
 Phase 13A froze `v3-retrieval-benchmark-spec-v1` and prepared 60 `MACHINE_PROPOSED`
 questions plus 647 deduplicated passage-review rows. Phase 13A.1 preserves those
@@ -27,9 +27,16 @@ multi-reviewer annotation. Question selection is complete at 45 retained questio
 all retained passage grades remain blank and `PENDING`; the current status is
 `WAITING_FOR_PASSAGE_RELEVANCE_REVIEW`.
 
-**No retrieval-quality result has been calculated from machine-proposed relevance
-labels.** Phase 13B cannot run until a real reviewer completes passage-level relevance
-review.
+**No retrieval-quality result has been calculated from machine-proposed or AI-assisted
+relevance labels.** Phase 13B has not started, and the original human-gold validation
+option remains unfinished.
+
+The project owner elected not to manually annotate all 485 retained passages. Phase
+13A.2 therefore freezes a separate `v3-retrieval-benchmark-ai-assisted-v1` label set
+without altering the unfinished human-review artifacts. **The benchmark's passage-level
+relevance judgments are AI-assisted, not independently human annotated.** The AI label
+set is complete and frozen, but Phase 13B retrieval evaluation has not started and no
+official retrieval-quality metric exists.
 
 ### Frozen Phase 12 retrieval configuration
 
@@ -165,7 +172,7 @@ Each step gets one section containing:
 | End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
 | Evaluation suite | `src/eval/` | **Built** — 60 held-out scenarios, baselines, ablations |
 | V3 sequential environment | `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` | **Built through V3 Phase 10** — stochastic simulator, hard safety, strong planners, fixed 6×9 Gymnasium API, frozen reward, five trained PPO seeds, and held-out evaluation |
-| Tests | `tests/` | **Built** — 522 tests total, including 26 Phase 13A.1 question-review tests, 43 Phase 13A benchmark-safety tests, 48 Phase 12 retrieval tests, and all earlier V3/V1 regressions |
+| Tests | `tests/` | **Built** — 568 tests total, including 46 Phase 13A.2 AI-label tests, 26 Phase 13A.1 question-review tests, 43 Phase 13A benchmark-safety tests, 48 Phase 12 retrieval tests, and all earlier V3/V1 regressions |
 | Measured results | `EVALUATION.md` | **Written** — including the unflattering ones |
 | Frozen v1 results | `EVALUATION_V1.md` | **Archived** — immutable comparison point for the evaluated v1 demo |
 | Reviewer material | `REVIEW_NOTES.md`, `DEMO_SCRIPT.md` | **Written** — defence sheet and five-minute walkthrough |
@@ -182,9 +189,9 @@ Each step gets one section containing:
 | Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; V3 sanity, Gate 6, training/validation, frozen Phase 10 artifacts, Phase 11/12 engineering summaries, and pending Phase 13A review sheets in `data/eval_v3/` |
 | Real source corpus | `data/raw_docs/README.md`, `MANIFEST.json`, `excluded_sources.json`, and three canonical NDMA PDFs |
 | Model artifact | `models/maskable_ppo_shelter.zip` |
-| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py`, `phase5_safety_sanity.py`, `run_gate6.py`, `phase7_env_sanity.py`, `phase8_reward_sanity.py`, `run_phase10.py`, `phase12_retrieval_sanity.py`, `phase13a_prepare_review.py`, `phase13a1_apply_question_review.py` |
+| Experiment utilities | `scripts/greedy_check.py`, `tail_check.py`, `tail_analysis.py`, `retrieval_q2.py`, `phase4_stochastic_sanity.py`, `phase5_safety_sanity.py`, `run_gate6.py`, `phase7_env_sanity.py`, `phase8_reward_sanity.py`, `run_phase10.py`, `phase12_retrieval_sanity.py`, `phase13a_prepare_review.py`, `phase13a1_apply_question_review.py`, `phase13a2_prepare_blind_payload.py`, `phase13a2_label_passages.py` |
 | Automated verification | `tests/`, `pytest.ini`, `.github/workflows/ci.yml` |
-| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md`, `V3_REWARD_SPEC.md`, `V3_TRAINING_SPEC.md`, `V3_TRAINING_RESULT.md`, `V3_PHASE10_EVAL_SPEC.md`, `V3_POLICY_EVALUATION.md`, `V3_CORPUS_AUDIT.md`, `V3_RETRIEVAL_SPEC.md`, `V3_RETRIEVAL_BENCHMARK_SPEC.md`, `V3_RETRIEVAL_HUMAN_REVIEW.md`, `V3_RETRIEVAL_FINAL_PASSAGE_REVIEW.md` |
+| Project guidance | `README.md`, `EVALUATION.md`, `EVALUATION_V1.md`, `REVIEW_NOTES.md`, `DEMO_SCRIPT.md`, `PHASE1_PLAN.md`, `V3_BASELINE.md`, `V3_EVALUATION_PLAN.md`, `V3_SAFETY_SPEC.md`, `V3_PLANNER_SPEC.md`, `V3_GATE6_RESULT.md`, `V3_ENV_SPEC.md`, `V3_REWARD_SPEC.md`, `V3_TRAINING_SPEC.md`, `V3_TRAINING_RESULT.md`, `V3_PHASE10_EVAL_SPEC.md`, `V3_POLICY_EVALUATION.md`, `V3_CORPUS_AUDIT.md`, `V3_RETRIEVAL_SPEC.md`, `V3_RETRIEVAL_BENCHMARK_SPEC.md`, `V3_RETRIEVAL_BENCHMARK_AI_AMENDMENT.md`, `V3_RETRIEVAL_HUMAN_REVIEW.md`, `V3_RETRIEVAL_FINAL_PASSAGE_REVIEW.md`, `V3_RETRIEVAL_AI_LABEL_SPOTCHECK.md` |
 | Runtime configuration | `requirements.txt`, `.python-version`, `.streamlit/config.toml`, `.gitignore` |
 
 Generated local state is intentionally not part of that inventory: `.venv/`,
@@ -3736,5 +3743,98 @@ Together with the prior 496 tests, the complete suite contains 522 tests.
 No actual `DirectHit@1/3/5`, `MRR@5`, `nDCG@5`, pooled `Recall@5`, paired bootstrap, or
 hybrid-support decision has been calculated. Current status is
 `WAITING_FOR_PASSAGE_RELEVANCE_REVIEW`. Phase 13B has not started.
+
+---
+
+## 2026-09-08 — V3 Phase 13A.2: AI-assisted passage relevance labels
+
+### Why the benchmark was amended
+
+The original Phase 13 design required human passage-level relevance judgments for all
+retained passages. The project owner chose not to manually annotate the 485-row set, so
+that human-gold design remains unfinished. Phase 13A.2 does not rewrite that history or
+fill any human field. It creates a separate AI-assisted relevance benchmark under the
+formal `V3_RETRIEVAL_BENCHMARK_AI_AMENDMENT.md` amendment.
+
+> **The benchmark's passage-level relevance judgments are AI-assisted, not independently
+> human annotated.**
+
+The new benchmark version is `v3-retrieval-benchmark-ai-assisted-v1`; its protocol is
+`v3-ai-relevance-labeler-v1`. The reserved `v3-retrieval-benchmark-gold-v1` is not
+created. Both historical review CSVs retain blank `human_grade` fields and `PENDING`
+human status.
+
+### Blind label procedure
+
+All 485 fixed question–passage pairs were copied into a sanitized payload containing
+only question ID, effective question, topic, query style, chunk ID, source ID, filename,
+physical PDF page, and original passage text. Dense/BM25/Hybrid identities, ranks,
+scores, fusion information, seed flags, machine-suggested grades, and human fields were
+excluded. SHA-256 ordering of `question_id + NUL + chunk_id` also removes the historical
+seed-first row-order hint.
+
+Each pair was judged in the frozen order: assign grade 2 when the passage directly
+answers or materially supports the question; otherwise assign grade 1 when it provides
+specific useful but insufficient context; otherwise assign grade 0. Same-topic text
+alone does not qualify. Each row includes a concise text-specific rationale and
+`HIGH`/`MEDIUM`/`LOW` confidence, with confidence recorded separately from grade.
+
+### Label set, answerability, and fingerprint
+
+The completed AI-assisted set contains:
+
+| AI grade | Rows | Percentage |
+| --- | ---: | ---: |
+| 2 — directly relevant | 118 | 24.3299% |
+| 1 — partially relevant | 116 | 23.9175% |
+| 0 — not relevant | 251 | 51.7526% |
+
+Confidence totals are 108 `HIGH`, 377 `MEDIUM`, and 0 `LOW`. All 45 questions have at
+least one grade-2 passage; none failed the pre-evaluation answerability check. Neither
+distribution sanity flag is raised: grade 2 is below 90% and there are at least 45
+direct rows. Grades were not altered to obtain these totals.
+
+The row-order-independent label fingerprint is
+`bf46ffb139cbd314e1707409635b76346faea81739e5a95710317be07dd73b92`.
+Rows are sorted by question/chunk, normalized to the published CSV string fields,
+serialized as compact key-sorted UTF-8 JSON with non-ASCII text preserved, newline
+joined with a final newline, and hashed with SHA-256. The manifest records the exact
+procedure, parent commit, timestamp, balances, counts, and frozen corpus/retrieval IDs.
+
+### AI labeling consistency and limitations
+
+The unchanged deterministic subset contains ten questions and 107 passage pairs. A
+second blind invocation of the same deterministic label protocol did not receive the
+first-pass label fields. Exact agreement is 1.0 and linear weighted Cohen's kappa is
+1.0; grade-2/1 and grade-2/0 disagreements are both zero. This establishes deterministic
+protocol reproducibility, not inter-rater reliability or independent validation. No
+reconciliation occurs and the primary first-pass AI labels remain authoritative.
+
+The chief limitation is that passage relevance is AI-assisted rather than independently
+human annotated. Deterministic agreement cannot reveal shared protocol errors, and the
+label set may reflect model interpretation bias. A deterministic 15-row transparency
+packet includes five examples per grade but does not mark them human reviewed.
+
+### Artifacts, tests, and stopping point
+
+- formal amendment: `V3_RETRIEVAL_BENCHMARK_AI_AMENDMENT.md`
+- blind payload: `data/eval_v3/phase13/ai_labeling_payload.jsonl`
+- frozen AI labels: `data/eval_v3/phase13/ai_assisted_passage_labels.csv`
+- label manifest: `data/eval_v3/phase13/ai_assisted_label_manifest.json`
+- consistency audit: `data/eval_v3/phase13/ai_label_consistency.csv`
+- transparency packet: `V3_RETRIEVAL_AI_LABEL_SPOTCHECK.md`
+- reproducible scripts: `scripts/phase13a2_prepare_blind_payload.py` and
+  `scripts/phase13a2_label_passages.py`
+
+`tests/test_v3_ai_assisted_relevance_labels.py` adds 46 checks covering versions,
+balances, blind payload fields/order, label completeness, rationale/confidence,
+human-field immutability, corpus traceability, deterministic fingerprinting,
+answerability, consistency math and isolation, absence of retrieval results, and the
+retrieval/corpus freeze. The complete suite contains 568 tests: 46 Phase 13A.2 tests and
+522 prior tests.
+
+**No official retrieval-quality metrics have been calculated.** No real DirectHit,
+MRR, nDCG, pooled Recall, paired bootstrap, or hybrid-support decision was run. Phase
+13B has not started.
 
 ---
