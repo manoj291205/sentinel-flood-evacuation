@@ -55,7 +55,7 @@ Each step gets one section containing:
 | Group | Current contents |
 | --- | --- |
 | Entrypoints | `run_demo.py`; `src/dashboard/app.py` |
-| Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/`, `src/sim/`, `src/safety/` |
+| Core packages | `src/rag/`, `src/constraints/`, `src/env/`, `src/eval/`, `src/sim/`, `src/safety/`, `src/planners/` |
 | Scenario and constraints | `data/scenario.json`, `data/constraints_output.json`, `data/scenarios_v3/example_v3_scenario.json` |
 | Evaluation inputs/results | `data/eval_scenarios.json`, `data/eval_results/*.json`; Phase 4 process-only sanity artifact in `data/eval_v3/` |
 | Real source corpus | `data/raw_docs/README.md`, `MANIFEST.json`, and `ndma_flood_guidelines.pdf` |
@@ -2447,5 +2447,112 @@ failure makes the gate inconclusive.
 ### Commit
 
 See `git log` for *V3 Phase 6A: freeze planner and planning-gate specification*.
+
+---
+
+## 2026-09-07 — V3 Phase 6B: strong planners and planning-headroom gate
+
+### Implementation
+
+Added observable-only common planner inputs/results, the bounded Gate-6 utility ledger,
+random-valid, nearest-safe, risk-greedy, exhaustive expected lookahead-2/3, sampled MPC,
+an isolated exhaustive clairvoyant oracle, the frozen synthetic generator, and the Gate 6
+runner. Pending dispatch metadata was added to policy observations without exposing
+realized travel or future outcomes.
+
+The complete result and limitations are in
+[`V3_GATE6_RESULT.md`](V3_GATE6_RESULT.md). Raw and summarized artifacts live under
+`data/eval_v3/gate6_*`.
+
+### Oracle and suite validation
+
+All 120 exact scenarios completed with zero timeouts, zero invalid normalization
+denominators, zero oracle replay mismatches, and no practical result above its exact
+oracle. A hand-solvable short-route fixture is recovered exactly. The oracle expanded
+28,177 states and 84,612 branches; median exact search time was 195.83 ms per unit.
+
+Both frozen suites contain 120 synthetic scenarios with 40 LOW, 40 MEDIUM, and 40 HIGH.
+The exact suite is 2 zones × 2 shelters × horizon 5; the practical suite is 4 × 5 ×
+horizon 10. One fixed environment replication is used per scenario.
+
+### Exact headroom and latency
+
+| Planner | Median NSU-exact | p10 | Mean | Median ms | p95 ms |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Random valid | 0.0000 | 0.0000 | 0.0000 | 0.0015 | 0.0028 |
+| Nearest safe | 0.7075 | -0.0486 | 0.5514 | 0.0037 | 0.0069 |
+| Risk greedy | 0.8305 | 0.0236 | 0.6279 | 0.0078 | 0.0150 |
+| Lookahead-2 | 0.9817 | 0.3999 | 0.8277 | 0.3291 | 2.0305 |
+| Lookahead-3 | **0.9954** | **0.4306** | **0.8448** | 0.4140 | 6.9601 |
+| Sampled MPC | 0.9644 | 0.3417 | 0.8323 | 6.5326 | 18.0360 |
+
+Lookahead-3 crosses the median 0.99 threshold but misses the p10 0.97 threshold by a
+large margin. This is why normalized headroom distribution—not `% exactly optimal`—was
+the registered gate measure.
+
+On the 1,200-decision-per-planner practical suite, p95 latency was 135.26 ms for
+lookahead-2, 1,948.89 ms for lookahead-3, and 251.42 ms for MPC. The frozen unpruned
+algorithms were not changed after seeing scaling costs.
+
+### Leakage, RNG, and pairing
+
+Focused tests prove that risk-greedy, lookahead-2/3, and fixed-seed MPC return identical
+actions for identical public state under different hidden environment seeds. MPC scores
+are repeatable, planner RNG does not shift the environment, different planner actions
+retain paired exogenous paths, all selected actions pass the current safety mask, and
+selection is read-only.
+
+### Tests and verification
+
+```text
+Phase 6 planner suite:    39 passed
+Phase 5 safety suite:     37 passed
+Phase 4 stochastic suite: 53 passed
+Phase 3 transition suite: 60 passed
+Phase 2 schema suite:     52 passed
+legacy V1 suite:          43 passed
+full suite:              284 passed
+exact Gate units:        120 complete, 0 timeouts, 0 invalid normalization
+practical Gate units:    120 complete
+```
+
+The offline benchmark is reproduced with:
+
+```text
+PYTHONDONTWRITEBYTECODE=1 PYTHONHASHSEED=0 \
+  .venv/bin/python -m scripts.run_gate6
+```
+
+### Safety diagnostic
+
+For lookahead-3's exact trajectory states, 2,396 dispatch candidates comprised 942
+mechanical exclusions, 228 additional hard-safety exclusions, and 1,226 allowed actions.
+All executed dispatches were safety-allowed. The 0.70 threshold and all generator ranges
+remain unchanged.
+
+### Gate verdict
+
+`PROCEED_TO_RL`
+
+No practical planner satisfies median `>=0.99`, p10 `>=0.97`, and exact-suite p95 latency
+`<=100 ms` together. The planning gate therefore found sufficient remaining lower-tail
+clairvoyant headroom to justify testing a learned policy. It does not establish that RL
+is necessary or that PPO will win.
+
+### Known limitations
+
+G6U is a Gate-only utility, exact cases are small, practical cases have no oracle, there
+is one replication per synthetic scenario, expected lookahead is deliberately simple,
+MPC has 16 futures, unpruned planning scales poorly, and current Phase 4 semantics produce
+no post-departure route failures. No real-world effectiveness claim is made.
+
+### Deferred work
+
+Phase 7 and later work remain untouched. Even with `PROCEED_TO_RL`, no Gymnasium/PPO work
+starts without project-owner direction.
+
+### Commit
+
+See `git log` for *V3 Phase 6B: strong planners and planning-headroom gate*.
 
 ---

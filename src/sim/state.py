@@ -163,6 +163,19 @@ class EpisodeState:
             "zones": [zone.to_dict() for zone in self.zones],
             "shelters": [shelter.to_dict() for shelter in self.shelters],
             "routes": [route.to_dict() for route in self.routes],
+            "pending_dispatches": [
+                {
+                    "event_id": event.event_id,
+                    "source_zone_id": event.source_zone_id,
+                    "destination_shelter_id": event.destination_shelter_id,
+                    "people": event.people,
+                    "departure_timestep": event.departure_timestep,
+                    "arrival_timestep": event.arrival_timestep,
+                    "route_id": event.route_id,
+                    "travel_lag_steps": event.travel_lag_steps,
+                }
+                for event in self.pending_dispatches
+            ],
             "population_remaining": self.population_remaining,
             "people_in_transit": self.people_in_transit,
             "people_safely_arrived": self.people_safely_arrived,

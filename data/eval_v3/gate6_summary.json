@@ -1,0 +1,807 @@
+{
+  "metadata": {
+    "git_commit": "ae89e6456603e9892fcb1868f34bcf3f7ce8fdac",
+    "planner_spec_version": "v3-planner-spec-v1",
+    "planner_spec_commit": "ae89e6456603e9892fcb1868f34bcf3f7ce8fdac",
+    "generator_version": "v3-gate6-generator-v1",
+    "safety_config": {
+      "config_id": "v3-safety-v1",
+      "version": 1,
+      "max_destination_hazard": 0.7,
+      "comparison": "destination_hazard < max_destination_hazard",
+      "description": "Minimal Phase 5 synthetic destination-hazard limit, reused from the V1 project proxy for continuity and frozen before any V3 planner results.",
+      "disclaimer": "SYNTHETIC V3 SAFETY MODELING ASSUMPTION \u2014 NOT AN OFFICIAL NDMA FLOOD-SAFETY CUTOFF."
+    },
+    "uncertainty_config_versions": [
+      "v3-low-v1",
+      "v3-medium-v1",
+      "v3-high-v1"
+    ],
+    "replication_id": 0,
+    "python": "3.11.3",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "timing_clock": "time.perf_counter_ns",
+    "latency_excludes": "input/safety construction, simulator transition, logging, imports",
+    "reference_machine": "MacBookAir10,1 Apple M1 8-core 8GB arm64",
+    "artifact_note": "Synthetic Gate 6 diagnostic; not final held-out evaluation."
+  },
+  "gate_thresholds": {
+    "median_nsu_exact_minimum": 0.99,
+    "p10_nsu_exact_minimum": 0.97,
+    "p95_latency_ms_maximum": 100.0,
+    "epsilon_den": 0.01
+  },
+  "exact_units": 120,
+  "invalid_normalization_units": 0,
+  "oracle_timeouts": 0,
+  "exact_planners": {
+    "random_valid": {
+      "mean_utility": 0.18473236138042323,
+      "mean_safe_population_fraction": 0.42558689173758096,
+      "mean_exposed_person_timesteps": 177.78641112526438,
+      "mean_in_transit_person_minutes": 538.4666666666667,
+      "latency": {
+        "n": 3000,
+        "mean_ms": 0.0017608086666666667,
+        "median_ms": 0.001542,
+        "p90_ms": 0.0021661,
+        "p95_ms": 0.002833,
+        "maximum_ms": 0.025584
+      },
+      "nodes_evaluated": 0,
+      "model_transitions": 0,
+      "mask_diagnostics": {
+        "allowed_dispatches": 6194,
+        "hard_safety_excluded": 1126,
+        "mechanically_invalid": 4680,
+        "candidate_dispatches": 12000
+      },
+      "valid_nsu_units": 120,
+      "median_nsu_exact": 0.0,
+      "p10_nsu_exact": 0.0,
+      "mean_nsu_exact": 0.0
+    },
+    "nearest_safe": {
+      "mean_utility": 0.29758659989080893,
+      "mean_safe_population_fraction": 0.5664094171436449,
+      "mean_exposed_person_timesteps": 153.05912876003282,
+      "mean_in_transit_person_minutes": 602.3333333333334,
+      "latency": {
+        "n": 599,
+        "mean_ms": 0.003936841402337229,
+        "median_ms": 0.00375,
+        "p90_ms": 0.006625,
+        "p95_ms": 0.006917,
+        "maximum_ms": 0.056666
+      },
+      "nodes_evaluated": 0,
+      "model_transitions": 0,
+      "mask_diagnostics": {
+        "allowed_dispatches": 1035,
+        "hard_safety_excluded": 198,
+        "mechanically_invalid": 1163,
+        "candidate_dispatches": 2396
+      },
+      "valid_nsu_units": 120,
+      "median_nsu_exact": 0.7074720537982826,
+      "p10_nsu_exact": -0.04855480612218226,
+      "mean_nsu_exact": 0.5513974014134658
+    },
+    "risk_greedy": {
+      "mean_utility": 0.3108968300427185,
+      "mean_safe_population_fraction": 0.588603282516156,
+      "mean_exposed_person_timesteps": 154.56110475233456,
+      "mean_in_transit_person_minutes": 692.25,
+      "latency": {
+        "n": 599,
+        "mean_ms": 0.00787951752921536,
+        "median_ms": 0.007834,
+        "p90_ms": 0.012933600000000003,
+        "p95_ms": 0.014966400000000003,
+        "maximum_ms": 0.049
+      },
+      "nodes_evaluated": 0,
+      "model_transitions": 0,
+      "mask_diagnostics": {
+        "allowed_dispatches": 1115,
+        "hard_safety_excluded": 215,
+        "mechanically_invalid": 1066,
+        "candidate_dispatches": 2396
+      },
+      "valid_nsu_units": 120,
+      "median_nsu_exact": 0.8305473793852809,
+      "p10_nsu_exact": 0.023587280849046644,
+      "mean_nsu_exact": 0.6279294640051117
+    },
+    "lookahead_k2": {
+      "mean_utility": 0.34651999764428765,
+      "mean_safe_population_fraction": 0.6334585781172278,
+      "mean_exposed_person_timesteps": 151.4263753294135,
+      "mean_in_transit_person_minutes": 530.9166666666666,
+      "latency": {
+        "n": 599,
+        "mean_ms": 0.547973020033389,
+        "median_ms": 0.329083,
+        "p90_ms": 1.3779332000000006,
+        "p95_ms": 2.0304503,
+        "maximum_ms": 2.274708
+      },
+      "nodes_evaluated": 7067,
+      "model_transitions": 7067,
+      "mask_diagnostics": {
+        "allowed_dispatches": 1228,
+        "hard_safety_excluded": 227,
+        "mechanically_invalid": 941,
+        "candidate_dispatches": 2396
+      },
+      "valid_nsu_units": 120,
+      "median_nsu_exact": 0.9816978856069427,
+      "p10_nsu_exact": 0.3998832656079063,
+      "mean_nsu_exact": 0.8276806234739155
+    },
+    "lookahead_k3": {
+      "mean_utility": 0.35067297201815256,
+      "mean_safe_population_fraction": 0.6412614186173147,
+      "mean_exposed_person_timesteps": 153.0730279073653,
+      "mean_in_transit_person_minutes": 566.4166666666666,
+      "latency": {
+        "n": 599,
+        "mean_ms": 1.29547949081803,
+        "median_ms": 0.413959,
+        "p90_ms": 3.919741,
+        "p95_ms": 6.960133300000001,
+        "maximum_ms": 7.92575
+      },
+      "nodes_evaluated": 22583,
+      "model_transitions": 22583,
+      "mask_diagnostics": {
+        "allowed_dispatches": 1226,
+        "hard_safety_excluded": 228,
+        "mechanically_invalid": 942,
+        "candidate_dispatches": 2396
+      },
+      "valid_nsu_units": 120,
+      "median_nsu_exact": 0.995428204106401,
+      "p10_nsu_exact": 0.43064555838665164,
+      "mean_nsu_exact": 0.8447796801861838
+    },
+    "sampled_mpc": {
+      "mean_utility": 0.3499620479093999,
+      "mean_safe_population_fraction": 0.6448719424527234,
+      "mean_exposed_person_timesteps": 157.53597524368377,
+      "mean_in_transit_person_minutes": 614.6666666666666,
+      "latency": {
+        "n": 599,
+        "mean_ms": 7.14585525542571,
+        "median_ms": 6.532625,
+        "p90_ms": 14.9718914,
+        "p95_ms": 18.0359583,
+        "maximum_ms": 19.632
+      },
+      "nodes_evaluated": 73376,
+      "model_transitions": 73376,
+      "mask_diagnostics": {
+        "allowed_dispatches": 1180,
+        "hard_safety_excluded": 224,
+        "mechanically_invalid": 992,
+        "candidate_dispatches": 2396
+      },
+      "valid_nsu_units": 120,
+      "median_nsu_exact": 0.964363655773856,
+      "p10_nsu_exact": 0.34167901151183855,
+      "mean_nsu_exact": 0.8323235820159164
+    }
+  },
+  "by_uncertainty": {
+    "v3-low-v1": {
+      "random_valid": {
+        "mean_utility": 0.21299758816264483,
+        "mean_safe_population_fraction": 0.46347537611622797,
+        "mean_exposed_person_timesteps": 174.76497492178785,
+        "mean_in_transit_person_minutes": 489.55,
+        "latency": {
+          "n": 1000,
+          "mean_ms": 0.001736842,
+          "median_ms": 0.001542,
+          "p90_ms": 0.002125,
+          "p95_ms": 0.002833,
+          "maximum_ms": 0.014375
+        },
+        "nodes_evaluated": 0,
+        "model_transitions": 0,
+        "mask_diagnostics": {
+          "allowed_dispatches": 2184,
+          "hard_safety_excluded": 486,
+          "mechanically_invalid": 1330,
+          "candidate_dispatches": 4000
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.0,
+        "p10_nsu_exact": 0.0,
+        "mean_nsu_exact": 0.0
+      },
+      "nearest_safe": {
+        "mean_utility": 0.34268682473332024,
+        "mean_safe_population_fraction": 0.6264804990092125,
+        "mean_exposed_person_timesteps": 148.82286532990616,
+        "mean_in_transit_person_minutes": 517.75,
+        "latency": {
+          "n": 199,
+          "mean_ms": 0.003926527638190955,
+          "median_ms": 0.003792,
+          "p90_ms": 0.006533400000000003,
+          "p95_ms": 0.006917,
+          "maximum_ms": 0.007875
+        },
+        "nodes_evaluated": 0,
+        "model_transitions": 0,
+        "mask_diagnostics": {
+          "allowed_dispatches": 363,
+          "hard_safety_excluded": 80,
+          "mechanically_invalid": 353,
+          "candidate_dispatches": 796
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.6827934835364025,
+        "p10_nsu_exact": 0.27385833395004083,
+        "mean_nsu_exact": 0.6418772997217452
+      },
+      "risk_greedy": {
+        "mean_utility": 0.3521495471713768,
+        "mean_safe_population_fraction": 0.6415862580269297,
+        "mean_exposed_person_timesteps": 148.3913843398213,
+        "mean_in_transit_person_minutes": 589.0,
+        "latency": {
+          "n": 199,
+          "mean_ms": 0.008082065326633166,
+          "median_ms": 0.008,
+          "p90_ms": 0.013174400000000011,
+          "p95_ms": 0.015145899999999999,
+          "maximum_ms": 0.028542
+        },
+        "nodes_evaluated": 0,
+        "model_transitions": 0,
+        "mask_diagnostics": {
+          "allowed_dispatches": 390,
+          "hard_safety_excluded": 89,
+          "mechanically_invalid": 317,
+          "candidate_dispatches": 796
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.9119066716627536,
+        "p10_nsu_exact": 0.1070009316652003,
+        "mean_nsu_exact": 0.7041008931666237
+      },
+      "lookahead_k2": {
+        "mean_utility": 0.38859405147406306,
+        "mean_safe_population_fraction": 0.6877867956194138,
+        "mean_exposed_person_timesteps": 145.9645637605925,
+        "mean_in_transit_person_minutes": 478.25,
+        "latency": {
+          "n": 199,
+          "mean_ms": 0.5601417738693467,
+          "median_ms": 0.379375,
+          "p90_ms": 1.4108588000000006,
+          "p95_ms": 2.0146243999999998,
+          "maximum_ms": 2.1325
+        },
+        "nodes_evaluated": 2480,
+        "model_transitions": 2480,
+        "mask_diagnostics": {
+          "allowed_dispatches": 431,
+          "hard_safety_excluded": 94,
+          "mechanically_invalid": 271,
+          "candidate_dispatches": 796
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.9781346144411349,
+        "p10_nsu_exact": 0.5367583876620252,
+        "mean_nsu_exact": 0.8523484088845745
+      },
+      "lookahead_k3": {
+        "mean_utility": 0.3948340543139758,
+        "mean_safe_population_fraction": 0.6987602632893102,
+        "mean_exposed_person_timesteps": 147.79505537127432,
+        "mean_in_transit_person_minutes": 512.0,
+        "latency": {
+          "n": 199,
+          "mean_ms": 1.3238653768844222,
+          "median_ms": 0.461583,
+          "p90_ms": 4.035758400000001,
+          "p95_ms": 6.7140005999999985,
+          "maximum_ms": 7.579959
+        },
+        "nodes_evaluated": 7940,
+        "model_transitions": 7940,
+        "mask_diagnostics": {
+          "allowed_dispatches": 432,
+          "hard_safety_excluded": 95,
+          "mechanically_invalid": 269,
+          "candidate_dispatches": 796
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 1.0,
+        "p10_nsu_exact": 0.5367583876620252,
+        "mean_nsu_exact": 0.8687054475398233
+      },
+      "sampled_mpc": {
+        "mean_utility": 0.40305285522988027,
+        "mean_safe_population_fraction": 0.7146948510851463,
+        "mean_exposed_person_timesteps": 151.92853653652577,
+        "mean_in_transit_person_minutes": 557.25,
+        "latency": {
+          "n": 199,
+          "mean_ms": 7.379043572864322,
+          "median_ms": 6.855959,
+          "p90_ms": 15.451658200000008,
+          "p95_ms": 17.9488039,
+          "maximum_ms": 18.900458
+        },
+        "nodes_evaluated": 25152,
+        "model_transitions": 25152,
+        "mask_diagnostics": {
+          "allowed_dispatches": 413,
+          "hard_safety_excluded": 92,
+          "mechanically_invalid": 291,
+          "candidate_dispatches": 796
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.9869974915022504,
+        "p10_nsu_exact": 0.6718718609738119,
+        "mean_nsu_exact": 0.8935722932928103
+      }
+    },
+    "v3-medium-v1": {
+      "random_valid": {
+        "mean_utility": 0.17662100906643757,
+        "mean_safe_population_fraction": 0.41592140255146104,
+        "mean_exposed_person_timesteps": 181.39292101814527,
+        "mean_in_transit_person_minutes": 540.75,
+        "latency": {
+          "n": 1000,
+          "mean_ms": 0.00177713,
+          "median_ms": 0.001583,
+          "p90_ms": 0.002209,
+          "p95_ms": 0.002833,
+          "maximum_ms": 0.023458
+        },
+        "nodes_evaluated": 0,
+        "model_transitions": 0,
+        "mask_diagnostics": {
+          "allowed_dispatches": 2148,
+          "hard_safety_excluded": 298,
+          "mechanically_invalid": 1554,
+          "candidate_dispatches": 4000
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.0,
+        "p10_nsu_exact": 0.0,
+        "mean_nsu_exact": 0.0
+      },
+      "nearest_safe": {
+        "mean_utility": 0.294700630997943,
+        "mean_safe_population_fraction": 0.5623358680585134,
+        "mean_exposed_person_timesteps": 154.79076945114036,
+        "mean_in_transit_person_minutes": 584.75,
+        "latency": {
+          "n": 200,
+          "mean_ms": 0.0041464200000000005,
+          "median_ms": 0.00375,
+          "p90_ms": 0.0066711,
+          "p95_ms": 0.007041,
+          "maximum_ms": 0.056666
+        },
+        "nodes_evaluated": 0,
+        "model_transitions": 0,
+        "mask_diagnostics": {
+          "allowed_dispatches": 357,
+          "hard_safety_excluded": 55,
+          "mechanically_invalid": 388,
+          "candidate_dispatches": 800
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.8023218047057297,
+        "p10_nsu_exact": 0.01944172015003113,
+        "mean_nsu_exact": 0.5842351259595899
+      },
+      "risk_greedy": {
+        "mean_utility": 0.3039864880877638,
+        "mean_safe_population_fraction": 0.581384766972358,
+        "mean_exposed_person_timesteps": 158.80971367785995,
+        "mean_in_transit_person_minutes": 704.5,
+        "latency": {
+          "n": 200,
+          "mean_ms": 0.007848345,
+          "median_ms": 0.0078125,
+          "p90_ms": 0.013,
+          "p95_ms": 0.015090199999999998,
+          "maximum_ms": 0.0305
+        },
+        "nodes_evaluated": 0,
+        "model_transitions": 0,
+        "mask_diagnostics": {
+          "allowed_dispatches": 382,
+          "hard_safety_excluded": 61,
+          "mechanically_invalid": 357,
+          "candidate_dispatches": 800
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.820297301449638,
+        "p10_nsu_exact": 0.0361107975064064,
+        "mean_nsu_exact": 0.617012076383352
+      },
+      "lookahead_k2": {
+        "mean_utility": 0.34332848622187007,
+        "mean_safe_population_fraction": 0.6304019058038037,
+        "mean_exposed_person_timesteps": 154.0104093534369,
+        "mean_in_transit_person_minutes": 520.5,
+        "latency": {
+          "n": 200,
+          "mean_ms": 0.576976665,
+          "median_ms": 0.32843750000000005,
+          "p90_ms": 1.5230419,
+          "p95_ms": 2.06059615,
+          "maximum_ms": 2.250875
+        },
+        "nodes_evaluated": 2452,
+        "model_transitions": 2452,
+        "mask_diagnostics": {
+          "allowed_dispatches": 427,
+          "hard_safety_excluded": 62,
+          "mechanically_invalid": 311,
+          "candidate_dispatches": 800
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.987671199356662,
+        "p10_nsu_exact": 0.5079541722543018,
+        "mean_nsu_exact": 0.8730998875412744
+      },
+      "lookahead_k3": {
+        "mean_utility": 0.3468009648399074,
+        "mean_safe_population_fraction": 0.6371058816525164,
+        "mean_exposed_person_timesteps": 155.4790530553251,
+        "mean_in_transit_person_minutes": 559.5,
+        "latency": {
+          "n": 200,
+          "mean_ms": 1.4003022649999999,
+          "median_ms": 0.435396,
+          "p90_ms": 4.018629699999999,
+          "p95_ms": 7.1640045,
+          "maximum_ms": 7.790708
+        },
+        "nodes_evaluated": 7963,
+        "model_transitions": 7963,
+        "mask_diagnostics": {
+          "allowed_dispatches": 426,
+          "hard_safety_excluded": 62,
+          "mechanically_invalid": 312,
+          "candidate_dispatches": 800
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.9967868307498301,
+        "p10_nsu_exact": 0.527887361710256,
+        "mean_nsu_exact": 0.8942386535569238
+      },
+      "sampled_mpc": {
+        "mean_utility": 0.33601386245185183,
+        "mean_safe_population_fraction": 0.6265946163158851,
+        "mean_exposed_person_timesteps": 160.68865907833694,
+        "mean_in_transit_person_minutes": 592.25,
+        "latency": {
+          "n": 200,
+          "mean_ms": 7.391884784999999,
+          "median_ms": 6.466104,
+          "p90_ms": 16.286416900000003,
+          "p95_ms": 18.2725021,
+          "maximum_ms": 19.632
+        },
+        "nodes_evaluated": 24928,
+        "model_transitions": 24928,
+        "mask_diagnostics": {
+          "allowed_dispatches": 406,
+          "hard_safety_excluded": 62,
+          "mechanically_invalid": 332,
+          "candidate_dispatches": 800
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.9388216750157373,
+        "p10_nsu_exact": 0.5101908076789957,
+        "mean_nsu_exact": 0.8458914680592576
+      }
+    },
+    "v3-high-v1": {
+      "random_valid": {
+        "mean_utility": 0.1645784869121873,
+        "mean_safe_population_fraction": 0.39736389654505383,
+        "mean_exposed_person_timesteps": 177.20133743586004,
+        "mean_in_transit_person_minutes": 585.1,
+        "latency": {
+          "n": 1000,
+          "mean_ms": 0.001768454,
+          "median_ms": 0.001542,
+          "p90_ms": 0.002129100000000001,
+          "p95_ms": 0.0027940499999999984,
+          "maximum_ms": 0.025584
+        },
+        "nodes_evaluated": 0,
+        "model_transitions": 0,
+        "mask_diagnostics": {
+          "allowed_dispatches": 1862,
+          "hard_safety_excluded": 342,
+          "mechanically_invalid": 1796,
+          "candidate_dispatches": 4000
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.0,
+        "p10_nsu_exact": 0.0,
+        "mean_nsu_exact": 0.0
+      },
+      "nearest_safe": {
+        "mean_utility": 0.2553723439411636,
+        "mean_safe_population_fraction": 0.5104118843632086,
+        "mean_exposed_person_timesteps": 155.5637514990519,
+        "mean_in_transit_person_minutes": 704.5,
+        "latency": {
+          "n": 200,
+          "mean_ms": 0.003737525,
+          "median_ms": 0.0037295,
+          "p90_ms": 0.006583100000000001,
+          "p95_ms": 0.006833049999999999,
+          "maximum_ms": 0.017625
+        },
+        "nodes_evaluated": 0,
+        "model_transitions": 0,
+        "mask_diagnostics": {
+          "allowed_dispatches": 315,
+          "hard_safety_excluded": 63,
+          "mechanically_invalid": 422,
+          "candidate_dispatches": 800
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.5063413779413481,
+        "p10_nsu_exact": -0.19481027023837585,
+        "mean_nsu_exact": 0.42807977855906243
+      },
+      "risk_greedy": {
+        "mean_utility": 0.27655445486901487,
+        "mean_safe_population_fraction": 0.5428388225491804,
+        "mean_exposed_person_timesteps": 156.48221623932244,
+        "mean_in_transit_person_minutes": 783.25,
+        "latency": {
+          "n": 200,
+          "mean_ms": 0.007709155,
+          "median_ms": 0.007729,
+          "p90_ms": 0.012675299999999999,
+          "p95_ms": 0.014588149999999998,
+          "maximum_ms": 0.049
+        },
+        "nodes_evaluated": 0,
+        "model_transitions": 0,
+        "mask_diagnostics": {
+          "allowed_dispatches": 343,
+          "hard_safety_excluded": 65,
+          "mechanically_invalid": 392,
+          "candidate_dispatches": 800
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.7418148010541971,
+        "p10_nsu_exact": -0.07673060841944243,
+        "mean_nsu_exact": 0.5626754224653597
+      },
+      "lookahead_k2": {
+        "mean_utility": 0.30763745523692987,
+        "mean_safe_population_fraction": 0.582187032928466,
+        "mean_exposed_person_timesteps": 154.3041528742111,
+        "mean_in_transit_person_minutes": 594.0,
+        "latency": {
+          "n": 200,
+          "mean_ms": 0.506861465,
+          "median_ms": 0.2946875,
+          "p90_ms": 1.3229494,
+          "p95_ms": 1.5315818999999953,
+          "maximum_ms": 2.274708
+        },
+        "nodes_evaluated": 2135,
+        "model_transitions": 2135,
+        "mask_diagnostics": {
+          "allowed_dispatches": 370,
+          "hard_safety_excluded": 71,
+          "mechanically_invalid": 359,
+          "candidate_dispatches": 800
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.9646565235337135,
+        "p10_nsu_exact": 0.06596798676487706,
+        "mean_nsu_exact": 0.7575935739958973
+      },
+      "lookahead_k3": {
+        "mean_utility": 0.3103838969005745,
+        "mean_safe_population_fraction": 0.5879181109101174,
+        "mean_exposed_person_timesteps": 155.94497529549636,
+        "mean_in_transit_person_minutes": 627.75,
+        "latency": {
+          "n": 200,
+          "mean_ms": 1.16241276,
+          "median_ms": 0.397167,
+          "p90_ms": 3.6247453,
+          "p95_ms": 4.432935399999996,
+          "maximum_ms": 7.92575
+        },
+        "nodes_evaluated": 6680,
+        "model_transitions": 6680,
+        "mask_diagnostics": {
+          "allowed_dispatches": 368,
+          "hard_safety_excluded": 71,
+          "mechanically_invalid": 361,
+          "candidate_dispatches": 800
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.9761487502934609,
+        "p10_nsu_exact": 0.06680939831733537,
+        "mean_nsu_exact": 0.7713949394618042
+      },
+      "sampled_mpc": {
+        "mean_utility": 0.31081942604646756,
+        "mean_safe_population_fraction": 0.5933263599571388,
+        "mean_exposed_person_timesteps": 159.99073011618856,
+        "mean_in_transit_person_minutes": 694.5,
+        "latency": {
+          "n": 200,
+          "mean_ms": 6.667803350000001,
+          "median_ms": 6.1277715,
+          "p90_ms": 13.772000299999998,
+          "p95_ms": 16.056545549999996,
+          "maximum_ms": 18.422125
+        },
+        "nodes_evaluated": 23296,
+        "model_transitions": 23296,
+        "mask_diagnostics": {
+          "allowed_dispatches": 361,
+          "hard_safety_excluded": 70,
+          "mechanically_invalid": 369,
+          "candidate_dispatches": 800
+        },
+        "valid_nsu_units": 40,
+        "median_nsu_exact": 0.9373554823903063,
+        "p10_nsu_exact": 0.06701956497044823,
+        "mean_nsu_exact": 0.757506984695681
+      }
+    }
+  },
+  "practical_planners": {
+    "random_valid": {
+      "mean_utility": 0.14941403728750513,
+      "mean_safe_population_fraction": 0.37189600002277917,
+      "mean_exposed_person_timesteps": 1369.1043366957445,
+      "mean_in_transit_person_minutes": 2865.5833333333335,
+      "latency": {
+        "n": 1200,
+        "mean_ms": 0.0025902716666666666,
+        "median_ms": 0.002125,
+        "p90_ms": 0.0038381000000000057,
+        "p95_ms": 0.004543099999999998,
+        "maximum_ms": 0.031708
+      },
+      "nodes_evaluated": 0,
+      "model_transitions": 0,
+      "mask_diagnostics": {
+        "allowed_dispatches": 11335,
+        "hard_safety_excluded": 2015,
+        "mechanically_invalid": 10650,
+        "candidate_dispatches": 24000
+      }
+    },
+    "nearest_safe": {
+      "mean_utility": 0.21132689587021627,
+      "mean_safe_population_fraction": 0.4378574736321669,
+      "mean_exposed_person_timesteps": 1186.5260812712702,
+      "mean_in_transit_person_minutes": 2102.9166666666665,
+      "latency": {
+        "n": 1200,
+        "mean_ms": 0.006817620833333334,
+        "median_ms": 0.006209,
+        "p90_ms": 0.009338100000000005,
+        "p95_ms": 0.010542,
+        "maximum_ms": 0.095584
+      },
+      "nodes_evaluated": 0,
+      "model_transitions": 0,
+      "mask_diagnostics": {
+        "allowed_dispatches": 10263,
+        "hard_safety_excluded": 1854,
+        "mechanically_invalid": 11883,
+        "candidate_dispatches": 24000
+      }
+    },
+    "risk_greedy": {
+      "mean_utility": 0.21794149247249026,
+      "mean_safe_population_fraction": 0.45092335364403857,
+      "mean_exposed_person_timesteps": 1206.004853287442,
+      "mean_in_transit_person_minutes": 2755.4166666666665,
+      "latency": {
+        "n": 1200,
+        "mean_ms": 0.03364810666666666,
+        "median_ms": 0.033791,
+        "p90_ms": 0.05260480000000003,
+        "p95_ms": 0.056671149999999997,
+        "maximum_ms": 0.111375
+      },
+      "nodes_evaluated": 0,
+      "model_transitions": 0,
+      "mask_diagnostics": {
+        "allowed_dispatches": 11188,
+        "hard_safety_excluded": 1968,
+        "mechanically_invalid": 10844,
+        "candidate_dispatches": 24000
+      }
+    },
+    "lookahead_k2": {
+      "mean_utility": 0.2615169401323929,
+      "mean_safe_population_fraction": 0.5053018843380112,
+      "mean_exposed_person_timesteps": 1161.4514482413454,
+      "mean_in_transit_person_minutes": 1476.0833333333333,
+      "latency": {
+        "n": 1200,
+        "mean_ms": 41.651905928333335,
+        "median_ms": 22.682541999999998,
+        "p90_ms": 115.0849122000001,
+        "p95_ms": 135.25680834999997,
+        "maximum_ms": 663.95
+      },
+      "nodes_evaluated": 159670,
+      "model_transitions": 159670,
+      "mask_diagnostics": {
+        "allowed_dispatches": 11620,
+        "hard_safety_excluded": 2008,
+        "mechanically_invalid": 10372,
+        "candidate_dispatches": 24000
+      }
+    },
+    "lookahead_k3": {
+      "mean_utility": 0.2663440068589224,
+      "mean_safe_population_fraction": 0.5122218681440021,
+      "mean_exposed_person_timesteps": 1160.3526395982021,
+      "mean_in_transit_person_minutes": 1541.9166666666667,
+      "latency": {
+        "n": 1200,
+        "mean_ms": 481.89793382249997,
+        "median_ms": 144.21224999999998,
+        "p90_ms": 1557.4606706000002,
+        "p95_ms": 1948.8888121499997,
+        "maximum_ms": 4557.711334
+      },
+      "nodes_evaluated": 2016867,
+      "model_transitions": 2016867,
+      "mask_diagnostics": {
+        "allowed_dispatches": 11654,
+        "hard_safety_excluded": 2004,
+        "mechanically_invalid": 10342,
+        "candidate_dispatches": 24000
+      }
+    },
+    "sampled_mpc": {
+      "mean_utility": 0.2612673099172323,
+      "mean_safe_population_fraction": 0.5118499171441819,
+      "mean_exposed_person_timesteps": 1212.2393015288153,
+      "mean_in_transit_person_minutes": 1928.4166666666667,
+      "latency": {
+        "n": 1200,
+        "mean_ms": 111.9942310925,
+        "median_ms": 101.02585450000001,
+        "p90_ms": 228.87370420000002,
+        "p95_ms": 251.42263334999996,
+        "maximum_ms": 432.744792
+      },
+      "nodes_evaluated": 569744,
+      "model_transitions": 569744,
+      "mask_diagnostics": {
+        "allowed_dispatches": 11584,
+        "hard_safety_excluded": 2016,
+        "mechanically_invalid": 10400,
+        "candidate_dispatches": 24000
+      }
+    }
+  },
+  "qualifying_planners": [],
+  "gate_verdict": "PROCEED_TO_RL"
+}
