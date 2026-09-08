@@ -77,6 +77,16 @@ Authoritative Disaster Guidance
 
 ---
 
+## Project Review Dashboard
+
+Launch the standalone, artifact-backed review UI locally:
+
+```bash
+streamlit run review_dashboard.py
+```
+
+---
+
 ## Development Status
 
 The current V3 development branch is:
