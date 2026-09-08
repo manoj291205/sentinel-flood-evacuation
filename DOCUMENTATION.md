@@ -4061,3 +4061,104 @@ freezing v2. Full Phase 13B evaluation has not been run and must start from scra
 separate phase.
 
 ---
+
+## 2026-09-08 — V3 Phase 13B: frozen retrieval benchmark evaluation
+
+### Frozen inputs and rerun boundary
+
+Phase 13B evaluates `v3-retrieval-benchmark-ai-assisted-v2`, containing 504 unique
+question/chunk labels across 45 final questions. Its fingerprint is
+`393512866c33a32d9aa2944289791eb74554eeb585e21cc82956be203c28b1b7`; the unchanged
+485-label parent fingerprint remains
+`bf46ffb139cbd314e1707409635b76346faea81739e5a95710317be07dd73b92`.
+
+The corpus remains `v3-authoritative-corpus-v1`, fingerprint
+`a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753`, with three
+documents and 1,797 chunks. Dense `dense-minilm-v1`, BM25 `bm25-okapi-v1`, and Hybrid
+`hybrid-rrf-v1` were reconstructed and rerun at `k=5` for every final effective query.
+BM25 remains `k1=1.5`, `b=0.75`, `epsilon=0.25`; Hybrid remains RRF with constant 60 and
+per-component candidate depth `max(20,k)`. No reranker, query edit, corpus change, label
+change, or retrieval change was introduced.
+
+Passage text for coverage-extension labeling is reconstructed locally from the frozen
+corpus using `chunk_id`. The Git-tracked gap artifact stores provenance metadata rather
+than duplicating authoritative source text. Phase 13B result and ranking artifacts are
+also compact and contain no full passage text.
+
+### Fresh coverage gate
+
+The evaluator recomputed the union of all top-five `(question_id, chunk_id)` pairs and
+joined it to the extended labels using that composite key. Coverage passed at 434/434
+unique pairs with zero unlabeled pairs. Missing labels are never interpreted as grade
+zero; an incomplete join raises a hard error before every metric path.
+
+### Official metrics
+
+Grade 2 alone counts for DirectHit and MRR. nDCG uses grades 0/1/2 with gain
+`2^relevance - 1` and an ideal ranking from all labels for the question. PooledRecall@5
+is the fraction of the question's distinct pooled grade-2 chunks retrieved in the top
+five; it is not exhaustive corpus recall.
+
+| Retriever | DirectHit@1 | DirectHit@3 | DirectHit@5 | MRR@5 | nDCG@5 | PooledRecall@5 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Dense | 0.5111 | 0.5778 | 0.6222 | 0.5519 | 0.5208 | 0.4129 |
+| BM25 | 0.5333 | 0.7778 | 0.8667 | 0.6619 | 0.5906 | 0.5901 |
+| Hybrid | 0.5111 | 0.7556 | 0.8222 | 0.6256 | 0.5950 | 0.5892 |
+
+Raw DirectHit@5 counts are Dense 28/45, BM25 39/45, and Hybrid 37/45. BM25 comparisons
+remain secondary and descriptive; the pre-registered principal comparison is Hybrid
+versus Dense.
+
+### Principal result and frozen verdict
+
+Hybrid minus Dense DirectHit@5 is `+0.2000`, equivalent to a net advantage of nine
+questions. The exactly 10,000-resample paired question-level percentile bootstrap with
+seed `131313` gives a 95% interval of `[0.0889, 0.3111]`. All three frozen support
+conditions pass: the difference is at least 0.05, the interval lower bound is above
+zero, and Hybrid nDCG@5 is no worse than Dense nDCG@5 minus 0.02. The formal verdict is:
+
+`HYBRID_SUPPORTED`
+
+With 45 questions, one question equals 0.02222, two equal 0.04444, and three equal
+0.06667; therefore the frozen 0.05 effect threshold requires a net advantage of at
+least three questions.
+
+### Diagnostics and limitations
+
+Hybrid and Dense both hit on 28 questions, Hybrid alone hit on nine, Dense alone hit on
+zero, and neither hit on eight. Among the 28 shared successes, Hybrid placed the first
+direct passage earlier twice, tied 24 times, and placed it later twice. Descriptive
+topic results use five groups of nine questions, and query-style results use three
+groups of 15. Full six-metric subgroup tables, secondary deltas, compact per-case failure
+analysis, and top-five source distributions are recorded in
+`V3_RETRIEVAL_EVALUATION.md` and the structured result JSON.
+
+The full benchmark was executed twice from fresh retriever objects. Top-five IDs,
+coverage, per-question metrics, overall metrics, bootstrap interval, and verdict were
+identical. Retrieval received only query text and `k`; labels, seed evidence, topic, and
+query style were excluded from ranking.
+
+This result is based on AI-assisted blind passage judgments and project-owner-adopted
+AI-assisted question review. It is not independently human-annotated gold data. The 19
+coverage-extension pairs were blindly labeled before metrics because the pre-registered
+gate required complete top-five coverage; labels were not changed after results. The
+three-document, single-publisher pool is small, and pooled recall is not exhaustive.
+Passage relevance does not prove claim entailment, and retrieval quality does not prove
+safer decisions or improved real-world outcomes.
+
+Phase 13 has no authority to revise the Phase 10 RL usefulness result, which remains
+`NO`. Phase 14 has not been started.
+
+### Phase 13B artifacts
+
+The Phase 13B regression module contains 37 checks, and the complete repository suite
+passes all 638 collected tests.
+
+- evaluator: `scripts/phase13b_evaluate_retrieval.py`
+- structured result: `data/eval_v3/phase13/phase13b_retrieval_results_v2.json`
+- 45-row question metrics: `data/eval_v3/phase13/phase13b_per_question_v2.csv`
+- compact 675-row ranking provenance: `data/eval_v3/phase13/phase13b_rankings_v2.csv`
+- evaluation report: `V3_RETRIEVAL_EVALUATION.md`
+- regression coverage: `tests/test_v3_retrieval_evaluation.py`
+
+---

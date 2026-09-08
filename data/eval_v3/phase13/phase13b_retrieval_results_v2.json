@@ -1,0 +1,1006 @@
+{
+  "evaluation_version": "v3-retrieval-evaluation-ai-assisted-v2",
+  "benchmark_version": "v3-retrieval-benchmark-ai-assisted-v2",
+  "label_protocol": "v3-ai-relevance-labeler-v1",
+  "label_fingerprint": "393512866c33a32d9aa2944289791eb74554eeb585e21cc82956be203c28b1b7",
+  "parent_label_fingerprint": "bf46ffb139cbd314e1707409635b76346faea81739e5a95710317be07dd73b92",
+  "corpus_version": "v3-authoritative-corpus-v1",
+  "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+  "retrieval_config_version": "v3-retrieval-v1",
+  "question_count": 45,
+  "coverage_gate": {
+    "unique_top5_pairs": 434,
+    "labeled": 434,
+    "unlabeled": 0,
+    "status": "PASS",
+    "missing_pairs": []
+  },
+  "overall": {
+    "dense": {
+      "direct_hit_at_1": 0.5111111111111111,
+      "direct_hit_at_3": 0.5777777777777777,
+      "direct_hit_at_5": 0.6222222222222222,
+      "mrr_at_5": 0.5518518518518518,
+      "ndcg_at_5": 0.5208372509705034,
+      "pooled_recall_at_5": 0.41285714285714287,
+      "direct_hit_at_1_count": 23,
+      "direct_hit_at_3_count": 26,
+      "direct_hit_at_5_count": 28,
+      "questions": 45
+    },
+    "bm25": {
+      "direct_hit_at_1": 0.5333333333333333,
+      "direct_hit_at_3": 0.7777777777777778,
+      "direct_hit_at_5": 0.8666666666666667,
+      "mrr_at_5": 0.6618518518518518,
+      "ndcg_at_5": 0.5906187014586537,
+      "pooled_recall_at_5": 0.59005291005291,
+      "direct_hit_at_1_count": 24,
+      "direct_hit_at_3_count": 35,
+      "direct_hit_at_5_count": 39,
+      "questions": 45
+    },
+    "hybrid": {
+      "direct_hit_at_1": 0.5111111111111111,
+      "direct_hit_at_3": 0.7555555555555555,
+      "direct_hit_at_5": 0.8222222222222222,
+      "mrr_at_5": 0.6255555555555555,
+      "ndcg_at_5": 0.5950092677789326,
+      "pooled_recall_at_5": 0.5891534391534391,
+      "direct_hit_at_1_count": 23,
+      "direct_hit_at_3_count": 34,
+      "direct_hit_at_5_count": 37,
+      "questions": 45
+    }
+  },
+  "principal_comparison": {
+    "hybrid_minus_dense_directhit5": 0.2,
+    "equivalent_question_difference": 9,
+    "bootstrap_samples": 10000,
+    "bootstrap_seed": 131313,
+    "ci95": {
+      "lower": 0.08888888888888889,
+      "upper": 0.3111111111111111,
+      "method": "paired percentile bootstrap"
+    },
+    "effect_threshold": 0.05,
+    "effect_threshold_pass": true,
+    "ci_condition_pass": true,
+    "ndcg_guardrail_pass": true,
+    "final_verdict": "HYBRID_SUPPORTED"
+  },
+  "secondary_comparisons": {
+    "bm25_minus_dense": {
+      "direct_hit_at_1": 0.022222222222222254,
+      "direct_hit_at_3": 0.20000000000000007,
+      "direct_hit_at_5": 0.24444444444444446,
+      "mrr_at_5": 0.10999999999999999,
+      "ndcg_at_5": 0.06978145048815032,
+      "pooled_recall_at_5": 0.17719576719576718
+    },
+    "hybrid_minus_bm25": {
+      "direct_hit_at_1": -0.022222222222222254,
+      "direct_hit_at_3": -0.022222222222222254,
+      "direct_hit_at_5": -0.04444444444444451,
+      "mrr_at_5": -0.03629629629629627,
+      "ndcg_at_5": 0.004390566320278899,
+      "pooled_recall_at_5": -0.0008994708994709555
+    }
+  },
+  "topic_subgroups": {
+    "evacuation": {
+      "group_value": "evacuation_movement",
+      "n": 9,
+      "dense": {
+        "direct_hit_at_1": 0.4444444444444444,
+        "direct_hit_at_3": 0.4444444444444444,
+        "direct_hit_at_5": 0.5555555555555556,
+        "mrr_at_5": 0.4722222222222222,
+        "ndcg_at_5": 0.4558586615821772,
+        "pooled_recall_at_5": 0.317989417989418,
+        "direct_hit_at_1_count": 4,
+        "direct_hit_at_3_count": 4,
+        "direct_hit_at_5_count": 5,
+        "questions": 9
+      },
+      "bm25": {
+        "direct_hit_at_1": 0.5555555555555556,
+        "direct_hit_at_3": 0.7777777777777778,
+        "direct_hit_at_5": 0.8888888888888888,
+        "mrr_at_5": 0.6703703703703704,
+        "ndcg_at_5": 0.5615375300547094,
+        "pooled_recall_at_5": 0.6132275132275132,
+        "direct_hit_at_1_count": 5,
+        "direct_hit_at_3_count": 7,
+        "direct_hit_at_5_count": 8,
+        "questions": 9
+      },
+      "hybrid": {
+        "direct_hit_at_1": 0.3333333333333333,
+        "direct_hit_at_3": 0.7777777777777778,
+        "direct_hit_at_5": 0.8888888888888888,
+        "mrr_at_5": 0.5462962962962963,
+        "ndcg_at_5": 0.5625811549910602,
+        "pooled_recall_at_5": 0.7031746031746031,
+        "direct_hit_at_1_count": 3,
+        "direct_hit_at_3_count": 7,
+        "direct_hit_at_5_count": 8,
+        "questions": 9
+      }
+    },
+    "flood": {
+      "group_value": "flood_management",
+      "n": 9,
+      "dense": {
+        "direct_hit_at_1": 0.3333333333333333,
+        "direct_hit_at_3": 0.4444444444444444,
+        "direct_hit_at_5": 0.4444444444444444,
+        "mrr_at_5": 0.3888888888888889,
+        "ndcg_at_5": 0.47526177486232146,
+        "pooled_recall_at_5": 0.3611111111111111,
+        "direct_hit_at_1_count": 3,
+        "direct_hit_at_3_count": 4,
+        "direct_hit_at_5_count": 4,
+        "questions": 9
+      },
+      "bm25": {
+        "direct_hit_at_1": 0.3333333333333333,
+        "direct_hit_at_3": 0.6666666666666666,
+        "direct_hit_at_5": 0.7777777777777778,
+        "mrr_at_5": 0.5277777777777778,
+        "ndcg_at_5": 0.49507631712006733,
+        "pooled_recall_at_5": 0.5277777777777778,
+        "direct_hit_at_1_count": 3,
+        "direct_hit_at_3_count": 6,
+        "direct_hit_at_5_count": 7,
+        "questions": 9
+      },
+      "hybrid": {
+        "direct_hit_at_1": 0.4444444444444444,
+        "direct_hit_at_3": 0.7777777777777778,
+        "direct_hit_at_5": 0.7777777777777778,
+        "mrr_at_5": 0.5740740740740741,
+        "ndcg_at_5": 0.6122916975308953,
+        "pooled_recall_at_5": 0.6388888888888888,
+        "direct_hit_at_1_count": 4,
+        "direct_hit_at_3_count": 7,
+        "direct_hit_at_5_count": 7,
+        "questions": 9
+      }
+    },
+    "logistics_transport": {
+      "group_value": "logistics_transport_coordination",
+      "n": 9,
+      "dense": {
+        "direct_hit_at_1": 0.4444444444444444,
+        "direct_hit_at_3": 0.4444444444444444,
+        "direct_hit_at_5": 0.5555555555555556,
+        "mrr_at_5": 0.4722222222222222,
+        "ndcg_at_5": 0.4663899200840071,
+        "pooled_recall_at_5": 0.39814814814814814,
+        "direct_hit_at_1_count": 4,
+        "direct_hit_at_3_count": 4,
+        "direct_hit_at_5_count": 5,
+        "questions": 9
+      },
+      "bm25": {
+        "direct_hit_at_1": 0.5555555555555556,
+        "direct_hit_at_3": 0.6666666666666666,
+        "direct_hit_at_5": 0.7777777777777778,
+        "mrr_at_5": 0.6203703703703703,
+        "ndcg_at_5": 0.6164625115990847,
+        "pooled_recall_at_5": 0.6388888888888888,
+        "direct_hit_at_1_count": 5,
+        "direct_hit_at_3_count": 6,
+        "direct_hit_at_5_count": 7,
+        "questions": 9
+      },
+      "hybrid": {
+        "direct_hit_at_1": 0.5555555555555556,
+        "direct_hit_at_3": 0.6666666666666666,
+        "direct_hit_at_5": 0.7777777777777778,
+        "mrr_at_5": 0.6333333333333333,
+        "ndcg_at_5": 0.6117028731097168,
+        "pooled_recall_at_5": 0.5555555555555556,
+        "direct_hit_at_1_count": 5,
+        "direct_hit_at_3_count": 6,
+        "direct_hit_at_5_count": 7,
+        "questions": 9
+      }
+    },
+    "temporary_shelters": {
+      "group_value": "temporary_shelters_relief_camps",
+      "n": 9,
+      "dense": {
+        "direct_hit_at_1": 0.7777777777777778,
+        "direct_hit_at_3": 1.0,
+        "direct_hit_at_5": 1.0,
+        "mrr_at_5": 0.8703703703703703,
+        "ndcg_at_5": 0.7629364015348885,
+        "pooled_recall_at_5": 0.662962962962963,
+        "direct_hit_at_1_count": 7,
+        "direct_hit_at_3_count": 9,
+        "direct_hit_at_5_count": 9,
+        "questions": 9
+      },
+      "bm25": {
+        "direct_hit_at_1": 0.5555555555555556,
+        "direct_hit_at_3": 1.0,
+        "direct_hit_at_5": 1.0,
+        "mrr_at_5": 0.7592592592592593,
+        "ndcg_at_5": 0.590607192975839,
+        "pooled_recall_at_5": 0.49444444444444446,
+        "direct_hit_at_1_count": 5,
+        "direct_hit_at_3_count": 9,
+        "direct_hit_at_5_count": 9,
+        "questions": 9
+      },
+      "hybrid": {
+        "direct_hit_at_1": 0.6666666666666666,
+        "direct_hit_at_3": 1.0,
+        "direct_hit_at_5": 1.0,
+        "mrr_at_5": 0.7962962962962963,
+        "ndcg_at_5": 0.6711015905670352,
+        "pooled_recall_at_5": 0.6037037037037037,
+        "direct_hit_at_1_count": 6,
+        "direct_hit_at_3_count": 9,
+        "direct_hit_at_5_count": 9,
+        "questions": 9
+      }
+    },
+    "vulnerable_accessibility": {
+      "group_value": "vulnerable_groups_accessibility",
+      "n": 9,
+      "dense": {
+        "direct_hit_at_1": 0.5555555555555556,
+        "direct_hit_at_3": 0.5555555555555556,
+        "direct_hit_at_5": 0.5555555555555556,
+        "mrr_at_5": 0.5555555555555556,
+        "ndcg_at_5": 0.4437394967891225,
+        "pooled_recall_at_5": 0.32407407407407407,
+        "direct_hit_at_1_count": 5,
+        "direct_hit_at_3_count": 5,
+        "direct_hit_at_5_count": 5,
+        "questions": 9
+      },
+      "bm25": {
+        "direct_hit_at_1": 0.6666666666666666,
+        "direct_hit_at_3": 0.7777777777777778,
+        "direct_hit_at_5": 0.8888888888888888,
+        "mrr_at_5": 0.7314814814814815,
+        "ndcg_at_5": 0.689409955543568,
+        "pooled_recall_at_5": 0.6759259259259259,
+        "direct_hit_at_1_count": 6,
+        "direct_hit_at_3_count": 7,
+        "direct_hit_at_5_count": 8,
+        "questions": 9
+      },
+      "hybrid": {
+        "direct_hit_at_1": 0.5555555555555556,
+        "direct_hit_at_3": 0.5555555555555556,
+        "direct_hit_at_5": 0.6666666666666666,
+        "mrr_at_5": 0.5777777777777777,
+        "ndcg_at_5": 0.5173690226959554,
+        "pooled_recall_at_5": 0.4444444444444444,
+        "direct_hit_at_1_count": 5,
+        "direct_hit_at_3_count": 5,
+        "direct_hit_at_5_count": 6,
+        "questions": 9
+      }
+    }
+  },
+  "query_style_subgroups": {
+    "LEXICAL": {
+      "group_value": "LEXICAL",
+      "n": 15,
+      "dense": {
+        "direct_hit_at_1": 0.5333333333333333,
+        "direct_hit_at_3": 0.6,
+        "direct_hit_at_5": 0.6,
+        "mrr_at_5": 0.5666666666666667,
+        "ndcg_at_5": 0.5485604664654156,
+        "pooled_recall_at_5": 0.3852380952380952,
+        "direct_hit_at_1_count": 8,
+        "direct_hit_at_3_count": 9,
+        "direct_hit_at_5_count": 9,
+        "questions": 15
+      },
+      "bm25": {
+        "direct_hit_at_1": 0.4666666666666667,
+        "direct_hit_at_3": 0.8,
+        "direct_hit_at_5": 0.8666666666666667,
+        "mrr_at_5": 0.6388888888888888,
+        "ndcg_at_5": 0.6496382351188108,
+        "pooled_recall_at_5": 0.6401587301587301,
+        "direct_hit_at_1_count": 7,
+        "direct_hit_at_3_count": 12,
+        "direct_hit_at_5_count": 13,
+        "questions": 15
+      },
+      "hybrid": {
+        "direct_hit_at_1": 0.4666666666666667,
+        "direct_hit_at_3": 0.7333333333333333,
+        "direct_hit_at_5": 0.8666666666666667,
+        "mrr_at_5": 0.5933333333333334,
+        "ndcg_at_5": 0.6227544352313487,
+        "pooled_recall_at_5": 0.583015873015873,
+        "direct_hit_at_1_count": 7,
+        "direct_hit_at_3_count": 11,
+        "direct_hit_at_5_count": 13,
+        "questions": 15
+      }
+    },
+    "OPERATIONAL_TASK": {
+      "group_value": "OPERATIONAL_TASK",
+      "n": 15,
+      "dense": {
+        "direct_hit_at_1": 0.5333333333333333,
+        "direct_hit_at_3": 0.6,
+        "direct_hit_at_5": 0.6666666666666666,
+        "mrr_at_5": 0.5722222222222222,
+        "ndcg_at_5": 0.5374421859373618,
+        "pooled_recall_at_5": 0.43333333333333335,
+        "direct_hit_at_1_count": 8,
+        "direct_hit_at_3_count": 9,
+        "direct_hit_at_5_count": 10,
+        "questions": 15
+      },
+      "bm25": {
+        "direct_hit_at_1": 0.7333333333333333,
+        "direct_hit_at_3": 0.8666666666666667,
+        "direct_hit_at_5": 1.0,
+        "mrr_at_5": 0.83,
+        "ndcg_at_5": 0.702291456291936,
+        "pooled_recall_at_5": 0.6833333333333333,
+        "direct_hit_at_1_count": 11,
+        "direct_hit_at_3_count": 13,
+        "direct_hit_at_5_count": 15,
+        "questions": 15
+      },
+      "hybrid": {
+        "direct_hit_at_1": 0.5333333333333333,
+        "direct_hit_at_3": 0.7333333333333333,
+        "direct_hit_at_5": 0.8,
+        "mrr_at_5": 0.6166666666666667,
+        "ndcg_at_5": 0.5857850911134338,
+        "pooled_recall_at_5": 0.5611111111111111,
+        "direct_hit_at_1_count": 8,
+        "direct_hit_at_3_count": 11,
+        "direct_hit_at_5_count": 12,
+        "questions": 15
+      }
+    },
+    "SEMANTIC_PARAPHRASE": {
+      "group_value": "SEMANTIC_PARAPHRASE",
+      "n": 15,
+      "dense": {
+        "direct_hit_at_1": 0.4666666666666667,
+        "direct_hit_at_3": 0.5333333333333333,
+        "direct_hit_at_5": 0.6,
+        "mrr_at_5": 0.5166666666666667,
+        "ndcg_at_5": 0.47650910050873263,
+        "pooled_recall_at_5": 0.42,
+        "direct_hit_at_1_count": 7,
+        "direct_hit_at_3_count": 8,
+        "direct_hit_at_5_count": 9,
+        "questions": 15
+      },
+      "bm25": {
+        "direct_hit_at_1": 0.4,
+        "direct_hit_at_3": 0.6666666666666666,
+        "direct_hit_at_5": 0.7333333333333333,
+        "mrr_at_5": 0.5166666666666666,
+        "ndcg_at_5": 0.41992641296521427,
+        "pooled_recall_at_5": 0.44666666666666666,
+        "direct_hit_at_1_count": 6,
+        "direct_hit_at_3_count": 10,
+        "direct_hit_at_5_count": 11,
+        "questions": 15
+      },
+      "hybrid": {
+        "direct_hit_at_1": 0.5333333333333333,
+        "direct_hit_at_3": 0.8,
+        "direct_hit_at_5": 0.8,
+        "mrr_at_5": 0.6666666666666666,
+        "ndcg_at_5": 0.5764882769920153,
+        "pooled_recall_at_5": 0.6233333333333333,
+        "direct_hit_at_1_count": 8,
+        "direct_hit_at_3_count": 12,
+        "direct_hit_at_5_count": 12,
+        "questions": 15
+      }
+    }
+  },
+  "head_to_head": {
+    "both_hit": 28,
+    "hybrid_only": 9,
+    "dense_only": 0,
+    "neither": 8
+  },
+  "first_direct_rank_comparison": {
+    "hybrid_better": 2,
+    "same": 24,
+    "dense_better": 2
+  },
+  "failure_summary": {
+    "hybrid_only_successes": [
+      {
+        "question_id": "Q003",
+        "effective_question": "Where should flood shelters and disaster relief centres be located so that they remain functional during floods?",
+        "topic": "flood_management",
+        "query_style": "LEXICAL",
+        "best_available_grade2_evidence_chunk": "ndma-flood-guidelines-2008-p56-c0",
+        "top5": {
+          "dense": [
+            "ndma-flood-guidelines-2008-p86-c3",
+            "ndma-flood-guidelines-2008-p86-c4",
+            "ndma-national-disaster-management-plan-2019-p152-c2",
+            "ndma-flood-guidelines-2008-p79-c1",
+            "ndma-national-disaster-management-plan-2019-p149-c0"
+          ],
+          "bm25": [
+            "ndma-flood-guidelines-2008-p56-c0",
+            "ndma-flood-guidelines-2008-p79-c1",
+            "ndma-flood-guidelines-2008-p86-c3",
+            "ndma-flood-guidelines-2008-p62-c1",
+            "ndma-national-disaster-management-plan-2019-p115-c2"
+          ],
+          "hybrid": [
+            "ndma-flood-guidelines-2008-p86-c3",
+            "ndma-flood-guidelines-2008-p79-c1",
+            "ndma-flood-guidelines-2008-p56-c0",
+            "ndma-temporary-shelters-2019-p48-c2",
+            "ndma-flood-guidelines-2008-p86-c4"
+          ]
+        }
+      },
+      {
+        "question_id": "Q006",
+        "effective_question": "How can modelling future situations help authorities prepare for flooding?",
+        "topic": "flood_management",
+        "query_style": "SEMANTIC_PARAPHRASE",
+        "best_available_grade2_evidence_chunk": "ndma-flood-guidelines-2008-p86-c0",
+        "top5": {
+          "dense": [
+            "ndma-flood-guidelines-2008-p97-c1",
+            "ndma-flood-guidelines-2008-p113-c2",
+            "ndma-flood-guidelines-2008-p22-c3",
+            "ndma-flood-guidelines-2008-p43-c2",
+            "ndma-flood-guidelines-2008-p108-c2"
+          ],
+          "bm25": [
+            "ndma-temporary-shelters-2019-p37-c1",
+            "ndma-national-disaster-management-plan-2019-p114-c1",
+            "ndma-national-disaster-management-plan-2019-p88-c1",
+            "ndma-national-disaster-management-plan-2019-p108-c3",
+            "ndma-temporary-shelters-2019-p40-c2"
+          ],
+          "hybrid": [
+            "ndma-flood-guidelines-2008-p86-c0",
+            "ndma-flood-guidelines-2008-p97-c1",
+            "ndma-temporary-shelters-2019-p37-c1",
+            "ndma-flood-guidelines-2008-p113-c2",
+            "ndma-national-disaster-management-plan-2019-p114-c1"
+          ]
+        }
+      },
+      {
+        "question_id": "Q012",
+        "effective_question": "What resources should authorities arrange to sustain flood rescue and relief operations?",
+        "topic": "flood_management",
+        "query_style": "OPERATIONAL_TASK",
+        "best_available_grade2_evidence_chunk": "ndma-flood-guidelines-2008-p92-c0",
+        "top5": {
+          "dense": [
+            "ndma-flood-guidelines-2008-p30-c0",
+            "ndma-flood-guidelines-2008-p22-c3",
+            "ndma-flood-guidelines-2008-p11-c0",
+            "ndma-flood-guidelines-2008-p31-c3",
+            "ndma-flood-guidelines-2008-p55-c2"
+          ],
+          "bm25": [
+            "ndma-national-disaster-management-plan-2019-p320-c1",
+            "ndma-national-disaster-management-plan-2019-p322-c1",
+            "ndma-national-disaster-management-plan-2019-p303-c0",
+            "ndma-flood-guidelines-2008-p31-c3",
+            "ndma-national-disaster-management-plan-2019-p341-c0"
+          ],
+          "hybrid": [
+            "ndma-flood-guidelines-2008-p31-c3",
+            "ndma-flood-guidelines-2008-p30-c0",
+            "ndma-national-disaster-management-plan-2019-p320-c1",
+            "ndma-flood-guidelines-2008-p22-c3",
+            "ndma-national-disaster-management-plan-2019-p322-c1"
+          ]
+        }
+      },
+      {
+        "question_id": "Q015",
+        "effective_question": "What should authorities identify and display when planning evacuation routes?",
+        "topic": "evacuation_movement",
+        "query_style": "LEXICAL",
+        "best_available_grade2_evidence_chunk": "ndma-national-disaster-management-plan-2019-p256-c2",
+        "top5": {
+          "dense": [
+            "ndma-flood-guidelines-2008-p89-c2",
+            "ndma-flood-guidelines-2008-p89-c1",
+            "ndma-national-disaster-management-plan-2019-p303-c3",
+            "ndma-flood-guidelines-2008-p89-c3",
+            "ndma-national-disaster-management-plan-2019-p74-c1"
+          ],
+          "bm25": [
+            "ndma-flood-guidelines-2008-p89-c1",
+            "ndma-national-disaster-management-plan-2019-p306-c1",
+            "ndma-national-disaster-management-plan-2019-p256-c2",
+            "ndma-national-disaster-management-plan-2019-p310-c1",
+            "ndma-temporary-shelters-2019-p40-c1"
+          ],
+          "hybrid": [
+            "ndma-flood-guidelines-2008-p89-c1",
+            "ndma-flood-guidelines-2008-p89-c2",
+            "ndma-national-disaster-management-plan-2019-p306-c1",
+            "ndma-national-disaster-management-plan-2019-p310-c1",
+            "ndma-national-disaster-management-plan-2019-p303-c3"
+          ]
+        }
+      },
+      {
+        "question_id": "Q018",
+        "effective_question": "When might residents need to move after water has already entered their community?",
+        "topic": "evacuation_movement",
+        "query_style": "SEMANTIC_PARAPHRASE",
+        "best_available_grade2_evidence_chunk": "ndma-flood-guidelines-2008-p89-c1",
+        "top5": {
+          "dense": [
+            "ndma-temporary-shelters-2019-p39-c1",
+            "ndma-temporary-shelters-2019-p41-c2",
+            "ndma-national-disaster-management-plan-2019-p210-c0",
+            "ndma-temporary-shelters-2019-p38-c2",
+            "ndma-flood-guidelines-2008-p110-c2"
+          ],
+          "bm25": [
+            "ndma-temporary-shelters-2019-p60-c0",
+            "ndma-temporary-shelters-2019-p28-c0",
+            "ndma-flood-guidelines-2008-p89-c1",
+            "ndma-temporary-shelters-2019-p25-c1",
+            "ndma-temporary-shelters-2019-p22-c2"
+          ],
+          "hybrid": [
+            "ndma-temporary-shelters-2019-p39-c1",
+            "ndma-flood-guidelines-2008-p89-c1",
+            "ndma-temporary-shelters-2019-p41-c2",
+            "ndma-temporary-shelters-2019-p39-c3",
+            "ndma-temporary-shelters-2019-p60-c0"
+          ]
+        }
+      },
+      {
+        "question_id": "Q023",
+        "effective_question": "How should an evacuation route within a shelter site accommodate people with disabilities?",
+        "topic": "evacuation_movement",
+        "query_style": "OPERATIONAL_TASK",
+        "best_available_grade2_evidence_chunk": "ndma-temporary-shelters-2019-p40-c0",
+        "top5": {
+          "dense": [
+            "ndma-temporary-shelters-2019-p39-c0",
+            "ndma-temporary-shelters-2019-p23-c2",
+            "ndma-temporary-shelters-2019-p38-c0",
+            "ndma-temporary-shelters-2019-p22-c1",
+            "ndma-temporary-shelters-2019-p37-c1"
+          ],
+          "bm25": [
+            "ndma-temporary-shelters-2019-p40-c0",
+            "ndma-temporary-shelters-2019-p39-c0",
+            "ndma-temporary-shelters-2019-p44-c2",
+            "ndma-temporary-shelters-2019-p45-c1",
+            "ndma-temporary-shelters-2019-p38-c0"
+          ],
+          "hybrid": [
+            "ndma-temporary-shelters-2019-p39-c0",
+            "ndma-temporary-shelters-2019-p38-c0",
+            "ndma-temporary-shelters-2019-p28-c0",
+            "ndma-temporary-shelters-2019-p40-c0",
+            "ndma-temporary-shelters-2019-p23-c2"
+          ]
+        }
+      },
+      {
+        "question_id": "Q037",
+        "effective_question": "Which groups receive explicit attention in inclusive disaster risk management?",
+        "topic": "vulnerable_groups_accessibility",
+        "query_style": "LEXICAL",
+        "best_available_grade2_evidence_chunk": "ndma-national-disaster-management-plan-2019-p108-c0",
+        "top5": {
+          "dense": [
+            "ndma-national-disaster-management-plan-2019-p107-c0",
+            "ndma-national-disaster-management-plan-2019-p12-c2",
+            "ndma-national-disaster-management-plan-2019-p16-c0",
+            "ndma-national-disaster-management-plan-2019-p125-c0",
+            "ndma-national-disaster-management-plan-2019-p126-c1"
+          ],
+          "bm25": [
+            "ndma-national-disaster-management-plan-2019-p107-c0",
+            "ndma-flood-guidelines-2008-p84-c2",
+            "ndma-national-disaster-management-plan-2019-p108-c0",
+            "ndma-national-disaster-management-plan-2019-p204-c0",
+            "ndma-national-disaster-management-plan-2019-p252-c0"
+          ],
+          "hybrid": [
+            "ndma-national-disaster-management-plan-2019-p107-c0",
+            "ndma-national-disaster-management-plan-2019-p44-c1",
+            "ndma-flood-guidelines-2008-p84-c2",
+            "ndma-national-disaster-management-plan-2019-p12-c2",
+            "ndma-national-disaster-management-plan-2019-p108-c0"
+          ]
+        }
+      },
+      {
+        "question_id": "Q049",
+        "effective_question": "What temporary shelter materials should be stockpiled in regional stores?",
+        "topic": "logistics_transport_coordination",
+        "query_style": "LEXICAL",
+        "best_available_grade2_evidence_chunk": "ndma-national-disaster-management-plan-2019-p313-c2",
+        "top5": {
+          "dense": [
+            "ndma-temporary-shelters-2019-p35-c1",
+            "ndma-temporary-shelters-2019-p77-c0",
+            "ndma-temporary-shelters-2019-p70-c0",
+            "ndma-temporary-shelters-2019-p30-c2",
+            "ndma-temporary-shelters-2019-p87-c0"
+          ],
+          "bm25": [
+            "ndma-temporary-shelters-2019-p53-c0",
+            "ndma-temporary-shelters-2019-p44-c1",
+            "ndma-national-disaster-management-plan-2019-p313-c2",
+            "ndma-temporary-shelters-2019-p54-c0",
+            "ndma-temporary-shelters-2019-p47-c1"
+          ],
+          "hybrid": [
+            "ndma-temporary-shelters-2019-p47-c1",
+            "ndma-temporary-shelters-2019-p82-c0",
+            "ndma-temporary-shelters-2019-p46-c1",
+            "ndma-temporary-shelters-2019-p35-c1",
+            "ndma-temporary-shelters-2019-p53-c0"
+          ]
+        }
+      },
+      {
+        "question_id": "Q054",
+        "effective_question": "How should essential site services continue while damaged infrastructure is being fixed?",
+        "topic": "logistics_transport_coordination",
+        "query_style": "SEMANTIC_PARAPHRASE",
+        "best_available_grade2_evidence_chunk": "ndma-temporary-shelters-2019-p40-c0",
+        "top5": {
+          "dense": [
+            "ndma-national-disaster-management-plan-2019-p330-c2",
+            "ndma-national-disaster-management-plan-2019-p302-c0",
+            "ndma-temporary-shelters-2019-p39-c1",
+            "ndma-national-disaster-management-plan-2019-p33-c1",
+            "ndma-national-disaster-management-plan-2019-p135-c1"
+          ],
+          "bm25": [
+            "ndma-temporary-shelters-2019-p39-c1",
+            "ndma-temporary-shelters-2019-p39-c0",
+            "ndma-temporary-shelters-2019-p40-c0",
+            "ndma-temporary-shelters-2019-p45-c1",
+            "ndma-national-disaster-management-plan-2019-p380-c1"
+          ],
+          "hybrid": [
+            "ndma-temporary-shelters-2019-p39-c1",
+            "ndma-temporary-shelters-2019-p40-c0",
+            "ndma-national-disaster-management-plan-2019-p380-c1",
+            "ndma-national-disaster-management-plan-2019-p330-c2",
+            "ndma-national-disaster-management-plan-2019-p302-c0"
+          ]
+        }
+      }
+    ],
+    "dense_only_successes": [],
+    "bm25_only_successes": [
+      {
+        "question_id": "Q008",
+        "effective_question": "How should flood warning information be presented to affected communities?",
+        "topic": "flood_management",
+        "query_style": "SEMANTIC_PARAPHRASE",
+        "best_available_grade2_evidence_chunk": "ndma-flood-guidelines-2008-p96-c1",
+        "top5": {
+          "dense": [
+            "ndma-flood-guidelines-2008-p101-c0",
+            "ndma-flood-guidelines-2008-p151-c0",
+            "ndma-flood-guidelines-2008-p89-c1",
+            "ndma-flood-guidelines-2008-p64-c3",
+            "ndma-flood-guidelines-2008-p22-c3"
+          ],
+          "bm25": [
+            "ndma-national-disaster-management-plan-2019-p85-c1",
+            "ndma-national-disaster-management-plan-2019-p237-c1",
+            "ndma-temporary-shelters-2019-p45-c1",
+            "ndma-temporary-shelters-2019-p44-c2",
+            "ndma-flood-guidelines-2008-p89-c1"
+          ],
+          "hybrid": [
+            "ndma-flood-guidelines-2008-p89-c1",
+            "ndma-flood-guidelines-2008-p64-c3",
+            "ndma-flood-guidelines-2008-p101-c0",
+            "ndma-national-disaster-management-plan-2019-p85-c1",
+            "ndma-flood-guidelines-2008-p151-c0"
+          ]
+        }
+      },
+      {
+        "question_id": "Q046",
+        "effective_question": "What should connect a disability-friendly route through a temporary shelter site?",
+        "topic": "vulnerable_groups_accessibility",
+        "query_style": "OPERATIONAL_TASK",
+        "best_available_grade2_evidence_chunk": "ndma-temporary-shelters-2019-p40-c0",
+        "top5": {
+          "dense": [
+            "ndma-temporary-shelters-2019-p39-c0",
+            "ndma-temporary-shelters-2019-p38-c0",
+            "ndma-temporary-shelters-2019-p29-c2",
+            "ndma-temporary-shelters-2019-p20-c0",
+            "ndma-temporary-shelters-2019-p29-c4"
+          ],
+          "bm25": [
+            "ndma-temporary-shelters-2019-p40-c0",
+            "ndma-temporary-shelters-2019-p82-c0",
+            "ndma-temporary-shelters-2019-p37-c3",
+            "ndma-temporary-shelters-2019-p37-c2",
+            "ndma-temporary-shelters-2019-p87-c1"
+          ],
+          "hybrid": [
+            "ndma-temporary-shelters-2019-p39-c0",
+            "ndma-temporary-shelters-2019-p29-c2",
+            "ndma-temporary-shelters-2019-p38-c0",
+            "ndma-temporary-shelters-2019-p37-c3",
+            "ndma-temporary-shelters-2019-p37-c2"
+          ]
+        }
+      },
+      {
+        "question_id": "Q048",
+        "effective_question": "How can local authorities identify residents who will need additional evacuation assistance?",
+        "topic": "vulnerable_groups_accessibility",
+        "query_style": "OPERATIONAL_TASK",
+        "best_available_grade2_evidence_chunk": "ndma-flood-guidelines-2008-p91-c0",
+        "top5": {
+          "dense": [
+            "ndma-flood-guidelines-2008-p89-c1",
+            "ndma-national-disaster-management-plan-2019-p381-c3",
+            "ndma-temporary-shelters-2019-p49-c0",
+            "ndma-temporary-shelters-2019-p58-c1",
+            "ndma-temporary-shelters-2019-p50-c1"
+          ],
+          "bm25": [
+            "ndma-national-disaster-management-plan-2019-p115-c1",
+            "ndma-temporary-shelters-2019-p44-c2",
+            "ndma-flood-guidelines-2008-p89-c2",
+            "ndma-flood-guidelines-2008-p91-c0",
+            "ndma-flood-guidelines-2008-p66-c3"
+          ],
+          "hybrid": [
+            "ndma-flood-guidelines-2008-p89-c1",
+            "ndma-national-disaster-management-plan-2019-p298-c1",
+            "ndma-temporary-shelters-2019-p50-c0",
+            "ndma-flood-guidelines-2008-p89-c2",
+            "ndma-flood-guidelines-2008-p66-c2"
+          ]
+        }
+      },
+      {
+        "question_id": "Q057",
+        "effective_question": "Which transport and communication links should a district verify before relief supplies are needed?",
+        "topic": "logistics_transport_coordination",
+        "query_style": "OPERATIONAL_TASK",
+        "best_available_grade2_evidence_chunk": "ndma-flood-guidelines-2008-p56-c0",
+        "top5": {
+          "dense": [
+            "ndma-national-disaster-management-plan-2019-p320-c0",
+            "ndma-national-disaster-management-plan-2019-p321-c1",
+            "ndma-national-disaster-management-plan-2019-p320-c1",
+            "ndma-national-disaster-management-plan-2019-p319-c2",
+            "ndma-national-disaster-management-plan-2019-p313-c0"
+          ],
+          "bm25": [
+            "ndma-flood-guidelines-2008-p93-c3",
+            "ndma-flood-guidelines-2008-p92-c0",
+            "ndma-national-disaster-management-plan-2019-p320-c1",
+            "ndma-national-disaster-management-plan-2019-p321-c1",
+            "ndma-temporary-shelters-2019-p63-c0"
+          ],
+          "hybrid": [
+            "ndma-national-disaster-management-plan-2019-p321-c1",
+            "ndma-national-disaster-management-plan-2019-p320-c1",
+            "ndma-national-disaster-management-plan-2019-p320-c0",
+            "ndma-national-disaster-management-plan-2019-p319-c2",
+            "ndma-national-disaster-management-plan-2019-p305-c2"
+          ]
+        }
+      }
+    ],
+    "all_system_failures": [
+      {
+        "question_id": "Q002",
+        "effective_question": "What information should flood forecasting and warning systems provide to exposed areas?",
+        "topic": "flood_management",
+        "query_style": "LEXICAL",
+        "best_available_grade2_evidence_chunk": "ndma-flood-guidelines-2008-p96-c1",
+        "top5": {
+          "dense": [
+            "ndma-flood-guidelines-2008-p64-c3",
+            "ndma-flood-guidelines-2008-p101-c0",
+            "ndma-flood-guidelines-2008-p68-c0",
+            "ndma-national-disaster-management-plan-2019-p163-c0",
+            "ndma-flood-guidelines-2008-p69-c3"
+          ],
+          "bm25": [
+            "ndma-national-disaster-management-plan-2019-p381-c2",
+            "ndma-national-disaster-management-plan-2019-p132-c3",
+            "ndma-flood-guidelines-2008-p64-c3",
+            "ndma-national-disaster-management-plan-2019-p164-c0",
+            "ndma-flood-guidelines-2008-p68-c0"
+          ],
+          "hybrid": [
+            "ndma-flood-guidelines-2008-p64-c3",
+            "ndma-flood-guidelines-2008-p68-c0",
+            "ndma-national-disaster-management-plan-2019-p148-c0",
+            "ndma-flood-guidelines-2008-p102-c1",
+            "ndma-national-disaster-management-plan-2019-p164-c0"
+          ]
+        }
+      },
+      {
+        "question_id": "Q020",
+        "effective_question": "Why are several reliable ways into and out of a shelter area important?",
+        "topic": "evacuation_movement",
+        "query_style": "SEMANTIC_PARAPHRASE",
+        "best_available_grade2_evidence_chunk": "ndma-national-disaster-management-plan-2019-p256-c2",
+        "top5": {
+          "dense": [
+            "ndma-temporary-shelters-2019-p23-c4",
+            "ndma-temporary-shelters-2019-p22-c1",
+            "ndma-temporary-shelters-2019-p23-c3",
+            "ndma-temporary-shelters-2019-p71-c1",
+            "ndma-temporary-shelters-2019-p35-c1"
+          ],
+          "bm25": [
+            "ndma-temporary-shelters-2019-p20-c0",
+            "ndma-temporary-shelters-2019-p35-c1",
+            "ndma-flood-guidelines-2008-p22-c3",
+            "ndma-flood-guidelines-2008-p71-c1",
+            "ndma-flood-guidelines-2008-p41-c2"
+          ],
+          "hybrid": [
+            "ndma-temporary-shelters-2019-p35-c1",
+            "ndma-temporary-shelters-2019-p25-c0",
+            "ndma-temporary-shelters-2019-p20-c0",
+            "ndma-temporary-shelters-2019-p23-c4",
+            "ndma-temporary-shelters-2019-p22-c1"
+          ]
+        }
+      },
+      {
+        "question_id": "Q039",
+        "effective_question": "What local support measures can improve evacuation for persons with disabilities?",
+        "topic": "vulnerable_groups_accessibility",
+        "query_style": "LEXICAL",
+        "best_available_grade2_evidence_chunk": "ndma-national-disaster-management-plan-2019-p115-c1",
+        "top5": {
+          "dense": [
+            "ndma-national-disaster-management-plan-2019-p115-c0",
+            "ndma-national-disaster-management-plan-2019-p114-c1",
+            "ndma-flood-guidelines-2008-p89-c1",
+            "ndma-national-disaster-management-plan-2019-p322-c0",
+            "ndma-temporary-shelters-2019-p49-c0"
+          ],
+          "bm25": [
+            "ndma-national-disaster-management-plan-2019-p121-c1",
+            "ndma-flood-guidelines-2008-p89-c1",
+            "ndma-national-disaster-management-plan-2019-p115-c0",
+            "ndma-national-disaster-management-plan-2019-p114-c2",
+            "ndma-national-disaster-management-plan-2019-p114-c1"
+          ],
+          "hybrid": [
+            "ndma-national-disaster-management-plan-2019-p115-c0",
+            "ndma-flood-guidelines-2008-p89-c1",
+            "ndma-national-disaster-management-plan-2019-p114-c1",
+            "ndma-national-disaster-management-plan-2019-p121-c1",
+            "ndma-temporary-shelters-2019-p49-c0"
+          ]
+        }
+      },
+      {
+        "question_id": "Q056",
+        "effective_question": "How should authorities use assistance offered by outside organizations during flood response?",
+        "topic": "logistics_transport_coordination",
+        "query_style": "SEMANTIC_PARAPHRASE",
+        "best_available_grade2_evidence_chunk": "ndma-flood-guidelines-2008-p92-c0",
+        "top5": {
+          "dense": [
+            "ndma-flood-guidelines-2008-p91-c3",
+            "ndma-flood-guidelines-2008-p90-c0",
+            "ndma-flood-guidelines-2008-p90-c3",
+            "ndma-flood-guidelines-2008-p89-c0",
+            "ndma-flood-guidelines-2008-p43-c2"
+          ],
+          "bm25": [
+            "ndma-national-disaster-management-plan-2019-p238-c0",
+            "ndma-national-disaster-management-plan-2019-p341-c2",
+            "ndma-national-disaster-management-plan-2019-p297-c1",
+            "ndma-temporary-shelters-2019-p48-c2",
+            "ndma-flood-guidelines-2008-p140-c1"
+          ],
+          "hybrid": [
+            "ndma-flood-guidelines-2008-p91-c3",
+            "ndma-national-disaster-management-plan-2019-p238-c0",
+            "ndma-flood-guidelines-2008-p90-c0",
+            "ndma-national-disaster-management-plan-2019-p341-c2",
+            "ndma-flood-guidelines-2008-p90-c3"
+          ]
+        }
+      }
+    ]
+  },
+  "source_distribution_top5": {
+    "dense": {
+      "NDMA Management of Floods": 66,
+      "National Disaster Management Plan 2019": 65,
+      "National Guidelines for Temporary Shelters": 94
+    },
+    "bm25": {
+      "NDMA Management of Floods": 44,
+      "National Disaster Management Plan 2019": 83,
+      "National Guidelines for Temporary Shelters": 98
+    },
+    "hybrid": {
+      "NDMA Management of Floods": 58,
+      "National Disaster Management Plan 2019": 71,
+      "National Guidelines for Temporary Shelters": 96
+    }
+  },
+  "latency_context_phase12": {
+    "scope": "warmed query calls; excludes one-time model load, Chroma open, and BM25 build",
+    "dense": {
+      "samples": 35,
+      "median_ms": 8.61104199429974,
+      "p90_ms": 8.938441405189224,
+      "p95_ms": 9.037587299826555
+    },
+    "bm25": {
+      "samples": 35,
+      "median_ms": 0.3926659992430359,
+      "p90_ms": 0.6171171960886568,
+      "p95_ms": 0.6415455995011142
+    },
+    "hybrid": {
+      "samples": 35,
+      "median_ms": 10.029500001110137,
+      "p90_ms": 10.219600197160617,
+      "p95_ms": 10.280678496928886
+    },
+    "phase13_remeasured": false
+  },
+  "benchmark_provenance": {
+    "independently_human_annotated": false,
+    "ai_assisted_relevance_labels": true,
+    "project_owner_adopted_question_review": true,
+    "pre_metric_coverage_extension_pairs": 19,
+    "labels_changed_after_metrics": false
+  },
+  "retrieval_integrity": {
+    "dense_unchanged": true,
+    "bm25_unchanged": true,
+    "hybrid_unchanged": true,
+    "corpus_unchanged": true,
+    "labels_unchanged": true,
+    "reranker_added": false
+  },
+  "determinism": {
+    "repeat_rankings_identical": true,
+    "repeat_coverage_identical": true,
+    "repeat_per_question_metrics_identical": true,
+    "repeat_overall_metrics_identical": true,
+    "repeat_bootstrap_identical": true,
+    "repeat_verdict_identical": true
+  }
+}

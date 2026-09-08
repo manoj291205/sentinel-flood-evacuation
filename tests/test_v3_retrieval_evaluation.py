@@ -1,39 +1,61 @@
-"""Phase 13B frozen top-five coverage gate and metric-refusal behavior."""
+"""Phase 13B frozen AI-assisted retrieval evaluation regression tests."""
 
 from __future__ import annotations
 
 import csv
 import hashlib
 import json
+import math
+from collections import Counter
 from pathlib import Path
 
 import pytest
 
+from scripts.phase13a3_extend_labels import (
+    COMBINED_FIELDS,
+    EXTENDED_LABEL_PATH,
+    EXTENDED_MANIFEST_PATH,
+    EXTENSION_PATH,
+    PARENT_LABEL_PATH,
+    canonical_rows_bytes,
+)
+from scripts.phase13b_evaluate_retrieval import (
+    EVALUATION_VERSION,
+    LABEL_COUNT,
+    LABEL_FINGERPRINT,
+    PER_QUESTION_FIELDS,
+    PER_QUESTION_PATH,
+    QUESTION_COUNT,
+    RANKING_FIELDS,
+    RANKINGS_PATH,
+    REPORT_PATH,
+    RESULT_PATH,
+    coverage_gate,
+    hybrid_verdict,
+    metric_row,
+    retrieve_rankings,
+    verify_frozen_inputs_v2,
+)
 from scripts.phase13b_retrieval_preflight import (
-    BENCHMARK_VERSION,
     CORPUS_FINGERPRINT,
     CORPUS_VERSION,
     EDITED_QUESTIONS,
-    EVALUATION_VERSION,
-    LABEL_FINGERPRINT,
-    LABEL_PATH,
-    LABEL_PROTOCOL,
-    OUTPUT_PATH,
-    SYSTEMS,
-    CanonicalChunk,
     IncompleteLabelCoverageError,
-    build_coverage_report,
-    canonical_label_bytes,
-    get_chunk_by_id,
-    require_complete_coverage,
+    LABEL_PROTOCOL,
+    SYSTEMS,
 )
-from src.rag.benchmark import chunk_catalog
-from src.rag.ingest import PreparedCorpus, prepare_corpus
+from src.rag.benchmark import (
+    BOOTSTRAP_RESAMPLES,
+    BOOTSTRAP_SEED,
+    ndcg_at_k,
+    paired_bootstrap_difference,
+    pooled_recall_at_k,
+    reciprocal_rank_at_k,
+)
 from src.rag.retrieve import (
     BM25_B,
     BM25_EPSILON,
     BM25_K1,
-    EXPECTED_CHUNK_COUNT,
     HYBRID_CANDIDATE_K,
     RETRIEVAL_CONFIG_VERSION,
     RRF_K,
@@ -43,14 +65,9 @@ from src.rag.retrieve import (
 
 ROOT = Path(__file__).resolve().parents[1]
 PHASE13 = ROOT / "data" / "eval_v3" / "phase13"
-QUESTION_PATH = PHASE13 / "retained_question_review.csv"
-RETAINED_PASSAGE_PATH = PHASE13 / "retained_passage_review.csv"
-RESULT_PATH = PHASE13 / "phase13b_retrieval_results.json"
-PER_QUESTION_PATH = PHASE13 / "phase13b_per_question.csv"
-REPORT_PATH = ROOT / "V3_RETRIEVAL_EVALUATION.md"
-
-LABEL_FILE_SHA256 = "9b402cbfead067a62f9c15a2b546c7dc367c2e8b96e8c3fcac7d7fc2f29ec034"
-RETAINED_PASSAGE_SHA256 = "042155e9be1174c538d17132da3b9c6fbccce2b97d5a23b8f1aa8b805e119b29"
+PARENT_SHA256 = "9b402cbfead067a62f9c15a2b546c7dc367c2e8b96e8c3fcac7d7fc2f29ec034"
+EXTENSION_SHA256 = "2e1784984b59a6d34cbe33ca03f70d1d38c9980cebbead6d12c54ba5067be1c2"
+COMBINED_SHA256 = "3bbaf030673b76e573c6f721142ac39f8f8f98a2a5985f55b8c6d1210bfa2129"
 
 
 def csv_rows(path: Path) -> list[dict[str, str]]:
@@ -59,230 +76,193 @@ def csv_rows(path: Path) -> list[dict[str, str]]:
 
 
 @pytest.fixture(scope="module")
-def artifact() -> dict:
-    return json.loads(OUTPUT_PATH.read_text())
+def result() -> dict:
+    return json.loads(RESULT_PATH.read_text())
 
 
 @pytest.fixture(scope="module")
 def labels() -> list[dict[str, str]]:
-    return csv_rows(LABEL_PATH)
+    return csv_rows(EXTENDED_LABEL_PATH)
 
 
 @pytest.fixture(scope="module")
-def prepared() -> PreparedCorpus:
-    return prepare_corpus()
+def per_question() -> list[dict[str, str]]:
+    return csv_rows(PER_QUESTION_PATH)
 
 
 @pytest.fixture(scope="module")
-def catalog(prepared: PreparedCorpus) -> dict[str, CanonicalChunk]:
-    return chunk_catalog(prepared)
+def rankings() -> list[dict[str, str]]:
+    return csv_rows(RANKINGS_PATH)
 
 
-def test_frozen_phase13b_identities_are_exact(artifact):
-    assert artifact["evaluation_version"] == EVALUATION_VERSION == "v3-retrieval-evaluation-ai-assisted-v1"
-    assert artifact["benchmark_version"] == BENCHMARK_VERSION == "v3-retrieval-benchmark-ai-assisted-v1"
-    assert artifact["label_protocol"] == LABEL_PROTOCOL == "v3-ai-relevance-labeler-v1"
-    assert artifact["label_fingerprint"] == LABEL_FINGERPRINT
-    assert artifact["corpus_version"] == CORPUS_VERSION == "v3-authoritative-corpus-v1"
-    assert artifact["corpus_fingerprint"] == CORPUS_FINGERPRINT
+def test_benchmark_version_and_evaluation_version_are_exact(result):
+    assert result["evaluation_version"] == EVALUATION_VERSION == "v3-retrieval-evaluation-ai-assisted-v2"
+    assert result["benchmark_version"] == "v3-retrieval-benchmark-ai-assisted-v2"
 
 
-def test_retrieval_configuration_remains_frozen(artifact):
-    assert artifact["retrieval_config_version"] == RETRIEVAL_CONFIG_VERSION == "v3-retrieval-v1"
-    assert tuple(method_id for _name, method_id in SYSTEMS) == (
-        "dense-minilm-v1",
-        "bm25-okapi-v1",
-        "hybrid-rrf-v1",
-    )
-    assert (BM25_K1, BM25_B, BM25_EPSILON) == (1.5, 0.75, 0.25)
-    assert (RRF_K, HYBRID_CANDIDATE_K) == (60, 20)
+def test_label_fingerprints_and_protocol_are_exact(result):
+    assert result["label_fingerprint"] == LABEL_FINGERPRINT
+    assert result["parent_label_fingerprint"] == "bf46ffb139cbd314e1707409635b76346faea81739e5a95710317be07dd73b92"
+    assert result["label_protocol"] == LABEL_PROTOCOL == "v3-ai-relevance-labeler-v1"
 
 
-def test_frozen_question_and_corpus_counts_are_exact(artifact, catalog):
-    assert artifact["question_count"] == 45
-    assert len(catalog) == EXPECTED_CHUNK_COUNT == 1797
-    assert len({chunk.source_id for chunk in catalog.values()}) == 3
+def test_combined_label_count_schema_uniqueness_and_fingerprint(labels):
+    assert len(labels) == LABEL_COUNT == 504
+    assert tuple(labels[0]) == COMBINED_FIELDS
+    pairs = [(row["question_id"], row["chunk_id"]) for row in labels]
+    assert len(pairs) == len(set(pairs))
+    assert hashlib.sha256(canonical_rows_bytes(labels, COMBINED_FIELDS)).hexdigest() == LABEL_FINGERPRINT
 
 
-def test_final_edited_query_text_is_used(artifact):
-    gap_questions = {
-        row["question_id"]: row["effective_question"] for row in artifact["coverage_gaps"]
+def test_question_count_and_final_effective_edits_are_exact(labels):
+    assert len({row["question_id"] for row in labels}) == QUESTION_COUNT == 45
+    actual = {
+        row["question_id"]: row["effective_question"]
+        for row in labels if row["question_id"] in EDITED_QUESTIONS
     }
-    assert gap_questions == EDITED_QUESTIONS
-    retained = {row["question_id"]: row["question"] for row in csv_rows(QUESTION_PATH)}
-    assert all(retained[question_id] == text for question_id, text in EDITED_QUESTIONS.items())
+    assert actual == EDITED_QUESTIONS
 
 
-def test_coverage_gate_stops_with_exact_observed_counts(artifact):
-    assert artifact["coverage_gate"] == {
-        "status": "FAIL",
-        "total_unique_top5_pairs": 434,
-        "labeled_pairs": 415,
-        "unlabeled_pairs": 19,
-        "affected_question_count": 4,
-        "affected_question_ids": ["Q003", "Q008", "Q016", "Q034"],
-    }
-    assert artifact["phase13b_status"] == "NEEDS_LABEL_COVERAGE_EXTENSION"
+def test_corpus_and_retrieval_configuration_are_exact(result):
+    assert result["corpus_version"] == CORPUS_VERSION == "v3-authoritative-corpus-v1"
+    assert result["corpus_fingerprint"] == CORPUS_FINGERPRINT
+    assert result["retrieval_config_version"] == RETRIEVAL_CONFIG_VERSION == "v3-retrieval-v1"
+    assert (BM25_K1, BM25_B, BM25_EPSILON, RRF_K, HYBRID_CANDIDATE_K) == (1.5, 0.75, 0.25, 60, 20)
 
 
-def test_gap_rows_are_deduplicated_by_question_and_chunk(artifact):
-    pairs = [
-        (row["question_id"], row["chunk_id"]) for row in artifact["coverage_gaps"]
-    ]
-    assert len(pairs) == len(set(pairs)) == 19
+def test_full_frozen_input_verifier_accepts_current_v2_state():
+    questions, labels, prepared = verify_frozen_inputs_v2()
+    assert (len(questions), len(labels), len(prepared.ids)) == (45, 504, 1797)
 
 
-def test_every_gap_has_required_traceability_fields(artifact):
-    required = {
-        "question_id",
-        "effective_question",
-        "retriever",
-        "rank",
-        "chunk_id",
-        "source_id",
-        "filename",
-        "page",
-        "corpus_version",
-        "corpus_fingerprint",
-        "passage_sha256",
-    }
-    assert all(required <= set(row) for row in artifact["coverage_gaps"])
-    assert all(row["passage_sha256"] and row["source_id"] and row["filename"] for row in artifact["coverage_gaps"])
-
-
-def test_gap_artifact_contains_no_full_passage_text_field(artifact):
-    forbidden = {"text", "original_text", "excerpt", "passage_text"}
-    assert all(forbidden.isdisjoint(row) for row in artifact["coverage_gaps"])
-
-
-def test_gap_retriever_occurrences_cover_only_frozen_top_five(artifact):
-    expected_ids = dict(SYSTEMS)
-    for row in artifact["coverage_gaps"]:
-        assert row["retriever"]
-        assert set(row["retriever"]) == set(row["rank"]) == set(row["method_id"])
-        assert all(1 <= row["rank"][name] <= 5 for name in row["retriever"])
-        assert all(row["method_id"][name] == expected_ids[name] for name in row["retriever"])
-
-
-def test_cross_retriever_gap_occurrences_are_aggregated_not_duplicated(artifact):
-    shared = [row for row in artifact["coverage_gaps"] if len(row["retriever"]) > 1]
-    assert shared
-    assert any(set(row["retriever"]) == {"Dense", "BM25", "Hybrid"} for row in shared)
-
-
-def test_gap_join_is_question_id_plus_chunk_id(artifact, labels):
-    labeled_pairs = {(row["question_id"], row["chunk_id"]) for row in labels}
+def test_rankings_include_every_question_method_and_top_five(rankings):
+    assert len(rankings) == 45 * 3 * 5
+    counts = Counter((row["question_id"], row["method_id"]) for row in rankings)
+    assert len(counts) == 45 * 3 and set(counts.values()) == {5}
+    assert set(row["method_id"] for row in rankings) == {method_id for _name, method_id in SYSTEMS}
     assert all(
-        (row["question_id"], row["chunk_id"]) not in labeled_pairs
-        for row in artifact["coverage_gaps"]
-    )
-    # Some gap chunks are labeled for another question; chunk ID alone is invalid.
-    labeled_chunk_ids = {row["chunk_id"] for row in labels}
-    assert any(row["chunk_id"] in labeled_chunk_ids for row in artifact["coverage_gaps"])
-
-
-def test_every_gap_matches_the_frozen_canonical_corpus(artifact, catalog):
-    for row in artifact["coverage_gaps"]:
-        chunk = catalog[row["chunk_id"]]
-        assert (row["source_id"], row["filename"], row["page"]) == (
-            chunk.source_id,
-            chunk.filename,
-            chunk.page,
-        )
-        assert row["corpus_version"] == CORPUS_VERSION
-        assert row["corpus_fingerprint"] == CORPUS_FINGERPRINT
-        assert row["passage_sha256"] == hashlib.sha256(chunk.text.encode("utf-8")).hexdigest()
-
-
-def test_local_chunk_reconstruction_verifies_all_gap_metadata(artifact, prepared):
-    for row in artifact["coverage_gaps"]:
-        chunk = get_chunk_by_id(
-            row["chunk_id"],
-            prepared,
-            source_id=row["source_id"],
-            filename=row["filename"],
-            page=row["page"],
-            passage_sha256=row["passage_sha256"],
-        )
-        assert chunk.chunk_id == row["chunk_id"]
-
-
-def test_local_chunk_reconstruction_rejects_missing_duplicate_and_mismatch():
-    prepared = PreparedCorpus(
-        documents=["first", "second"],
-        metadatas=[
-            {"source_id": "S", "source_document": "s.pdf", "page": 1},
-            {"source_id": "S", "source_document": "s.pdf", "page": 2},
-        ],
-        ids=["duplicate", "duplicate"],
-        source_chunk_counts={},
-        page_count=2,
-        text_page_count=2,
-    )
-    with pytest.raises(ValueError, match="exactly once"):
-        get_chunk_by_id("duplicate", prepared)
-    with pytest.raises(ValueError, match="exactly once"):
-        get_chunk_by_id("missing", prepared)
-    unique = PreparedCorpus(
-        documents=["first"],
-        metadatas=[{"source_id": "S", "source_document": "s.pdf", "page": 1}],
-        ids=["unique"],
-        source_chunk_counts={},
-        page_count=1,
-        text_page_count=1,
-    )
-    with pytest.raises(ValueError, match="source_id mismatch"):
-        get_chunk_by_id("unique", unique, source_id="wrong")
-    with pytest.raises(ValueError, match="passage SHA-256 mismatch"):
-        get_chunk_by_id("unique", unique, passage_sha256="0" * 64)
-
-
-def test_label_fingerprint_is_recomputed_from_all_frozen_rows(labels):
-    assert len(labels) == 485
-    assert hashlib.sha256(canonical_label_bytes(labels)).hexdigest() == LABEL_FINGERPRINT
-
-
-def test_relevance_labels_and_retained_pool_are_byte_unchanged():
-    assert hashlib.sha256(LABEL_PATH.read_bytes()).hexdigest() == LABEL_FILE_SHA256
-    assert hashlib.sha256(RETAINED_PASSAGE_PATH.read_bytes()).hexdigest() == RETAINED_PASSAGE_SHA256
-
-
-def test_missing_labels_are_never_assumed_grade_zero(artifact):
-    assert artifact["missing_labels_assumed_grade_0"] is False
-    assert all("ai_relevance_grade" not in row for row in artifact["coverage_gaps"])
-
-
-def test_metric_guard_refuses_incomplete_coverage(artifact):
-    with pytest.raises(IncompleteLabelCoverageError, match="zero unlabeled"):
-        require_complete_coverage(artifact)
-
-
-def test_complete_coverage_permits_the_separate_evaluation_path():
-    require_complete_coverage(
-        {"coverage_gate": {"status": "PASS", "unlabeled_pairs": 0}}
+        {int(row["rank"]) for row in rankings if row["question_id"] == q and row["method_id"] == m}
+        == {1, 2, 3, 4, 5}
+        for q, m in counts
     )
 
 
-def test_no_official_metric_or_report_artifact_was_created(artifact):
-    assert artifact["official_retrieval_metrics_calculated"] is False
-    assert not RESULT_PATH.exists()
-    assert not PER_QUESTION_PATH.exists()
-    assert not REPORT_PATH.exists()
-    assert "overall" not in artifact and "principal_comparison" not in artifact
+def test_coverage_join_uses_question_and_chunk_composite_key():
+    rankings = [{"question_id": "Q1", "chunk_id": "C"}, {"question_id": "Q2", "chunk_id": "C"}]
+    labels = [{"question_id": "Q1", "chunk_id": "C"}, {"question_id": "Q2", "chunk_id": "C"}]
+    assert coverage_gate(rankings, labels)["unique_top5_pairs"] == 2
 
 
-def test_no_other_phase13b_artifact_contains_retrieved_passage_text():
-    data_artifacts = sorted(PHASE13.glob("phase13b*.json"))
-    assert data_artifacts == [OUTPUT_PATH]
-    for path in data_artifacts:
-        payload = json.loads(path.read_text())
-        assert '"text"' not in json.dumps(payload)
-        assert '"original_text"' not in json.dumps(payload)
-    assert not list(PHASE13.glob("phase13b*.csv"))
+def test_actual_coverage_gate_passes_with_all_434_pairs(result):
+    assert result["coverage_gate"] == {
+        "unique_top5_pairs": 434,
+        "labeled": 434,
+        "unlabeled": 0,
+        "status": "PASS",
+        "missing_pairs": [],
+    }
 
 
-def test_no_reranker_was_added():
-    assert not list((ROOT / "src").rglob("*rerank*"))
+def test_missing_label_causes_hard_stop_and_is_never_zero():
+    with pytest.raises(IncompleteLabelCoverageError, match="unlabeled"):
+        coverage_gate([{"question_id": "Q", "chunk_id": "missing"}], [])
+    with pytest.raises(IncompleteLabelCoverageError, match="never become grade zero"):
+        metric_row(["A", "B", "C", "D", "E"], {"A": 0, "B": 0, "C": 0, "D": 0})
+
+
+def test_direct_hit_cutoffs_and_first_rank_fixture():
+    grades = {"A": 0, "B": 1, "C": 2, "D": 0, "E": 0}
+    score = metric_row(list(grades), grades)
+    assert score["direct_hit_at_1"] == 0
+    assert score["direct_hit_at_3"] == 1
+    assert score["direct_hit_at_5"] == 1
+    assert score["first_direct_rank"] == 3
+
+
+def test_mrr_fixture():
+    grades = {"A": 0, "B": 1, "C": 2, "D": 0, "E": 0}
+    assert reciprocal_rank_at_k(list(grades), grades, 5) == pytest.approx(1 / 3)
+
+
+def test_ndcg_and_idcg_use_all_pooled_grades_fixture():
+    ranked = ["A", "B", "C", "D", "E"]
+    grades = {"A": 1, "B": 0, "C": 2, "D": 0, "E": 0, "F": 2}
+    dcg = 1 / math.log2(2) + 3 / math.log2(4)
+    idcg = 3 / math.log2(2) + 3 / math.log2(3) + 1 / math.log2(4)
+    assert ndcg_at_k(ranked, grades, 5) == pytest.approx(dcg / idcg)
+
+
+def test_pooled_recall_fixture_and_duplicates_do_not_double_count():
+    grades = {"A": 2, "B": 2, "C": 0}
+    assert pooled_recall_at_k(["A", "A", "C"], grades, 3) == 0.5
+
+
+def test_metric_row_rejects_duplicate_ranked_chunks():
+    with pytest.raises(ValueError, match="distinct"):
+        metric_row(["A", "A", "B", "C", "D"], {"A": 2, "B": 0, "C": 0, "D": 0})
+
+
+def test_bootstrap_configuration_and_deterministic_percentile_fixture():
+    assert (BOOTSTRAP_RESAMPLES, BOOTSTRAP_SEED) == (10_000, 131_313)
+    treatment = [1, 1, 0, 1, 0]
+    baseline = [0, 1, 0, 0, 1]
+    first = paired_bootstrap_difference(treatment, baseline)
+    assert first == paired_bootstrap_difference(treatment, baseline)
+    assert first[0] == pytest.approx(0.2)
+    assert first[1][0] <= first[0] <= first[1][1]
+
+
+@pytest.mark.parametrize(
+    ("difference", "lower", "hybrid_ndcg", "dense_ndcg", "expected"),
+    [
+        (0.05, 0.001, 0.58, 0.60, "HYBRID_SUPPORTED"),
+        (0.049, 0.001, 0.60, 0.60, "HYBRID_NOT_SUPPORTED"),
+        (0.05, 0.0, 0.60, 0.60, "HYBRID_NOT_SUPPORTED"),
+        (0.05, 0.001, 0.579, 0.60, "HYBRID_NOT_SUPPORTED"),
+    ],
+)
+def test_frozen_verdict_requires_all_three_conditions(difference, lower, hybrid_ndcg, dense_ndcg, expected):
+    verdict, conditions = hybrid_verdict(difference, lower, hybrid_ndcg, dense_ndcg)
+    assert verdict == expected
+    assert (verdict == "HYBRID_SUPPORTED") == all(conditions.values())
+
+
+def test_actual_principal_comparison_is_exact(result):
+    comparison = result["principal_comparison"]
+    assert comparison["bootstrap_samples"] == 10_000
+    assert comparison["bootstrap_seed"] == 131_313
+    assert comparison["hybrid_minus_dense_directhit5"] == pytest.approx(0.2)
+    assert comparison["equivalent_question_difference"] == 9
+    assert comparison["ci95"]["lower"] == pytest.approx(4 / 45)
+    assert comparison["ci95"]["upper"] == pytest.approx(14 / 45)
+    assert comparison["final_verdict"] == "HYBRID_SUPPORTED"
+
+
+def test_overall_metrics_are_finite_and_have_raw_counts(result):
+    for system in ("dense", "bm25", "hybrid"):
+        metrics = result["overall"][system]
+        keys = ("direct_hit_at_1", "direct_hit_at_3", "direct_hit_at_5", "mrr_at_5", "ndcg_at_5", "pooled_recall_at_5")
+        assert all(math.isfinite(float(metrics[key])) and 0 <= float(metrics[key]) <= 1 for key in keys)
+        assert metrics["direct_hit_at_5_count"] == round(metrics["direct_hit_at_5"] * 45)
+
+
+def test_topic_groups_are_five_balanced_groups(result):
+    assert len(result["topic_subgroups"]) == 5
+    assert {group["n"] for group in result["topic_subgroups"].values()} == {9}
+
+
+def test_query_style_groups_are_three_balanced_groups(result):
+    assert set(result["query_style_subgroups"]) == {"LEXICAL", "SEMANTIC_PARAPHRASE", "OPERATIONAL_TASK"}
+    assert {group["n"] for group in result["query_style_subgroups"].values()} == {15}
+
+
+def test_head_to_head_cells_sum_to_45(result):
+    assert set(result["head_to_head"]) == {"both_hit", "hybrid_only", "dense_only", "neither"}
+    assert sum(result["head_to_head"].values()) == 45
+
+
+def test_first_direct_rank_diagnostic_is_scoped_to_both_hits(result):
+    assert sum(result["first_direct_rank_comparison"].values()) == result["head_to_head"]["both_hit"]
 
 
 class SpyRetriever:
@@ -296,84 +276,97 @@ class SpyRetriever:
         return self.results[:k]
 
 
-def fake_fixture():
-    method_ids = dict(SYSTEMS)
-    catalog = {
-        f"C{index}": CanonicalChunk(
-            chunk_id=f"C{index}",
-            source_id="source",
-            filename="source.pdf",
-            page=index,
-            text=f"text {index}",
+def test_retrieval_receives_only_effective_query_and_k(monkeypatch):
+    question = {"question_id": "QX", "question": "effective query", "topic": "SECRET", "query_style": "SECRET", "seed": "SECRET"}
+    retrievers = {}
+    for system, method_id in SYSTEMS:
+        results = [
+            RetrievedChunk(text=f"t{i}", source_document="f.pdf", page=i, score=1.0, source_id="S", chunk_id=f"{system}{i}", retrieval_method=method_id, rank=i)
+            for i in range(1, 6)
+        ]
+        retrievers[system] = SpyRetriever(method_id, results)
+    monkeypatch.setattr("scripts.phase13b_evaluate_retrieval.construct_frozen_retrievers", lambda _prepared: retrievers)
+    rows = retrieve_rankings([question], object())
+    assert len(rows) == 15
+    assert all(retriever.calls == [("effective query", 5)] for retriever in retrievers.values())
+
+
+def test_per_question_artifact_has_exact_schema_and_45_rows(per_question):
+    assert len(per_question) == 45
+    assert tuple(per_question[0]) == PER_QUESTION_FIELDS
+    assert len({row["question_id"] for row in per_question}) == 45
+
+
+def test_ranking_artifact_is_compact_and_contains_no_passage_text(rankings):
+    assert tuple(rankings[0]) == RANKING_FIELDS
+    forbidden = {"text", "original_text", "passage_text", "excerpt", "score", "relevance"}
+    assert forbidden.isdisjoint(rankings[0])
+
+
+def test_no_phase13b_output_duplicates_full_passage_text():
+    for path in PHASE13.glob("phase13b*.*"):
+        if path.suffix not in {".json", ".csv"}:
+            continue
+        payload = path.read_text()
+        assert '"original_text"' not in payload
+        assert '"passage_text"' not in payload
+        if path.name != "phase13b_label_coverage_gaps.json":
+            assert '"text"' not in payload
+
+
+def test_result_uses_extended_fingerprint_and_determinism_is_complete(result):
+    assert result["label_fingerprint"] == LABEL_FINGERPRINT
+    assert result["determinism"] and all(result["determinism"].values())
+
+
+def test_parent_extension_and_combined_label_files_are_unchanged():
+    assert hashlib.sha256(PARENT_LABEL_PATH.read_bytes()).hexdigest() == PARENT_SHA256
+    assert hashlib.sha256(EXTENSION_PATH.read_bytes()).hexdigest() == EXTENSION_SHA256
+    assert hashlib.sha256(EXTENDED_LABEL_PATH.read_bytes()).hexdigest() == COMBINED_SHA256
+
+
+def test_extended_manifest_still_denies_human_gold_and_metric_execution():
+    manifest = json.loads(EXTENDED_MANIFEST_PATH.read_text())
+    assert manifest["independent_human_annotation"] is False
+    assert manifest["human_passage_labels_created"] == 0
+    assert manifest["official_retrieval_metrics_calculated"] is False
+
+
+def test_retrieval_and_corpus_integrity_flags_and_no_reranker(result):
+    integrity = result["retrieval_integrity"]
+    assert all(
+        integrity[key]
+        for key in (
+            "dense_unchanged",
+            "bm25_unchanged",
+            "hybrid_unchanged",
+            "corpus_unchanged",
+            "labels_unchanged",
         )
-        for index in range(1, 8)
-    }
-
-    def result(chunk_id: str, rank: int, method_id: str) -> RetrievedChunk:
-        chunk = catalog[chunk_id]
-        return RetrievedChunk(
-            text=chunk.text,
-            source_document=chunk.filename,
-            source_id=chunk.source_id,
-            page=chunk.page,
-            score=float(rank),
-            chunk_id=chunk_id,
-            retrieval_method=method_id,
-            rank=rank,
-        )
-
-    rankings = {
-        "Dense": ["C1", "C2", "C3", "C4", "C7"],
-        "BM25": ["C1", "C2", "C3", "C5", "C6"],
-        "Hybrid": ["C1", "C2", "C3", "C4", "C7"],
-    }
-    retrievers = {
-        name: SpyRetriever(
-            method_ids[name],
-            [result(chunk_id, rank, method_ids[name]) for rank, chunk_id in enumerate(ids, 1)],
-        )
-        for name, ids in rankings.items()
-    }
-    question = {
-        "question_id": "QX",
-        "question": "query text",
-        "topic": "must not leak",
-        "query_style": "must not leak",
-        "seed_chunk": "must not leak",
-    }
-    labels = [{"question_id": "QX", "chunk_id": f"C{index}"} for index in range(1, 7)]
-    return question, labels, retrievers, catalog
-
-
-def test_top_five_union_uses_all_three_retrievers_and_detects_missing_pair():
-    question, labels, retrievers, catalog = fake_fixture()
-    report = build_coverage_report([question], labels, retrievers, catalog)
-    assert report["coverage_gate"]["total_unique_top5_pairs"] == 7
-    assert report["coverage_gate"]["labeled_pairs"] == 6
-    assert report["coverage_gate"]["unlabeled_pairs"] == 1
-    assert report["coverage_gaps"][0]["chunk_id"] == "C7"
-    assert report["coverage_gaps"][0]["retriever"] == ["Dense", "Hybrid"]
-
-
-def test_retrievers_receive_only_query_and_k_without_analysis_or_label_fields():
-    question, labels, retrievers, catalog = fake_fixture()
-    build_coverage_report([question], labels, retrievers, catalog)
-    assert all(retriever.calls == [("query text", 5)] for retriever in retrievers.values())
-
-
-def test_coverage_report_is_deterministic_on_identical_input():
-    first = fake_fixture()
-    second = fake_fixture()
-    assert build_coverage_report([first[0]], first[1], first[2], first[3]) == build_coverage_report(
-        [second[0]], second[1], second[2], second[3]
     )
+    assert integrity["reranker_added"] is False
+    assert not list((ROOT / "src").rglob("*rerank*"))
 
 
-def test_synthetic_complete_coverage_reports_pass():
-    question, labels, retrievers, catalog = fake_fixture()
-    labels.append({"question_id": "QX", "chunk_id": "C7"})
-    report = build_coverage_report([question], labels, retrievers, catalog)
-    assert report["coverage_gate"]["status"] == "PASS"
-    assert report["coverage_gate"]["unlabeled_pairs"] == 0
-    assert report["phase13b_status"] == "READY_FOR_EVALUATION"
-    require_complete_coverage(report)
+def test_failure_analysis_contains_required_compact_fields(result):
+    required = {"question_id", "effective_question", "topic", "query_style", "best_available_grade2_evidence_chunk", "top5"}
+    for cases in result["failure_summary"].values():
+        assert all(required == set(case) for case in cases)
+        assert all(set(case["top5"]) == {"dense", "bm25", "hybrid"} for case in cases)
+
+
+def test_source_distributions_each_cover_225_ranked_results(result):
+    assert all(sum(counts.values()) == 225 for counts in result["source_distribution_top5"].values())
+
+
+def test_report_states_scientific_boundaries_and_phase10_freeze():
+    report = REPORT_PATH.read_text()
+    for phrase in (
+        "not be represented as independently human-annotated gold data",
+        "PooledRecall@5",
+        "not exhaustive corpus recall",
+        "Relevance does not establish claim entailment",
+        "Phase 10 RL usefulness result, which remains `NO`",
+        "Phase 14",
+    ):
+        assert phrase in report
