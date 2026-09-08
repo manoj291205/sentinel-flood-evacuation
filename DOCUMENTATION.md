@@ -14,7 +14,35 @@ intended to be read top-to-bottom as the story of how the prototype was built.
 
 ---
 
-## Current V3 status — Phase 13A.3 coverage-extension labels frozen
+## Current V3 status — Phase 14A claim-support challenge frozen
+
+Phase 14A freezes `v3-claim-support-challenge-v1`, a construction-labeled,
+AI-assisted claim–evidence support challenge built from all 45 final Phase 13 questions.
+For each question, the lexicographically first frozen grade-2 chunk is selected without
+using retriever identity or rank. The resulting 45 question-level evidence selections
+(31 distinct chunk IDs because some questions share evidence) produce 135 pairs: 45
+`SUPPORTED`, 45 `PARTIALLY_SUPPORTED`, and 45 `UNSUPPORTED` claims. Every question's
+three variants use the same locally reconstructed authoritative chunk.
+
+The machine-readable artifact stores stable chunk/source/page provenance and exact
+passage SHA-256, but no full authoritative passage text. Phase 14A distinguishes
+deterministic source integrity, Phase 13 retrieval relevance, and semantic claim support;
+it formalizes the compatible V1 quote check as `quote-integrity-v1`. Only `SUPPORTED`
+maps to `SAFE_TO_CITE`. The future semantic verifier must return supporting spans, and
+each span must pass deterministic verbatim validation before the citation can pass the
+two-layer architecture.
+
+This is not an independently human-gold or expert-annotated entailment benchmark.
+Claims and controlled labels were constructed with AI assistance from authoritative
+evidence. Negative variants are synthetic challenges and not disaster policy. The
+primary future metric is frozen as three-class Macro-F1; secondary metrics, leakage
+controls, label-independent evaluation order, and the all-conditions usefulness gate
+are frozen in [`V3_CLAIM_SUPPORT_SPEC.md`](V3_CLAIM_SUPPORT_SPEC.md).
+
+**NO OFFICIAL CLAIM-SUPPORT VERIFIER PERFORMANCE RESULT WAS CALCULATED IN PHASE 14A.**
+No Gemini challenge evaluation was run, and Phase 14B has not started.
+
+### Frozen Phase 13 retrieval result
 
 Phase 13A froze `v3-retrieval-benchmark-spec-v1` and prepared 60 `MACHINE_PROPOSED`
 questions plus 647 deduplicated passage-review rows. Phase 13A.1 preserves those
@@ -41,8 +69,11 @@ unique labels and has fingerprint
 Frozen preflight label presence is now 434/434. The original 485-row v1 label artifact
 and fingerprint remain unchanged.
 
-**No official retrieval-quality metric, paired bootstrap interval, subgroup result, or
-hybrid-support verdict has been calculated.** Full Phase 13B evaluation remains pending.
+Phase 13B subsequently passed coverage at 434/434 and evaluated the unchanged frozen
+retrievers. Hybrid minus Dense DirectHit@5 was `+0.2000`, with paired 95% bootstrap CI
+`[0.0889, 0.3111]`; the formal verdict is `HYBRID_SUPPORTED`. BM25 nevertheless had the
+highest DirectHit@5 at 39/45 (`0.8667`), versus Hybrid 37/45 and Dense 28/45. Do not claim
+Hybrid beat BM25.
 
 ### Frozen Phase 12 retrieval configuration
 
@@ -178,7 +209,7 @@ Each step gets one section containing:
 | End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
 | Evaluation suite | `src/eval/` | **Built** — 60 held-out scenarios, baselines, ablations |
 | V3 sequential environment | `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` | **Built through V3 Phase 10** — stochastic simulator, hard safety, strong planners, fixed 6×9 Gymnasium API, frozen reward, five trained PPO seeds, and held-out evaluation |
-| Tests | `tests/` | **Built** — 568 tests total, including 46 Phase 13A.2 AI-label tests, 26 Phase 13A.1 question-review tests, 43 Phase 13A benchmark-safety tests, 48 Phase 12 retrieval tests, and all earlier V3/V1 regressions |
+| Tests | `tests/` | **Built** — 676 tests total, including 38 Phase 14A claim-support tests and all 638 earlier V3/V1 regressions |
 | Measured results | `EVALUATION.md` | **Written** — including the unflattering ones |
 | Frozen v1 results | `EVALUATION_V1.md` | **Archived** — immutable comparison point for the evaluated v1 demo |
 | Reviewer material | `REVIEW_NOTES.md`, `DEMO_SCRIPT.md` | **Written** — defence sheet and five-minute walkthrough |
@@ -4160,5 +4191,118 @@ passes all 638 collected tests.
 - compact 675-row ranking provenance: `data/eval_v3/phase13/phase13b_rankings_v2.csv`
 - evaluation report: `V3_RETRIEVAL_EVALUATION.md`
 - regression coverage: `tests/test_v3_retrieval_evaluation.py`
+
+---
+
+## 2026-09-08 — V3 Phase 14A: claim–evidence support benchmark
+
+### Goal and conceptual boundary
+
+Phase 14A freezes the terminology, benchmark construction, interface, metrics, leakage
+controls, and future decision gate needed to test whether evidence supports an exact
+claim. It separates three properties: source integrity asks whether provenance resolves
+and a quote exists verbatim; retrieval relevance asks whether a passage helps answer an
+information need; claim support asks whether the evidence establishes every material
+proposition in a claim. A citation may pass the first two and fail the third.
+
+The V1 deterministic `check_grounding` behavior remains backward compatible and is
+formalized as `quote-integrity-v1`. It answers source/quote existence, not semantic claim
+support. No existing constraint-generation, citation, corpus, or retrieval module was
+refactored.
+
+### Construction-labeled challenge and evidence selection
+
+The challenge is `v3-claim-support-challenge-v1`, built under
+`v3-claim-support-construction-v1`. It is construction-labeled with AI-assisted claim
+writing; it is not independently human-gold, expert annotated, or an independent human
+annotation exercise.
+
+All 45 final Phase 13 questions are included. For each question, every frozen grade-2
+chunk is collected, stable chunk IDs are sorted ascending, and the first is selected.
+The selector never consumes Dense/BM25/Hybrid identity, rank, score, or Phase 13 method
+performance. This gives 45 question-level evidence selections comprising 31 unique
+underlying chunk IDs because some questions legitimately share one directly relevant
+passage.
+
+Every selection was reconstructed from the frozen 1,797-chunk corpus and verified for
+chunk uniqueness, source ID, filename, physical PDF page, corpus identity, and exact
+UTF-8 passage SHA-256. Full authoritative passage text is absent from the machine-readable
+benchmark; only metadata and hashes are tracked there. The review packet contains short
+local excerpts for inspection.
+
+Each question has a concise supported paraphrase, a realistic partial overstatement,
+and a plausible same-domain unsupported claim over exactly the same evidence. Totals are
+135 pairs with exact 45/45/45 class balance. All rows are synthetic variants and are
+marked `not_authoritative_policy=true`; negative rows are prominently marked in the
+review packet. For supported rows, that flag means the generated paraphrase is not
+authoritative wording even though the evidence supports its proposition.
+
+### Interface and two-layer verification
+
+`src/constraints/claim_support.py` freezes `EvidenceChunk`, `ClaimSupportVerdict`,
+`ClaimSupportResult`, and the future
+`verify_claim_support(claim, evidence) -> ClaimSupportResult` interface. The Phase 14A
+entry point intentionally raises `NotImplementedError`; semantic execution belongs only
+to Phase 14B.
+
+Layer 1 deterministically checks source provenance, text hash, and whether every returned
+supporting span occurs verbatim in the evidence. Layer 2 will semantically classify
+`SUPPORTED`, `PARTIALLY_SUPPORTED`, or `UNSUPPORTED`. A semantic result cannot override
+a failed integrity layer. Supported and partial results require supporting spans.
+
+The future provider payload contains only the claim, authoritative evidence, and source
+provenance. Tests reject leakage of construction label/reason/subtype, synthetic flags,
+Phase 13 grades, retriever identity/rank, and expected verdict.
+
+### Frozen metrics and decision gate
+
+Only `SUPPORTED` maps to `SAFE_TO_CITE`; partial and unsupported claims are unsafe as-is.
+The primary Phase 14B metric is three-class Macro-F1. Secondary measures are accuracy,
+per-class precision/recall/F1, confusion matrix, supported precision, safe-to-cite
+precision/recall, unsafe citation acceptance, and source/span integrity failure rate.
+Unsafe acceptance divides partial-or-unsupported examples predicted supported by the
+fixed denominator 90.
+
+The future verifier is useful only if all four project engineering thresholds pass:
+Macro-F1 >= 0.75, supported precision >= 0.85, unsafe acceptance <= 0.15, and
+span/integrity failure <= 0.05. Otherwise it is not yet reliable. The evaluation order
+sorts by SHA-256 of pair ID plus the frozen challenge fingerprint and never uses labels.
+Metric code was exercised only on toy fixtures.
+
+### Fingerprint, audit, and limitations
+
+The challenge fingerprint is
+`54efc3722593fcba154ce360fe22452c8524bd1d195fc0ee96bc4ebbffd5fcc0`.
+Canonical records sort by pair ID, serialize the published fields as compact UTF-8 JSON
+arrays in fixed field order, use LF separators plus one final LF, and are SHA-256 hashed.
+The 15-example inspection sample has five examples per class. The duplicate audit found
+zero exact claims, zero normalized duplicates, zero supported claims copied verbatim in
+full, zero unresolved evidence chunks, and zero hash mismatches.
+
+Controlled constructions can differ from naturally occurring model errors and may make
+some cases easier. The corpus remains three documents from one publisher. Construction
+labels do not provide independent semantic validation, and future performance must be
+reported with that limitation.
+
+### Files and verification
+
+- specification: `V3_CLAIM_SUPPORT_SPEC.md`
+- challenge: `data/eval_v3/phase14/claim_support_challenge.json`
+- manifest: `data/eval_v3/phase14/claim_support_manifest.json`
+- deterministic spotcheck: `data/eval_v3/phase14/claim_support_spotcheck.json`
+- human-readable audit: `V3_CLAIM_SUPPORT_CHALLENGE_REVIEW.md`
+- interface and helpers: `src/constraints/claim_support.py`
+- reproducible builder: `scripts/phase14a_prepare_claim_support.py`
+- regression tests: `tests/test_v3_claim_support_benchmark.py`
+
+The Phase 14A module passes 38 focused tests, and the complete offline regression suite
+passes 676/676. The frozen Phase 10 result remains RL
+usefulness `NO`; Phase 13 remains `HYBRID_SUPPORTED` versus Dense, and BM25 remains the
+highest DirectHit@5 method. No reranker, PPO retraining, corpus change, retrieval change,
+question edit, or relevance-label change occurred.
+
+> **NO OFFICIAL CLAIM-SUPPORT VERIFIER PERFORMANCE RESULT WAS CALCULATED IN PHASE 14A.**
+
+Phase 14B has not started.
 
 ---
