@@ -14,6 +14,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 
@@ -24,6 +25,8 @@ LEARNING_CURVES_PATH = ROOT / "data" / "eval_v3" / "training" / "learning_curves
 PERMUTATION_PATH = ROOT / "data" / "eval_v3" / "training" / "permutation_diagnostic.json"
 POLICY_PATH = ROOT / "data" / "eval_v3" / "phase10" / "heldout_summary.json"
 PAIRWISE_PATH = ROOT / "data" / "eval_v3" / "phase10" / "pairwise_bootstrap.json"
+POLICY_LATENCY_PATH = ROOT / "data" / "eval_v3" / "phase10" / "latency_results.json"
+RETRIEVAL_LATENCY_PATH = ROOT / "data" / "eval_v3" / "phase12_retrieval_sanity.json"
 RETRIEVAL_PATH = ROOT / "data" / "eval_v3" / "phase13" / "phase13b_retrieval_results_v2.json"
 RETRIEVAL_MANIFEST_PATH = ROOT / "data" / "eval_v3" / "phase13" / "ai_assisted_label_manifest_extended.json"
 PER_QUESTION_PATH = ROOT / "data" / "eval_v3" / "phase13" / "phase13b_per_question_v2.csv"
@@ -172,6 +175,8 @@ policy, policy_error = load_json(POLICY_PATH)
 pairwise, pairwise_error = load_json(PAIRWISE_PATH)
 retrieval, retrieval_error = load_json(RETRIEVAL_PATH)
 retrieval_manifest, retrieval_manifest_error = load_json(RETRIEVAL_MANIFEST_PATH)
+policy_latency, policy_latency_error = load_json(POLICY_LATENCY_PATH)
+retrieval_latency, retrieval_latency_error = load_json(RETRIEVAL_LATENCY_PATH)
 
 st.markdown(
     """
@@ -185,8 +190,15 @@ st.markdown(
 )
 st.caption("Offline review UI · reads committed artifacts · performs no training or experiment reruns")
 
-overview_tab, policy_tab, training_tab, retrieval_tab, evidence_tab = st.tabs(
-    ["Overview", "Policy & RL", "PPO Training", "RAG Evaluation", "Evidence Demo"]
+overview_tab, policy_tab, training_tab, retrieval_tab, evidence_tab, tradeoffs_tab = st.tabs(
+    [
+        "Overview",
+        "Policy & RL",
+        "PPO Training",
+        "RAG Evaluation",
+        "Evidence Demo",
+        "Research Trade-offs",
+    ]
 )
 
 
@@ -431,6 +443,173 @@ with evidence_tab:
                         unsafe_allow_html=True,
                     )
         st.info("Relevant evidence retrieval is separate from claim entailment. Claim-support verification is planned as the next project phase.", icon="ℹ️")
+
+
+with tradeoffs_tab:
+    st.subheader("Research trade-offs: quality versus computation")
+    st.caption("Both views combine already-frozen measurements; no evaluation or timing was rerun for this dashboard.")
+
+    st.markdown("### Evacuation policy trade-off")
+    if policy is None:
+        show_error(policy_error)
+    elif policy_latency is None:
+        show_error(policy_latency_error)
+        st.info("Phase 10 latency artifact unavailable; the policy latency/utility scatter cannot be displayed.")
+    else:
+        policy_tradeoff = pd.DataFrame(
+            [
+                {
+                    "Method": label,
+                    "Median latency (ms)": policy_latency["policies"][key]["median_ms"],
+                    "NSU-practical": policy["policies"][key]["nsu_practical"],
+                    "Safe fraction": policy["policies"][key]["mean_safe_population_fraction"],
+                }
+                for key, label in POLICY_LABELS.items()
+            ]
+        )
+        policy_base = alt.Chart(policy_tradeoff).encode(
+            x=alt.X(
+                "Median latency (ms):Q",
+                scale=alt.Scale(type="log"),
+                axis=alt.Axis(title="Median decision latency (ms, logarithmic)", grid=True),
+            ),
+            y=alt.Y(
+                "NSU-practical:Q",
+                axis=alt.Axis(title="Normalized score / NSU-practical"),
+                scale=alt.Scale(zero=False, padding=18),
+            ),
+            color=alt.Color(
+                "Method:N",
+                legend=None,
+                scale=alt.Scale(
+                    domain=list(POLICY_LABELS.values()),
+                    range=["#8aa8b7", "#5d8799", "#0f9d76", "#27a8b7", "#123c5a", "#e0a52b", "#b64c63"],
+                ),
+            ),
+            tooltip=[
+                alt.Tooltip("Method:N"),
+                alt.Tooltip("NSU-practical:Q", format=".4f"),
+                alt.Tooltip("Median latency (ms):Q", format=".4f"),
+                alt.Tooltip("Safe fraction:Q", format=".4f"),
+            ],
+        )
+        policy_plot = policy_base.mark_circle(size=175, opacity=0.92) + policy_base.mark_text(
+            align="left", dx=9, dy=-9, fontSize=12, fontWeight=600
+        ).encode(text="Method:N")
+        st.altair_chart(policy_plot.properties(height=420), width="stretch")
+        st.caption(
+            f"Latency source: {POLICY_LATENCY_PATH.relative_to(ROOT)} · "
+            f"utility/safety source: {POLICY_PATH.relative_to(ROOT)}"
+        )
+        st.info(
+            "Planning quality increased substantially with lookahead depth, but latency also increased by orders of magnitude. PPO remained fast but did not achieve competitive held-out utility.",
+            icon="↔️",
+        )
+        best, practical, rl = st.columns(3)
+        with best:
+            result_card("Best utility", "Lookahead-3", f"NSU {policy['policies']['lookahead_k3']['nsu_practical']:.4f}; not designated as a production method.", "good")
+        with practical:
+            result_card("Fast practical baseline", "Risk-Greedy", "Principal practical comparator under the frozen latency constraint.", "info")
+        with rl:
+            result_card("RL result", "Not useful", "PPO did not pass the frozen Phase 10 usefulness criteria.", "warn")
+
+    st.markdown("### Retrieval quality versus latency")
+    if retrieval is None:
+        show_error(retrieval_error)
+    elif retrieval_latency is None:
+        show_error(retrieval_latency_error)
+        fallback = pd.DataFrame(
+            {
+                "Method": ["Dense MiniLM", "BM25", "Hybrid RRF"],
+                "DirectHit@5": [retrieval["overall"][key]["direct_hit_at_5"] for key in ("dense", "bm25", "hybrid")],
+            }
+        ).set_index("Method")
+        st.info("Latency artifact unavailable; showing frozen retrieval quality only.")
+        st.bar_chart(fallback, color="#17a6b6")
+    else:
+        retrieval_names = {"dense": "Dense MiniLM", "bm25": "BM25", "hybrid": "Hybrid RRF"}
+        retrieval_tradeoff = pd.DataFrame(
+            [
+                {
+                    "Method": label,
+                    "Median latency (ms)": retrieval_latency["latency"][key]["median_ms"],
+                    "DirectHit@5": retrieval["overall"][key]["direct_hit_at_5"],
+                    "Hits": f"{retrieval['overall'][key]['direct_hit_at_5_count']}/45",
+                    "nDCG@5": retrieval["overall"][key]["ndcg_at_5"],
+                }
+                for key, label in retrieval_names.items()
+            ]
+        )
+        retrieval_base = alt.Chart(retrieval_tradeoff).encode(
+            x=alt.X(
+                "Median latency (ms):Q",
+                scale=alt.Scale(type="log"),
+                axis=alt.Axis(title="Warmed median retrieval latency (ms, logarithmic)", grid=True),
+            ),
+            y=alt.Y(
+                "DirectHit@5:Q",
+                axis=alt.Axis(title="DirectHit@5", format=".0%"),
+                scale=alt.Scale(domain=[0.55, 0.92]),
+            ),
+            color=alt.Color(
+                "Method:N",
+                legend=None,
+                scale=alt.Scale(
+                    domain=list(retrieval_names.values()),
+                    range=["#5d8799", "#e0a52b", "#17a6b6"],
+                ),
+            ),
+            tooltip=[
+                alt.Tooltip("Method:N"),
+                alt.Tooltip("DirectHit@5:Q", format=".4f"),
+                alt.Tooltip("Hits:N"),
+                alt.Tooltip("nDCG@5:Q", format=".4f"),
+                alt.Tooltip("Median latency (ms):Q", format=".4f"),
+            ],
+        )
+        retrieval_plot = retrieval_base.mark_circle(size=210, opacity=0.94) + retrieval_base.mark_text(
+            align="left", dx=10, dy=-10, fontSize=13, fontWeight=600
+        ).encode(text="Method:N")
+        st.altair_chart(retrieval_plot.properties(height=380), width="stretch")
+        st.caption(
+            f"Latency source: {RETRIEVAL_LATENCY_PATH.relative_to(ROOT)} · "
+            f"quality source: {RETRIEVAL_PATH.relative_to(ROOT)}"
+        )
+        retrieval_finding, hybrid_finding = st.columns(2)
+        with retrieval_finding:
+            result_card("BM25 highest DirectHit@5", "39/45 · 0.8667", "BM25 also had the lowest frozen warmed retrieval latency.", "good")
+        with hybrid_finding:
+            result_card("Hybrid supported vs Dense", "+0.2000 DirectHit@5", "Hybrid passed the pre-registered principal comparison against Dense; it did not beat BM25.", "info")
+        st.success("BM25 produced the highest DirectHit@5 while also having the lowest measured warmed retrieval latency.", icon="🔎")
+
+    st.markdown("### Why this matters")
+    lesson_one, lesson_two, lesson_three = st.columns(3)
+    with lesson_one:
+        result_card("1 · Complexity", "Not automatically better", "Measured quality and computation—not model novelty—drive selection.", "info")
+    with lesson_two:
+        result_card("2 · Reinforcement learning", "Empirically rejected", "PPO was not retained despite 1.25 million training timesteps.", "warn")
+    with lesson_three:
+        result_card("3 · Neural retrieval", "Lexical baseline won", "BM25 outperformed the Dense baseline on direct-evidence retrieval.", "good")
+    st.markdown(
+        "**Sentinel-Agent therefore selects components based on measured performance rather than assuming that reinforcement learning or neural retrieval must be superior.**"
+    )
+
+    st.markdown("### Research progression")
+    timeline = [
+        "V1 · Static shelter recommendation",
+        "V2 · Multi-resource deterministic planning",
+        "V3 Simulator · Dynamic stochastic evacuation",
+        "V3 Policy Study · PPO tested and rejected",
+        "V3 Retrieval Study · Hybrid supported vs Dense",
+    ]
+    st.markdown(
+        '<div class="flow">'
+        + '<span class="flow-arrow">→</span>'.join(
+            f'<span class="flow-step">{html.escape(step)}</span>' for step in timeline
+        )
+        + "</div>",
+        unsafe_allow_html=True,
+    )
 
 st.divider()
 st.caption("Sentinel-Agent V3 · Synthetic evacuation research prototype · Not validated for operational emergency response")
