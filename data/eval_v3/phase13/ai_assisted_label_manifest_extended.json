@@ -1,0 +1,153 @@
+{
+  "benchmark_version": "v3-retrieval-benchmark-ai-assisted-v2",
+  "parent_benchmark_version": "v3-retrieval-benchmark-ai-assisted-v1",
+  "extension_version": "v3-retrieval-label-coverage-extension-v1",
+  "label_protocol": "v3-ai-relevance-labeler-v1",
+  "parent_label_fingerprint": "bf46ffb139cbd314e1707409635b76346faea81739e5a95710317be07dd73b92",
+  "extension_label_fingerprint": "df1d939661fa6a44bee9e6978326e79f1a136b00cf210299563742c39e751208",
+  "extended_label_fingerprint": "393512866c33a32d9aa2944289791eb74554eeb585e21cc82956be203c28b1b7",
+  "base_rows": 485,
+  "extension_rows": 19,
+  "total_rows": 504,
+  "questions": 45,
+  "affected_extension_questions": [
+    "Q003",
+    "Q008",
+    "Q016",
+    "Q034"
+  ],
+  "grade_counts": {
+    "0": 259,
+    "1": 124,
+    "2": 121
+  },
+  "confidence_counts": {
+    "HIGH": 114,
+    "MEDIUM": 390,
+    "LOW": 0
+  },
+  "extension_grade_counts": {
+    "0": 8,
+    "1": 8,
+    "2": 3
+  },
+  "extension_confidence_counts": {
+    "HIGH": 6,
+    "MEDIUM": 13,
+    "LOW": 0
+  },
+  "coverage_reason": "FINAL_EDITED_QUERY_TOP5_COVERAGE",
+  "coverage_verification": {
+    "preflight_unique_top5_pairs": 434,
+    "base_labeled_preflight_pairs_preserved": 415,
+    "extension_gap_pairs_covered": 19,
+    "labeled_after_extension": 434,
+    "unlabeled_after_extension": 0,
+    "status": "PASS",
+    "method": "Frozen preflight counts plus unchanged parent fingerprint and complete disjoint gap-set inclusion; retrieval was not rerun."
+  },
+  "questions_with_direct_evidence": 45,
+  "questions_without_direct_evidence": 0,
+  "corpus_version": "v3-authoritative-corpus-v1",
+  "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+  "canonical_chunks": 1797,
+  "retrieval_config_version": "v3-retrieval-v1",
+  "retrieval_methods": [
+    "dense-minilm-v1",
+    "bm25-okapi-v1",
+    "hybrid-rrf-v1"
+  ],
+  "retrieval_parameters": {
+    "bm25_k1": 1.5,
+    "bm25_b": 0.75,
+    "bm25_epsilon": 0.25,
+    "rrf_k": 60,
+    "hybrid_candidate_k": 20
+  },
+  "preflight_commit": "b2435a5d8d8ea98c4702ba67601c72dbc13fd5ce",
+  "gap_artifact_sha256": "5677186598e18e6021aa35df27c9f0524c71dae249432814f856879324107d09",
+  "parent_label_file_sha256": "9b402cbfead067a62f9c15a2b546c7dc367c2e8b96e8c3fcac7d7fc2f29ec034",
+  "fingerprint_procedure": {
+    "fields_included": [
+      "question_id",
+      "effective_question",
+      "topic",
+      "query_style",
+      "chunk_id",
+      "source_id",
+      "filename",
+      "page",
+      "source_passage_sha256",
+      "ai_relevance_grade",
+      "ai_relevance_status",
+      "ai_relevance_rationale",
+      "ai_label_confidence",
+      "ai_labeler_protocol",
+      "benchmark_version",
+      "label_origin",
+      "label_origin_version"
+    ],
+    "canonical_field_order": [
+      "question_id",
+      "effective_question",
+      "topic",
+      "query_style",
+      "chunk_id",
+      "source_id",
+      "filename",
+      "page",
+      "source_passage_sha256",
+      "ai_relevance_grade",
+      "ai_relevance_status",
+      "ai_relevance_rationale",
+      "ai_label_confidence",
+      "ai_labeler_protocol",
+      "benchmark_version",
+      "label_origin",
+      "label_origin_version"
+    ],
+    "row_sort": [
+      "question_id",
+      "chunk_id"
+    ],
+    "serialization": "Each field coerced to its CSV string; JSON object with sorted keys, compact separators, UTF-8, ensure_ascii=false.",
+    "newline_rule": "Lexicographically ordered serialized rows joined by LF with one final LF.",
+    "hash": "SHA-256 over the resulting bytes."
+  },
+  "passage_text_tracked_in_new_artifacts": false,
+  "passage_reconstruction": "Local frozen corpus lookup by chunk_id with source, filename, page, and SHA-256 verification.",
+  "blind_label_fields": [
+    "question_id",
+    "effective_question",
+    "chunk_id",
+    "source_id",
+    "filename",
+    "page",
+    "original_text"
+  ],
+  "blind_order": [
+    "question_id",
+    "chunk_id"
+  ],
+  "consistency_diagnostic": {
+    "pairs": 5,
+    "selection": "First five by SHA-256(question_id + '|' + chunk_id).",
+    "exact_agreement": 1.0,
+    "disagreements": 0,
+    "absolute_grade_differences": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "weighted_kappa": "NOT_REPORTED_TINY_DIAGNOSTIC",
+    "reconciliation": "NONE; first-pass extension labels remain authoritative"
+  },
+  "human_passage_labels_created": 0,
+  "independent_human_annotation": false,
+  "benchmark_characterization": "AI-assisted relevance benchmark",
+  "official_retrieval_metrics_calculated": false,
+  "full_phase13b_evaluation_started": false,
+  "reranker_added": false
+}

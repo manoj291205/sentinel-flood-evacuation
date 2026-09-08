@@ -14,7 +14,7 @@ intended to be read top-to-bottom as the story of how the prototype was built.
 
 ---
 
-## Current V3 status — Phase 13B preflight stopped for label coverage
+## Current V3 status — Phase 13A.3 coverage-extension labels frozen
 
 Phase 13A froze `v3-retrieval-benchmark-spec-v1` and prepared 60 `MACHINE_PROPOSED`
 questions plus 647 deduplicated passage-review rows. Phase 13A.1 preserves those
@@ -30,14 +30,19 @@ review artifacts. **The benchmark's passage-level relevance judgments are AI-ass
 not independently human annotated.**
 
 Phase 13B ran its required pre-metric coverage gate using the final 45 question texts.
-The three frozen retrievers produced 434 unique top-five question/chunk pairs; 415 have
-frozen labels and 19 do not. All gaps belong to the four project-owner-edited questions:
-`Q003`, `Q008`, `Q016`, and `Q034`. Status is
-`NEEDS_LABEL_COVERAGE_EXTENSION`.
+The three frozen retrievers produced 434 unique top-five question/chunk pairs: 415 had
+frozen labels and 19 gaps belonged to the four project-owner-edited questions `Q003`,
+`Q008`, `Q016`, and `Q034`. The gate stopped evaluation before any metric.
+
+Phase 13A.3 blind-labeled exactly those 19 frozen gaps under the unchanged protocol and
+created `v3-retrieval-benchmark-ai-assisted-v2`. The compact combined set contains 504
+unique labels and has fingerprint
+`393512866c33a32d9aa2944289791eb74554eeb585e21cc82956be203c28b1b7`.
+Frozen preflight label presence is now 434/434. The original 485-row v1 label artifact
+and fingerprint remain unchanged.
 
 **No official retrieval-quality metric, paired bootstrap interval, subgroup result, or
-hybrid-support verdict has been calculated.** A pre-metric label-coverage extension is
-required before Phase 13B can continue. Missing labels were not treated as grade 0.
+hybrid-support verdict has been calculated.** Full Phase 13B evaluation remains pending.
 
 ### Frozen Phase 12 retrieval configuration
 
@@ -3936,5 +3941,123 @@ no-reranker freeze. The complete suite contains 594 tests after adding these che
 
 Phase 13B stops here. A separately instructed pre-metric label-coverage extension is
 required before any official retrieval metric may be computed.
+
+---
+
+## 2026-09-08 — V3 Phase 13A.3: pre-metric label coverage extension
+
+### Why the extension was required
+
+The Phase 13B coverage gate used the final effective question text and found that the
+adopted wording changes for `Q003`, `Q008`, `Q016`, and `Q034` changed top-five retrieval
+membership. Of 434 unique top-five question/chunk pairs, 415 were present in the frozen
+Phase 13A.2 label set and 19 were not. The gate correctly returned
+`NEEDS_LABEL_COVERAGE_EXTENSION` and stopped before any retrieval-quality metric,
+bootstrap interval, or hybrid verdict was calculated.
+
+Commit `b2435a5d8d8ea98c4702ba67601c72dbc13fd5ce` froze and sanitized the exact 19-pair
+gap set before labeling. Phase 13A.3 uses all and only those pairs; it does not rerun
+retrieval to discover a different set, expand to top ten, or select gaps based on
+observed quality.
+
+### Local reconstruction and blind labeling
+
+Passage text for coverage-extension labeling is reconstructed locally from the frozen
+1,797-chunk corpus using `chunk_id`. Every chunk resolved exactly once, and its source
+ID, filename, physical PDF page, corpus identity, and SHA-256 matched the frozen gap
+metadata. The Git-tracked gap and label-extension artifacts store provenance and hashes
+rather than duplicating authoritative source text.
+
+The blind labeler received only question ID, effective question, chunk ID, source ID,
+filename, page, and locally reconstructed passage text. It did not receive retriever
+identity, rank, score, fusion data, seed status, old machine suggestions, prior labels,
+or an indication of which method exposed a gap. Rows were presented in neutral
+`question_id + chunk_id` order. The unchanged `v3-ai-relevance-labeler-v1` decision
+protocol was applied to each passage independently.
+
+### Extension and combined labels
+
+The coverage extension version is `v3-retrieval-label-coverage-extension-v1`:
+
+| Extension grade | Rows |
+| --- | ---: |
+| 2 — directly relevant | 3 |
+| 1 — partially relevant | 8 |
+| 0 — not relevant | 8 |
+
+Confidence totals are 6 `HIGH`, 13 `MEDIUM`, and 0 `LOW`. Each row is `COMPLETE`, has a
+concise passage-specific rationale, preserves the original protocol, and stores a source
+passage SHA-256 rather than passage text.
+
+The original 485-row `v3-retrieval-benchmark-ai-assisted-v1` artifact remains
+byte-for-byte unchanged with parent fingerprint
+`bf46ffb139cbd314e1707409635b76346faea81739e5a95710317be07dd73b92`.
+The new combined benchmark is `v3-retrieval-benchmark-ai-assisted-v2`:
+
+| Combined-label field | Result |
+| --- | ---: |
+| Parent rows | 485 |
+| Extension rows | 19 |
+| Total unique question/chunk rows | 504 |
+| Grade 2 | 121 |
+| Grade 1 | 124 |
+| Grade 0 | 259 |
+
+Its extended fingerprint is
+`393512866c33a32d9aa2944289791eb74554eeb585e21cc82956be203c28b1b7`.
+The compact combined CSV excludes passage text, includes source-passage SHA-256 and label
+origin, and uses the exact field list published in the extended manifest. Fingerprinting
+coerces each included value to its CSV string, serializes a compact key-sorted UTF-8 JSON
+object with non-ASCII preserved, sorts rows by question/chunk, joins records with LF and
+one final LF, and applies SHA-256.
+
+### Coverage, answerability, and repeat diagnostic
+
+All 19/19 frozen gap pairs are present in v2. Because the parent artifact and fingerprint
+are unchanged, all 415/415 previously labeled preflight pairs remain present; frozen
+preflight label coverage is therefore 434/434 with zero unlabeled pairs. This is only a
+label-presence verification and is not Hit@k or any other quality metric. All 45
+questions still have at least one grade-2 passage in the combined set.
+
+The tiny consistency diagnostic selects five pairs by SHA-256 of
+`question_id + "|" + chunk_id`, independent of relevance and retriever metadata. A
+separate blind pass agreed on all five labels: exact agreement 1.0, zero disagreements,
+and absolute grade difference zero for every pair. Weighted kappa is not reported for
+this tiny diagnostic. No reconciliation occurred; first-pass extension labels remain
+authoritative.
+
+### Scientific and frozen-integrity boundaries
+
+This extension is allowed because the pre-registered gate found and froze the complete
+gap set before any metric, and the same blind protocol was applied without changing a
+retriever or selecting only convenient passages. The benchmark remains AI-assisted,
+not human gold, human annotated, independently human reviewed, or expert annotated.
+Human passage labels created remain zero.
+
+Dense `dense-minilm-v1`, BM25 `bm25-okapi-v1`, Hybrid `hybrid-rrf-v1`, MiniLM,
+chunking, tokenizer, BM25 parameters, `RRF_K=60`, candidate depth, and the corpus remain
+unchanged. No reranker was added. No DirectHit, MRR, nDCG, pooled Recall, Hybrid-minus-
+Dense difference, bootstrap, `HYBRID_SUPPORTED`, or `HYBRID_NOT_SUPPORTED` result was
+calculated. The Phase 10 RL usefulness result remains `NO`, and Phase 14 has not started.
+
+### Artifacts, tests, commit, and stopping point
+
+- extension labels: `data/eval_v3/phase13/ai_assisted_passage_label_extension.csv`
+- compact combined labels: `data/eval_v3/phase13/ai_assisted_passage_labels_extended.csv`
+- extended manifest: `data/eval_v3/phase13/ai_assisted_label_manifest_extended.json`
+- tiny repeat diagnostic: `data/eval_v3/phase13/ai_label_extension_consistency.csv`
+- reproducible generator: `scripts/phase13a3_extend_labels.py`
+- regression tests: `tests/test_v3_retrieval_label_extension.py`
+
+The new tests add 33 behavioral checks for the frozen gap set, local reconstruction,
+blind-input isolation, exact extension labels, compact combined data, deterministic
+fingerprints, 434/434 label presence, answerability, tiny consistency replay, absence of
+quality metrics, human-field immutability, and retrieval/corpus freeze. Together with the
+594 prior tests, the complete suite contains 627 tests.
+
+The change is committed as
+`V3 Phase 13A.3: extend blind relevance labels for coverage`. Phase 13A.3 stops after
+freezing v2. Full Phase 13B evaluation has not been run and must start from scratch in a
+separate phase.
 
 ---

@@ -1,0 +1,6 @@
+question_id,chunk_id,first_grade,second_grade,agreement,absolute_grade_difference,selection_sha256
+Q003,ndma-temporary-shelters-2019-p48-c2,1,1,TRUE,0,005843ebfb058bcdb05cc301d946b698f0efa619a31ac0ef87568988ef51099c
+Q003,ndma-national-disaster-management-plan-2019-p115-c2,0,0,TRUE,0,1c5cf2aa0e99759284bf4d62db44396b320bf0fd98b3bbfb5fa6d806b60af2ef
+Q008,ndma-temporary-shelters-2019-p44-c2,0,0,TRUE,0,221b390b83d9b654e3afcf2172e821e0d718d33522f95f9a5ba62e3373c0635e
+Q008,ndma-flood-guidelines-2008-p89-c1,1,1,TRUE,0,3076b51099d3e8c4457f0ddd6010dee72e96567f0827947297dd53ef11c5c175
+Q008,ndma-national-disaster-management-plan-2019-p85-c1,0,0,TRUE,0,38c4c88eb7e0c0a9eee6ce21712ca5dfd1dedd2356120955c96f5eb2dcaff58d

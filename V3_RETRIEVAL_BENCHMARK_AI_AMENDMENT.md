@@ -126,3 +126,65 @@ unchanged. Dense, BM25, Hybrid, corpus, chunking, tokenizer, and candidate depth
 unchanged; no reranker is added.
 
 Phase 13A.2 stops after label creation and freezing. Phase 13B has not started.
+
+## Phase 13A.3 — pre-metric label coverage extension
+
+The Phase 13B preflight reran the frozen top-five retrievers with the final effective
+questions and correctly stopped before metrics because the four adopted edits changed
+top-five membership. Commit `b2435a5d8d8ea98c4702ba67601c72dbc13fd5ce` froze 19
+previously unlabeled `(question_id, chunk_id)` pairs across `Q003`, `Q008`, `Q016`, and
+`Q034`. The preflight recorded 434 unique top-five pairs, of which 415 were already in
+the Phase 13A.2 label set and 19 required coverage repair. No retrieval-quality metric
+had been calculated when the gap set was frozen.
+
+The extension labels all and only those 19 pairs under
+`v3-retrieval-label-coverage-extension-v1`. Passage text is reconstructed locally from
+the unchanged 1,797-chunk corpus by stable chunk ID. Source ID, filename, physical PDF
+page, corpus identity, and SHA-256 of the exact UTF-8 chunk text must match the sanitized
+gap record before labeling proceeds. Full passage text is used only in the local blind
+view and is not stored in the extension, combined-label, manifest, or consistency
+artifacts.
+
+The blind labeler receives only question ID, effective question, chunk ID, source ID,
+filename, physical page, and locally reconstructed passage text. It receives no
+retriever identity, rank, score, fusion information, seed status, machine suggestion,
+coverage-gap role, or previous label. Rows use neutral `(question_id, chunk_id)` order.
+The Phase 13A.2 grade decision order, confidence definitions, and
+`v3-ai-relevance-labeler-v1` protocol remain unchanged.
+
+The 19-row extension contains 3 grade-2, 8 grade-1, and 8 grade-0 judgments, with 6
+`HIGH`, 13 `MEDIUM`, and 0 `LOW` confidence values. It is stored separately in
+`ai_assisted_passage_label_extension.csv`; the original 485-row file and its fingerprint
+`bf46ffb139cbd314e1707409635b76346faea81739e5a95710317be07dd73b92`
+remain unchanged.
+
+The combined immutable version is `v3-retrieval-benchmark-ai-assisted-v2`: the original
+485 judgments plus the 19 coverage-extension judgments, for 504 unique question/chunk
+pairs. Its fingerprint is
+`393512866c33a32d9aa2944289791eb74554eeb585e21cc82956be203c28b1b7`.
+The compact combined artifact replaces passage text with its SHA-256 and records label
+origin. Fingerprinting retains the Phase 13A.2 approach: use the published combined CSV
+fields in canonical field order, coerce values to CSV strings, serialize each row as
+compact key-sorted UTF-8 JSON with non-ASCII preserved, sort by question/chunk, join with
+LF plus one final LF, and hash the bytes with SHA-256. The extended manifest publishes
+the exact included-field list and serialization rule.
+
+Coverage presence is now 434/434 for the frozen preflight set: the unchanged parent
+fingerprint preserves the 415 existing pairs, and the complete disjoint 19-pair gap set
+is present in v2. This is set-presence verification, not a retrieval-quality result; no
+retrieval was rerun to select or expand the extension. All 45 questions retain at least
+one grade-2 passage in the combined set.
+
+A tiny repeat diagnostic selects five extension pairs by SHA-256 ordering of
+`question_id + "|" + chunk_id`. The second pass sees only the same blind fields, agrees
+on all five grades, and is not reconciled into the first pass. This demonstrates
+deterministic protocol replay on a very small sample, not independent annotation or
+inter-rater reliability.
+
+This coverage repair is scientifically permitted because the gate and complete gap set
+were frozen before any metric; every gap was labeled rather than a performance-selected
+subset; labeling was blind to retrieval provenance; and neither retrieval nor the
+corpus was changed. The v2 benchmark remains AI-assisted, not human gold or independently
+human annotated. Human passage fields remain blank. No DirectHit, MRR, nDCG, pooled
+Recall, bootstrap, method difference, or hybrid-support verdict is calculated in Phase
+13A.3. Full Phase 13B evaluation remains pending.
