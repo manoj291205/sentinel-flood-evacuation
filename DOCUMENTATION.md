@@ -14,7 +14,7 @@ intended to be read top-to-bottom as the story of how the prototype was built.
 
 ---
 
-## Current V3 status — Phase 14A claim-support challenge frozen
+## Current V3 status — human override demo available; Phase 14B paused
 
 Phase 14A freezes `v3-claim-support-challenge-v1`, a construction-labeled,
 AI-assisted claim–evidence support challenge built from all 45 final Phase 13 questions.
@@ -39,8 +39,17 @@ primary future metric is frozen as three-class Macro-F1; secondary metrics, leak
 controls, label-independent evaluation order, and the all-conditions usefulness gate
 are frozen in [`V3_CLAIM_SUPPORT_SPEC.md`](V3_CLAIM_SUPPORT_SPEC.md).
 
-**NO OFFICIAL CLAIM-SUPPORT VERIFIER PERFORMANCE RESULT WAS CALCULATED IN PHASE 14A.**
-No Gemini challenge evaluation was run, and Phase 14B has not started.
+**NO COMPLETE PHASE 14B CLAIM-SUPPORT PERFORMANCE RESULT IS AVAILABLE.** Phase 14B is
+paused because the existing Gemini project reached its daily request quota. Partial
+accuracy, F1, and other semantic performance are intentionally not calculated or shown.
+The frozen benchmark, prompt, model, temperature, and evaluation order remain unchanged.
+
+The standalone review dashboard now includes an offline **Human Override & Audit** tab.
+It composes the existing synthetic simulator, deterministic safety mask, Risk-Greedy
+planner, and locally reconstructed frozen Phase 13 evidence. Operators may accept,
+reject, or select a different currently allowed action. Each choice creates a
+session-only audit record and can be exported as CSV. This feature makes no Gemini or
+other network request and is a demonstration layer, not a new research experiment.
 
 ### Frozen Phase 13 retrieval result
 
@@ -4303,6 +4312,79 @@ question edit, or relevance-label change occurred.
 
 > **NO OFFICIAL CLAIM-SUPPORT VERIFIER PERFORMANCE RESULT WAS CALCULATED IN PHASE 14A.**
 
-Phase 14B has not started.
+Phase 14B later began under the frozen Phase 14A protocol and is currently paused due to
+the Gemini daily quota. No complete or partial performance metric is reported here.
+
+---
+
+## 2026-09-09 — V3 demo: human override and audit trail
+
+### Purpose and boundaries
+
+The standalone project-review dashboard now demonstrates Sentinel-Agent as a
+human-in-the-loop decision-support system rather than an autonomous disaster commander.
+The feature is entirely offline and does not constitute a new research experiment. It
+does not change the simulator, planner, safety rules, corpus, retrieval benchmark, PPO,
+or any frozen scientific result.
+
+The tab prominently preserves the scientific posture: Phase 10 RL usefulness remains
+`NO`; Phase 13 remains `HYBRID_SUPPORTED` versus Dense; BM25 retains the highest
+DirectHit@5; and Phase 14B is `PAUSED — API quota`. No partial Phase 14B accuracy or F1
+is calculated or displayed.
+
+### Existing components reused
+
+The demo instantiates the existing deterministic Gate 6 practical scenario generated
+from seed `620000`, runs it through `StochasticSimulator` under the frozen medium
+uncertainty configuration, recomputes the existing deterministic Phase 5 safety mask,
+and obtains the recommendation from `RiskGreedyPlanner`. Current zone populations and
+flood severities, shelter status/capacity/severity, and route reachability/travel
+estimates are rendered directly from the policy-safe simulator observation.
+
+An offline evidence card selects an existing direct-evidence Phase 13 Hybrid result for
+Q015, reconstructs the chunk from the unchanged local corpus, and displays only a short
+excerpt plus document, page, and chunk provenance. The audit record stores provenance,
+not the authoritative passage text. The dashboard explains that relevant retrieved
+context is distinct from the separately evaluated Phase 14 semantic support question.
+
+### Human controls and deterministic enforcement
+
+- `ACCEPT` executes the current planner recommendation; its note is optional.
+- `OVERRIDE` requires a reason and offers only alternatives in the current deterministic
+  allowed-action mask. The chosen action is re-evaluated through the same mechanical and
+  hard-safety checks immediately before simulator execution.
+- `REJECT` requires a reason, records `executed_action=NONE`, and does not advance the
+  simulator.
+
+The core decision helper rejects an action outside the current canonical action set,
+any mechanically invalid action, any hard-safety exclusion, an override that repeats the
+recommendation, and a reasonless override or rejection. ACCEPT and valid OVERRIDE use
+the unchanged simulator `step` implementation and advance the synthetic incident.
+
+### Session audit trail
+
+Each record contains `audit_id`, UTC timestamp, scenario ID, timestep, planner,
+recommended action, decision, executed action, mechanical validity, safety result,
+human reason, and evidence source/page/chunk ID. Records remain in Streamlit session
+state only, are shown as a dataframe, and can be downloaded with Streamlit's built-in
+CSV download control. The feature does not persist personal information or full source
+passages.
+
+### Verification and limitations
+
+Focused tests exercise ACCEPT, required REJECT reasons, safe OVERRIDE choices, explicit
+blocking of excluded actions, audit-to-dataframe/CSV behavior, dashboard compilation,
+tab rendering, a UI ACCEPT interaction, and absence of Gemini/network integration. The
+demonstration uses one fixed synthetic scenario and one planner; it is not operational
+emergency-response validation, and session audit rows are not a durable production
+audit store.
+
+### Files
+
+- `review_dashboard.py`
+- `src/human_decision.py`
+- `tests/test_human_decision_demo.py`
+- `README.md`
+- `DOCUMENTATION.md`
 
 ---

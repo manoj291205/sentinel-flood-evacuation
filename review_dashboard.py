@@ -18,6 +18,20 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
+from src.human_decision import (
+    DEMO_PLANNER_LABEL,
+    EvidenceReference,
+    HumanDecisionError,
+    action_label,
+    allowed_override_actions,
+    apply_human_decision,
+    build_demo_runtime,
+    current_decision_context,
+    recommended_batch_size,
+    route_for_action,
+)
+from src.sim import DispatchAction
+
 
 ROOT = Path(__file__).resolve().parent
 TRAINING_PATH = ROOT / "data" / "eval_v3" / "training" / "training_summary.json"
@@ -154,6 +168,48 @@ def load_chunk_catalog() -> tuple[dict[str, dict[str, Any]] | None, str | None]:
         return None, f"Local chunk reconstruction is unavailable: {exc}"
 
 
+@st.cache_data(show_spinner="Loading frozen decision evidence…")
+def load_decision_evidence() -> tuple[dict[str, Any] | None, str | None]:
+    """Select one direct Phase 13 route-planning passage without running retrieval."""
+    try:
+        rankings = pd.read_csv(RANKINGS_PATH)
+        labels = pd.read_csv(LABELS_PATH)
+        grade_lookup = {
+            (str(row.question_id), str(row.chunk_id)): int(row.ai_relevance_grade)
+            for row in labels.itertuples()
+        }
+        candidates = rankings[
+            (rankings["question_id"] == "Q015")
+            & (rankings["method_id"] == "hybrid-rrf-v1")
+        ].sort_values("rank")
+        selected = next(
+            row
+            for row in candidates.itertuples()
+            if grade_lookup.get(("Q015", str(row.chunk_id))) == 2
+        )
+        catalog, error = load_chunk_catalog()
+        if error or catalog is None:
+            raise RuntimeError(error or "local chunk catalog unavailable")
+        chunk = catalog[str(selected.chunk_id)]
+        if (
+            chunk["source_id"] != str(selected.source_id)
+            or chunk["page"] != int(selected.page)
+        ):
+            raise RuntimeError("frozen evidence provenance mismatch")
+        clean = " ".join(chunk["text"].split())
+        return {
+            "question_id": "Q015",
+            "source_id": chunk["source_id"],
+            "document": SOURCE_TITLES.get(chunk["source_id"], chunk["source_id"]),
+            "filename": chunk["filename"],
+            "page": chunk["page"],
+            "chunk_id": str(selected.chunk_id),
+            "excerpt": clean[:320] + ("…" if len(clean) > 320 else ""),
+        }, None
+    except Exception as exc:
+        return None, f"Frozen decision evidence is unavailable: {exc}"
+
+
 def show_error(error: str | None) -> bool:
     if error:
         st.warning(error, icon="⚠️")
@@ -190,9 +246,18 @@ st.markdown(
 )
 st.caption("Offline review UI · reads committed artifacts · performs no training or experiment reruns")
 
-overview_tab, policy_tab, training_tab, retrieval_tab, evidence_tab, tradeoffs_tab = st.tabs(
+(
+    overview_tab,
+    decision_tab,
+    policy_tab,
+    training_tab,
+    retrieval_tab,
+    evidence_tab,
+    tradeoffs_tab,
+) = st.tabs(
     [
         "Overview",
+        "Human Override & Audit",
         "Policy & RL",
         "PPO Training",
         "RAG Evaluation",
@@ -249,6 +314,254 @@ with overview_tab:
         result_card("Retrieval research", "HYBRID_SUPPORTED", "Hybrid met the frozen support rule against Dense; BM25 nevertheless had the highest DirectHit@5.", "good")
     with right:
         result_card("Scientific posture", "Negative results retained", "The project reports what the frozen experiments found and does not tune until a preferred story appears.", "info")
+
+
+with decision_tab:
+    st.subheader("Human Override & Audit")
+    st.warning(
+        "SYNTHETIC DEMONSTRATION — this is a decision-support prototype, not a real-world operational recommendation.",
+        icon="⚠️",
+    )
+
+    integrity_columns = st.columns(4)
+    with integrity_columns[0]:
+        result_card("Phase 10", "RL usefulness = NO", "PPO was not selected by the frozen evaluation.", "warn")
+    with integrity_columns[1]:
+        result_card("Phase 13", "HYBRID_SUPPORTED", "Frozen comparison against Dense.", "good")
+    with integrity_columns[2]:
+        result_card("Phase 13 finding", "BM25 highest Hit@5", "BM25 had the highest frozen DirectHit@5.", "info")
+    with integrity_columns[3]:
+        result_card("Phase 14B", "PAUSED — API quota", "No partial accuracy or F1 is shown.", "warn")
+
+    flow = [
+        "Observed State",
+        "Safety Filter",
+        "Planner",
+        "Recommendation",
+        "Evidence",
+        "Human Decision",
+        "Audit Record",
+    ]
+    st.markdown(
+        '<div class="flow">'
+        + '<span class="flow-arrow">→</span>'.join(
+            f'<span class="flow-step">{html.escape(step)}</span>' for step in flow
+        )
+        + "</div>",
+        unsafe_allow_html=True,
+    )
+
+    st.info(
+        "**Why human-in-the-loop?** Sentinel-Agent provides decision support rather than autonomous disaster command. Deterministic checks constrain unsafe or mechanically invalid actions, while an operator retains authority to accept, reject, or override recommendations with an auditable reason.",
+        icon="👤",
+    )
+
+    if "decision_demo_scenario" not in st.session_state:
+        scenario, simulator = build_demo_runtime()
+        st.session_state.decision_demo_scenario = scenario
+        st.session_state.decision_demo_simulator = simulator
+        st.session_state.decision_demo_audit = []
+    if "decision_demo_audit" not in st.session_state:
+        st.session_state.decision_demo_audit = []
+
+    reset_col, state_col = st.columns([1, 4])
+    with reset_col:
+        if st.button("Reset synthetic incident", key="reset_decision_demo"):
+            scenario, simulator = build_demo_runtime()
+            st.session_state.decision_demo_scenario = scenario
+            st.session_state.decision_demo_simulator = simulator
+            st.session_state.decision_demo_audit = []
+            st.rerun()
+    with state_col:
+        st.caption("Reset clears only this browser session's synthetic incident and audit rows.")
+
+    try:
+        context = current_decision_context(
+            st.session_state.decision_demo_scenario,
+            st.session_state.decision_demo_simulator,
+        )
+    except HumanDecisionError as exc:
+        st.warning(f"Synthetic incident has no remaining executable action: {exc}")
+        context = None
+
+    evidence, evidence_error = load_decision_evidence()
+    if context is not None:
+        observation = context.state.to_policy_observation()
+        timestep_col, population_col, transit_col, arrived_col = st.columns(4)
+        timestep_col.metric("Timestep", context.state.current_timestep)
+        population_col.metric("Population remaining", context.state.population_remaining)
+        transit_col.metric("People in transit", context.state.people_in_transit)
+        arrived_col.metric("Safely arrived", context.state.people_safely_arrived)
+
+        st.markdown("### Current incident state")
+        zones_col, shelters_col = st.columns(2)
+        with zones_col:
+            st.markdown("#### Affected zones")
+            st.dataframe(
+                pd.DataFrame(
+                    {
+                        "Zone": [row["zone_id"] for row in observation["zones"]],
+                        "Population remaining": [row["population_remaining"] for row in observation["zones"]],
+                        "Flood severity": [row["flood_severity_current"] for row in observation["zones"]],
+                    }
+                ),
+                hide_index=True,
+                width="stretch",
+            )
+        with shelters_col:
+            st.markdown("#### Shelters")
+            st.dataframe(
+                pd.DataFrame(
+                    {
+                        "Shelter": [row["shelter_id"] for row in observation["shelters"]],
+                        "Status": [row["status_current"] for row in observation["shelters"]],
+                        "Available capacity": [row["capacity_available"] for row in observation["shelters"]],
+                        "Flood severity": [row["flood_severity_current"] for row in observation["shelters"]],
+                    }
+                ),
+                hide_index=True,
+                width="stretch",
+            )
+
+        with st.expander("Current routes", expanded=False):
+            st.dataframe(
+                pd.DataFrame(
+                    {
+                        "Route": [row["route_id"] for row in observation["routes"]],
+                        "Status": [
+                            "OPEN"
+                            if row["reachable_current"]
+                            else "CLOSED"
+                            if row["closed_at_timestep"] is not None
+                            else "UNREACHABLE"
+                            for row in observation["routes"]
+                        ],
+                        "Expected travel (min)": [row["expected_travel_time_minutes"] for row in observation["routes"]],
+                    }
+                ),
+                hide_index=True,
+                width="stretch",
+            )
+
+        action = context.recommendation.action
+        route = route_for_action(context, action)
+        st.markdown("### Recommended action")
+        recommendation_col, checks_col = st.columns([1.15, 1])
+        with recommendation_col:
+            st.markdown(f"## {action_label(action)}")
+            st.write(f"**Batch size:** {recommended_batch_size(context)} people")
+            st.write(f"**Planner:** {DEMO_PLANNER_LABEL} (`{context.recommendation.planner_version}`)")
+            st.caption(context.recommendation.explanation or "")
+        with checks_col:
+            checks = st.columns(4)
+            checks[0].metric("Mechanical validity", "PASS")
+            checks[1].metric("Safety layer", "PASS")
+            checks[2].metric("Route", "OPEN" if route and route["reachable_current"] else "N/A")
+            if isinstance(action, DispatchAction):
+                shelter = context.state.shelter(action.shelter_id)
+                checks[3].metric("Shelter capacity", shelter.capacity_available if shelter else "—")
+            else:
+                checks[3].metric("Shelter capacity", "N/A")
+
+        st.markdown("### Offline authoritative evidence")
+        if evidence_error or evidence is None:
+            show_error(evidence_error)
+        else:
+            st.markdown(
+                f'<div class="evidence"><div class="evidence-meta"><b>{html.escape(evidence["document"])}</b> · '
+                f'{html.escape(evidence["filename"])} · PDF page {evidence["page"]}</div>'
+                f'<div class="evidence-meta"><code>{html.escape(evidence["chunk_id"])}</code></div>'
+                f'<div class="excerpt">{html.escape(evidence["excerpt"])}</div></div>',
+                unsafe_allow_html=True,
+            )
+            st.info(
+                "Retrieved evidence is relevant authoritative context. Full semantic claim-support verification is currently being evaluated separately in Phase 14.",
+                icon="📚",
+            )
+
+        st.markdown("### Human decision")
+        accept_col, override_col, reject_col = st.columns(3)
+        evidence_reference = (
+            EvidenceReference(evidence["source_id"], evidence["page"], evidence["chunk_id"])
+            if evidence
+            else None
+        )
+
+        def submit_decision(decision: str, *, selected_action=None, reason: str = "") -> None:
+            if evidence_reference is None:
+                st.error("Offline evidence must load before a decision can be recorded.")
+                return
+            try:
+                record, _transition = apply_human_decision(
+                    context,
+                    st.session_state.decision_demo_simulator,
+                    decision=decision,
+                    evidence=evidence_reference,
+                    audit_sequence=len(st.session_state.decision_demo_audit) + 1,
+                    selected_action=selected_action,
+                    human_reason=reason,
+                )
+            except HumanDecisionError as exc:
+                st.error(str(exc))
+                return
+            st.session_state.decision_demo_audit.append(record)
+            st.session_state.decision_demo_last = (
+                f"{record['decision']} recorded as {record['audit_id']}."
+            )
+            st.rerun()
+
+        with accept_col:
+            st.markdown("#### Accept")
+            accept_note = st.text_input(
+                "Optional operator note", key="decision_accept_note"
+            )
+            if st.button("ACCEPT RECOMMENDATION", key="accept_recommendation", type="primary"):
+                submit_decision("ACCEPT", reason=accept_note)
+
+        with override_col:
+            st.markdown("#### Override")
+            alternatives = allowed_override_actions(context)
+            override_action = st.selectbox(
+                "Safe alternative",
+                alternatives,
+                format_func=action_label,
+                key="decision_override_action",
+                disabled=not alternatives,
+            ) if alternatives else None
+            override_reason = st.text_input(
+                "Override reason (required)", key="decision_override_reason"
+            )
+            if st.button("OVERRIDE", key="override_recommendation", disabled=not alternatives):
+                submit_decision(
+                    "OVERRIDE", selected_action=override_action, reason=override_reason
+                )
+
+        with reject_col:
+            st.markdown("#### Reject")
+            reject_reason = st.text_input(
+                "Rejection reason (required)", key="decision_reject_reason"
+            )
+            if st.button("REJECT", key="reject_recommendation"):
+                submit_decision("REJECT", reason=reject_reason)
+
+    if st.session_state.get("decision_demo_last"):
+        st.success(st.session_state.decision_demo_last)
+
+    st.markdown("### Session audit trail")
+    audit_rows = st.session_state.decision_demo_audit
+    if audit_rows:
+        audit_frame = pd.DataFrame(audit_rows)
+        st.dataframe(audit_frame, hide_index=True, width="stretch")
+        st.download_button(
+            "Download session audit CSV",
+            data=audit_frame.to_csv(index=False).encode("utf-8"),
+            file_name="sentinel_v3_session_audit.csv",
+            mime="text/csv",
+            key="download_decision_audit",
+        )
+    else:
+        st.caption("No decisions recorded in this browser session.")
+    st.caption("The audit log is session-only and stores no full authoritative passage text or personal data.")
 
 
 with policy_tab:
@@ -442,7 +755,7 @@ with evidence_tab:
                         f'{excerpt_html}</div>',
                         unsafe_allow_html=True,
                     )
-        st.info("Relevant evidence retrieval is separate from claim entailment. Claim-support verification is planned as the next project phase.", icon="ℹ️")
+        st.info("Relevant evidence retrieval is separate from claim entailment. Phase 14B claim-support verification is currently paused because of the Gemini daily quota; no partial performance is shown.", icon="ℹ️")
 
 
 with tradeoffs_tab:

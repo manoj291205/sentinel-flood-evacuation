@@ -85,6 +85,12 @@ Launch the standalone, artifact-backed review UI locally:
 streamlit run review_dashboard.py
 ```
 
+The **Human Override & Audit** tab runs entirely offline. It connects the existing
+synthetic V3 simulator, deterministic safety mask, and Risk-Greedy planner, then lets a
+human operator accept, safely override, or reject a recommendation. Decisions are kept
+only in the browser session and can be downloaded as CSV; authoritative evidence text
+is not copied into the audit log.
+
 ---
 
 ## Development Status
@@ -110,14 +116,15 @@ v3-dynamic-stochastic
 | 8     | Pre-registered RL reward and integration               | ✅ Complete |
 | 9     | Five-seed MaskablePPO training                         | ✅ Complete |
 | 10    | Frozen held-out planner-vs-PPO evaluation              | ✅ Complete |
-| 11    | Authoritative RAG corpus expansion                     | 🔄 Next     |
-| 12    | Dense + BM25 + hybrid retrieval                        | ⏳ Planned  |
-| 13    | Human-reviewed retrieval benchmark                     | ⏳ Planned  |
-| 14    | Citation relevance / entailment verification           | ⏳ Planned  |
+| 11    | Authoritative RAG corpus expansion                     | ✅ Complete |
+| 12    | Dense + BM25 + hybrid retrieval                        | ✅ Complete |
+| 13    | AI-assisted retrieval benchmark                        | ✅ Complete |
+| 14A   | Construction-labeled claim-support challenge           | ✅ Complete |
+| 14B   | Semantic claim-support evaluation                      | ⏸ API quota |
 | 15    | Evidence-grounded policy constraint integration        | ⏳ Planned  |
 | 16–17 | Geospatial road network and hazard-aware routing       | ⏳ Planned  |
-| 18    | Human-in-the-loop override and audit trail             | ⏳ Planned  |
-| 19–20 | Final dashboard and accessibility verification         | ⏳ Planned  |
+| 18    | Human-in-the-loop override and session audit trail     | ✅ Complete |
+| 19–20 | Final dashboard and accessibility verification         | 🔄 In progress |
 
 ---
 
@@ -496,31 +503,20 @@ A negative result is considered a valid research outcome.
 
 ## Next Development Stages
 
-The decision-policy study is now frozen.
+The decision-policy and retrieval studies are frozen. Phase 14B is paused because of
+the Gemini daily quota; partial semantic performance is not reported.
 
 The remaining V3 work focuses on strengthening the evidence and application layers:
 
 ```text
-Phase 11
-Expand the authoritative disaster-guidance corpus
-
-Phase 12
-Benchmark dense, BM25 and hybrid retrieval
-
-Phase 13
-Create a human-reviewed retrieval benchmark
-
-Phase 14
-Verify whether cited evidence actually supports generated claims
+Phase 14B
+Resume the frozen semantic claim-support evaluation only after API quota is available
 
 Phase 15
 Integrate deterministic safety with evidence-grounded policy constraints
 
 Phase 16–17
 Add cached real road topology and hazard-aware routing
-
-Phase 18
-Add human operator override and audit logging
 
 Phase 19–20
 Build and verify the final geospatial Streamlit decision-support dashboard
