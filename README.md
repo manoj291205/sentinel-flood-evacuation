@@ -87,9 +87,13 @@ streamlit run review_dashboard.py
 
 The **Human Override & Audit** tab runs entirely offline. It connects the existing
 synthetic V3 simulator, deterministic safety mask, and Risk-Greedy planner, then lets a
-human operator accept, safely override, or reject a recommendation. Decisions are kept
-only in the browser session and can be downloaded as CSV; authoritative evidence text
-is not copied into the audit log.
+human operator play a reproducible multi-timestep evacuation episode by accepting,
+safely overriding, or rejecting recommendations. The live view shows zone, shelter,
+route, and in-transit state; actual simulator events; population progress; and a computed
+session summary. Decisions remain in the browser session and can be downloaded as CSV,
+with the summary available as JSON. Authoritative evidence text is not copied into the
+audit log. This is the **Phase 19 Live Decision/Timeline integration milestone**, not a
+new scientific experiment or an operationally validated system.
 
 ---
 

@@ -19,7 +19,10 @@ import pandas as pd
 import streamlit as st
 
 from src.human_decision import (
+    DEMO_DEFAULT_UNCERTAINTY,
+    DEMO_GENERATOR_SEED,
     DEMO_PLANNER_LABEL,
+    DEMO_UNCERTAINTY_OPTIONS,
     EvidenceReference,
     HumanDecisionError,
     action_label,
@@ -27,8 +30,11 @@ from src.human_decision import (
     apply_human_decision,
     build_demo_runtime,
     current_decision_context,
+    progress_snapshot,
     recommended_batch_size,
     route_for_action,
+    session_summary,
+    timeline_entries,
 )
 from src.sim import DispatchAction
 
@@ -319,7 +325,7 @@ with overview_tab:
 with decision_tab:
     st.subheader("Human Override & Audit")
     st.warning(
-        "SYNTHETIC DEMONSTRATION — this is a decision-support prototype, not a real-world operational recommendation.",
+        "SYNTHETIC EVACUATION SCENARIO — this is a decision-support prototype, not an operationally validated real-world recommendation.",
         icon="⚠️",
     )
 
@@ -331,7 +337,7 @@ with decision_tab:
     with integrity_columns[2]:
         result_card("Phase 13 finding", "BM25 highest Hit@5", "BM25 had the highest frozen DirectHit@5.", "info")
     with integrity_columns[3]:
-        result_card("Phase 14B", "PAUSED — API quota", "No partial accuracy or F1 is shown.", "warn")
+        result_card("Claim-Support Verification", "PAUSED — Gemini daily quota", "Benchmark: 135 · dispositions: 21/135. No partial performance is shown.", "warn")
 
     flow = [
         "Observed State",
@@ -356,52 +362,105 @@ with decision_tab:
         icon="👤",
     )
 
+    regime_labels = {
+        "v3-low-v1": "LOW",
+        "v3-medium-v1": "MEDIUM",
+        "v3-high-v1": "HIGH",
+    }
+    selected_uncertainty = st.selectbox(
+        "Synthetic uncertainty regime",
+        DEMO_UNCERTAINTY_OPTIONS,
+        index=DEMO_UNCERTAINTY_OPTIONS.index(DEMO_DEFAULT_UNCERTAINTY),
+        format_func=lambda value: regime_labels[value],
+        key="decision_demo_uncertainty_selector",
+    )
+
     if "decision_demo_scenario" not in st.session_state:
-        scenario, simulator = build_demo_runtime()
+        scenario, simulator = build_demo_runtime(selected_uncertainty)
         st.session_state.decision_demo_scenario = scenario
         st.session_state.decision_demo_simulator = simulator
         st.session_state.decision_demo_audit = []
+        st.session_state.decision_demo_timeline = []
+        st.session_state.decision_demo_progress = [
+            progress_snapshot(simulator.prepared_state_for_debug())
+        ]
     if "decision_demo_audit" not in st.session_state:
         st.session_state.decision_demo_audit = []
+    if "decision_demo_timeline" not in st.session_state:
+        st.session_state.decision_demo_timeline = []
+    if "decision_demo_progress" not in st.session_state:
+        st.session_state.decision_demo_progress = [
+            progress_snapshot(
+                st.session_state.decision_demo_simulator.prepared_state_for_debug()
+            )
+        ]
 
     reset_col, state_col = st.columns([1, 4])
     with reset_col:
-        if st.button("Reset synthetic incident", key="reset_decision_demo"):
-            scenario, simulator = build_demo_runtime()
+        if st.button("Reset Scenario", key="reset_decision_demo"):
+            scenario, simulator = build_demo_runtime(selected_uncertainty)
             st.session_state.decision_demo_scenario = scenario
             st.session_state.decision_demo_simulator = simulator
             st.session_state.decision_demo_audit = []
+            st.session_state.decision_demo_timeline = []
+            st.session_state.decision_demo_progress = [
+                progress_snapshot(simulator.prepared_state_for_debug())
+            ]
+            st.session_state.decision_demo_last = "Synthetic scenario reset."
             st.rerun()
     with state_col:
-        st.caption("Reset clears only this browser session's synthetic incident and audit rows.")
-
-    try:
-        context = current_decision_context(
-            st.session_state.decision_demo_scenario,
-            st.session_state.decision_demo_simulator,
+        active_config = st.session_state.decision_demo_simulator.config
+        st.caption(
+            f"Fixed generator seed {DEMO_GENERATOR_SEED} · active regime {active_config.level.value} "
+            f"(`{active_config.config_id}`). Choose a regime and reset to apply it. Reset clears only this browser session."
         )
-    except HumanDecisionError as exc:
-        st.warning(f"Synthetic incident has no remaining executable action: {exc}")
+
+    demo_simulator = st.session_state.decision_demo_simulator
+    if demo_simulator.state.terminal:
+        display_state = demo_simulator.state
         context = None
+    else:
+        demo_simulator.observe()
+        display_state = demo_simulator.prepared_state_for_debug()
+        try:
+            context = current_decision_context(
+                st.session_state.decision_demo_scenario,
+                demo_simulator,
+            )
+        except HumanDecisionError as exc:
+            st.warning(f"Synthetic incident has no remaining executable action: {exc}")
+            context = None
 
     evidence, evidence_error = load_decision_evidence()
-    if context is not None:
-        observation = context.state.to_policy_observation()
-        timestep_col, population_col, transit_col, arrived_col = st.columns(4)
-        timestep_col.metric("Timestep", context.state.current_timestep)
-        population_col.metric("Population remaining", context.state.population_remaining)
-        transit_col.metric("People in transit", context.state.people_in_transit)
-        arrived_col.metric("Safely arrived", context.state.people_safely_arrived)
+    observation = display_state.to_policy_observation()
+    timestep_col, total_col, population_col, transit_col, arrived_col = st.columns(5)
+    timestep_col.metric(
+        "Timestep",
+        f"{display_state.current_timestep} / {st.session_state.decision_demo_scenario.time.horizon_steps}",
+    )
+    total_col.metric("Total population", display_state.initial_evacuation_population)
+    population_col.metric("Population remaining", display_state.population_remaining)
+    transit_col.metric("Population in transit", display_state.people_in_transit)
+    arrived_col.metric("Population safe", display_state.people_safely_arrived)
 
-        st.markdown("### Current incident state")
+    st.markdown("### Current incident state")
+    if context is not None:
         zones_col, shelters_col = st.columns(2)
         with zones_col:
             st.markdown("#### Affected zones")
+            zone_definitions = {
+                zone.zone_id: zone
+                for zone in st.session_state.decision_demo_scenario.zones
+            }
             st.dataframe(
                 pd.DataFrame(
                     {
                         "Zone": [row["zone_id"] for row in observation["zones"]],
                         "Population remaining": [row["population_remaining"] for row in observation["zones"]],
+                        "Vulnerable population (initial)": [
+                            zone_definitions[row["zone_id"]].vulnerable_population
+                            for row in observation["zones"]
+                        ],
                         "Flood severity": [row["flood_severity_current"] for row in observation["zones"]],
                     }
                 ),
@@ -415,6 +474,9 @@ with decision_tab:
                     {
                         "Shelter": [row["shelter_id"] for row in observation["shelters"]],
                         "Status": [row["status_current"] for row in observation["shelters"]],
+                        "Capacity": [row["capacity_total"] for row in observation["shelters"]],
+                        "Occupancy": [row["occupancy_current"] for row in observation["shelters"]],
+                        "Reserved": [row["capacity_reserved"] for row in observation["shelters"]],
                         "Available capacity": [row["capacity_available"] for row in observation["shelters"]],
                         "Flood severity": [row["flood_severity_current"] for row in observation["shelters"]],
                     }
@@ -428,6 +490,8 @@ with decision_tab:
                 pd.DataFrame(
                     {
                         "Route": [row["route_id"] for row in observation["routes"]],
+                        "Source": [row["source_zone_id"] for row in observation["routes"]],
+                        "Destination": [row["destination_shelter_id"] for row in observation["routes"]],
                         "Status": [
                             "OPEN"
                             if row["reachable_current"]
@@ -436,12 +500,38 @@ with decision_tab:
                             else "UNREACHABLE"
                             for row in observation["routes"]
                         ],
+                        "Current travel (min)": [row["travel_time_current"] for row in observation["routes"]],
                         "Expected travel (min)": [row["expected_travel_time_minutes"] for row in observation["routes"]],
+                        "Route hazard": [row["route_hazard_proxy"] for row in observation["routes"]],
+                        "Closure probability": [row["estimated_closure_probability"] for row in observation["routes"]],
                     }
                 ),
                 hide_index=True,
                 width="stretch",
             )
+
+        st.markdown("#### In Transit")
+        pending = display_state.pending_dispatches
+        if pending:
+            st.dataframe(
+                pd.DataFrame(
+                    {
+                        "Event": [event.event_id for event in pending],
+                        "Source": [event.source_zone_id for event in pending],
+                        "Destination": [event.destination_shelter_id for event in pending],
+                        "Population": [event.people for event in pending],
+                        "Remaining timesteps": [
+                            max(event.arrival_timestep - display_state.current_timestep, 0)
+                            for event in pending
+                        ],
+                        "Arrival timestep": [event.arrival_timestep for event in pending],
+                    }
+                ),
+                hide_index=True,
+                width="stretch",
+            )
+        else:
+            st.caption("No population is currently in transit.")
 
         action = context.recommendation.action
         route = route_for_action(context, action)
@@ -452,16 +542,26 @@ with decision_tab:
             st.write(f"**Batch size:** {recommended_batch_size(context)} people")
             st.write(f"**Planner:** {DEMO_PLANNER_LABEL} (`{context.recommendation.planner_version}`)")
             st.caption(context.recommendation.explanation or "")
+            st.caption(
+                "Recommended because the action is mechanically valid and passes the deterministic safety layer under the current observable state."
+            )
         with checks_col:
-            checks = st.columns(4)
+            checks = st.columns(3)
             checks[0].metric("Mechanical validity", "PASS")
-            checks[1].metric("Safety layer", "PASS")
+            checks[1].metric("Hard safety", "PASS")
             checks[2].metric("Route", "OPEN" if route and route["reachable_current"] else "N/A")
             if isinstance(action, DispatchAction):
                 shelter = context.state.shelter(action.shelter_id)
-                checks[3].metric("Shelter capacity", shelter.capacity_available if shelter else "—")
-            else:
-                checks[3].metric("Shelter capacity", "N/A")
+                detail_checks = st.columns(3)
+                detail_checks[0].metric("Source zone", action.zone_id)
+                detail_checks[1].metric("Destination shelter", action.shelter_id)
+                detail_checks[2].metric(
+                    "Available capacity", shelter.capacity_available if shelter else "—"
+                )
+                st.metric(
+                    "Destination hazard",
+                    f"{shelter.flood_severity_current:.3f}" if shelter else "—",
+                )
 
         st.markdown("### Offline authoritative evidence")
         if evidence_error or evidence is None:
@@ -475,7 +575,7 @@ with decision_tab:
                 unsafe_allow_html=True,
             )
             st.info(
-                "Retrieved evidence is relevant authoritative context. Full semantic claim-support verification is currently being evaluated separately in Phase 14.",
+                "Retrieved authoritative context — semantic claim-support verification is currently under evaluation in Phase 14B. This contextual passage is not a dynamic semantic justification for the simulator action.",
                 icon="📚",
             )
 
@@ -492,7 +592,7 @@ with decision_tab:
                 st.error("Offline evidence must load before a decision can be recorded.")
                 return
             try:
-                record, _transition = apply_human_decision(
+                record, transition = apply_human_decision(
                     context,
                     st.session_state.decision_demo_simulator,
                     decision=decision,
@@ -505,6 +605,22 @@ with decision_tab:
                 st.error(str(exc))
                 return
             st.session_state.decision_demo_audit.append(record)
+            st.session_state.decision_demo_timeline.extend(
+                timeline_entries(record, transition)
+            )
+            if transition is not None:
+                simulator = st.session_state.decision_demo_simulator
+                if transition.terminal:
+                    next_state = transition.state
+                else:
+                    simulator.observe()
+                    next_state = simulator.prepared_state_for_debug()
+                snapshot = progress_snapshot(next_state)
+                if (
+                    not st.session_state.decision_demo_progress
+                    or st.session_state.decision_demo_progress[-1] != snapshot
+                ):
+                    st.session_state.decision_demo_progress.append(snapshot)
             st.session_state.decision_demo_last = (
                 f"{record['decision']} recorded as {record['audit_id']}."
             )
@@ -562,6 +678,77 @@ with decision_tab:
     else:
         st.caption("No decisions recorded in this browser session.")
     st.caption("The audit log is session-only and stores no full authoritative passage text or personal data.")
+
+    st.markdown("### Scenario Timeline")
+    timeline_rows = st.session_state.decision_demo_timeline
+    if timeline_rows:
+        st.dataframe(pd.DataFrame(timeline_rows), hide_index=True, width="stretch")
+    else:
+        st.caption("No simulator or human-decision events have occurred yet.")
+
+    st.markdown("### Population progress")
+    progress_frame = pd.DataFrame(st.session_state.decision_demo_progress)
+    if not progress_frame.empty:
+        st.line_chart(
+            progress_frame.set_index("timestep")[
+                ["safe_population", "remaining_population", "in_transit_population"]
+            ],
+            color=["#0f9d76", "#b64c63", "#17a6b6"],
+        )
+        st.caption("Session playback only; this chart is not an evaluation metric.")
+
+    current_summary = session_summary(audit_rows, display_state)
+    st.markdown("### Live session summary")
+    first_summary = st.columns(4)
+    first_summary[0].metric("Decisions made", current_summary["decisions_made"])
+    first_summary[1].metric("Accepted", current_summary["accepted_recommendations"])
+    first_summary[2].metric("Overrides", current_summary["overrides"])
+    first_summary[3].metric("Rejected", current_summary["rejected_recommendations"])
+    second_summary = st.columns(4)
+    second_summary[0].metric("Population safe", current_summary["population_safely_evacuated"])
+    second_summary[1].metric("Population remaining", current_summary["population_remaining"])
+    second_summary[2].metric("Population in transit", current_summary["population_in_transit"])
+    second_summary[3].metric("Unsafe actions executed", current_summary["unsafe_actions_executed"])
+
+    summary_payload = {
+        "scenario_id": st.session_state.decision_demo_scenario.scenario_id,
+        "scenario_seed": st.session_state.decision_demo_scenario.seed,
+        "uncertainty_regime": demo_simulator.config.level.value,
+        "uncertainty_config_id": demo_simulator.config.config_id,
+        "current_timestep": display_state.current_timestep,
+        "horizon_steps": st.session_state.decision_demo_scenario.time.horizon_steps,
+        **current_summary,
+    }
+    st.download_button(
+        "Download session summary JSON",
+        data=(json.dumps(summary_payload, indent=2) + "\n").encode("utf-8"),
+        file_name="sentinel_v3_session_summary.json",
+        mime="application/json",
+        key="download_decision_summary",
+    )
+
+    if display_state.terminal:
+        st.success("EVACUATION EPISODE COMPLETE")
+        st.json({
+            "terminal_reason": display_state.terminal_reason.value if display_state.terminal_reason else None,
+            "initial_population": display_state.initial_evacuation_population,
+            "safe_population": display_state.people_safely_arrived,
+            "unfinished_population": display_state.population_remaining + display_state.people_in_transit,
+            "dispatches": len(display_state.dispatch_events),
+            "overrides": current_summary["overrides"],
+            "rejects": current_summary["rejected_recommendations"],
+            "unsafe_actions_executed": current_summary["unsafe_actions_executed"],
+            "timesteps": display_state.current_timestep,
+        })
+        st.caption("This single synthetic episode is not a statistical policy comparison.")
+
+    with st.expander("How to demonstrate this"):
+        st.markdown(
+            "1. Inspect the current flood, shelter, route, and in-transit state.\n"
+            "2. Show the planner recommendation and deterministic safety validation.\n"
+            "3. Accept or safely override the recommendation.\n"
+            "4. Advance through several timesteps and inspect the timeline and audit history."
+        )
 
 
 with policy_tab:

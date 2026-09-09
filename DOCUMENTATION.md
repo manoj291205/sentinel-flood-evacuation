@@ -46,10 +46,13 @@ The frozen benchmark, prompt, model, temperature, and evaluation order remain un
 
 The standalone review dashboard now includes an offline **Human Override & Audit** tab.
 It composes the existing synthetic simulator, deterministic safety mask, Risk-Greedy
-planner, and locally reconstructed frozen Phase 13 evidence. Operators may accept,
-reject, or select a different currently allowed action. Each choice creates a
-session-only audit record and can be exported as CSV. This feature makes no Gemini or
-other network request and is a demonstration layer, not a new research experiment.
+planner, and locally reconstructed frozen Phase 13 evidence. Its Phase 19 Live Decision
+integration supports reproducible multi-timestep playback under the existing LOW,
+MEDIUM, and HIGH uncertainty configurations. Operators may accept, reject, or select a
+different currently allowed action. The dashboard renders actual simulator events and
+population ledgers, keeps a session-only decision audit, and exports the audit as CSV
+and its computed summary as JSON. This feature makes no Gemini or other network request
+and is a demonstration layer, not a new research experiment.
 
 ### Frozen Phase 13 retrieval result
 
@@ -4386,5 +4389,66 @@ audit store.
 - `tests/test_human_decision_demo.py`
 - `README.md`
 - `DOCUMENTATION.md`
+
+---
+
+## 2026-09-09 — Phase 19 Live Decision and Timeline integration milestone
+
+### Scope
+
+This milestone extends the existing Human Override & Audit feature using the master
+plan's Phase 19 **Dashboard V3 / Live Decision / Timeline** terminology. It does not
+declare all of Phase 19 complete: geospatial display work remains separate. It connects
+the already implemented stochastic simulator, deterministic safety layer, Risk-Greedy
+planner, contextual offline evidence, human control, and audit trail into one
+multi-timestep review flow. No scientific experiment was run and no frozen result was
+changed.
+
+The default remains the existing Gate 6 practical generator seed `620000` with the
+existing `v3-medium-v1` uncertainty configuration. The existing LOW, MEDIUM, and HIGH
+configurations may be selected and take effect only after **Reset Scenario**. Reset is
+deterministic for a selected configuration and clears browser-session playback data; it
+does not write to evaluation artifacts.
+
+### Interactive episode
+
+The live panel shows timestep/horizon and the conserved population ledgers (total,
+remaining, in transit, and safely arrived). It renders actual zone flood state, initial
+vulnerable population, shelter status/capacity/occupancy/reservations, route state and
+travel estimates, and pending dispatch ETA. ACCEPT and a permitted OVERRIDE each execute
+exactly one transition through the unchanged simulator; REJECT records `NONE` without a
+transition. The event timeline is made from the human record and the transition's real
+audit events, including dispatches, arrivals, flood updates, route closures, and shelter
+degradation only when those events actually occur.
+
+Population progress is session playback, not an evaluation metric. The live summary
+computes decision counts, population ledgers, and unsafe executed actions from actual
+audit validation fields. The terminal summary reports the single synthetic episode
+without comparing it statistically with frozen research policies.
+
+### Audit, evidence, and exports
+
+Decision rows now include the fixed generator seed, generated scenario seed, uncertainty
+regime/configuration, and compact source-zone and destination-shelter state snapshots in
+addition to the original recommendation, decision, execution, validation, reason, and
+evidence provenance. They contain no complete authoritative passage. The Phase 13 card
+remains explicitly contextual: semantic claim-support verification is still incomplete
+in Phase 14B.
+
+The browser session provides a CSV decision-audit download and JSON summary download.
+Nothing is written to a database. The Phase 14B card reports the 135-example benchmark,
+paused daily-quota state, and 21/135 dispositions without calculating or displaying a
+partial accuracy, Macro-F1, confusion matrix, or success rate.
+
+### Boundaries and verification
+
+The feature is fully offline and makes no Gemini, OpenAI, web, map, weather, or flood-feed
+request. It does not modify the reward, PPO, policy evaluation, Phase 10 artifacts,
+Phase 11 corpus, retrievers, Phase 13 artifacts, Phase 14A benchmark, or any frozen Phase
+14B prompt/model/order/cache. Focused tests cover deterministic initialization/reset,
+all supported uncertainty configurations, allowed planner output, one-step ACCEPT and
+OVERRIDE behavior, non-advancing REJECT behavior, population and shelter ledgers, actual
+timeline events, progress history, audit/summary serialization, Streamlit interactions,
+offline-only source checks, and preservation of the Phase 14B cache.
 
 ---
