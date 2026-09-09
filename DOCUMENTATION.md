@@ -230,7 +230,7 @@ Each step gets one section containing:
 | End-to-end runner | `run_demo.py` | **Built (Step 6)** — rebuilds from nothing, exit-code checked |
 | Evaluation suite | `src/eval/` | **Built** — 60 held-out scenarios, baselines, ablations |
 | V3 sequential environment | `src/sim/`, `src/safety/`, `src/planners/`, `src/env_v3/` | **Built through V3 Phase 10** — stochastic simulator, hard safety, strong planners, fixed 6×9 Gymnasium API, frozen reward, five trained PPO seeds, and held-out evaluation |
-| Tests | `tests/` | **Built** — 676 tests total, including 38 Phase 14A claim-support tests and all 638 earlier V3/V1 regressions |
+| Tests | `tests/` | **Built** — 714 collected offline tests across V1 and V3 |
 | Measured results | `EVALUATION.md` | **Written** — including the unflattering ones |
 | Frozen v1 results | `EVALUATION_V1.md` | **Archived** — immutable comparison point for the evaluated v1 demo |
 | Reviewer material | `REVIEW_NOTES.md`, `DEMO_SCRIPT.md` | **Written** — defence sheet and five-minute walkthrough |
@@ -4525,5 +4525,71 @@ full technical contract and boundary statement are in `V3_GEOSPATIAL_SPEC.md`.
 
 No Gemini request, retrieval run, PPO training, policy evaluation, partial Phase 14B
 metric, or frozen research-artifact modification occurred.
+
+---
+
+## 2026-09-09 — Complete university project-review dashboard
+
+### Presentation-only scope
+
+`review_dashboard.py` is now organized as one six-tab faculty-review experience:
+**Overview**, **Live Evacuation**, **Policy & RL**, **Evidence / RAG**, **Human Override
+& Audit**, and **Research Progress**. Review Mode is enabled by default and exposes a
+concise three-minute demonstration sequence in the sidebar and Research Progress tab.
+This work reads committed artifacts and invokes only the existing local simulator,
+safety, planning, retrieval-display, geospatial, and audit logic. It does not train PPO,
+rerun Phase 10 or Phase 13, call Gemini, calculate incomplete Phase 14B metrics, or alter
+any frozen research artifact.
+
+### Review narrative and artifact-backed facts
+
+The Overview loads and displays 600 held-out stochastic scenarios, five PPO seeds,
+250,000 timesteps per seed (1.25 million total), three NDMA documents, 1,797 corpus
+chunks, 45 retrieval questions, 135 claim-support examples, and the 622-node / 1,358
+directed-edge Fort Kochi graph. It explicitly distinguishes the real road topology from
+simulated flood, population, shelter, traffic, closure, and decision conditions.
+
+The Policy & RL tab combines frozen training, held-out evaluation, and latency trade-off
+views. It preserves the five-seed validation-return chart, representative seed `4404`,
+the `POTENTIAL_SLOT_SHORTCUT` diagnostic, all frozen NSU values, and PPO minus
+Risk-Greedy at `-0.7919` with 95% CI `[-0.8384, -0.7453]`. The conclusion remains
+`RL USEFULNESS = NO`: PPO was evaluated rather than assumed superior, and the negative
+result was retained.
+
+The Evidence / RAG tab presents exact frozen DirectHit@1/3/5 counts and nDCG@5 for
+Dense, BM25, and Hybrid. It reports `HYBRID_SUPPORTED` versus Dense, the `+0.2000`
+DirectHit@5 difference (nine questions; 95% CI `[0.0889, 0.3111]`), and separately
+preserves the unexpected result that BM25 had the highest DirectHit@5. The offline
+evidence explorer reconstructs short source excerpts locally and labels Phase 13
+relevance judgments as AI-assisted.
+
+### Live geography, human authority, and progress
+
+Live Evacuation renders the local Fort Kochi graph, zone/shelter state, open and closed
+roads, route distance and closure state, in-transit groups, the highlighted recommended
+path, and planner/safety/graph checks. ACCEPT executes one recommendation, OVERRIDE is
+limited to valid, safe, graph-reachable alternatives and requires a reason, and REJECT
+records a reason without dispatching. Human Override & Audit presents the current
+recommendation, operator authority, full session audit table, compact graph and NDMA
+provenance, eight live summary values, and CSV/JSON exports. Full authoritative passage
+text is never stored in the audit.
+
+Research Progress distinguishes completed work from Phase 14B's paused semantic
+claim-support evaluation. It shows only the operational progress facts—21/135 official
+dispositions, 19 successful predictions, and two invalid outputs—and explicitly states
+that the incomplete run has no official scientific result. The claim-support explanation
+separates source integrity, retrieval relevance, and exact claim support using a clearly
+marked conceptual example. Phase 14A examples remain described as AI-assisted,
+construction-labeled data.
+
+### Verification
+
+Presentation checks cover all six tabs and artifact-backed KPIs; offline evidence choices;
+the real road view and highlighted recommendation path; ACCEPT, OVERRIDE, and REJECT;
+audit updates and graph provenance; paused Phase 14B communication; and absence of
+Gemini/network clients. The focused dashboard/human/geospatial suite passes 38 tests.
+The complete offline repository suite passes all 714 collected tests. The dashboard
+compiles with `python -m py_compile review_dashboard.py` and is launched with
+`streamlit run review_dashboard.py`.
 
 ---

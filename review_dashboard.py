@@ -53,6 +53,8 @@ POLICY_LATENCY_PATH = ROOT / "data" / "eval_v3" / "phase10" / "latency_results.j
 RETRIEVAL_LATENCY_PATH = ROOT / "data" / "eval_v3" / "phase12_retrieval_sanity.json"
 RETRIEVAL_PATH = ROOT / "data" / "eval_v3" / "phase13" / "phase13b_retrieval_results_v2.json"
 RETRIEVAL_MANIFEST_PATH = ROOT / "data" / "eval_v3" / "phase13" / "ai_assisted_label_manifest_extended.json"
+CLAIM_SUPPORT_MANIFEST_PATH = ROOT / "data" / "eval_v3" / "phase14" / "claim_support_manifest.json"
+GEOSPATIAL_MANIFEST_PATH = ROOT / "data" / "geospatial_v3" / "fort_kochi_osm_drive_v1_manifest.json"
 PER_QUESTION_PATH = ROOT / "data" / "eval_v3" / "phase13" / "phase13b_per_question_v2.csv"
 RANKINGS_PATH = ROOT / "data" / "eval_v3" / "phase13" / "phase13b_rankings_v2.csv"
 LABELS_PATH = ROOT / "data" / "eval_v3" / "phase13" / "ai_assisted_passage_labels_extended.csv"
@@ -337,6 +339,8 @@ policy, policy_error = load_json(POLICY_PATH)
 pairwise, pairwise_error = load_json(PAIRWISE_PATH)
 retrieval, retrieval_error = load_json(RETRIEVAL_PATH)
 retrieval_manifest, retrieval_manifest_error = load_json(RETRIEVAL_MANIFEST_PATH)
+claim_support_manifest, claim_support_manifest_error = load_json(CLAIM_SUPPORT_MANIFEST_PATH)
+geospatial_manifest, geospatial_manifest_error = load_json(GEOSPATIAL_MANIFEST_PATH)
 policy_latency, policy_latency_error = load_json(POLICY_LATENCY_PATH)
 retrieval_latency, retrieval_latency_error = load_json(RETRIEVAL_LATENCY_PATH)
 
@@ -352,30 +356,45 @@ st.markdown(
 )
 st.caption("Offline review UI · reads committed artifacts · performs no training or experiment reruns")
 
+review_mode = st.sidebar.toggle(
+    "Review Mode",
+    value=True,
+    help="Emphasizes the faculty-review path; all scientific values still come from frozen artifacts.",
+)
+with st.sidebar.expander("3-Minute Review Demo", expanded=review_mode):
+    st.markdown(
+        "1. **Overview:** architecture and frozen findings.\n"
+        "2. **Live Evacuation:** show Fort Kochi roads; accept one action.\n"
+        "3. **Policy & RL:** show 1.25M PPO steps and the retained negative result.\n"
+        "4. **Evidence / RAG:** compare retrievers and open one NDMA example.\n"
+        "5. **Human Override & Audit:** show operator authority and provenance.\n"
+        "6. **Research Progress:** explain why Phase 14B is paused."
+    )
+
 (
     overview_tab,
     decision_tab,
     policy_tab,
-    training_tab,
     retrieval_tab,
-    evidence_tab,
-    tradeoffs_tab,
+    human_tab,
+    progress_tab,
 ) = st.tabs(
     [
         "Overview",
-        "Human Override & Audit",
+        "Live Evacuation",
         "Policy & RL",
-        "PPO Training",
-        "RAG Evaluation",
-        "Evidence Demo",
-        "Research Trade-offs",
+        "Evidence / RAG",
+        "Human Override & Audit",
+        "Research Progress",
     ]
 )
+training_tab = policy_tab
+evidence_tab = retrieval_tab
+tradeoffs_tab = policy_tab
 
 
 with overview_tab:
     st.subheader("Project at a glance")
-    test_count = load_test_count()
     values = [
         ("Held-out scenarios", policy["suite"]["number_of_scenarios"] if policy else "—"),
         ("PPO seeds", len(training["primary_training_seeds"]) if training else "—"),
@@ -390,40 +409,62 @@ with overview_tab:
             f"{retrieval_manifest['canonical_chunks']:,}" if retrieval_manifest else "—",
         ),
         ("Benchmark questions", retrieval["question_count"] if retrieval else "—"),
-        ("Automated tests", test_count or "—"),
+        (
+            "Claim-support examples",
+            claim_support_manifest["claim_pairs"] if claim_support_manifest else "—",
+        ),
+        ("Real road nodes", geospatial_manifest["node_count"] if geospatial_manifest else "—"),
+        (
+            "Directed road edges",
+            f"{geospatial_manifest['directed_edge_count']:,}" if geospatial_manifest else "—",
+        ),
     ]
-    for start in (0, 4):
-        columns = st.columns(4)
-        for column, (label, value) in zip(columns, values[start : start + 4]):
+    for start in (0, 5):
+        columns = st.columns(5)
+        for column, (label, value) in zip(columns, values[start : start + 5]):
             column.metric(label, value)
-    for error in (training_error, policy_error, retrieval_error, retrieval_manifest_error):
+    for error in (
+        training_error,
+        policy_error,
+        retrieval_error,
+        retrieval_manifest_error,
+        claim_support_manifest_error,
+        geospatial_manifest_error,
+    ):
         show_error(error)
 
     st.subheader("System architecture")
+    st.info(
+        "**REAL ROAD TOPOLOGY + SIMULATED FLOOD / POPULATION / SHELTER CONDITIONS**",
+        icon="🗺️",
+    )
     flow = [
-        "Dynamic flood / shelter / route state",
+        "Current state",
         "Stochastic simulator",
         "Deterministic safety layer",
-        "Decision policy / planner",
+        "Risk-Greedy / planning",
         "Evacuation recommendation",
-        "RAG evidence retrieval",
-        "Source · page · citation",
+        "NDMA evidence retrieval",
+        "Human decision",
+        "Audit trail",
     ]
     flow_html = '<div class="flow">' + '<span class="flow-arrow">→</span>'.join(
         f'<span class="flow-step">{html.escape(step)}</span>' for step in flow
     ) + "</div>"
     st.markdown(flow_html, unsafe_allow_html=True)
-    left, middle, right = st.columns(3)
+    left, middle, right, final = st.columns(4)
     with left:
         result_card("Decision research", "RL usefulness = NO", "PPO was tested across five seeds and 600 held-out stochastic scenarios, but was not selected as the final decision method.", "warn")
     with middle:
         result_card("Retrieval research", "HYBRID_SUPPORTED", "Hybrid met the frozen support rule against Dense; BM25 nevertheless had the highest DirectHit@5.", "good")
     with right:
-        result_card("Scientific posture", "Negative results retained", "The project reports what the frozen experiments found and does not tune until a preferred story appears.", "info")
+        result_card("Important secondary finding", "BM25 highest DirectHit@5", "Hybrid did not beat BM25 on DirectHit@5.", "info")
+    with final:
+        result_card("Phase 14B", "PAUSED", "Gemini daily quota · 21/135 dispositions · no partial metrics.", "warn")
 
 
 with decision_tab:
-    st.subheader("Human Override & Audit")
+    st.subheader("Live Evacuation — Fort Kochi")
     st.warning(
         "SYNTHETIC EVACUATION SCENARIO — this is a decision-support prototype, not an operationally validated real-world recommendation.",
         icon="⚠️",
@@ -552,11 +593,14 @@ with decision_tab:
     if road_state is None:
         raise RuntimeError("geospatial road state was not initialized")
     observation = display_state.to_policy_observation()
-    timestep_col, total_col, population_col, transit_col, arrived_col = st.columns(5)
+    timestep_col, regime_col, seed_col = st.columns(3)
     timestep_col.metric(
         "Timestep",
         f"{display_state.current_timestep} / {st.session_state.decision_demo_scenario.time.horizon_steps}",
     )
+    regime_col.metric("Uncertainty regime", demo_simulator.config.level.value)
+    seed_col.metric("Scenario generator seed", DEMO_GENERATOR_SEED)
+    total_col, population_col, transit_col, arrived_col = st.columns(4)
     total_col.metric("Total population", display_state.initial_evacuation_population)
     population_col.metric("Population remaining", display_state.population_remaining)
     transit_col.metric("Population in transit", display_state.people_in_transit)
@@ -604,7 +648,15 @@ with decision_tab:
                 width="stretch",
             )
 
-        with st.expander("Current routes", expanded=False):
+        graph_paths = [
+            path_for_action(
+                road_graph,
+                road_state,
+                DispatchAction(row["source_zone_id"], row["destination_shelter_id"]),
+            )
+            for row in observation["routes"]
+        ]
+        with st.expander("Current routes", expanded=not review_mode):
             st.dataframe(
                 pd.DataFrame(
                     {
@@ -621,8 +673,13 @@ with decision_tab:
                         ],
                         "Current travel (min)": [row["travel_time_current"] for row in observation["routes"]],
                         "Expected travel (min)": [row["expected_travel_time_minutes"] for row in observation["routes"]],
+                        "Graph distance (m)": [
+                            path.distance_m if path and path.reachable else None
+                            for path in graph_paths
+                        ],
                         "Route hazard": [row["route_hazard_proxy"] for row in observation["routes"]],
                         "Closure probability": [row["estimated_closure_probability"] for row in observation["routes"]],
+                        "Closure timestep": [row["closed_at_timestep"] for row in observation["routes"]],
                     }
                 ),
                 hide_index=True,
@@ -657,7 +714,8 @@ with decision_tab:
         selected_edge_ids = (
             recommendation_path.edge_ids if recommendation_path is not None else ()
         )
-        st.markdown("### Offline road-network view")
+        st.markdown("### REAL ROAD TOPOLOGY — FORT KOCHI")
+        st.markdown("#### Offline road-network view")
         st.altair_chart(
             road_graph_chart(road_graph, road_state, selected_edge_ids),
             width="stretch",
@@ -674,11 +732,11 @@ with decision_tab:
         st.caption(
             f"{road_graph.location} · `{road_graph.graph_version}` · fingerprint "
             f"`{road_graph.graph_fingerprint[:16]}…` · local artifact only; no basemap "
-            "or runtime network access."
+            "or runtime network access. Offline road-network view."
         )
 
         route = route_for_action(context, action)
-        st.markdown("### Recommended action")
+        st.markdown("### RECOMMENDED EVACUATION ACTION")
         recommendation_col, checks_col = st.columns([1.15, 1])
         with recommendation_col:
             st.markdown(f"## {action_label(action)}")
@@ -831,22 +889,7 @@ with decision_tab:
     if st.session_state.get("decision_demo_last"):
         st.success(st.session_state.decision_demo_last)
 
-    st.markdown("### Session audit trail")
     audit_rows = st.session_state.decision_demo_audit
-    if audit_rows:
-        audit_frame = pd.DataFrame(audit_rows)
-        st.dataframe(audit_frame, hide_index=True, width="stretch")
-        st.download_button(
-            "Download session audit CSV",
-            data=audit_frame.to_csv(index=False).encode("utf-8"),
-            file_name="sentinel_v3_session_audit.csv",
-            mime="text/csv",
-            key="download_decision_audit",
-        )
-    else:
-        st.caption("No decisions recorded in this browser session.")
-    st.caption("The audit log is session-only and stores no full authoritative passage text or personal data.")
-
     st.markdown("### Scenario Timeline")
     timeline_rows = st.session_state.decision_demo_timeline
     if timeline_rows:
@@ -866,18 +909,6 @@ with decision_tab:
         st.caption("Session playback only; this chart is not an evaluation metric.")
 
     current_summary = session_summary(audit_rows, display_state)
-    st.markdown("### Live session summary")
-    first_summary = st.columns(4)
-    first_summary[0].metric("Decisions made", current_summary["decisions_made"])
-    first_summary[1].metric("Accepted", current_summary["accepted_recommendations"])
-    first_summary[2].metric("Overrides", current_summary["overrides"])
-    first_summary[3].metric("Rejected", current_summary["rejected_recommendations"])
-    second_summary = st.columns(4)
-    second_summary[0].metric("Population safe", current_summary["population_safely_evacuated"])
-    second_summary[1].metric("Population remaining", current_summary["population_remaining"])
-    second_summary[2].metric("Population in transit", current_summary["population_in_transit"])
-    second_summary[3].metric("Unsafe actions executed", current_summary["unsafe_actions_executed"])
-
     summary_payload = {
         "scenario_id": st.session_state.decision_demo_scenario.scenario_id,
         "scenario_seed": st.session_state.decision_demo_scenario.seed,
@@ -890,14 +921,6 @@ with decision_tab:
         "horizon_steps": st.session_state.decision_demo_scenario.time.horizon_steps,
         **current_summary,
     }
-    st.download_button(
-        "Download session summary JSON",
-        data=(json.dumps(summary_payload, indent=2) + "\n").encode("utf-8"),
-        file_name="sentinel_v3_session_summary.json",
-        mime="application/json",
-        key="download_decision_summary",
-    )
-
     if display_state.terminal:
         st.success("EVACUATION EPISODE COMPLETE")
         st.json({
@@ -937,6 +960,15 @@ with policy_tab:
             for key, label in POLICY_LABELS.items()
         ]
         policy_frame = pd.DataFrame(policy_rows).set_index("Policy")
+        st.dataframe(
+            policy_frame.reset_index(),
+            hide_index=True,
+            width="stretch",
+            column_config={
+                "NSU-practical": st.column_config.NumberColumn(format="%.4f"),
+                "Safe population fraction": st.column_config.NumberColumn(format="%.4f"),
+            },
+        )
         chart_left, chart_right = st.columns(2)
         with chart_left:
             st.markdown("#### Normalized score (NSU-practical)")
@@ -960,7 +992,10 @@ with policy_tab:
         with safety_col:
             unsafe = int(policies["ppo_family"]["unsafe_dispatches"])
             result_card("Hard-safety outcome", f"{unsafe} unsafe dispatches", "Deterministic action masks remained the safety authority.", "good")
-        st.info("The project intentionally retained the negative RL result rather than retraining until PPO appeared superior.", icon="ℹ️")
+        st.info(
+            "PPO was evaluated rather than assumed to be superior. The negative result was retained.",
+            icon="ℹ️",
+        )
 
 
 with training_tab:
@@ -1019,6 +1054,28 @@ with retrieval_tab:
                 "DirectHit@5": [overall[key]["direct_hit_at_5"] for key in ("dense", "bm25", "hybrid")],
             }
         ).set_index("Retriever")
+        retrieval_table = pd.DataFrame(
+            [
+                {
+                    "Retriever": name,
+                    "DirectHit@1": overall[key]["direct_hit_at_1"],
+                    "DirectHit@3": overall[key]["direct_hit_at_3"],
+                    "DirectHit@5": overall[key]["direct_hit_at_5"],
+                    "Direct hits": f"{overall[key]['direct_hit_at_5_count']} / 45",
+                    "nDCG@5": overall[key]["ndcg_at_5"],
+                }
+                for key, name in (("dense", "Dense"), ("bm25", "BM25"), ("hybrid", "Hybrid"))
+            ]
+        )
+        st.dataframe(
+            retrieval_table,
+            hide_index=True,
+            width="stretch",
+            column_config={
+                metric: st.column_config.NumberColumn(format="%.4f")
+                for metric in ("DirectHit@1", "DirectHit@3", "DirectHit@5", "nDCG@5")
+            },
+        )
         left, right = st.columns([1.55, 1])
         with left:
             st.markdown("#### Direct-evidence hit rate")
@@ -1281,6 +1338,172 @@ with tradeoffs_tab:
         + "</div>",
         unsafe_allow_html=True,
     )
+
+
+with human_tab:
+    st.subheader("Human Override & Audit")
+    st.info(
+        "**Sentinel-Agent is a decision-support system, not an autonomous disaster commander.** "
+        "The operator remains responsible for accepting, safely overriding, or rejecting each recommendation.",
+        icon="🧑‍💼",
+    )
+
+    recommendation_col, authority_col = st.columns([1.1, 1])
+    with recommendation_col:
+        if context is None:
+            result_card(
+                "Current recommendation",
+                "EPISODE COMPLETE",
+                "Reset the synthetic scenario in Live Evacuation to begin another review run.",
+                "good",
+            )
+        else:
+            result_card(
+                "Current recommendation",
+                action_label(context.recommendation.action),
+                f"{DEMO_PLANNER_LABEL} · timestep {display_state.current_timestep} · deterministic safety PASS",
+                "info",
+            )
+    with authority_col:
+        st.markdown("#### Operator authority")
+        st.markdown(
+            "- **ACCEPT:** executes the current recommendation exactly once.\n"
+            "- **OVERRIDE:** executes only a valid, safe, graph-reachable alternative and requires a reason.\n"
+            "- **REJECT:** records a reason and makes no dispatch."
+        )
+        st.caption("Use the working decision controls in the Live Evacuation tab; this tab records their outcome.")
+
+    st.markdown("### Live session audit trail")
+    if audit_rows:
+        audit_frame = pd.DataFrame(audit_rows)
+        st.dataframe(audit_frame, hide_index=True, width="stretch")
+        st.download_button(
+            "Download session audit CSV",
+            data=audit_frame.to_csv(index=False).encode("utf-8"),
+            file_name="sentinel_v3_session_audit.csv",
+            mime="text/csv",
+            key="download_human_audit",
+        )
+    else:
+        st.caption("No decisions recorded in this browser session. Accept, override, or reject an action in Live Evacuation.")
+    st.caption(
+        "Each row records scenario and seed, uncertainty regime, timestep, planner, recommendation, "
+        "human decision and reason, executed action, mechanical and safety checks, graph-path provenance, "
+        "and NDMA evidence provenance. No full authoritative passage text or personal data is stored."
+    )
+
+    st.markdown("### Session summary")
+    first_summary = st.columns(4)
+    first_summary[0].metric("Decisions", current_summary["decisions_made"])
+    first_summary[1].metric("Accepts", current_summary["accepted_recommendations"])
+    first_summary[2].metric("Overrides", current_summary["overrides"])
+    first_summary[3].metric("Rejects", current_summary["rejected_recommendations"])
+    second_summary = st.columns(4)
+    second_summary[0].metric("Safe population", current_summary["population_safely_evacuated"])
+    second_summary[1].metric("Remaining", current_summary["population_remaining"])
+    second_summary[2].metric("In transit", current_summary["population_in_transit"])
+    second_summary[3].metric("Unsafe executed actions", current_summary["unsafe_actions_executed"])
+    st.download_button(
+        "Download session summary JSON",
+        data=(json.dumps(summary_payload, indent=2) + "\n").encode("utf-8"),
+        file_name="sentinel_v3_session_summary.json",
+        mime="application/json",
+        key="download_human_summary",
+    )
+
+    with st.expander("Audit provenance fields", expanded=False):
+        st.code(
+            "audit_id · timestamp · scenario_id · generator_seed · scenario_seed · "
+            "uncertainty_regime · timestep · planner · recommended_action · decision · "
+            "executed_action · human_reason · mechanical_validity · safety_result · "
+            "graph_version · graph_fingerprint · graph_path_id · graph_path_sha256 · "
+            "graph_route_distance_m · graph_estimated_travel_minutes · graph_edge_count · "
+            "evidence_source · evidence_page · evidence_chunk_id"
+        )
+
+
+with progress_tab:
+    st.subheader("Research Progress")
+    st.caption("A transparent record of completed, frozen, and paused work. No experiment is executed by this dashboard.")
+
+    progress_rows = [
+        ("V1", "Static shelter recommendation", "COMPLETE", "Foundational prototype"),
+        ("V2", "Deterministic multi-resource planning", "COMPLETE", "Planning baseline"),
+        ("V3 simulator", "Dynamic stochastic evacuation", "COMPLETE", "Frozen scenario protocol"),
+        ("V3 safety", "Deterministic safety layer", "COMPLETE", "Hard action filtering"),
+        ("V3 planning", "Planner benchmarking", "COMPLETE", "Frozen comparators"),
+        ("Phase 9/10", "PPO training + held-out evaluation", "COMPLETE", "RL usefulness = NO"),
+        ("Phase 11", "Authoritative NDMA RAG corpus", "COMPLETE", "3 documents · 1,797 chunks"),
+        ("Phase 13", "Dense / BM25 / Hybrid benchmark", "COMPLETE", "HYBRID_SUPPORTED vs Dense"),
+        ("Phase 14A", "Claim-support challenge benchmark", "COMPLETE", "135 construction-labeled examples"),
+        ("Phase 14B", "Semantic claim-support evaluation", "PAUSED", "Gemini free-tier daily quota"),
+        ("Phase 16/17", "Fort Kochi geospatial road network", "COMPLETE", "622 nodes · 1,358 directed edges"),
+        ("Phase 19", "Human override", "COMPLETE", "Accept / override / reject"),
+        ("Phase 19", "Session audit trail", "COMPLETE", "CSV + JSON export"),
+    ]
+    st.dataframe(
+        pd.DataFrame(progress_rows, columns=["Stage", "Work", "Status", "Outcome"]),
+        hide_index=True,
+        width="stretch",
+    )
+
+    st.markdown("### Phase 14B — paused, incomplete evaluation")
+    phase14_columns = st.columns(4)
+    phase14_columns[0].metric("Official dispositions", "21 / 135")
+    phase14_columns[1].metric("Successful predictions", 19)
+    phase14_columns[2].metric("Invalid outputs", 2)
+    phase14_columns[3].metric("Status", "PAUSED")
+    st.warning(
+        "PAUSED — GEMINI FREE-TIER DAILY QUOTA. The incomplete run has no official performance result; "
+        "no interim performance score or class-summary table is displayed or interpreted scientifically.",
+        icon="⏸️",
+    )
+    st.caption(
+        "Phase 13 passage-relevance labels are AI-assisted. Phase 14A claim pairs are AI-assisted, "
+        "construction-labeled challenge examples."
+    )
+
+    st.markdown("### Why claim-support verification exists")
+    support_flow = [
+        "SOURCE INTEGRITY\nDoes the citation actually exist?",
+        "RETRIEVAL RELEVANCE\nIs the passage relevant?",
+        "CLAIM SUPPORT\nDoes it support the exact claim?",
+    ]
+    st.markdown(
+        '<div class="flow">'
+        + '<span class="flow-arrow">→</span>'.join(
+            f'<span class="flow-step">{html.escape(step).replace(chr(10), "<br>")}</span>'
+            for step in support_flow
+        )
+        + "</div>",
+        unsafe_allow_html=True,
+    )
+    evidence_example, extension_example = st.columns(2)
+    with evidence_example:
+        result_card(
+            "Illustrative evidence",
+            "Shelters should be located on high ground.",
+            "The citation exists and the passage is relevant.",
+            "good",
+        )
+    with extension_example:
+        result_card(
+            "Unsupported generated extension",
+            "…and within 2 km of residents.",
+            "The added 2 km condition is not supported by the illustrative evidence.",
+            "warn",
+        )
+    st.caption("Illustrative conceptual example—not a quoted frozen benchmark passage.")
+
+    with st.expander("3-Minute Review Demo", expanded=True):
+        st.markdown(
+            "1. **OVERVIEW (20 seconds):** explain the architecture and frozen findings.\n"
+            "2. **LIVE EVACUATION:** show the real Fort Kochi graph with simulated hazard; accept one action and advance until transit or arrival is visible.\n"
+            "3. **POLICY & RL:** show 1.25M PPO training steps and the retained negative result.\n"
+            "4. **RAG:** compare Dense, BM25, and Hybrid; open one offline NDMA evidence example.\n"
+            "5. **HUMAN OVERRIDE:** show operator authority and the resulting audit provenance.\n"
+            "6. **RESEARCH PROGRESS:** explain that semantic claim-support evaluation is paused and remains the next research stage."
+        )
 
 st.divider()
 st.caption("Sentinel-Agent V3 · Synthetic evacuation research prototype · Not validated for operational emergency response")

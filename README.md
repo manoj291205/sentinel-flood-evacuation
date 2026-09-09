@@ -85,18 +85,23 @@ Launch the standalone, artifact-backed review UI locally:
 streamlit run review_dashboard.py
 ```
 
-The **Human Override & Audit** tab runs entirely offline. It connects the existing
-synthetic V3 simulator, deterministic safety mask, and Risk-Greedy planner, then lets a
-human operator play a reproducible multi-timestep evacuation episode by accepting,
-safely overriding, or rejecting recommendations. The live view shows zone, shelter,
-route, and in-transit state; actual simulator events; population progress; and a computed
-session summary. A tile-free graph view uses a committed Fort Kochi OpenStreetMap road
-topology and highlights current routes without runtime internet access. All flood,
-closure, population, shelter, traffic, and decision conditions remain simulated.
-Decisions remain in the browser session and can be downloaded as CSV, with the summary
-available as JSON. Authoritative evidence text is not copied into the audit log. This is
-Phase 16/17 geospatial integration surfaced in the **Phase 19 Live Decision/Timeline**
-milestone, not a new scientific experiment or an operationally validated system.
+The six-tab review flow covers **Overview**, **Live Evacuation**, **Policy & RL**,
+**Evidence / RAG**, **Human Override & Audit**, and **Research Progress**. A sidebar
+Review Mode provides a concise three-minute faculty walkthrough. The live view connects
+the existing synthetic V3 simulator, deterministic safety mask, Risk-Greedy planner,
+and committed Fort Kochi OpenStreetMap road topology. It supports ACCEPT, safe OVERRIDE,
+and reasoned REJECT decisions and highlights the current graph route without runtime
+internet access. All flood, closure, population, shelter, traffic, and decision
+conditions remain simulated; only the road topology is real.
+
+The research tabs read frozen Phase 9/10/13/14 artifacts without rerunning experiments.
+They retain the negative Phase 10 result (`RL usefulness = NO`), the Phase 13 result
+(`HYBRID_SUPPORTED` versus Dense), and the secondary finding that BM25 had the highest
+DirectHit@5. Phase 14B is shown only as paused at 21/135 official dispositions; the
+incomplete run is not scored. Decision records remain in the browser session and can be
+downloaded as CSV, with the summary available as JSON. Authoritative evidence text is
+not copied into the audit log. This is a presentation layer, not a new scientific
+experiment or an operationally validated emergency system.
 
 ---
 
@@ -132,7 +137,7 @@ v3-dynamic-stochastic
 | 16    | Cached geospatial road graph and routing engine        | ✅ Complete |
 | 17    | Dynamic hazard-aware graph routing integration         | ✅ Complete |
 | 18    | Human-in-the-loop override and session audit trail     | ✅ Complete |
-| 19–20 | Final dashboard and accessibility verification         | 🔄 In progress |
+| 19–20 | Final review dashboard and presentation verification    | ✅ Complete |
 
 ---
 
@@ -514,7 +519,8 @@ A negative result is considered a valid research outcome.
 The decision-policy and retrieval studies are frozen. Phase 14B is paused because of
 the Gemini daily quota; partial semantic performance is not reported.
 
-The remaining V3 work focuses on strengthening the evidence and application layers:
+The remaining V3 research work is intentionally separate from the completed review
+dashboard:
 
 ```text
 Phase 14B
@@ -522,10 +528,6 @@ Resume the frozen semantic claim-support evaluation only after API quota is avai
 
 Phase 15
 Integrate deterministic safety with evidence-grounded policy constraints
-
-Phase 19–20
-Complete broader dashboard and accessibility verification beyond the integrated
-offline Live Decision road-network view
 ```
 
 ---
