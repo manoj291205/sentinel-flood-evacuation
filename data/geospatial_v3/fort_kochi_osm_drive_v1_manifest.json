@@ -1,0 +1,39 @@
+{
+  "graph_version": "fort-kochi-osm-drive-v1",
+  "location": "Fort Kochi, Kerala, India (compact demonstration extract)",
+  "bounds_wgs84": {
+    "south": 9.961,
+    "west": 76.238,
+    "north": 9.969,
+    "east": 76.247
+  },
+  "coordinate_reference": "EPSG:4326 (WGS84 latitude/longitude)",
+  "source": "OpenStreetMap contributors via Overpass API",
+  "license": "Open Database License (ODbL); \u00a9 OpenStreetMap contributors",
+  "osm_snapshot_timestamp": "2026-05-06T03:25:00Z",
+  "overpass_query": "[out:json][timeout:30];way[highway](9.9610,76.2380,9.9690,76.2470);(._;>;);out body;",
+  "network_filter": [
+    "living_street",
+    "motorway",
+    "motorway_link",
+    "primary",
+    "primary_link",
+    "residential",
+    "road",
+    "secondary",
+    "secondary_link",
+    "service",
+    "tertiary",
+    "tertiary_link",
+    "trunk",
+    "trunk_link",
+    "unclassified"
+  ],
+  "node_count": 622,
+  "edge_count": 1358,
+  "directed_edge_count": 1358,
+  "graph_fingerprint": "dff7f2065ab5be8685ffd1195cdab1eaf8ce0b28716f5553f146c7565906a6e3",
+  "canonicalization": "SHA-256 of sorted-key compact JSON containing graph_version, CRS, sorted nodes, sorted directed edges, and zone/shelter node mappings; dynamic hazard and closure state excluded.",
+  "runtime_network_required": false,
+  "disaster_overlay": "SIMULATED"
+}

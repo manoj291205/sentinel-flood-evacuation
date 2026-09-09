@@ -18,6 +18,11 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
+from src.geospatial import (
+    audit_route_metadata,
+    build_geospatial_demo_runtime,
+    path_for_action,
+)
 from src.human_decision import (
     DEMO_DEFAULT_UNCERTAINTY,
     DEMO_GENERATOR_SEED,
@@ -28,7 +33,6 @@ from src.human_decision import (
     action_label,
     allowed_override_actions,
     apply_human_decision,
-    build_demo_runtime,
     current_decision_context,
     progress_snapshot,
     recommended_batch_size,
@@ -232,6 +236,102 @@ def result_card(kicker: str, value: str, copy: str, kind: str = "info") -> None:
     )
 
 
+def road_graph_chart(graph, road_state, selected_edge_ids: tuple[str, ...]):
+    """Build a self-contained Altair road graph; no basemap tiles are requested."""
+    selected = set(selected_edge_ids)
+    edge_state = {item.edge_id: item for item in road_state.edges}
+    segments = []
+    for edge in graph.edges:
+        current = edge_state[edge.edge_id]
+        kind = (
+            "RECOMMENDED PATH"
+            if edge.edge_id in selected
+            else "OPEN ROAD"
+            if current.open
+            else "CLOSED ROAD"
+        )
+        for order, node_id in enumerate((edge.u, edge.v)):
+            node = graph.nodes_by_id[node_id]
+            segments.append(
+                {
+                    "edge_id": edge.edge_id,
+                    "order": order,
+                    "longitude": node.lon,
+                    "latitude": node.lat,
+                    "status": kind,
+                    "hazard": current.hazard_severity,
+                }
+            )
+    line_data = pd.DataFrame(segments)
+    roads = (
+        alt.Chart(line_data)
+        .mark_line(opacity=0.78)
+        .encode(
+            x=alt.X("longitude:Q", scale=alt.Scale(zero=False), title="Longitude"),
+            y=alt.Y("latitude:Q", scale=alt.Scale(zero=False), title="Latitude"),
+            detail="edge_id:N",
+            order="order:O",
+            color=alt.Color(
+                "status:N",
+                scale=alt.Scale(
+                    domain=["OPEN ROAD", "CLOSED ROAD", "RECOMMENDED PATH"],
+                    range=["#9aa9b4", "#b64c63", "#17a6b6"],
+                ),
+                legend=alt.Legend(title="Road state"),
+            ),
+            strokeWidth=alt.condition(
+                alt.datum.status == "RECOMMENDED PATH", alt.value(4), alt.value(1)
+            ),
+            tooltip=["edge_id:N", "status:N", alt.Tooltip("hazard:Q", format=".3f")],
+        )
+    )
+    entities = []
+    for kind, mapping in (
+        ("SIMULATED ZONE", graph.zone_node_map),
+        ("SIMULATED SHELTER", graph.shelter_node_map),
+    ):
+        for entity_id, node_id in mapping.items():
+            node = graph.nodes_by_id[node_id]
+            entities.append(
+                {
+                    "entity_id": entity_id,
+                    "kind": kind,
+                    "longitude": node.lon,
+                    "latitude": node.lat,
+                }
+            )
+    point_data = pd.DataFrame(entities)
+    points = (
+        alt.Chart(point_data)
+        .mark_point(filled=True, size=115, stroke="white", strokeWidth=1.5)
+        .encode(
+            x=alt.X("longitude:Q", scale=alt.Scale(zero=False)),
+            y=alt.Y("latitude:Q", scale=alt.Scale(zero=False)),
+            shape=alt.Shape(
+                "kind:N",
+                scale=alt.Scale(
+                    domain=["SIMULATED ZONE", "SIMULATED SHELTER"],
+                    range=["triangle-up", "square"],
+                ),
+            ),
+            color=alt.Color(
+                "kind:N",
+                scale=alt.Scale(
+                    domain=["SIMULATED ZONE", "SIMULATED SHELTER"],
+                    range=["#e0a52b", "#0f9d76"],
+                ),
+            ),
+            tooltip=["entity_id:N", "kind:N"],
+        )
+    )
+    labels = (
+        alt.Chart(point_data)
+        .mark_text(dx=8, dy=-8, fontSize=11, fontWeight="bold")
+        .encode(x="longitude:Q", y="latitude:Q", text="entity_id:N")
+    )
+    return (roads + points + labels).properties(height=500).interactive()
+
+
 training, training_error = load_json(TRAINING_PATH)
 policy, policy_error = load_json(POLICY_PATH)
 pairwise, pairwise_error = load_json(PAIRWISE_PATH)
@@ -328,6 +428,12 @@ with decision_tab:
         "SYNTHETIC EVACUATION SCENARIO — this is a decision-support prototype, not an operationally validated real-world recommendation.",
         icon="⚠️",
     )
+    st.info(
+        "**REAL ROAD TOPOLOGY + SIMULATED DISASTER CONDITIONS.** Only the cached "
+        "OpenStreetMap road geometry is real. Flood hazards, edge closures, travel "
+        "conditions, populations, shelter states, and decisions are simulated.",
+        icon="🗺️",
+    )
 
     integrity_columns = st.columns(4)
     with integrity_columns[0]:
@@ -337,7 +443,7 @@ with decision_tab:
     with integrity_columns[2]:
         result_card("Phase 13 finding", "BM25 highest Hit@5", "BM25 had the highest frozen DirectHit@5.", "info")
     with integrity_columns[3]:
-        result_card("Claim-Support Verification", "PAUSED — Gemini daily quota", "Benchmark: 135 · dispositions: 21/135. No partial performance is shown.", "warn")
+        result_card("Claim-Support Verification", "PAUSED — GEMINI DAILY QUOTA", "Benchmark: 135 · dispositions: 21/135. No partial performance is shown.", "warn")
 
     flow = [
         "Observed State",
@@ -376,9 +482,13 @@ with decision_tab:
     )
 
     if "decision_demo_scenario" not in st.session_state:
-        scenario, simulator = build_demo_runtime(selected_uncertainty)
+        scenario, simulator, road_graph, road_overlay = build_geospatial_demo_runtime(
+            selected_uncertainty
+        )
         st.session_state.decision_demo_scenario = scenario
         st.session_state.decision_demo_simulator = simulator
+        st.session_state.decision_demo_road_graph = road_graph
+        st.session_state.decision_demo_road_overlay = road_overlay
         st.session_state.decision_demo_audit = []
         st.session_state.decision_demo_timeline = []
         st.session_state.decision_demo_progress = [
@@ -398,9 +508,13 @@ with decision_tab:
     reset_col, state_col = st.columns([1, 4])
     with reset_col:
         if st.button("Reset Scenario", key="reset_decision_demo"):
-            scenario, simulator = build_demo_runtime(selected_uncertainty)
+            scenario, simulator, road_graph, road_overlay = build_geospatial_demo_runtime(
+                selected_uncertainty
+            )
             st.session_state.decision_demo_scenario = scenario
             st.session_state.decision_demo_simulator = simulator
+            st.session_state.decision_demo_road_graph = road_graph
+            st.session_state.decision_demo_road_overlay = road_overlay
             st.session_state.decision_demo_audit = []
             st.session_state.decision_demo_timeline = []
             st.session_state.decision_demo_progress = [
@@ -432,6 +546,11 @@ with decision_tab:
             context = None
 
     evidence, evidence_error = load_decision_evidence()
+    road_graph = st.session_state.decision_demo_road_graph
+    road_overlay = st.session_state.decision_demo_road_overlay
+    road_state = road_overlay.road_state
+    if road_state is None:
+        raise RuntimeError("geospatial road state was not initialized")
     observation = display_state.to_policy_observation()
     timestep_col, total_col, population_col, transit_col, arrived_col = st.columns(5)
     timestep_col.metric(
@@ -534,6 +653,30 @@ with decision_tab:
             st.caption("No population is currently in transit.")
 
         action = context.recommendation.action
+        recommendation_path = path_for_action(road_graph, road_state, action)
+        selected_edge_ids = (
+            recommendation_path.edge_ids if recommendation_path is not None else ()
+        )
+        st.markdown("### Offline road-network view")
+        st.altair_chart(
+            road_graph_chart(road_graph, road_state, selected_edge_ids),
+            width="stretch",
+        )
+        open_edges = sum(item.open for item in road_state.edges)
+        map_metrics = st.columns(4)
+        map_metrics[0].metric("Graph nodes", len(road_graph.nodes))
+        map_metrics[1].metric("Open directed edges", open_edges)
+        map_metrics[2].metric("Closed directed edges", len(road_state.edges) - open_edges)
+        map_metrics[3].metric(
+            "Recommendation path",
+            "OPEN" if recommendation_path and recommendation_path.reachable else "UNREACHABLE",
+        )
+        st.caption(
+            f"{road_graph.location} · `{road_graph.graph_version}` · fingerprint "
+            f"`{road_graph.graph_fingerprint[:16]}…` · local artifact only; no basemap "
+            "or runtime network access."
+        )
+
         route = route_for_action(context, action)
         st.markdown("### Recommended action")
         recommendation_col, checks_col = st.columns([1.15, 1])
@@ -541,6 +684,15 @@ with decision_tab:
             st.markdown(f"## {action_label(action)}")
             st.write(f"**Batch size:** {recommended_batch_size(context)} people")
             st.write(f"**Planner:** {DEMO_PLANNER_LABEL} (`{context.recommendation.planner_version}`)")
+            if recommendation_path is not None and recommendation_path.reachable:
+                st.write(
+                    f"**Graph path:** {recommendation_path.distance_m:.0f} m · "
+                    f"{recommendation_path.travel_time_minutes:.2f} min · "
+                    f"{len(recommendation_path.edge_ids)} road edges · "
+                    f"`{recommendation_path.path_id}`"
+                )
+            else:
+                st.write("**Graph path:** UNREACHABLE")
             st.caption(context.recommendation.explanation or "")
             st.caption(
                 "Recommended because the action is mechanically valid and passes the deterministic safety layer under the current observable state."
@@ -591,6 +743,11 @@ with decision_tab:
             if evidence_reference is None:
                 st.error("Offline evidence must load before a decision can be recorded.")
                 return
+            audited_action = (
+                selected_action
+                if decision == "OVERRIDE" and selected_action is not None
+                else context.recommendation.action
+            )
             try:
                 record, transition = apply_human_decision(
                     context,
@@ -600,6 +757,9 @@ with decision_tab:
                     audit_sequence=len(st.session_state.decision_demo_audit) + 1,
                     selected_action=selected_action,
                     human_reason=reason,
+                    audit_metadata=audit_route_metadata(
+                        road_graph, road_state, audited_action
+                    ),
                 )
             except HumanDecisionError as exc:
                 st.error(str(exc))
@@ -644,6 +804,14 @@ with decision_tab:
                 key="decision_override_action",
                 disabled=not alternatives,
             ) if alternatives else None
+            if override_action is not None:
+                override_path = path_for_action(road_graph, road_state, override_action)
+                if override_path is not None and override_path.reachable:
+                    st.caption(
+                        f"Path preview: {override_path.distance_m:.0f} m · "
+                        f"{override_path.travel_time_minutes:.2f} min · "
+                        f"{len(override_path.edge_ids)} edges"
+                    )
             override_reason = st.text_input(
                 "Override reason (required)", key="decision_override_reason"
             )
@@ -715,6 +883,9 @@ with decision_tab:
         "scenario_seed": st.session_state.decision_demo_scenario.seed,
         "uncertainty_regime": demo_simulator.config.level.value,
         "uncertainty_config_id": demo_simulator.config.config_id,
+        "graph_version": road_graph.graph_version,
+        "graph_fingerprint": road_graph.graph_fingerprint,
+        "graph_source_artifact": "data/geospatial_v3/fort_kochi_osm_drive_v1.json",
         "current_timestep": display_state.current_timestep,
         "horizon_steps": st.session_state.decision_demo_scenario.time.horizon_steps,
         **current_summary,

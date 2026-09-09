@@ -14,7 +14,7 @@ intended to be read top-to-bottom as the story of how the prototype was built.
 
 ---
 
-## Current V3 status — human override demo available; Phase 14B paused
+## Current V3 status — offline geospatial demo available; Phase 14B paused
 
 Phase 14A freezes `v3-claim-support-challenge-v1`, a construction-labeled,
 AI-assisted claim–evidence support challenge built from all 45 final Phase 13 questions.
@@ -53,6 +53,15 @@ different currently allowed action. The dashboard renders actual simulator event
 population ledgers, keeps a session-only decision audit, and exports the audit as CSV
 and its computed summary as JSON. This feature makes no Gemini or other network request
 and is a demonstration layer, not a new research experiment.
+
+Phase 16/17 geospatial integration now projects the existing synthetic incident onto a
+committed 622-node, 1,358-directed-edge Fort Kochi road graph derived from OpenStreetMap.
+The graph is loaded locally, fingerprint-verified, and routed with NetworkX. Closed edges
+are excluded and unreachable pairs remain unreachable. Graph path metrics flow through
+the existing route abstraction into the unchanged safety mask and Risk-Greedy planner.
+The dashboard renders a tile-free offline graph with the recommendation highlighted.
+**Road topology may be derived from real geographic data, while flood hazards,
+population demand, shelter conditions and evacuation decisions remain simulated.**
 
 ### Frozen Phase 13 retrieval result
 
@@ -4398,7 +4407,7 @@ audit store.
 
 This milestone extends the existing Human Override & Audit feature using the master
 plan's Phase 19 **Dashboard V3 / Live Decision / Timeline** terminology. It does not
-declare all of Phase 19 complete: geospatial display work remains separate. It connects
+declare all of Phase 19 complete: later verification and broader dashboard work remain. It connects
 the already implemented stochastic simulator, deterministic safety layer, Risk-Greedy
 planner, contextual offline evidence, human control, and audit trail into one
 multi-timestep review flow. No scientific experiment was run and no frozen result was
@@ -4450,5 +4459,71 @@ all supported uncertainty configurations, allowed planner output, one-step ACCEP
 OVERRIDE behavior, non-advancing REJECT behavior, population and shelter ledgers, actual
 timeline events, progress history, audit/summary serialization, Streamlit interactions,
 offline-only source checks, and preservation of the Phase 14B cache.
+
+---
+
+## 2026-09-09 — Phase 16/17 cached geospatial and hazard-routing integration
+
+### Architecture and provenance
+
+The project now has the master plan's Phase 16 **Geospatial Road Network** and Phase 17
+**Integrate Stochastic Hazards With Graph Routing** demonstration layer. A one-time
+Overpass development download was reduced to the compact, versioned local artifact
+`data/geospatial_v3/fort_kochi_osm_drive_v1.json`; the raw response is not tracked and
+the review dashboard needs no network. The manifest freezes the Fort Kochi bounds,
+source/ODbL attribution, OSM snapshot time, exact query, filter, coordinate semantics,
+622-node and 1,358-directed-edge counts, and graph fingerprint
+`dff7f2065ab5be8685ffd1195cdab1eaf8ce0b28716f5553f146c7565906a6e3`.
+
+The SHA-256 covers canonical static topology and entity mappings, never dynamic hazard
+or closure state. Loading recomputes and verifies it. OSM node and way identifiers are
+retained in deterministic graph IDs. Edge length comes from WGS84 node coordinates;
+class-based speed and travel time are explicitly synthetic assumptions.
+
+Four fictional zone points and five fictional shelter candidates are deterministically
+mapped to real road nodes. They are not claims about local population, certified
+shelters, or operational facilities. **Road topology may be derived from real geographic
+data, while flood hazards, population demand, shelter conditions and evacuation
+decisions remain simulated.**
+
+### Routing, stochastic evolution, and integration
+
+NetworkX finds the shortest directed path by current edge travel time. Closed edges are
+removed; a disconnected pair is returned as `UNREACHABLE` with no Euclidean fallback.
+At each prepared simulator timestep, the geospatial overlay interpolates edge hazard
+from the existing simulated zone/shelter state, adds only keyed local stochastic
+variation, applies the selected frozen uncertainty configuration's travel and closure
+parameters, and retains absorbing closures. The same seed, configuration, and action
+sequence produce identical road states and paths.
+
+The adapter uses the simulator's existing intervention hook and projects graph path
+metrics into existing route-level state. This preserves the planner interface: the
+Risk-Greedy implementation is unchanged. The existing deterministic safety evaluator
+mechanically excludes any dispatch with no open graph path, so planner candidates and
+human override choices cannot include graph-impossible destinations.
+
+A dispatched group remains committed to its existing source, destination, population,
+and arrival event. Later closures affect new dispatches but do not delete or retroactively
+reroute it. This intentionally preserves the current simulator semantics rather than
+implementing the master plan's possible future next-node rerouting approximation.
+
+### Dashboard, audit, and limits
+
+The Human Override tab now has a tile-free Altair road view that renders without a live
+basemap. It labels simulated zones and shelters, distinguishes open and closed directed
+roads, and highlights the current recommendation path. The recommendation and override
+preview display graph status, distance, estimated time, edge count, and compact path ID.
+Decision audits store graph version, fingerprint, local artifact provenance, compact path
+hash, distance, estimated time, and edge count—not giant node/edge arrays.
+
+A non-scientific local responsiveness diagnostic measured a current-path query at about
+1.15 ms mean and 1.32 ms maximum during the fixed-seed ten-step review episode. This is
+not a policy benchmark or performance claim. Known limits include OSM data quality,
+straight segments between OSM nodes, assumed speeds, simulated hazards/closures, no live
+traffic or flood data, fictional entity placements, and no in-transit rerouting. The
+full technical contract and boundary statement are in `V3_GEOSPATIAL_SPEC.md`.
+
+No Gemini request, retrieval run, PPO training, policy evaluation, partial Phase 14B
+metric, or frozen research-artifact modification occurred.
 
 ---

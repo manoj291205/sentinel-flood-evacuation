@@ -16,6 +16,7 @@ sb3-contrib==2.9.0        # MaskablePPO
 
 # Step 5: the dashboard
 streamlit==1.63.0
+networkx==3.6.1       # cached Phase 16 road-graph routing; no runtime OSM access
 
 # Evaluation & tests (dev)
 pytest==9.1.1

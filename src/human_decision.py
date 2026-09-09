@@ -238,6 +238,7 @@ def apply_human_decision(
     audit_sequence: int,
     selected_action: SimulationAction | None = None,
     human_reason: str = "",
+    audit_metadata: dict[str, object] | None = None,
     now: Callable[[], datetime] | None = None,
 ) -> tuple[dict[str, object], TransitionResult | None]:
     """Validate, optionally execute, and return one session-scoped audit record."""
@@ -252,6 +253,33 @@ def apply_human_decision(
     timestamp = (now or (lambda: datetime.now(timezone.utc)))()
     if timestamp.tzinfo is None:
         raise HumanDecisionError("audit timestamp must include a timezone")
+    standard_fields = {
+        "audit_id",
+        "timestamp",
+        "scenario_id",
+        "generator_seed",
+        "scenario_seed",
+        "uncertainty_regime",
+        "uncertainty_config_id",
+        "timestep",
+        "planner",
+        "recommended_action",
+        "decision",
+        "executed_action",
+        "mechanical_validity",
+        "safety_result",
+        "source_zone_state",
+        "destination_shelter_state",
+        "human_reason",
+        "evidence_source",
+        "evidence_page",
+        "evidence_chunk_id",
+    }
+    collisions = sorted(standard_fields & set(audit_metadata or {}))
+    if collisions:
+        raise HumanDecisionError(
+            f"audit metadata cannot replace standard field(s): {', '.join(collisions)}"
+        )
 
     if choice is HumanDecision.ACCEPT:
         if selected_action is not None:
@@ -322,6 +350,8 @@ def apply_human_decision(
         "evidence_page": evidence.page,
         "evidence_chunk_id": evidence.chunk_id,
     }
+    if audit_metadata:
+        record.update(audit_metadata)
     return record, transition
 
 

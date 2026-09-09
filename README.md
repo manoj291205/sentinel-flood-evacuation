@@ -90,10 +90,13 @@ synthetic V3 simulator, deterministic safety mask, and Risk-Greedy planner, then
 human operator play a reproducible multi-timestep evacuation episode by accepting,
 safely overriding, or rejecting recommendations. The live view shows zone, shelter,
 route, and in-transit state; actual simulator events; population progress; and a computed
-session summary. Decisions remain in the browser session and can be downloaded as CSV,
-with the summary available as JSON. Authoritative evidence text is not copied into the
-audit log. This is the **Phase 19 Live Decision/Timeline integration milestone**, not a
-new scientific experiment or an operationally validated system.
+session summary. A tile-free graph view uses a committed Fort Kochi OpenStreetMap road
+topology and highlights current routes without runtime internet access. All flood,
+closure, population, shelter, traffic, and decision conditions remain simulated.
+Decisions remain in the browser session and can be downloaded as CSV, with the summary
+available as JSON. Authoritative evidence text is not copied into the audit log. This is
+Phase 16/17 geospatial integration surfaced in the **Phase 19 Live Decision/Timeline**
+milestone, not a new scientific experiment or an operationally validated system.
 
 ---
 
@@ -126,7 +129,8 @@ v3-dynamic-stochastic
 | 14A   | Construction-labeled claim-support challenge           | ✅ Complete |
 | 14B   | Semantic claim-support evaluation                      | ⏸ API quota |
 | 15    | Evidence-grounded policy constraint integration        | ⏳ Planned  |
-| 16–17 | Geospatial road network and hazard-aware routing       | ⏳ Planned  |
+| 16    | Cached geospatial road graph and routing engine        | ✅ Complete |
+| 17    | Dynamic hazard-aware graph routing integration         | ✅ Complete |
 | 18    | Human-in-the-loop override and session audit trail     | ✅ Complete |
 | 19–20 | Final dashboard and accessibility verification         | 🔄 In progress |
 
@@ -519,11 +523,9 @@ Resume the frozen semantic claim-support evaluation only after API quota is avai
 Phase 15
 Integrate deterministic safety with evidence-grounded policy constraints
 
-Phase 16–17
-Add cached real road topology and hazard-aware routing
-
 Phase 19–20
-Build and verify the final geospatial Streamlit decision-support dashboard
+Complete broader dashboard and accessibility verification beyond the integrated
+offline Live Decision road-network view
 ```
 
 ---
