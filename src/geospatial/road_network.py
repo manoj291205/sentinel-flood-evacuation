@@ -435,8 +435,10 @@ class GeospatialRouteOverlay:
         return _adapt_routes(state, self.graph, road_state, self.config), records
 
 
-def _graph_scenario(graph: RoadGraph, config: UncertaintyConfig) -> ScenarioV3:
-    scenario = generate_gate6_scenario(620000, "practical")
+def _graph_scenario(
+    graph: RoadGraph, config: UncertaintyConfig, generator_seed: int = 620000
+) -> ScenarioV3:
+    scenario = generate_gate6_scenario(generator_seed, "practical")
     static_state, _ = derive_road_state(
         graph,
         StochasticSimulator(scenario, config).prepared_state_for_debug(),
@@ -489,11 +491,12 @@ def build_geospatial_demo_runtime(
     uncertainty: str | UncertaintyConfig = "v3-medium-v1",
     *,
     graph: RoadGraph | None = None,
+    generator_seed: int = 620000,
 ) -> tuple[ScenarioV3, StochasticSimulator, RoadGraph, GeospatialRouteOverlay]:
     """Build the reproducible Gate 6 demo over the frozen local Fort Kochi graph."""
     loaded = graph or load_road_graph()
     selected = get_uncertainty_config(uncertainty)
-    scenario = _graph_scenario(loaded, selected)
+    scenario = _graph_scenario(loaded, selected, generator_seed)
     overlay = GeospatialRouteOverlay(loaded, selected, scenario.seed)
     simulator = StochasticSimulator(scenario, selected, intervention=overlay)
     return scenario, simulator, loaded, overlay

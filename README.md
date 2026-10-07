@@ -77,6 +77,50 @@ Authoritative Disaster Guidance
 
 ---
 
+## Live Simulation Demo
+
+```bash
+streamlit run simulation_demo.py
+```
+
+`simulation_demo.py` is the interactive end-to-end simulation; `review_dashboard.py`
+is the research/evaluation presentation dashboard. Run from this checkout with the
+project requirements installed (`python -m pip install -r requirements.txt`).
+
+The live demo uses the existing StochasticSimulator, deterministic mechanical and
+hard-safety mask, unchanged Risk-Greedy planner, offline Fort Kochi graph adapter,
+and human-decision audit. Default generator seed: **620000**; regime: **MEDIUM**.
+Presets select standard MEDIUM or HIGH uncertainty without changing outcomes.
+Seed/regime changes take effect on **RESET**.
+
+**STEP / ADVANCE** or **ACCEPT RECOMMENDATION** executes exactly one transition.
+**OVERRIDE** exposes only allowed alternatives and requires a reason; select WAIT
+to advance without dispatch. **REJECT** requires a reason and records no execution
+or time advancement, preserving the existing human-decision semantics.
+
+The map highlights the current recommendation. Population metrics, zones, shelters,
+routes, current transit groups, actual events, population progress, shelter utilization,
+and hazard history update from simulator state. Short trips may arrive at the next
+observation; the actual post-dispatch snapshot and chart show their transit stage.
+CSV decisions and JSON session history/summary can be downloaded. Session state is
+browser-local and reset clears it. NDMA context reads frozen local artifacts with
+source/page/chunk references; it does not imply semantic support for every claim.
+
+**REAL ROAD TOPOLOGY + SIMULATED DISASTER CONDITIONS. NOT OPERATIONALLY VALIDATED.**
+No Gemini, network requests, PPO training, or policy/retrieval evaluations run in the
+demo. Phase 14B remains paused and incomplete at 21/135 official dispositions;
+no partial performance metrics are presented. Later closures affect future dispatches;
+the simulator retains existing transit/arrival semantics without rerouting groups.
+
+Focused offline verification:
+
+```bash
+python -m py_compile simulation_demo.py
+python -m pytest tests/test_simulation_demo.py tests/test_v3_geospatial_integration.py tests/test_human_decision_demo.py
+```
+
+---
+
 ## Project Review Dashboard
 
 Launch the standalone, artifact-backed review UI locally:
@@ -460,13 +504,17 @@ The simulator, safety layer, and action masks therefore maintained their intende
 
 ## Testing
 
-The repository currently contains:
+The full offline regression suite in the isolated simulation branch was verified with
+`python -m pytest tests/ -ra`:
 
 ```text
-383 passing tests
+735 passed, 0 skipped
 ```
 
-covering areas including:
+This count covers this branch’s tracked tests; paused Phase 14B runtime/test changes
+in the primary checkout were not copied into the simulation worktree.
+
+Coverage includes:
 
 - scenario validation;
 - population/capacity conservation;
