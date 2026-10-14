@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Design System</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Sans+Condensed:wght@600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.app{--ground:#E9ECEE;--surface:#F7F8F9;--sunk:#DDE2E6;--ink:#101418;--ink2:#3D4750;--ink3:#55616B;--rule:#C3CBD2;--primary:#0E2A3F;--onprimary:#FFFFFF;--ok:#0F7B4A;--warn:#8F5600;--bad:#B42318;--info:#1F5FA8;--w1:#DCEBF7;--w2:#9CC6E8;--w3:#4A93C9;--w4:#1D5F96;--road:#C4CDD5;--roadc:#F7F8F9;--route:#0E2A3F}
+.app[data-theme="Night"]{--ground:#080B0E;--surface:#0F141A;--sunk:#18202A;--ink:#D9E1E8;--ink2:#A7B4BF;--ink3:#8D9BA7;--rule:#26313C;--primary:#7FB3D9;--onprimary:#06121C;--ok:#45C08A;--warn:#E0A84A;--bad:#F27566;--info:#8CC0E6;--w1:#0F2436;--w2:#163A57;--w3:#1F5F8E;--w4:#3E86BF;--road:#2B3643;--roadc:#0F141A;--route:#8CC0E6}
+a{color:var(--info)}a:hover{color:var(--ink)}
+.nav a{color:var(--ink2);text-decoration:none}.nav a:hover{color:var(--ink);background:var(--sunk)}
+button{font-family:inherit}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}" style="min-height:100vh;background:var(--ground);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:22px;">
+  <header style="min-height:64px;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:10px 24px;background:var(--surface);border-bottom:2px solid var(--ink);">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="1" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"></rect><path d="M5 15 L11 6 L17 15" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+      <span style="font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;letter-spacing:.2em;font-size:16px;">SENTINEL</span>
+    </div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink2);">KOCHI-SIM-620000 · t = 6 / 16 · Δt 2 min</div>
+    <span style="font-size:12px;font-weight:600;letter-spacing:.06em;padding:2px 8px;border:1px solid var(--ink2);border-radius:4px;">MEDIUM UNCERTAINTY</span>
+    <div style="flex:1 1 40px;"></div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;">14:32:08 IST</div>
+    <button type="button" onClick="{{toggleTheme}}" aria-label="Switch Day or Night theme" style="min-height:36px;padding:0 12px;border:1px solid var(--ink2);border-radius:6px;background:transparent;color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;">{{themeLabel}}</button>
+    <div style="font-size:13px;color:var(--ink2);">Operator 01 · Ernakulam EOC</div>
+  </header>
+  <div role="note" style="background:var(--sunk);border-bottom:1px solid var(--rule);padding:6px 24px;font-size:12px;line-height:16px;letter-spacing:.08em;font-weight:600;color:var(--ink);">REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED</div>
+  <div style="display:flex;flex-wrap:wrap;align-items:flex-start;">
+    <nav class="nav" aria-label="Main" style="flex:1 1 200px;max-width:220px;box-sizing:border-box;padding:20px 12px;display:flex;flex-direction:column;gap:2px;font-size:14px;">
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:8px 10px 4px;">OPERATE</div>
+      <a href="Overview.dc.html" style="padding:8px 10px;border-radius:4px;">Overview</a>
+      <a href="Main.dc.html" style="padding:8px 10px;border-radius:4px;">Live Operations</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">VERIFY</div>
+      <a href="Decisions.dc.html" style="padding:8px 10px;border-radius:4px;">Decisions &amp; Certificates</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">EVIDENCE</div>
+      <a href="Evidence.dc.html" style="padding:8px 10px;border-radius:4px;">Evidence &amp; Results</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">SYSTEM</div>
+      <a href="System.dc.html" style="padding:8px 10px;border-radius:4px;">System &amp; Hardware</a>
+    </nav>
+    <main style="flex:999 1 560px;min-width:0;box-sizing:border-box;padding:24px;display:flex;flex-direction:column;gap:20px;">
+      <div><h1 style="margin:0;font-size:28px;line-height:36px;font-weight:600;">Design system · tokens &amp; components</h1><p style="margin:4px 0 0;font-size:15px;color:var(--ink2);">Control-room instrument style. Colour only carries safety meaning, and is always paired with a shape and a word.</p></div>
+      <section style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:10px;">
+        <h2 style="margin:0;font-size:16px;font-weight:600;">Colour tokens ({{theme}})</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;">
+          <sc-for list="{{swatches}}" as="s" hint-placeholder-count="12"><div style="border:1px solid var(--rule);"><div style="{{s.style}}"></div><div style="padding:6px 8px;font-family:'IBM Plex Mono',monospace;font-size:12px;">{{s.name}}<br><span style="color:var(--ink2);">{{s.use}}</span></div></div></sc-for>
+        </div>
+      </section>
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start;">
+        <section style="flex:1 1 380px;background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:10px;">
+          <h2 style="margin:0;font-size:16px;font-weight:600;">Type</h2>
+          <div style="font-size:28px;line-height:36px;font-weight:600;">Page title · Plex Sans 28/36 600</div>
+          <div style="font-size:20px;line-height:28px;font-weight:600;">Suggestion · Plex Sans 20/28 600</div>
+          <div style="font-size:15px;line-height:22px;">Body · Plex Sans 15/22 400</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;">Data · Plex Mono 13 · [0.962, 0.995] · t 6 / 16</div>
+          <div style="font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;letter-spacing:.1em;font-size:12px;">MAP DECAL · PLEX SANS CONDENSED 12 700</div>
+        </section>
+        <section style="flex:1 1 380px;background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:12px;">
+          <h2 style="margin:0;font-size:16px;font-weight:600;">Gate verdicts</h2>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;">
+            <span style="display:inline-flex;align-items:center;gap:6px;color:var(--ok);"><svg width="10" height="10" aria-hidden="true"><circle cx="5" cy="5" r="5" style="fill:currentColor"></circle></svg>FEASIBLE — certified ≥ 1 − ε, may be suggested</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:var(--warn);"><svg width="12" height="12" aria-hidden="true"><path d="M6 0 L12 6 L6 12 L0 6 Z" fill="none" style="stroke:currentColor" stroke-width="1.5"></path><path d="M6 0 L6 12 L0 6 Z" style="fill:currentColor"></path></svg>UNDECIDED — not enough evidence, blocked</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:var(--bad);"><svg width="12" height="11" aria-hidden="true"><path d="M6 0 L12 11 L0 11 Z" style="fill:currentColor"></path></svg>INFEASIBLE — certified unsafe, blocked</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:var(--ink2);"><svg width="12" height="12" aria-hidden="true"><rect x="1" y="1" width="10" height="10" fill="none" style="stroke:currentColor" stroke-width="2"></rect></svg>HOLD — always allowed, escalates</span>
+          </div>
+          <h2 style="margin:6px 0 0;font-size:16px;font-weight:600;">Buttons</h2>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button type="button" style="min-height:44px;padding:0 18px;border:0;border-radius:6px;background:var(--primary);color:var(--onprimary);font-weight:600;font-size:14px;">Accept</button>
+            <button type="button" style="min-height:44px;padding:0 18px;border:2px solid var(--ink);border-radius:6px;background:transparent;color:var(--ink);font-weight:600;font-size:14px;">Override</button>
+            <button type="button" style="min-height:44px;padding:0 18px;border:2px solid var(--bad);border-radius:6px;background:transparent;color:var(--bad);font-weight:600;font-size:14px;">Reject</button>
+            <button type="button" style="min-height:36px;padding:0 12px;border:1px solid var(--ink2);border-radius:6px;background:transparent;color:var(--ink);font-weight:600;font-size:13px;">Secondary</button>
+          </div>
+        </section>
+      </div>
+      <section style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:10px;">
+        <h2 style="margin:0;font-size:16px;font-weight:600;">Rules</h2>
+        <ul style="margin:0;padding-left:20px;font-size:14px;line-height:22px;columns:2 320px;">
+          <li>Honesty banner on every operational page: real road topology, simulated conditions, not operationally validated.</li>
+          <li>Flat surfaces, 1–2 px rules, no gradients, no glass, no drop shadows.</li>
+          <li>Numbers in Plex Mono with tabular figures.</li>
+          <li>Touch targets ≥ 44 px; every control reachable by keyboard; WCAG AA contrast in both themes.</li>
+          <li>Every suggestion shows “why” in plain language next to the certified bound.</li>
+          <li>Never show a metric that is not loaded from a frozen result file; show “—” and the reason instead.</li>
+          <li>Stale data (no update for 5 s) gets a dashed outline and an age label.</li>
+          <li>Map: grid, north arrow, 100 m scale bar, dashed zone decals, ID plates that invert when selected.</li>
+        </ul>
+      </section>
+
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Day","Night"],"default":"Day"},"$preview":{"width":1440,"height":1240}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { themeOverride: null }; }
+  renderVals() {
+    const theme = this.state.themeOverride || this.props.theme || 'Day';
+    const S = [['--ground', 'page background'], ['--surface', 'panels'], ['--sunk', 'selected row'], ['--ink', 'text, borders'], ['--ink2', 'secondary text'], ['--rule', 'dividers'], ['--primary', 'primary action'], ['--ok', 'FEASIBLE / safe'], ['--warn', 'UNDECIDED / caution'], ['--bad', 'INFEASIBLE / closed'], ['--info', 'sensor / reserved'], ['--w3', 'simulated water']];
+    return {
+      theme, themeLabel: theme === 'Night' ? 'Day theme' : 'Night theme', toggleTheme: () => this.setState({ themeOverride: theme === 'Night' ? 'Day' : 'Night' }),
+      swatches: S.map((s) => ({ name: s[0], use: s[1], style: 'height:48px;background:var(' + s[0] + ');border-bottom:1px solid var(--rule);' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Live Operations</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Sans+Condensed:wght@600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.app{--ground:#E9ECEE;--surface:#F7F8F9;--sunk:#DDE2E6;--ink:#101418;--ink2:#3D4750;--ink3:#55616B;--rule:#C3CBD2;--primary:#0E2A3F;--onprimary:#FFFFFF;--ok:#0F7B4A;--warn:#8F5600;--bad:#B42318;--info:#1F5FA8;--w1:#DCEBF7;--w2:#9CC6E8;--w3:#4A93C9;--w4:#1D5F96;--road:#C4CDD5;--roadc:#F7F8F9;--route:#0E2A3F}
+.app[data-theme="Night"]{--ground:#080B0E;--surface:#0F141A;--sunk:#18202A;--ink:#D9E1E8;--ink2:#A7B4BF;--ink3:#8D9BA7;--rule:#26313C;--primary:#7FB3D9;--onprimary:#06121C;--ok:#45C08A;--warn:#E0A84A;--bad:#F27566;--info:#8CC0E6;--w1:#0F2436;--w2:#163A57;--w3:#1F5F8E;--w4:#3E86BF;--road:#2B3643;--roadc:#0F141A;--route:#8CC0E6}
+a{color:var(--info)}a:hover{color:var(--ink)}
+.nav a{color:var(--ink2);text-decoration:none}.nav a:hover{color:var(--ink);background:var(--sunk)}
+button{font-family:inherit}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}" style="min-height:100vh;background:var(--ground);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:22px;">
+  <header style="min-height:64px;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:10px 24px;background:var(--surface);border-bottom:2px solid var(--ink);">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="1" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"></rect><path d="M5 15 L11 6 L17 15" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+      <span style="font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;letter-spacing:.2em;font-size:16px;">SENTINEL</span>
+    </div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink2);">KOCHI-SIM-620000 · t = {{t}} / 16 · Δt 2 min</div>
+    <span style="font-size:12px;font-weight:600;letter-spacing:.06em;padding:2px 8px;border:1px solid var(--ink2);border-radius:4px;">MEDIUM UNCERTAINTY</span>
+    <div style="flex:1 1 40px;"></div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;">14:32:08 IST</div>
+    <button type="button" onClick="{{toggleTheme}}" aria-label="Switch Day or Night theme" style="min-height:36px;padding:0 12px;border:1px solid var(--ink2);border-radius:6px;background:transparent;color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;">{{themeLabel}}</button>
+    <div style="font-size:13px;color:var(--ink2);">Operator 01 · Ernakulam EOC</div>
+  </header>
+  <div role="note" style="background:var(--sunk);border-bottom:1px solid var(--rule);padding:6px 24px;font-size:12px;line-height:16px;letter-spacing:.08em;font-weight:600;color:var(--ink);">REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED</div>
+  <div style="display:flex;flex-wrap:wrap;align-items:flex-start;">
+    <nav class="nav" aria-label="Main" style="flex:1 1 200px;max-width:220px;box-sizing:border-box;padding:20px 12px;display:flex;flex-direction:column;gap:2px;font-size:14px;">
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:8px 10px 4px;">OPERATE</div>
+      <a href="Overview.dc.html" style="padding:8px 10px;border-radius:4px;">Overview</a>
+      <a href="Main.dc.html" aria-current="page" style="padding:8px 10px;border-radius:4px;background:var(--primary);color:var(--onprimary);font-weight:600;">Live Operations</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">VERIFY</div>
+      <a href="Decisions.dc.html" style="padding:8px 10px;border-radius:4px;">Decisions &amp; Certificates</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">EVIDENCE</div>
+      <a href="Evidence.dc.html" style="padding:8px 10px;border-radius:4px;">Evidence &amp; Results</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">SYSTEM</div>
+      <a href="System.dc.html" style="padding:8px 10px;border-radius:4px;">System &amp; Hardware</a>
+    </nav>
+    <main style="flex:999 1 560px;min-width:0;box-sizing:border-box;padding:24px;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start;">
+      <section aria-label="Map" style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;">
+          <h1 style="margin:0;font-size:28px;line-height:36px;font-weight:600;">Fort Kochi · Live Operations</h1>
+          <div style="flex:1 1 20px;"></div>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.06em;"><svg width="10" height="10" aria-hidden="true"><circle cx="5" cy="5" r="5" fill="var(--ok)"></circle></svg>{{liveLabel}}</span>
+        </div>
+        <section aria-label="Guided demo" style="background:var(--surface);border:2px solid var(--ink);padding:14px 16px;display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;">
+            <span style="font-size:11px;font-weight:700;letter-spacing:.12em;padding:3px 8px;background:var(--ink);color:var(--surface);">GUIDED DEMO</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink2);">Step {{stepNo}} / {{stepCount}} · t = {{t}} / 16</span>
+            <div style="flex:1 1 20px;"></div>
+            <button type="button" onClick="{{prev}}" aria-label="Previous step" style="min-height:36px;padding:0 12px;border:1px solid var(--ink2);border-radius:6px;background:transparent;color:var(--ink);font-weight:600;font-size:13px;cursor:pointer;">◀ Back</button>
+            <button type="button" onClick="{{togglePlay}}" style="min-height:36px;padding:0 16px;border:0;border-radius:6px;background:var(--primary);color:var(--onprimary);font-weight:600;font-size:13px;cursor:pointer;">{{playLabel}}</button>
+            <button type="button" onClick="{{next}}" aria-label="Next step" style="min-height:36px;padding:0 12px;border:1px solid var(--ink2);border-radius:6px;background:transparent;color:var(--ink);font-weight:600;font-size:13px;cursor:pointer;">Next ▶</button>
+            <button type="button" onClick="{{reset}}" style="min-height:36px;padding:0 12px;border:0;background:transparent;color:var(--ink2);font-size:13px;cursor:pointer;text-decoration:underline;">Reset</button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;" aria-label="Decision pipeline">
+            <sc-for list="{{stages}}" as="s" hint-placeholder-count="5">
+              <span style="{{s.style}}">{{s.label}}</span>
+            </sc-for>
+          </div>
+          <p role="status" aria-live="polite" style="margin:0;font-size:16px;line-height:24px;">{{caption}}</p>
+          <div style="display:flex;gap:4px;" aria-hidden="true">
+            <sc-for list="{{dots}}" as="d" hint-placeholder-count="6"><span style="{{d}}"></span></sc-for>
+          </div>
+        </section>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;">
+          <sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+            <div style="flex:1 1 140px;background:var(--surface);border:1px solid var(--rule);padding:10px 12px;">
+              <div style="font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--ink3);">{{k.label}}</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:24px;line-height:32px;font-weight:600;">{{k.value}}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="overflow:auto;border:2px solid var(--ink);background:var(--surface);">
+          <svg role="img" aria-label="Top-down map of Fort Kochi roads with evacuation zones, shelters, travelling groups and the selected certified route" width="880" height="789" viewBox="0 0 880 789" style="display:block;">
+            <defs>
+              <pattern id="grid100" width="89.18" height="89.18" patternUnits="userSpaceOnUse"><path d="M89.18 0 L0 0 0 89.18" fill="none" style="stroke:var(--rule)" stroke-width="0.6" opacity="0.7"></path></pattern>
+              <clipPath id="frame"><rect x="0" y="0" width="880" height="789"></rect></clipPath>
+            </defs>
+            <g clip-path="url(#frame)">
+              <rect x="0" y="0" width="880" height="789" fill="url(#grid100)"></rect>
+              <circle cx="760" cy="690" r="150" style="fill:var(--w2)" opacity="0.55"></circle>
+              <circle cx="700" cy="740" r="95" style="fill:var(--w3)" opacity="0.45"></circle>
+              <circle cx="150" cy="640" r="90" style="fill:var(--w2)" opacity="0.4"></circle>
+              <circle cx="470" cy="760" r="70" style="fill:var(--w2)" opacity="0.35"></circle>
+              <path d="M485.0 679.0L511.5 689.5M626.3 99.9L675.6 97.4M623.7 594.7L618.7 623.9M618.7 623.9L604.3 646.6M604.3 646.6L602.2 662.8M602.2 662.8L601.6 673.2M601.6 673.2L601.0 699.0M601.6 673.2L625.8 676.3M625.8 676.3L631.4 651.0M631.4 651.0L654.2 655.8M654.2 655.8L657.0 661.7M657.0 661.7L668.3 662.0M668.3 662.0L674.7 657.2M674.7 657.2L685.0 654.8M511.5 689.5L527.8 691.3M527.8 691.3L545.7 691.7M545.7 691.7L564.6 692.3M564.6 692.3L580.2 693.3M580.2 693.3L585.0 697.5M585.0 697.5L601.0 699.0M564.6 692.3L567.6 644.4M604.3 646.6L567.6 644.4M567.6 644.4L560.7 644.1M349.5 550.6L363.2 559.6M498.8 616.5L473.6 608.0M621.2 202.3L579.7 312.7M440.1 538.3L416.9 527.9M688.0 58.0L677.5 91.5M677.5 91.5L675.6 97.4M286.8 277.7L295.1 263.8M557.8 793.4L548.6 749.9M548.6 749.9L546.9 720.5M854.6 561.5L905.7 573.9M849.5 593.3L905.1 601.6M849.3 692.1L873.1 691.7M873.1 691.7L873.8 683.9M852.3 724.1L881.1 730.9M671.2 469.8L672.5 457.0M672.5 457.0L599.6 433.3M599.6 433.3L588.2 429.6M607.8 482.5L600.0 457.6M600.0 457.6L600.4 451.5M600.4 451.5L592.4 442.8M592.4 442.8L599.6 433.3M656.5 534.6L655.7 505.4M655.7 505.4L678.0 501.0M678.0 501.0L671.2 469.8M678.0 501.0L682.1 510.0M682.1 510.0L687.3 508.8M874.6 128.3L880.9 134.7M361.7 666.9L362.3 657.9M362.3 657.9L368.9 639.6M368.9 639.6L374.8 638.2M374.8 638.2L375.7 627.7M362.3 657.9L349.3 657.5M349.3 657.5L348.5 652.1M361.7 666.9L342.8 667.1M330.0 685.2L316.7 677.8M316.7 677.8L314.9 680.4M314.9 680.4L306.3 674.4M297.7 719.9L302.4 697.9M302.4 697.9L306.2 692.2M535.7 547.4L547.8 557.4M547.8 557.4L549.8 562.1M549.8 562.1L586.9 567.6M586.9 567.6L592.4 545.2M611.2 481.6L616.1 493.2M616.1 493.2L618.9 511.2M618.9 511.2L623.3 511.0M623.3 511.0L630.1 515.4M630.1 515.4L633.8 544.2M633.8 544.2L634.0 562.8M634.0 562.8L633.7 570.2M633.7 570.2L635.7 579.1M635.7 579.1L635.2 595.3M402.6 667.9L399.9 651.4M399.9 651.4L403.6 631.3M784.0 487.5L788.3 460.5M788.3 460.5L790.4 446.9M790.4 446.9L790.2 429.1M802.4 492.0L810.1 467.3M810.1 467.3L816.5 468.0M816.5 468.0L821.8 438.4M821.8 438.4L827.4 435.1M436.0 713.0L435.9 726.4M435.9 726.4L439.9 736.2M439.9 736.2L442.6 736.6M442.6 736.6L440.7 752.2M440.7 752.2L435.9 751.5M621.5 751.4L646.6 749.8M621.2 724.1L650.9 722.9M580.2 693.3L580.9 710.7M485.3 773.5L446.9 767.6M446.9 767.6L398.9 755.4M398.9 755.4L392.3 772.8M660.0 598.9L664.2 584.8M664.2 584.8L664.0 567.8M664.0 567.8L663.8 552.5M738.1 570.6L699.4 565.2M699.4 565.2L690.8 562.0M543.2 589.4L544.0 580.3M544.0 580.3L545.5 575.4M605.3 569.6L606.6 557.0M606.6 557.0L607.7 550.0M607.7 550.0L609.2 537.6M609.2 537.6L610.0 531.6M610.0 531.6L611.9 524.4M545.5 575.4L572.9 575.8M572.9 575.8L604.1 575.1M604.1 575.1L605.3 569.6M496.1 382.1L505.2 392.3M505.2 392.3L517.3 401.1M517.3 401.1L523.2 406.2M492.2 385.0L496.1 382.1M496.1 382.1L514.8 358.7M514.8 358.7L517.1 355.6M406.6 553.5L402.3 602.5M211.6 587.6L224.2 596.6M224.2 596.6L241.2 615.3M813.9 96.3L825.7 54.3M484.9 706.6L468.7 707.5M468.7 707.5L436.0 713.0M436.0 713.0L419.6 713.1M419.6 713.1L416.3 722.9M416.3 722.9L400.5 719.6M400.5 719.6L398.6 722.9M398.6 722.9L382.0 723.8M382.0 723.8L372.4 715.3M588.2 429.6L565.2 424.6M565.2 424.6L530.4 400.3M846.8 607.5L803.9 601.6M803.9 601.6L791.6 600.1M791.6 600.1L799.1 560.9M799.1 560.9L741.0 553.1M678.6 53.8L685.1 28.3M610.1 28.3L627.4 42.5M341.8 160.5L391.6 180.3M-0.8 780.4L74.4 765.4M437.6 448.3L443.7 435.1M461.5 437.2L443.7 435.1M443.7 435.1L443.7 423.6M443.7 423.6L449.3 413.2M449.3 413.2L478.3 380.9M478.3 380.9L492.2 385.0M492.2 385.0L497.8 396.5M497.8 396.5L493.0 406.9M493.0 406.9L469.9 432.0M469.9 432.0L461.5 437.2M110.3 476.1L178.3 503.3M178.3 503.3L244.1 526.4M621.7 782.2L621.5 751.4M621.5 751.4L621.2 724.1M621.2 724.1L621.1 711.5M621.1 711.5L619.9 704.6M619.9 704.6L601.0 699.0M516.0 728.4L509.4 706.5M509.4 706.5L509.6 695.0M509.6 695.0L511.5 689.5M511.5 689.5L517.5 665.9M744.2 651.0L773.6 652.7M773.6 652.7L784.7 652.8M784.7 652.8L788.1 677.4M760.2 737.3L783.5 738.8M783.5 738.8L784.0 730.4M784.0 730.4L812.7 734.6M812.7 734.6L852.7 737.6M517.5 665.9L541.3 589.1" fill="none" style="stroke:var(--road)" stroke-width="5" stroke-linecap="round"></path>
+              <path d="M626.3 99.9L625.5 52.6L627.4 42.5M482.3 451.8L483.9 447.8L485.9 444.8L523.2 406.2L530.4 400.3L541.7 385.5L553.3 363.9L555.2 359.7L566.4 335.7L575.9 311.2L615.7 200.6M33.2 865.4L-0.8 780.4L-19.0 735.2M-8.7 591.9L1.3 581.0M501.2 83.0L559.8 58.0L585.7 46.9L605.6 41.3L627.4 42.5M615.7 200.6L625.1 148.9L626.3 99.9M501.2 83.0L481.4 174.6M405.4 142.3L481.4 174.6M625.1 148.9L660.8 153.4M283.4 681.8L279.6 683.1L264.8 683.2M870.9 97.2L868.4 102.6L839.9 132.7L810.6 159.8L771.4 200.7L752.5 216.6L734.1 230.8L726.1 235.1M249.6 499.5L301.9 513.0M263.7 839.5L266.0 823.4L265.5 802.2L265.3 790.4L266.2 762.3L265.5 718.5L264.8 683.2L265.8 661.8L264.3 657.0L241.2 615.3L233.0 586.0L232.1 577.2M342.8 667.1L330.0 685.2L305.2 722.2M758.6 722.6L768.7 719.1L775.1 715.8L792.3 716.3L806.5 714.0L811.0 710.5L818.6 710.4L837.2 710.7L851.2 708.9M508.3 583.7L541.3 589.1L543.2 589.4L600.7 594.3L623.7 594.7L635.2 595.3L652.7 596.8L660.0 598.9L700.5 610.7L737.5 615.1M811.4 244.6L855.6 255.6L885.5 249.8M501.9 501.9L488.2 517.8L479.0 548.6L471.7 573.6L458.6 601.2L444.5 612.3L417.4 617.0L393.2 616.0L378.4 618.5L363.5 622.5L330.0 637.3L291.9 665.2L283.4 681.8M763.0 786.3L761.4 793.8M297.3 809.3L297.7 803.7L298.9 784.0L307.5 767.8M647.7 210.8L637.8 242.3L611.7 321.6M575.9 311.2L579.7 312.7L611.7 321.6L644.3 332.0L660.7 335.7M627.4 42.5L635.8 42.4L663.0 47.6L670.5 50.2L678.6 53.8L688.0 58.0L746.3 88.2L770.2 96.1L813.9 96.3L851.5 94.8L861.6 93.4L870.9 97.2M726.1 235.1L729.2 267.0L730.5 297.0L730.9 332.8L732.1 357.8L732.4 359.4L736.1 382.6L739.3 406.9L744.4 443.5L744.9 479.0L743.4 503.0L741.8 527.7L741.0 553.1L738.1 570.6L735.5 586.5L737.5 615.1L744.2 651.0L749.1 661.8L754.9 688.1L758.0 717.4L758.6 722.6L760.2 737.3L762.2 763.1L763.0 786.3M481.4 174.6L503.9 182.4L570.4 187.8L615.7 200.6M885.0 503.6L860.1 501.8L814.6 495.0L802.4 492.0L784.0 487.5L776.9 485.8L744.9 479.0M725.3 468.6L696.0 467.8L671.2 469.8L660.3 470.7L636.4 475.0L611.2 481.6L607.8 482.5L581.3 496.4L563.0 512.4L535.7 547.4L533.9 549.7L521.3 568.4L508.3 583.7M739.3 406.9L801.6 400.0L864.3 379.8L902.5 374.8M83.5 566.4L110.3 476.1L132.3 424.8M259.8 469.1L198.8 447.6L132.3 424.8L82.6 401.6M301.9 513.0L314.2 478.8L331.5 423.6L351.0 366.6L366.4 315.3M232.1 577.2L244.1 526.4L249.6 499.5L259.8 469.1L265.1 459.7L290.5 402.1L319.5 333.1L322.8 325.2L330.0 306.2M197.9 354.3L140.2 326.8L135.7 326.4L130.4 327.4L99.5 353.4L91.2 365.0L86.3 384.6L82.6 401.6L73.9 426.2L46.7 493.6L41.6 497.1L27.2 498.0L18.0 500.7L16.2 505.0L4.0 540.3L2.3 553.3L1.3 581.0M232.1 577.2L211.6 587.6L194.7 591.9L185.9 591.1L152.6 582.2L99.7 570.4L83.5 566.4M405.4 142.3L391.6 180.3L385.3 188.8L355.9 240.7L333.2 296.8M485.5 807.1L523.7 799.2L557.8 793.4L563.4 792.4L621.7 782.2L668.7 774.5L697.8 770.9L762.2 763.1M763.0 786.3L840.5 798.4L865.5 804.1L912.0 816.9M403.3 314.8L366.4 315.3M553.3 363.9L517.1 355.6L436.1 328.8L403.3 314.8M232.1 577.2L247.8 552.8L301.9 513.0M523.7 799.2L519.4 770.2L519.8 757.5L516.0 728.4M408.5 667.8L402.6 667.9L392.8 668.0L376.2 667.6L361.7 666.9M266.2 762.3L307.5 767.8L328.8 744.3L372.4 715.3L408.5 667.8L440.7 655.9L469.0 647.1L486.8 642.8M638.5 399.6L588.2 429.6L581.0 434.1L559.0 443.4L551.3 446.6L501.4 494.6M198.8 447.6L178.3 503.3L152.6 582.2M744.9 479.0L725.3 468.6L689.3 440.0L649.2 407.3L638.5 399.6L620.4 388.3L604.5 380.6L591.9 375.6L553.3 363.9M403.3 314.8L393.0 349.7L367.5 412.0L356.9 443.2L349.9 466.9M468.4 205.8L428.4 197.5L385.3 188.8M132.3 424.8L197.9 354.3L212.5 337.8L244.2 302.3L270.5 271.0L311.0 221.8L341.8 160.5L350.8 141.6L361.8 131.7L375.9 130.1L405.4 142.3M481.4 174.6L468.4 205.8L447.7 238.9L408.6 303.4L403.3 314.8M366.4 315.3L330.0 306.2L333.2 296.8L286.8 277.7L270.5 271.0M840.5 798.4L847.4 777.4L851.9 758.2L852.7 737.6L852.3 724.1L852.1 717.0L851.2 708.9L849.3 692.1L848.9 688.8L843.1 648.5L846.8 607.5L849.5 593.3L849.8 591.3L854.6 561.5L859.1 533.0L860.1 501.8M241.2 615.3L349.5 550.6L358.7 537.4M482.3 451.8L437.6 448.3L422.4 447.9L384.4 452.7L349.9 466.9L314.2 478.8M406.6 553.5L416.9 527.9L424.5 509.1L428.0 503.7L482.9 455.6M265.5 718.5L285.2 717.5L297.7 719.9L302.8 721.0L305.2 722.2L315.1 727.1L328.8 744.3M925.0 297.1L800.3 347.9L778.6 351.1L732.1 357.8M637.8 242.3L671.0 253.1M644.3 332.0L656.0 295.9L671.0 253.1M615.7 200.6L621.2 202.3L647.7 210.8L683.4 222.8L726.1 235.1M521.3 568.4L508.3 583.7L504.1 548.1L501.9 501.9L501.4 494.6L495.9 483.5L490.6 471.8L485.8 462.2L482.9 455.6L482.3 451.8M301.9 513.0L340.4 530.1L358.7 537.4L406.6 553.5L471.7 573.6L508.3 583.7M743.4 503.0L721.8 502.2M749.1 661.8L717.2 663.4M868.4 102.6L876.7 109.3L877.4 113.1L877.8 117.1L877.1 121.6L874.6 128.3L864.9 150.1L842.0 190.6L811.4 244.6L796.8 273.2L789.7 284.9L729.2 267.0M83.5 566.4L56.6 568.6L24.5 574.3L1.3 581.0" fill="none" style="stroke:var(--road)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path>
+              <path d="M626.3 99.9L625.5 52.6L627.4 42.5M482.3 451.8L523.2 406.2L541.7 385.5L566.4 335.7L615.7 200.6M501.2 83.0L585.7 46.9L627.4 42.5M615.7 200.6L626.3 99.9M501.2 83.0L481.4 174.6M405.4 142.3L481.4 174.6M870.9 97.2L810.6 159.8L752.5 216.6L726.1 235.1M264.8 683.2L264.3 657.0L232.1 577.2M508.3 583.7L600.7 594.3L660.0 598.9L737.5 615.1M501.9 501.9L479.0 548.6L458.6 601.2L417.4 617.0L363.5 622.5L330.0 637.3L283.4 681.8M627.4 42.5L688.0 58.0L770.2 96.1L870.9 97.2M726.1 235.1L730.5 297.0L732.1 357.8L739.3 406.9L744.9 479.0L741.0 553.1L737.5 615.1L749.1 661.8L758.6 722.6L763.0 786.3M481.4 174.6L570.4 187.8L615.7 200.6M744.9 479.0L725.3 468.6L671.2 469.8L611.2 481.6L563.0 512.4L508.3 583.7M739.3 406.9L864.3 379.8M83.5 566.4L132.3 424.8M259.8 469.1L132.3 424.8L82.6 401.6M301.9 513.0L331.5 423.6L366.4 315.3M232.1 577.2L259.8 469.1L330.0 306.2M232.1 577.2L152.6 582.2L83.5 566.4M405.4 142.3L355.9 240.7L333.2 296.8M485.5 807.1L621.7 782.2L762.2 763.1M553.3 363.9L436.1 328.8L403.3 314.8L366.4 315.3M266.2 762.3L307.5 767.8L372.4 715.3L408.5 667.8L486.8 642.8M638.5 399.6L551.3 446.6L501.4 494.6M198.8 447.6L152.6 582.2M744.9 479.0L689.3 440.0L638.5 399.6L553.3 363.9M403.3 314.8L367.5 412.0L349.9 466.9M132.3 424.8L270.5 271.0L341.8 160.5L405.4 142.3M481.4 174.6L447.7 238.9L403.3 314.8M366.4 315.3L330.0 306.2L270.5 271.0M241.2 615.3L349.5 550.6L358.7 537.4M482.3 451.8L384.4 452.7L314.2 478.8M406.6 553.5L428.0 503.7L482.9 455.6M732.1 357.8L800.3 347.9L925.0 297.1M615.7 200.6L726.1 235.1M508.3 583.7L501.9 501.9L482.3 451.8M301.9 513.0L406.6 553.5L508.3 583.7M868.4 102.6L874.6 128.3L842.0 190.6L811.4 244.6L789.7 284.9L729.2 267.0" fill="none" style="stroke:var(--roadc)" stroke-width="1" stroke-dasharray="6 6"></path>
+              <path d="M660.0 598.9L700.5 610.7M697.8 770.9L762.2 763.1M843.1 648.5L848.9 688.8" fill="none" style="stroke:var(--surface)" stroke-width="13"></path>
+              <path d="M660.0 598.9L700.5 610.7M697.8 770.9L762.2 763.1M843.1 648.5L848.9 688.8" fill="none" style="stroke:var(--ink)" stroke-width="2" stroke-dasharray="5 4"></path>
+              <g style="fill:var(--ink)" font-family="IBM Plex Sans Condensed, sans-serif" font-size="11" font-weight="700" letter-spacing="1"><text x="676" y="596">CLOSED t+3</text><text x="704" y="760">CLOSED t+5</text><text x="852" y="672">CLOSED</text></g>
+              <path d="{{routeD}}" fill="none" style="stroke:var(--surface)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"></path>
+              <path d="{{routeD}}" fill="none" style="stroke:var(--route)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+              <g fill="none" style="stroke:var(--ink)" stroke-width="1.5" stroke-dasharray="7 5">
+                <rect x="77" y="532" width="150" height="100"></rect><rect x="642" y="613" width="150" height="100"></rect><rect x="195" y="221" width="150" height="100"></rect><rect x="586" y="103" width="150" height="100"></rect>
+              </g>
+              <g style="fill:var(--ink)" font-family="IBM Plex Sans Condensed, sans-serif" font-size="12" font-weight="700" letter-spacing="1.2"><text x="83" y="548">ZONE 01 · 118</text><text x="648" y="629">ZONE 02 · 164</text><text x="201" y="237">ZONE 03 · 142</text><text x="592" y="119">ZONE 04 · 96</text></g>
+              <g style="fill:var(--ink)"><circle cx="152.6" cy="582.2" r="5"></circle><circle cx="717.2" cy="663.4" r="5"></circle><circle cx="270.5" cy="271.0" r="5"></circle><circle cx="660.8" cy="153.4" r="5"></circle></g>
+              <g>
+                <circle cx="739.3" cy="406.9" r="30" fill="none" style="stroke:var(--ink2)" stroke-width="1" stroke-dasharray="4 3"></circle>
+                <circle cx="739.3" cy="406.9" r="22" fill="none" style="stroke:var(--ink2)" stroke-width="1.5"></circle>
+                <circle cx="739.3" cy="406.9" r="15" fill="none" style="stroke:var(--ok)" stroke-width="3"></circle>
+                <rect x="732.3" y="399.9" width="14" height="14" style="fill:var(--ink)"></rect>
+                <rect x="752" y="372" width="34" height="18" style="fill:var(--primary);stroke:var(--primary)" stroke-width="1.5"></rect>
+                <text x="757" y="385" style="fill:var(--onprimary)" font-family="IBM Plex Sans Condensed, sans-serif" font-size="12" font-weight="700" letter-spacing="1">S-04</text>
+              </g>
+              <g>
+                <circle cx="86.3" cy="384.6" r="24" fill="none" style="stroke:var(--ink2)" stroke-width="1" stroke-dasharray="4 3"></circle>
+                <circle cx="86.3" cy="384.6" r="16" fill="none" style="stroke:var(--ink2)" stroke-width="1.5"></circle>
+                <rect x="79.3" y="377.6" width="14" height="14" style="fill:var(--ink)"></rect>
+                <rect x="98" y="350" width="34" height="18" style="fill:var(--surface);stroke:var(--ink)" stroke-width="1.5"></rect>
+                <text x="103" y="363" style="fill:var(--ink)" font-family="IBM Plex Sans Condensed, sans-serif" font-size="12" font-weight="700" letter-spacing="1">S-02</text>
+              </g>
+              <g>
+                <rect x="442.3" y="406.2" width="14" height="14" fill="none" style="stroke:var(--ink)" stroke-width="2" stroke-dasharray="3 2"></rect>
+                <rect x="462" y="378" width="34" height="18" style="fill:var(--surface);stroke:var(--ink)" stroke-width="1.5" stroke-dasharray="3 2"></rect>
+                <text x="467" y="391" style="fill:var(--ink)" font-family="IBM Plex Sans Condensed, sans-serif" font-size="12" font-weight="700" letter-spacing="1">S-03</text>
+              </g>
+              <g>
+                <circle cx="436.0" cy="713.0" r="20" fill="none" style="stroke:var(--ink2)" stroke-width="1.5"></circle>
+                <rect x="429" y="706" width="14" height="14" style="fill:var(--surface);stroke:var(--ink)" stroke-width="2"></rect>
+                <path d="M433 709 L433 717 M439 709 L439 717" style="stroke:var(--ink)" stroke-width="2"></path>
+                <rect x="452" y="680" width="34" height="18" style="fill:var(--surface);stroke:var(--ink)" stroke-width="1.5"></rect>
+                <text x="457" y="693" style="fill:var(--ink)" font-family="IBM Plex Sans Condensed, sans-serif" font-size="12" font-weight="700" letter-spacing="1">S-01</text>
+              </g>
+              <g>
+                <circle cx="405.4" cy="142.3" r="26" fill="none" style="stroke:var(--ink2)" stroke-width="1" stroke-dasharray="4 3"></circle>
+                <circle cx="405.4" cy="142.3" r="18" fill="none" style="stroke:var(--ink2)" stroke-width="1.5"></circle>
+                <rect x="398.4" y="135.3" width="14" height="14" style="fill:var(--ink)"></rect>
+                <rect x="420" y="104" width="34" height="18" style="fill:var(--surface);stroke:var(--ink)" stroke-width="1.5"></rect>
+                <text x="425" y="117" style="fill:var(--ink)" font-family="IBM Plex Sans Condensed, sans-serif" font-size="12" font-weight="700" letter-spacing="1">S-05</text>
+              </g>
+              <g>
+                <rect x="104" y="466" width="12" height="18" style="fill:var(--surface);stroke:var(--ink)" stroke-width="1.5" transform="rotate(25 110 475)"></rect>
+                <rect x="104" y="466" width="12" height="6" style="fill:var(--ink)" transform="rotate(25 110 475)"></rect>
+                <text x="120" y="470" style="fill:var(--ink)" font-family="IBM Plex Mono, monospace" font-size="11">G-0011 · 35 · ETA t+7</text>
+              </g>
+              <rect x="{{hzX}}" y="{{hzY}}" width="150" height="100" fill="none" style="stroke:var(--primary)" stroke-width="4" opacity="{{hzOp}}"></rect>
+              <g transform="translate({{mvX}} {{mvY}})" opacity="{{mvOp}}"><circle r="13" fill="none" style="stroke:var(--primary)" stroke-width="2"></circle><rect x="-6" y="-9" width="12" height="18" style="fill:var(--surface);stroke:var(--ink)" stroke-width="1.5"></rect><rect x="-6" y="-9" width="12" height="6" style="fill:var(--ink)"></rect><rect x="14" y="-22" width="150" height="18" style="fill:var(--primary)"></rect><text x="19" y="-9" style="fill:var(--onprimary)" font-family="IBM Plex Mono, monospace" font-size="11">{{mvLabel}}</text></g>
+              <g>
+                <rect x="596" y="370" width="12" height="18" style="fill:var(--surface);stroke:var(--ink)" stroke-width="1.5" stroke-dasharray="3 2" transform="rotate(70 602 379)"></rect>
+                <path d="M553 364 L575 371 L592 376" fill="none" style="stroke:var(--ink2)" stroke-width="1.5" stroke-dasharray="2 3"></path>
+                <text x="544" y="352" style="fill:var(--ink)" font-family="IBM Plex Mono, monospace" font-size="11">{{g9label}}</text>
+              </g>
+              <g transform="translate(830 26)"><path d="M0 22 L8 0 L16 22 L8 16 Z" style="fill:var(--ink)"></path><text x="4" y="38" style="fill:var(--ink)" font-family="IBM Plex Sans Condensed, sans-serif" font-size="12" font-weight="700">N</text></g>
+              <g transform="translate(740 760)"><rect x="0" y="-14" width="124" height="26" style="fill:var(--surface)"></rect><path d="M6 4 L6 -2 M95.2 4 L95.2 -2 M6 1 L95.2 1" style="stroke:var(--ink)" stroke-width="2" fill="none"></path><text x="100" y="5" style="fill:var(--ink)" font-family="IBM Plex Mono, monospace" font-size="11">100 m</text></g>
+            </g>
+          </svg>
+        </div>
+        <p style="margin:0;font-size:14px;color:var(--ink2);">4 zones · 520 waiting · 5 shelters · thick outline = zone of the current suggestion. All hazard and population values are simulated.</p>
+        <div style="display:inline-flex;flex-wrap:wrap;gap:12px 20px;align-items:center;align-self:flex-start;padding:12px 14px;border:2px solid var(--ink);background:var(--surface);font-size:13px;">
+          <span style="font-size:11px;font-weight:600;letter-spacing:.1em;">LEGEND</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" aria-hidden="true"><rect x="1" y="1" width="12" height="12" style="fill:var(--ink)"></rect></svg>Shelter open</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" aria-hidden="true"><rect x="1" y="1" width="12" height="12" style="fill:none;stroke:var(--ink)" stroke-width="2"></rect><path d="M5 3 L5 11 M9 3 L9 11" style="stroke:var(--ink)" stroke-width="2"></path></svg>Restricted</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" aria-hidden="true"><rect x="1" y="1" width="12" height="12" style="fill:none;stroke:var(--ink)" stroke-width="2" stroke-dasharray="3 2"></rect></svg>Closed / unknown</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="22" height="22" aria-hidden="true"><circle cx="11" cy="11" r="10" fill="none" style="stroke:var(--ink2)" stroke-dasharray="3 2"></circle><circle cx="11" cy="11" r="5" fill="none" style="stroke:var(--ok)" stroke-width="2.5"></circle></svg>Capacity · certified free seats</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="18" aria-hidden="true"><rect x="1" y="1" width="12" height="16" style="fill:none;stroke:var(--ink)" stroke-width="1.5"></rect><rect x="1" y="1" width="12" height="5" style="fill:var(--ink)"></rect></svg>Group in transit</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="28" height="10" aria-hidden="true"><path d="M1 5 L27 5" style="stroke:var(--route)" stroke-width="4"></path></svg>Certified route</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="28" height="10" aria-hidden="true"><path d="M1 5 L27 5" style="stroke:var(--ink)" stroke-width="2" stroke-dasharray="5 4"></path></svg>Road closed</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="28" height="14" aria-hidden="true"><rect x="1" y="1" width="26" height="12" style="fill:none;stroke:var(--ink)" stroke-dasharray="5 3"></rect></svg>Evacuation zone</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="6" style="fill:var(--w3)" opacity="0.6"></circle></svg>Simulated flood extent</span>
+        </div>
+      </section>
+      <aside aria-label="Decision panel" style="flex:1 1 360px;max-width:440px;min-width:0;display:flex;flex-direction:column;gap:16px;">
+        <div role="tablist" aria-label="Side panel" style="display:flex;border:2px solid var(--ink);background:var(--surface);">
+          <sc-for list="{{tabs}}" as="tb" hint-placeholder-count="3">
+            <button type="button" role="tab" aria-selected="{{tb.on}}" onClick="{{tb.pick}}" style="{{tb.style}}">{{tb.label}}</button>
+          </sc-for>
+        </div>
+        <sc-if value="{{tabDecide}}" hint-placeholder-val="{{true}}">
+        <section style="background:var(--surface);border:1px solid var(--rule);border-top:3px solid var(--primary);padding:16px;display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--ink3);">SENTINEL SUGGESTS · {{recKind}}</div>
+          <div style="font-size:20px;line-height:28px;font-weight:600;">{{rec}}</div>
+          <div style="font-size:13px;color:var(--ink2);font-family:'IBM Plex Mono',monospace;">{{recMeta}}</div>
+          <div style="font-size:12px;font-weight:600;letter-spacing:.08em;margin-top:6px;">WHY THIS SUGGESTION</div>
+          <ul style="margin:0;padding-left:18px;font-size:14px;line-height:21px;display:flex;flex-direction:column;gap:4px;">
+            <sc-for list="{{why}}" as="w" hint-placeholder-count="3"><li>{{w}}</li></sc-for>
+          </ul>
+        </section>
+        <section style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
+            <h2 style="margin:0;font-size:16px;line-height:24px;font-weight:600;">Dispatch Gate</h2>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink2);">{{gateMeta}}</span>
+          </div>
+          <div style="font-size:12px;color:var(--ink2);">Certified probability that the road stays open, the shelter stays safe and seats remain — at the group's arrival time. UNDECIDED is blocked. Select a row to see its route.</div>
+          <sc-for list="{{cands}}" as="c" hint-placeholder-count="4">
+            <button type="button" onClick="{{c.pick}}" aria-pressed="{{c.selected}}" style="{{c.rowStyle}}">
+              <span style="display:flex;align-items:center;gap:8px;width:100%;">
+                <span style="font-weight:600;font-size:14px;flex:1 1 auto;text-align:left;">{{c.label}}</span>
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;letter-spacing:.06em;color:{{c.color}};">
+                  <sc-if value="{{c.isFeasible}}" hint-placeholder-val="{{true}}"><svg width="10" height="10" aria-hidden="true"><circle cx="5" cy="5" r="5" style="fill:currentColor"></circle></svg></sc-if>
+                  <sc-if value="{{c.isUndecided}}" hint-placeholder-val="{{false}}"><svg width="12" height="12" aria-hidden="true"><path d="M6 0 L12 6 L6 12 L0 6 Z" fill="none" style="stroke:currentColor" stroke-width="1.5"></path><path d="M6 0 L6 12 L0 6 Z" style="fill:currentColor"></path></svg></sc-if>
+                  <sc-if value="{{c.isInfeasible}}" hint-placeholder-val="{{false}}"><svg width="12" height="11" aria-hidden="true"><path d="M6 0 L12 11 L0 11 Z" style="fill:currentColor"></path></svg></sc-if>
+                  {{c.status}}
+                </span>
+              </span>
+              <sc-if value="{{c.hasBar}}" hint-placeholder-val="{{true}}">
+                <span style="position:relative;display:block;width:100%;height:14px;margin-top:6px;background:var(--sunk);">
+                  <span style="{{c.barStyle}}"></span>
+                  <span style="position:absolute;left:75%;top:-3px;width:2px;height:20px;background:var(--ink);"></span>
+                </span>
+              </sc-if>
+              <span style="display:flex;justify-content:space-between;width:100%;margin-top:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink2);"><span>{{c.bounds}}</span><span>{{c.meta}}</span></span>
+            </button>
+          </sc-for>
+          <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink3);"><span>0.80</span><span>threshold 1 − ε = 0.95</span><span>1.00</span></div>
+        </section>
+        <section style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:12px;">
+          <h2 style="margin:0;font-size:16px;line-height:24px;font-weight:600;">Operator decision</h2>
+          <sc-if value="{{canDecide}}" hint-placeholder-val="{{true}}">
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button type="button" onClick="{{doAccept}}" style="flex:1 1 110px;min-height:44px;border:0;border-radius:6px;background:var(--primary);color:var(--onprimary);font-weight:600;font-size:14px;cursor:pointer;">Accept</button>
+            <button type="button" onClick="{{doOverride}}" style="flex:1 1 110px;min-height:44px;border:2px solid var(--ink);border-radius:6px;background:transparent;color:var(--ink);font-weight:600;font-size:14px;cursor:pointer;">Override</button>
+            <button type="button" onClick="{{doReject}}" style="flex:1 1 110px;min-height:44px;border:2px solid var(--bad);border-radius:6px;background:transparent;color:var(--bad);font-weight:600;font-size:14px;cursor:pointer;">Reject</button>
+          </div>
+          </sc-if>
+          <sc-if value="{{autoNote}}" hint-placeholder-val="{{false}}">
+            <div style="font-size:13px;color:var(--ink2);">{{autoText}}</div>
+          </sc-if>
+          <sc-if value="{{showOverride}}" hint-placeholder-val="{{false}}">
+            <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--rule);padding-top:12px;">
+              <label for="ovr-action" style="font-size:12px;font-weight:600;letter-spacing:.06em;">ALTERNATIVE (certified options only)</label>
+              <select id="ovr-action" style="min-height:40px;border:1px solid var(--ink2);border-radius:4px;background:var(--surface);color:var(--ink);font-family:inherit;font-size:14px;padding:0 8px;"><sc-for list="{{altOptions}}" as="o" hint-placeholder-count="2"><option>{{o}}</option></sc-for></select>
+              <label for="ovr-reason" style="font-size:12px;font-weight:600;letter-spacing:.06em;">REASON (required · logged to audit)</label>
+              <input id="ovr-reason" type="text" placeholder="e.g. Field team reports access road blocked" style="min-height:40px;border:1px solid var(--ink2);border-radius:4px;background:var(--surface);color:var(--ink);font-family:inherit;font-size:14px;padding:0 8px;">
+            </div>
+          </sc-if>
+          <sc-if value="{{showReject}}" hint-placeholder-val="{{false}}">
+            <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--rule);padding-top:12px;">
+              <label for="rej-reason" style="font-size:12px;font-weight:600;letter-spacing:.06em;">REASON FOR REJECTING (required · nothing is dispatched)</label>
+              <input id="rej-reason" type="text" placeholder="State why the suggestion is rejected" style="min-height:40px;border:1px solid var(--ink2);border-radius:4px;background:var(--surface);color:var(--ink);font-family:inherit;font-size:14px;padding:0 8px;">
+            </div>
+          </sc-if>
+          <sc-if value="{{showAccepted}}" hint-placeholder-val="{{false}}">
+            <div role="status" style="display:flex;gap:8px;align-items:flex-start;padding:10px;border:1px solid var(--ok);font-size:13px;"><svg width="12" height="12" style="margin-top:4px;flex:none" aria-hidden="true"><circle cx="6" cy="6" r="6" style="fill:var(--ok)"></circle></svg><span>{{acceptedText}} <a href="Decisions.dc.html">Open certificate</a></span></div>
+          </sc-if>
+        </section>
+        </sc-if>
+        <sc-if value="{{tabTransit}}" hint-placeholder-val="{{false}}">
+        <section style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:10px;">
+          <h2 style="margin:0;font-size:16px;line-height:24px;font-weight:600;">Groups in transit</h2>
+          <div style="font-size:12px;color:var(--ink2);">Each group is re-certified every step. Below the keep threshold 0.90 it is migrated with an atomic release + acquire.</div>
+          <sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+            <div style="border:1px solid var(--rule);padding:10px;display:flex;flex-direction:column;gap:4px;">
+              <div style="display:flex;justify-content:space-between;gap:8px;"><span style="font-weight:600;font-family:'IBM Plex Mono',monospace;">{{g.id}}</span><span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:{{g.color}};">{{g.state}}</span></div>
+              <div style="font-size:13px;">{{g.route}}</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink2);">{{g.meta}}</div>
+            </div>
+          </sc-for>
+        </section>
+        </sc-if>
+        <sc-if value="{{tabShelters}}" hint-placeholder-val="{{false}}">
+        <section style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:12px;">
+          <h2 style="margin:0;font-size:16px;line-height:24px;font-weight:600;">Shelter capacity ledger</h2>
+          <div style="font-size:12px;color:var(--ink2);">Seats for groups on the road are reserved at dispatch, so two groups can never be promised the same seat.</div>
+          <sc-for list="{{shelters}}" as="sh" hint-placeholder-count="5">
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="font-weight:600;">{{sh.id}} · {{sh.name}}</span><span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:{{sh.color}};">{{sh.state}}</span></div>
+              <div style="position:relative;height:12px;background:var(--sunk);"><span style="{{sh.occStyle}}"></span><span style="{{sh.resStyle}}"></span></div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink2);">{{sh.meta}}</div>
+            </div>
+          </sc-for>
+          <div style="display:flex;gap:14px;font-size:12px;color:var(--ink2);"><span><span style="display:inline-block;width:10px;height:10px;background:var(--ink);margin-right:4px;"></span>occupied</span><span><span style="display:inline-block;width:10px;height:10px;background:var(--info);margin-right:4px;"></span>reserved (in transit)</span></div>
+        </section>
+        </sc-if>
+        <section style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:2px;">
+          <h2 style="margin:0 0 8px;font-size:16px;line-height:24px;font-weight:600;">Event feed</h2>
+          <sc-for list="{{events}}" as="e" hint-placeholder-count="5">
+            <div style="{{e.rowStyle}}"><span style="font-family:'IBM Plex Mono',monospace;color:var(--ink2);min-width:40px;">t {{e.t}}</span><span style="{{e.mark}}" aria-hidden="true"></span><span>{{e.text}}</span></div>
+          </sc-for>
+        </section>
+      </aside>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Day","Night"],"default":"Day"},"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { step: 2, sel: null, mode: null, tab: 'decide', playing: false, themeOverride: null }; this._timer = null; }
+  steps() {
+    const F = 'FEASIBLE', U = 'UNDECIDED', I = 'INFEASIBLE', H = 'ALWAYS ALLOWED';
+    const hold = (meta) => ({ id: 'hold', label: 'HOLD · no dispatch', status: H, lo: null, hi: null, meta: meta || 'escalates if alone' });
+    return [
+      { t: 4, stage: 4, hz: 'Z1', sel: 'c2', kind: 'NEW DISPATCH',
+        caption: 'Water at sensor WL-02 is rising (1.18 m). Sentinel samples 256 possible hazard futures and checks every dispatch option against all of them before suggesting anything.',
+        rec: 'Dispatch Z-01 → S-02 · 35 people', recMeta: '320 m · ETA t+2 · certified 0.958 ≥ 0.95',
+        why: ['Zone 01 is forecast to flood first (simulated hazard 0.78 by t+3).', 'Shortest route that stays open in 251 of 256 futures.', 'S-02 still has 41 certified free seats after this group arrives.'],
+        gateMeta: 'n = 256 futures · 39 ms · δ = 0.01',
+        cands: [{ id: 'c2', label: 'Z-01 → S-02 · 35', status: F, lo: 0.958, hi: 0.992, meta: 'S 251/256 · ETA t+2' }, { id: 'c1', label: 'Z-03 → S-04 · 40', status: U, lo: 0.936, hi: 0.984, meta: 'S 247/256 · blocked' }, { id: 'c3', label: 'Z-02 → S-05 · 40', status: U, lo: 0.921, hi: 0.978, meta: 'S 244/256 · blocked' }, hold()],
+        alts: ['HOLD (no dispatch)'], decide: true, cert: 'CERT-000125',
+        events: [[4, 'info', 'Sensor WL-02 water level 1.18 m (age 3 s)'], [4, 'ok', 'Gate certified Z-01 → S-02 at 0.958 — suggestion shown to operator']],
+        kpi: [555, 75, 90, 124], mv: null, g9: 'G-0009 · 40 · → S-03 · ETA t+7',
+        groups: [['G-0008', 'Z-01 → S-02 · 30', 'ETA t+5 · bound 0.981', 'ON TRACK', 'ok'], ['G-0009', 'Z-04 → S-03 · 40', 'ETA t+7 · bound 0.968', 'ON TRACK', 'ok']] },
+      { t: 5, stage: 3, hz: null, sel: 'm9', kind: 'AUTOMATIC SAFETY ACTION',
+        caption: 'Shelter S-03 is closed (sensed severity 0.91) while group G-0009 is still on its way there. Sentinel re-checks every group already on the road — not just new dispatches.',
+        rec: 'Migrate G-0009 · S-03 → S-04', recMeta: 'G-0009 bound fell 0.968 → 0.71 · keep threshold 0.90',
+        why: ['S-03 is no longer safe at G-0009’s arrival time.', 'S-04 is certified at 0.963 and 40 seats are reserved before the group is re-routed.', 'Hysteresis (keep 0.90 vs dispatch 0.95) stops groups being bounced between shelters.'],
+        gateMeta: 'n = 256 futures · 44 ms · re-certification',
+        cands: [{ id: 'm9', label: 'G-0009 → S-04 (migrate)', status: F, lo: 0.963, hi: 0.994, meta: 'S 252/256 · +1 step' }, { id: 'keep', label: 'G-0009 keeps S-03', status: I, lo: 0.62, hi: 0.79, meta: 'below keep 0.90' }],
+        alts: [], decide: false, auto: 'Committed automatically as CERT-000126 (release S-03 + reserve S-04 in one step). The operator is notified and can reverse it from the audit log.',
+        events: [[5, 'ok', 'Operator accepted Z-01 → S-02 · CERT-000125 · group G-0011 dispatched'], [5, 'bad', 'S-03 closed — sensed severity 0.91'], [5, 'warn', 'G-0009 bound 0.71 < keep 0.90 → re-certifying']],
+        kpi: [520, 110, 90, 126], mv: null, g9: 'G-0009 · re-routing → S-04',
+        groups: [['G-0008', 'Z-01 → S-02 · 30', 'arriving · bound 0.990', 'ON TRACK', 'ok'], ['G-0009', 'Z-04 → S-03 · 40', 'bound 0.71 < keep 0.90', 'MIGRATING', 'warn'], ['G-0011', 'Z-01 → S-02 · 35', 'ETA t+7 · bound 0.958', 'ON TRACK', 'ok']] },
+      { t: 6, stage: 4, hz: 'Z3', sel: 'c1', kind: 'NEW DISPATCH',
+        caption: 'G-0009 is now heading to S-04 with its seats already reserved. With the ledger updated, Sentinel suggests the next dispatch: Zone 03 to S-04.',
+        rec: 'Dispatch Z-03 → S-04 · 40 people', recMeta: '683 m · ETA t+4 · certified 0.962 ≥ 0.95',
+        why: ['Zone 03 has the most people still waiting (142).', 'Route stays open in 252 of 256 futures, including after the t+3 closure.', 'S-04 can take G-0009 and this group together — checked jointly, not one at a time.'],
+        gateMeta: 'n = 256 futures · 41 ms · δ = 0.01',
+        cands: [{ id: 'c1', label: 'Z-03 → S-04 · 40', status: F, lo: 0.962, hi: 0.995, meta: 'S 252/256 · ETA t+4' }, { id: 'c2', label: 'Z-01 → S-02 · 35', status: F, lo: 0.955, hi: 0.991, meta: 'S 250/256 · ETA t+2' }, { id: 'c3', label: 'Z-02 → S-05 · 40', status: U, lo: 0.914, hi: 0.975, meta: 'S 243/256 · blocked' }, { id: 'c4', label: 'Z-04 → S-01 · 30', status: I, lo: 0.801, hi: 0.903, meta: 'S 219/256 · shelter rising' }, hold()],
+        alts: ['Z-01 → S-02 · certified 0.955', 'HOLD (no dispatch)'], decide: true, cert: 'CERT-000127',
+        events: [[6, 'ok', 'G-0009 migrated S-03 → S-04 · CERT-000126'], [6, 'bad', 'Road segment near Z-02 forecast to close at t+3'], [6, 'ok', 'Gate certified Z-03 → S-04 at 0.962 — suggestion shown']],
+        kpi: [520, 110, 90, 126], mv: [270.5, 271.0, 'G-0010 · 40 · ready'], g9: 'G-0009 · migrated → S-04',
+        groups: [['G-0009', 'Z-04 → S-04 · 40', 'ETA t+8 · bound 0.963', 'MIGRATED', 'info'], ['G-0011', 'Z-01 → S-02 · 35', 'ETA t+7 · bound 0.960', 'ON TRACK', 'ok']] },
+      { t: 7, stage: 3, hz: 'Z2', sel: 'c3', kind: 'NEW DISPATCH',
+        caption: 'Z-02 → S-05 was UNDECIDED: the evidence was too thin to call it safe, so it stayed blocked (fail-closed). Sentinel doubled the sample to 512 futures — now the bound clears 0.95.',
+        rec: 'Dispatch Z-02 → S-05 · 40 people', recMeta: '897 m · ETA t+6 · certified 0.953 ≥ 0.95 (n = 512)',
+        why: ['Zone 02 sits next to the road forecast to close — waiting longer increases risk.', 'With 512 futures the lower bound is 0.953, above the 0.95 threshold.', 'Uncertain options are never sent: if the bound had stayed below 0.95, this would still be blocked.'],
+        gateMeta: 'n = 512 futures · 86 ms · δ = 0.01',
+        cands: [{ id: 'c3', label: 'Z-02 → S-05 · 40', status: F, lo: 0.953, hi: 0.981, meta: 'S 503/512 · ETA t+6' }, { id: 'c4', label: 'Z-04 → S-01 · 30', status: I, lo: 0.792, hi: 0.889, meta: 'S 433/512 · shelter rising' }, hold()],
+        alts: ['HOLD (no dispatch)'], decide: true, cert: 'CERT-000128',
+        events: [[7, 'ok', 'Operator accepted Z-03 → S-04 · CERT-000127 · group G-0010 dispatched'], [7, 'warn', 'Z-02 → S-05 UNDECIDED at n = 256 → sampling 512 futures'], [7, 'ok', 'Z-02 → S-05 certified at 0.953 — suggestion shown']],
+        kpi: [480, 150, 90, 127], mv: [436.1, 328.8, 'G-0010 · 40 · ETA t+3'], g9: 'G-0009 · migrated → S-04',
+        groups: [['G-0009', 'Z-04 → S-04 · 40', 'ETA t+8 · bound 0.966', 'MIGRATED', 'info'], ['G-0010', 'Z-03 → S-04 · 40', 'ETA t+10 · bound 0.962', 'ON TRACK', 'ok'], ['G-0011', 'Z-01 → S-02 · 35', 'ETA t+7 · bound 0.971', 'ON TRACK', 'ok']] },
+      { t: 8, stage: 4, hz: 'Z4', sel: 'hold', kind: 'HOLD + ESCALATE',
+        caption: 'The forecast closure happens. For Zone 04 no option reaches 0.95, so Sentinel does not guess: it suggests HOLD and escalates to the field team.',
+        rec: 'HOLD Zone 04 · escalate to field team', recMeta: 'best option 0.784 < 0.95 · re-check every step',
+        why: ['S-01 water level is still rising — arrival would be unsafe in 1 of 9 futures.', 'Every other shelter route crosses the closed segment.', 'Holding 96 people is safer than sending them into an uncertified route.'],
+        gateMeta: 'n = 512 futures · 91 ms · δ = 0.01',
+        cands: [{ id: 'c4', label: 'Z-04 → S-01 · 30', status: I, lo: 0.784, hi: 0.881, meta: 'S 431/512 · shelter rising' }, hold('selected · escalation')],
+        alts: [], decide: true, cert: null, holdText: 'HOLD logged as AUD-000412 · escalation sent to Field Team 3.',
+        events: [[8, 'ok', 'Operator accepted Z-02 → S-05 · CERT-000128 · group G-0012 dispatched'], [8, 'bad', 'Road near Z-02 closed (as forecast)'], [8, 'ok', 'G-0011 arrived at S-02 · 35 people safe'], [8, 'warn', 'Zone 04: no certified option — HOLD suggested']],
+        kpi: [440, 155, 125, 128], mv: [638.5, 399.6, 'G-0010 · 40 · ETA t+2'], g9: 'G-0009 · arriving S-04',
+        groups: [['G-0009', 'Z-04 → S-04 · 40', 'ETA t+9 · bound 0.972', 'MIGRATED', 'info'], ['G-0010', 'Z-03 → S-04 · 40', 'ETA t+10 · bound 0.968', 'ON TRACK', 'ok'], ['G-0012', 'Z-02 → S-05 · 40', 'ETA t+13 · bound 0.953', 'ON TRACK', 'ok']] },
+      { t: 10, stage: 0, hz: null, sel: 'c4', kind: 'MONITORING',
+        caption: 'G-0010 reaches S-04: 40 more people safe. Every decision so far has a certificate that can be replayed bit-for-bit — open Decisions & Certificates to check any of them.',
+        rec: 'Monitoring · 2 groups on the road', recMeta: 'Zone 04 re-check: 0.932 — still blocked',
+        why: ['S-01 water level has started to fall, so the Zone 04 bound is improving.', 'Not yet above 0.95 — the gate keeps it blocked until it is.', 'Next forecast update arrives at t 11.'],
+        gateMeta: 'n = 512 futures · 88 ms · δ = 0.01',
+        cands: [{ id: 'c4', label: 'Z-04 → S-01 · 30', status: U, lo: 0.932, hi: 0.971, meta: 'S 497/512 · improving' }, hold()],
+        alts: [], decide: false, auto: 'No dispatch is certified this step, so there is nothing to approve. Sentinel keeps checking.',
+        events: [[10, 'ok', 'G-0010 arrived at S-04 · 40 people safe'], [10, 'ok', 'G-0009 arrived at S-04 · 40 people safe'], [10, 'info', 'Zone 04 bound improving: 0.784 → 0.932']],
+        kpi: [440, 75, 205, 128], mv: [739.3, 440, 'G-0010 · arrived S-04'], g9: 'G-0009 · arrived S-04',
+        groups: [['G-0012', 'Z-02 → S-05 · 40', 'ETA t+13 · bound 0.959', 'ON TRACK', 'ok'], ['G-0013', 'Z-01 → S-02 · 35', 'ETA t+12 · bound 0.977', 'ON TRACK', 'ok']] }
+    ];
+  }
+  go(n) { const max = this.steps().length - 1; this.setState({ step: Math.max(0, Math.min(max, n)), sel: null, mode: null }); }
+  stop() { if (this._timer) clearTimeout(this._timer); this._timer = null; this.setState({ playing: false }); }
+  tick() {
+    const steps = this.steps(); const s = steps[this.state.step];
+    if (s.decide && this.state.mode !== 'accept') { this.setState({ mode: 'accept', tab: 'decide' }); this._timer = setTimeout(() => this.tick(), 2200); return; }
+    if (this.state.step >= steps.length - 1) { this.stop(); return; }
+    this.go(this.state.step + 1); this._timer = setTimeout(() => this.tick(), 4200);
+  }
+  renderVals() {
+    const theme = this.state.themeOverride || this.props.theme || 'Day';
+    const steps = this.steps(); const i = this.state.step; const s = steps[i];
+    const routes = {
+      c1: 'M270.5 271.0L286.8 277.7L333.2 296.8L330.0 306.2L366.4 315.3L403.3 314.8L436.1 328.8L517.1 355.6L553.3 363.9L591.9 375.6L604.5 380.6L620.4 388.3L638.5 399.6L649.2 407.3L689.3 440.0L725.3 468.6L744.9 479.0L744.4 443.5L739.3 406.9',
+      c2: 'M152.6 582.2L178.3 503.3L110.3 476.1L132.3 424.8L82.6 401.6L86.3 384.6',
+      c3: 'M717.2 663.4L749.1 661.8L744.2 651.0L737.5 615.1L735.5 586.5L738.1 570.6L741.0 553.1L741.8 527.7L743.4 503.0L744.9 479.0L744.4 443.5L739.3 406.9L736.1 382.6L732.4 359.4L732.1 357.8L730.9 332.8L730.5 297.0L729.2 267.0L726.1 235.1L683.4 222.8L647.7 210.8L621.2 202.3L615.7 200.6L570.4 187.8L503.9 182.4L481.4 174.6L405.4 142.3',
+      c4: 'M660.8 153.4L625.1 148.9L615.7 200.6L575.9 311.2L566.4 335.7L555.2 359.7L553.3 363.9L541.7 385.5L530.4 400.3L523.2 406.2L485.9 444.8L483.9 447.8L482.3 451.8L482.9 455.6L485.8 462.2L490.6 471.8L495.9 483.5L501.4 494.6L501.9 501.9L504.1 548.1L508.3 583.7L503.9 604.2L498.8 616.5L486.8 642.8L485.2 651.1L484.8 659.2L485.0 679.0L484.9 680.8L484.9 706.6L468.7 707.5L436.0 713.0',
+      m9: 'M553.3 363.9L591.9 375.6L604.5 380.6L620.4 388.3L638.5 399.6L649.2 407.3L689.3 440.0L725.3 468.6L744.9 479.0L744.4 443.5L739.3 406.9'
+    };
+    const zones = { Z1: [77, 532], Z2: [642, 613], Z3: [195, 221], Z4: [586, 103] };
+    const sel = this.state.sel || s.sel;
+    const colorOf = { FEASIBLE: 'var(--ok)', UNDECIDED: 'var(--warn)', INFEASIBLE: 'var(--bad)', 'ALWAYS ALLOWED': 'var(--ink2)' };
+    const pct = (v) => Math.max(0, Math.min(100, (v - 0.8) / 0.2 * 100));
+    const cands = s.cands.map((c) => {
+      const selected = sel === c.id; const hasBar = c.lo !== null;
+      const left = hasBar ? pct(c.lo) : 0; const width = hasBar ? Math.max(1, pct(c.hi) - pct(c.lo)) : 0;
+      return { ...c, selected, hasBar, isFeasible: c.status === 'FEASIBLE', isUndecided: c.status === 'UNDECIDED', isInfeasible: c.status === 'INFEASIBLE', color: colorOf[c.status],
+        bounds: hasBar ? ('[' + c.lo.toFixed(3) + ', ' + c.hi.toFixed(3) + ']') : '—',
+        barStyle: 'position:absolute;top:3px;height:8px;left:' + left + '%;width:' + width + '%;background:' + colorOf[c.status] + ';',
+        rowStyle: 'display:flex;flex-direction:column;align-items:stretch;width:100%;padding:10px;min-height:44px;cursor:pointer;color:var(--ink);font-family:inherit;text-align:left;border-radius:0;background:' + (selected ? 'var(--sunk)' : 'transparent') + ';border:' + (selected ? '2px solid var(--ink)' : '1px solid var(--rule)') + ';',
+        pick: () => this.setState({ sel: c.id }) };
+    });
+    const accepted = this.state.mode === 'accept';
+    const cur = accepted ? 5 : s.stage;
+    const stageNames = ['1 SENSE', '2 FORECAST 256+ FUTURES', '3 SUGGEST', '4 CERTIFY', '5 OPERATOR DECIDES', '6 COMMIT + CERTIFICATE'];
+    const stages = stageNames.map((label, k) => ({ label, style: 'font-size:11px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:3px;' + (k === cur ? 'background:var(--primary);color:var(--onprimary);border:1px solid var(--primary);' : k < cur ? 'border:1px solid var(--ink);color:var(--ink);' : 'border:1px dashed var(--rule);color:var(--ink3);') }));
+    const dots = steps.map((_, k) => 'flex:1 1 0;height:4px;background:' + (k <= i ? 'var(--ink)' : 'var(--rule)') + ';');
+    const markOf = { ok: 'background:var(--ok);border-radius:50%;', bad: 'background:var(--bad);clip-path:polygon(50% 0,100% 100%,0 100%);', warn: 'background:var(--warn);transform:rotate(45deg) scale(.8);', info: 'background:var(--info);' };
+    let ev = [];
+    steps.slice(0, i + 1).forEach((st) => { ev = st.events.concat(ev); });
+    if (accepted && s.decide) ev = [[s.t, 'ok', s.cert ? ('Operator accepted · ' + s.cert + ' committed') : s.holdText]].concat(ev);
+    const events = ev.slice(0, 7).map((e, k) => ({ t: e[0], text: e[2], mark: 'flex:none;width:10px;height:10px;margin-top:6px;display:inline-block;' + markOf[e[1]], rowStyle: 'display:flex;gap:10px;padding:8px 0;font-size:13px;' + (k < 6 ? 'border-bottom:1px solid var(--rule);' : '') + (k === 0 ? 'font-weight:600;' : '') }));
+    const gcol = { ok: 'var(--ok)', warn: 'var(--warn)', info: 'var(--info)', bad: 'var(--bad)' };
+    const groups = s.groups.map((g) => ({ id: g[0], route: g[1], meta: g[2], state: g[3], color: gcol[g[4]] }));
+    const res4 = [0, 40, 40, 80, 80, 0][i]; const occ4 = i === 5 ? 168 : 88;
+    const shRaw = [
+      ['S-01', 'Fort Kochi Hall', 120, 96, 0, 'RESTRICTED', 'var(--warn)'],
+      ['S-02', 'St. Francis School', 150, i >= 4 ? 139 : 104, i >= 1 && i <= 3 ? 35 : (i === 5 ? 35 : 0), 'OPEN', 'var(--ok)'],
+      ['S-03', 'Parade Ground Centre', 140, 60, i === 0 ? 40 : 0, i === 0 ? 'OPEN' : 'CLOSED', i === 0 ? 'var(--ok)' : 'var(--bad)'],
+      ['S-04', 'Veli Community Hall', 200, occ4, res4, 'OPEN', 'var(--ok)'],
+      ['S-05', 'Kunnumpuram School', 160, 52, i >= 3 ? 40 : 0, 'OPEN', 'var(--ok)']
+    ];
+    const shelters = shRaw.map((r) => { const o = r[3] / r[2] * 100, rv = r[4] / r[2] * 100; return { id: r[0], name: r[1], state: r[5], color: r[6],
+      occStyle: 'position:absolute;left:0;top:0;bottom:0;width:' + o + '%;background:var(--ink);',
+      resStyle: 'position:absolute;top:0;bottom:0;left:' + o + '%;width:' + rv + '%;background:var(--info);',
+      meta: r[3] + ' occupied · ' + r[4] + ' reserved · ' + (r[2] - r[3] - r[4]) + ' free of ' + r[2] }; });
+    const tabNames = [['decide', 'Suggestion'], ['transit', 'In transit'], ['shelters', 'Shelters']];
+    const tabs = tabNames.map(([id, label]) => ({ label, on: this.state.tab === id, pick: () => this.setState({ tab: id }),
+      style: 'flex:1 1 0;min-height:40px;border:0;cursor:pointer;font-size:13px;font-weight:600;' + (this.state.tab === id ? 'background:var(--ink);color:var(--surface);' : 'background:transparent;color:var(--ink);') }));
+    const hz = s.hz ? zones[s.hz] : [0, 0];
+    const mv = s.mv || [0, 0, ''];
+    return {
+      theme, themeLabel: theme === 'Night' ? 'Day theme' : 'Night theme',
+      toggleTheme: () => this.setState({ themeOverride: theme === 'Night' ? 'Day' : 'Night' }),
+      t: s.t, stepNo: i + 1, stepCount: steps.length, caption: s.caption, stages, dots,
+      liveLabel: this.state.playing ? 'PLAYING · auto-advancing' : 'LIVE · updated 1 s ago',
+      playLabel: this.state.playing ? 'Pause demo' : (i === steps.length - 1 ? 'Replay demo' : 'Run demo'),
+      togglePlay: () => { if (this.state.playing) { this.stop(); return; } if (i === steps.length - 1) this.go(0); this.setState({ playing: true }); this._timer = setTimeout(() => this.tick(), 1500); },
+      next: () => { this.stop(); this.go(i + 1); }, prev: () => { this.stop(); this.go(i - 1); }, reset: () => { this.stop(); this.go(0); },
+      kpis: [{ label: 'WAITING IN ZONES', value: s.kpi[0] }, { label: 'ON THE ROAD', value: s.kpi[1] }, { label: 'SAFE IN SHELTERS', value: s.kpi[2] }, { label: 'CERTIFICATES ISSUED', value: s.kpi[3] }],
+      routeD: routes[sel] || '',
+      hzX: hz[0], hzY: hz[1], hzOp: s.hz ? 1 : 0,
+      mvX: mv[0], mvY: mv[1], mvOp: s.mv ? 1 : 0, mvLabel: mv[2], g9label: s.g9,
+      tabs, tabDecide: this.state.tab === 'decide', tabTransit: this.state.tab === 'transit', tabShelters: this.state.tab === 'shelters',
+      recKind: s.kind, rec: s.rec, recMeta: s.recMeta, why: s.why, gateMeta: s.gateMeta, cands,
+      canDecide: s.decide && !accepted, autoNote: !!s.auto, autoText: s.auto || '', altOptions: s.alts.length ? s.alts : ['HOLD (no dispatch)'],
+      showOverride: this.state.mode === 'override', showReject: this.state.mode === 'reject', showAccepted: accepted,
+      acceptedText: s.cert ? ('Accepted. Dispatch and shelter seats committed together as ' + s.cert + ' · commands sent.') : (s.holdText || 'Recorded.'),
+      doAccept: () => this.setState({ mode: 'accept' }), doOverride: () => this.setState({ mode: 'override' }), doReject: () => this.setState({ mode: 'reject' }),
+      groups, shelters
+    };
+  }
+}
+</script>
+</body>
+</html>

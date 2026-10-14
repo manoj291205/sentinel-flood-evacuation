@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Evidence & Results</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Sans+Condensed:wght@600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.app{--ground:#E9ECEE;--surface:#F7F8F9;--sunk:#DDE2E6;--ink:#101418;--ink2:#3D4750;--ink3:#55616B;--rule:#C3CBD2;--primary:#0E2A3F;--onprimary:#FFFFFF;--ok:#0F7B4A;--warn:#8F5600;--bad:#B42318;--info:#1F5FA8;--w1:#DCEBF7;--w2:#9CC6E8;--w3:#4A93C9;--w4:#1D5F96;--road:#C4CDD5;--roadc:#F7F8F9;--route:#0E2A3F}
+.app[data-theme="Night"]{--ground:#080B0E;--surface:#0F141A;--sunk:#18202A;--ink:#D9E1E8;--ink2:#A7B4BF;--ink3:#8D9BA7;--rule:#26313C;--primary:#7FB3D9;--onprimary:#06121C;--ok:#45C08A;--warn:#E0A84A;--bad:#F27566;--info:#8CC0E6;--w1:#0F2436;--w2:#163A57;--w3:#1F5F8E;--w4:#3E86BF;--road:#2B3643;--roadc:#0F141A;--route:#8CC0E6}
+a{color:var(--info)}a:hover{color:var(--ink)}
+.nav a{color:var(--ink2);text-decoration:none}.nav a:hover{color:var(--ink);background:var(--sunk)}
+button{font-family:inherit}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}" style="min-height:100vh;background:var(--ground);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:22px;">
+  <header style="min-height:64px;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:10px 24px;background:var(--surface);border-bottom:2px solid var(--ink);">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="1" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"></rect><path d="M5 15 L11 6 L17 15" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+      <span style="font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;letter-spacing:.2em;font-size:16px;">SENTINEL</span>
+    </div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink2);">KOCHI-SIM-620000 · t = 6 / 16 · Δt 2 min</div>
+    <span style="font-size:12px;font-weight:600;letter-spacing:.06em;padding:2px 8px;border:1px solid var(--ink2);border-radius:4px;">MEDIUM UNCERTAINTY</span>
+    <div style="flex:1 1 40px;"></div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;">14:32:08 IST</div>
+    <button type="button" onClick="{{toggleTheme}}" aria-label="Switch Day or Night theme" style="min-height:36px;padding:0 12px;border:1px solid var(--ink2);border-radius:6px;background:transparent;color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;">{{themeLabel}}</button>
+    <div style="font-size:13px;color:var(--ink2);">Operator 01 · Ernakulam EOC</div>
+  </header>
+  <div role="note" style="background:var(--sunk);border-bottom:1px solid var(--rule);padding:6px 24px;font-size:12px;line-height:16px;letter-spacing:.08em;font-weight:600;color:var(--ink);">REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED</div>
+  <div style="display:flex;flex-wrap:wrap;align-items:flex-start;">
+    <nav class="nav" aria-label="Main" style="flex:1 1 200px;max-width:220px;box-sizing:border-box;padding:20px 12px;display:flex;flex-direction:column;gap:2px;font-size:14px;">
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:8px 10px 4px;">OPERATE</div>
+      <a href="Overview.dc.html" style="padding:8px 10px;border-radius:4px;">Overview</a>
+      <a href="Main.dc.html" style="padding:8px 10px;border-radius:4px;">Live Operations</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">VERIFY</div>
+      <a href="Decisions.dc.html" style="padding:8px 10px;border-radius:4px;">Decisions &amp; Certificates</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">EVIDENCE</div>
+      <a href="Evidence.dc.html" aria-current="page" style="padding:8px 10px;border-radius:4px;background:var(--primary);color:var(--onprimary);font-weight:600;">Evidence &amp; Results</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">SYSTEM</div>
+      <a href="System.dc.html" style="padding:8px 10px;border-radius:4px;">System &amp; Hardware</a>
+    </nav>
+    <main style="flex:999 1 560px;min-width:0;box-sizing:border-box;padding:24px;display:flex;flex-direction:column;gap:20px;">
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;">
+        <div style="flex:1 1 400px;">
+          <h1 style="margin:0;font-size:28px;line-height:36px;font-weight:600;">Evidence &amp; Results</h1>
+          <p style="margin:4px 0 0;font-size:15px;color:var(--ink2);">Where the safety rules come from, how well the system performs, and how the project was built.</p>
+        </div>
+        <span style="font-size:12px;font-weight:600;letter-spacing:.06em;padding:4px 10px;border:1px solid var(--ink2);">FROZEN RESULTS · data/eval_results · pending items shown as —</span>
+      </div>
+      <div role="tablist" aria-label="Evidence sections" style="display:flex;flex-wrap:wrap;border:2px solid var(--ink);background:var(--surface);">
+        <sc-for list="{{tabs}}" as="tb" hint-placeholder-count="3"><button type="button" role="tab" aria-selected="{{tb.on}}" onClick="{{tb.pick}}" style="{{tb.style}}">{{tb.label}}</button></sc-for>
+      </div>
+      <sc-if value="{{tabRules}}" hint-placeholder-val="{{true}}">
+        <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start;">
+          <section style="flex:1 1 320px;max-width:420px;background:var(--surface);border:1px solid var(--rule);">
+            <div style="padding:12px 14px;border-bottom:2px solid var(--ink);"><h2 style="margin:0;font-size:16px;font-weight:600;">Safety rules in force</h2><div style="font-size:12px;color:var(--ink2);">From 3 NDMA guideline PDFs · 1,797 indexed passages</div></div>
+            <sc-for list="{{rules}}" as="r" hint-placeholder-count="5">
+              <button type="button" onClick="{{r.pick}}" aria-pressed="{{r.on}}" style="{{r.style}}">
+                <span style="display:flex;justify-content:space-between;width:100%;gap:8px;"><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;">{{r.id}}</span><span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:{{r.color}};">{{r.tier}}</span></span>
+                <span style="font-size:14px;text-align:left;">{{r.title}}</span>
+              </button>
+            </sc-for>
+          </section>
+          <section style="flex:999 1 480px;min-width:0;display:flex;flex-direction:column;gap:16px;">
+            <div style="background:var(--surface);border:1px solid var(--rule);border-top:3px solid var(--primary);padding:16px;display:flex;flex-direction:column;gap:10px;">
+              <div style="font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--ink3);">RULE {{cur.id}} · {{cur.tier}}</div>
+              <div style="font-size:20px;line-height:28px;font-weight:600;">{{cur.title}}</div>
+              <div style="font-size:12px;font-weight:600;letter-spacing:.08em;">HOW THE GATE ENFORCES IT</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;padding:10px;background:var(--sunk);">{{cur.predicate}}</div>
+              <div style="font-size:12px;font-weight:600;letter-spacing:.08em;">SOURCE PASSAGE (paraphrased here · verbatim span stored and hash-checked)</div>
+              <blockquote style="margin:0;padding:10px 14px;border-left:4px solid var(--ink);font-size:15px;line-height:23px;">{{cur.source}}</blockquote>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink2);">{{cur.cite}}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <sc-for list="{{cur.checks}}" as="c" hint-placeholder-count="3"><span style="font-size:12px;font-weight:600;padding:3px 8px;border:1px solid {{c.color}};color:{{c.color}};">{{c.label}}</span></sc-for>
+              </div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:8px;">
+              <h2 style="margin:0;font-size:16px;font-weight:600;">Evidence tiers</h2>
+              <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:14px;">
+                <div style="flex:1 1 180px;border:1px solid var(--rule);padding:10px;"><b>T2 · Model-verified</b><div style="color:var(--ink2);font-size:13px;">Only enabled if the Phase 14B claim-support check passes its frozen bar.</div></div>
+                <div style="flex:1 1 180px;border:1px solid var(--rule);padding:10px;"><b>T1 · Human-approved</b><div style="color:var(--ink2);font-size:13px;">Rule text reviewed and signed off by a person.</div></div>
+                <div style="flex:1 1 180px;border:1px solid var(--rule);padding:10px;"><b>T0 · Unverified</b><div style="color:var(--ink2);font-size:13px;">Source changed or not matched — rule falls back to the strictest setting.</div></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </sc-if>
+      <sc-if value="{{tabResults}}" hint-placeholder-val="{{false}}">
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <div style="display:flex;flex-wrap:wrap;gap:16px;">
+            <sc-for list="{{headline}}" as="h" hint-placeholder-count="4">
+              <div style="flex:1 1 220px;background:var(--surface);border:1px solid var(--rule);padding:14px;display:flex;flex-direction:column;gap:4px;">
+                <div style="font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--ink3);">{{h.label}}</div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:26px;line-height:34px;font-weight:600;">{{h.value}}</div>
+                <div style="font-size:13px;color:var(--ink2);">{{h.note}}</div>
+              </div>
+            </sc-for>
+          </div>
+          <section style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:10px;">
+            <h2 style="margin:0;font-size:16px;font-weight:600;">Planners compared (Phase 10 · normalised utility, Risk-Greedy = 1.00)</h2>
+            <sc-for list="{{planners}}" as="p" hint-placeholder-count="5">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;">
+                <span style="flex:0 0 170px;font-size:14px;font-weight:600;">{{p.name}}</span>
+                <span style="flex:1 1 200px;position:relative;height:16px;background:var(--sunk);"><span style="{{p.bar}}"></span></span>
+                <span style="flex:0 0 140px;font-family:'IBM Plex Mono',monospace;font-size:13px;">{{p.value}}</span>
+              </div>
+            </sc-for>
+            <div style="font-size:13px;color:var(--ink2);">Same seeds and the same safety masks for every planner. The learned policy (MaskablePPO) did not beat search planners — verdict “RL usefulness = NO”, reported honestly.</div>
+          </section>
+          <section style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:10px;">
+            <h2 style="margin:0;font-size:16px;font-weight:600;">Finding the right NDMA passage (Phase 13 · DirectHit@5)</h2>
+            <sc-for list="{{retrieval}}" as="p" hint-placeholder-count="3">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;">
+                <span style="flex:0 0 170px;font-size:14px;font-weight:600;">{{p.name}}</span>
+                <span style="flex:1 1 200px;position:relative;height:16px;background:var(--sunk);"><span style="{{p.bar}}"></span></span>
+                <span style="flex:0 0 140px;font-family:'IBM Plex Mono',monospace;font-size:13px;">{{p.value}}</span>
+              </div>
+            </sc-for>
+            <div style="font-size:13px;color:var(--ink2);">Share of questions where a correct passage is in the top 5. Finding relevant text is not the same as proving a claim — that is what Phase 14B measures.</div>
+          </section>
+          <section style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:10px;">
+            <h2 style="margin:0;font-size:16px;font-weight:600;">Patent experiments (Phase 27 · pre-registered)</h2>
+            <div style="overflow:auto;"><table style="width:100%;border-collapse:collapse;font-size:14px;">
+              <thead><tr style="text-align:left;border-bottom:2px solid var(--ink);"><th style="padding:8px 6px;">Test</th><th style="padding:8px 6px;">Pass bar</th><th style="padding:8px 6px;">Status</th></tr></thead>
+              <tbody><sc-for list="{{exps}}" as="e" hint-placeholder-count="5"><tr style="border-bottom:1px solid var(--rule);"><td style="padding:8px 6px;">{{e.t}}</td><td style="padding:8px 6px;font-family:'IBM Plex Mono',monospace;font-size:13px;">{{e.bar}}</td><td style="padding:8px 6px;font-size:12px;font-weight:700;letter-spacing:.06em;color:{{e.color}};">{{e.s}}</td></tr></sc-for></tbody>
+            </table></div>
+          </section>
+        </div>
+      </sc-if>
+      <sc-if value="{{tabProject}}" hint-placeholder-val="{{false}}">
+        <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start;">
+          <section style="flex:1 1 380px;background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:12px;">
+            <h2 style="margin:0;font-size:16px;font-weight:600;">Problem</h2>
+            <p style="margin:0;font-size:15px;line-height:23px;">During urban floods, a dispatcher must decide which group goes to which shelter — while roads close and shelters fill. A route that looks safe now can be unsafe by the time people arrive.</p>
+            <h2 style="margin:0;font-size:16px;font-weight:600;">What Sentinel does</h2>
+            <ol style="margin:0;padding-left:20px;font-size:15px;line-height:23px;"><li>Suggests dispatches from live sensor and forecast data.</li><li>Certifies each one against hundreds of possible futures, at the moment people would arrive.</li><li>Blocks anything it cannot prove safe; the operator stays in control.</li><li>Records a certificate that can be replayed to prove what happened.</li></ol>
+            <h2 style="margin:0;font-size:16px;font-weight:600;">Method</h2>
+            <p style="margin:0;font-size:15px;line-height:23px;">Real Fort Kochi road network (OpenStreetMap) · stochastic flood simulator · search planners vs reinforcement learning · retrieval over NDMA guidelines · statistical certification · hardware-in-the-loop sensors.</p>
+          </section>
+          <section style="flex:1 1 380px;background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:10px;">
+            <h2 style="margin:0;font-size:16px;font-weight:600;">Milestones</h2>
+            <sc-for list="{{miles}}" as="m" hint-placeholder-count="6">
+              <div style="display:flex;gap:10px;align-items:center;font-size:14px;padding:6px 0;border-bottom:1px solid var(--rule);">
+                <span style="{{m.mark}}" aria-hidden="true"></span>
+                <span style="flex:1 1 auto;">{{m.label}}</span>
+                <span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:{{m.color}};">{{m.state}}</span>
+              </div>
+            </sc-for>
+          </section>
+        </div>
+      </sc-if>
+
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Day","Night"],"default":"Day"},"$preview":{"width":1440,"height":1240}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'rules', rule: 'R-03', themeOverride: null }; }
+  renderVals() {
+    const theme = this.state.themeOverride || this.props.theme || 'Day';
+    const tierCol = { 'T1 · HUMAN-APPROVED': 'var(--ok)', 'T2 · PENDING 14B': 'var(--ink2)', 'T0 · SOURCE CHANGED': 'var(--bad)' };
+    const R = [
+      { id: 'R-01', title: 'Do not route people through flooded road sections', tier: 'T1 · HUMAN-APPROVED', predicate: 'edge.flood_depth(t_arrival) < 0.30 m  for every edge on route', source: 'Evacuation routes should avoid inundated stretches; movement through standing water is to be avoided.', cite: 'NDMA Urban Flooding Guidelines · §evacuation · chunk 0412 · sha 3e1a…', checks: [['Verbatim span matched', 'var(--ok)'], ['Approved by reviewer', 'var(--ok)']] },
+      { id: 'R-02', title: 'Shelter must stay above flood level on arrival', tier: 'T1 · HUMAN-APPROVED', predicate: 'shelter.severity(t_arrival) < 0.70', source: 'Relief camps are to be located on safe, elevated ground away from areas likely to be inundated.', cite: 'NDMA Floods Guidelines · relief camps · chunk 0977 · sha 81bc…', checks: [['Verbatim span matched', 'var(--ok)'], ['Approved by reviewer', 'var(--ok)']] },
+      { id: 'R-03', title: 'Do not exceed shelter capacity', tier: 'T1 · HUMAN-APPROVED', predicate: 'occupied + reserved + group_size ≤ capacity   at t_arrival', source: 'Camp occupancy should be planned within the facility’s capacity to keep minimum standards of space and sanitation.', cite: 'NDMA Minimum Standards of Relief · shelter · chunk 1203 · sha 0c77…', checks: [['Verbatim span matched', 'var(--ok)'], ['Approved by reviewer', 'var(--ok)']] },
+      { id: 'R-04', title: 'Prioritise vulnerable groups', tier: 'T2 · PENDING 14B', predicate: 'priority(zone) uses vulnerable-population weight', source: 'Elderly, children, persons with disabilities and pregnant women are to be given priority in evacuation.', cite: 'NDMA Urban Flooding Guidelines · chunk 0431 · sha 9d02…', checks: [['Verbatim span matched', 'var(--ok)'], ['Awaiting model verification', 'var(--ink2)']] },
+      { id: 'R-05', title: 'Restrict shelter during water-supply failure', tier: 'T0 · SOURCE CHANGED', predicate: 'fallback: shelter treated as RESTRICTED', source: 'Stored passage no longer matches the source document hash — the rule falls back to its strictest setting until re-approved.', cite: 'chunk 1311 · stored sha 44f0… ≠ current 7a19…', checks: [['Span mismatch', 'var(--bad)'], ['Strict fallback active', 'var(--warn)']] }
+    ];
+    const cur0 = R.find((r) => r.id === this.state.rule) || R[0];
+    const rules = R.map((r) => { const on = r.id === cur0.id; return { ...r, on, color: tierCol[r.tier], pick: () => this.setState({ rule: r.id }), style: 'display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:12px 14px;min-height:44px;cursor:pointer;color:var(--ink);font-family:inherit;text-align:left;border:0;border-bottom:1px solid var(--rule);border-left:' + (on ? '4px solid var(--primary)' : '4px solid transparent') + ';background:' + (on ? 'var(--sunk)' : 'transparent') + ';' }; });
+    const cur = { ...cur0, checks: cur0.checks.map((c) => ({ label: c[0], color: c[1] })) };
+    const P = [['Lookahead-3', 1.53], ['Lookahead-2', 1.48], ['MPC', 1.46], ['Risk-Greedy', 1.00], ['Nearest-safe', 0.76], ['MaskablePPO (RL)', 0.21], ['Random', 0.00]];
+    const planners = P.map((p) => ({ name: p[0], value: p[1].toFixed(2), bar: 'position:absolute;left:0;top:0;bottom:0;width:' + (p[1] / 1.6 * 100) + '%;background:' + (p[0].indexOf('PPO') >= 0 ? 'var(--warn)' : 'var(--ink)') + ';' }));
+    const retrieval = [['BM25', 0.867], ['Hybrid (RRF)', 0.822], ['Dense', 0.622]].map((r) => ({ name: r[0], value: r[1].toFixed(3), bar: 'position:absolute;left:0;top:0;bottom:0;width:' + (r[1] * 100) + '%;background:var(--info);' }));
+    const sc = { PASS: 'var(--ok)', PENDING: 'var(--ink2)', 'NOT RUN': 'var(--ink3)' };
+    const exps = [
+      ['Fewer stranded groups than baseline, ≤ 5 % efficiency loss', 'CI excludes 0', 'PENDING'], ['Joint check beats separate checks', 'gap > 0, p < 0.05', 'PENDING'], ['Keyed futures cut variance', '≥ 2× vs independent', 'PENDING'], ['False-accept rate', '≤ δ = 0.01', 'PENDING'], ['Decision latency on Raspberry Pi', 'p95 ≤ 100 ms', 'NOT RUN']
+    ].map((e) => ({ t: e[0], bar: e[1], s: e[2], color: sc[e[2]] }));
+    const headline = [
+      { label: 'ROAD NETWORK', value: '622 / 1,358', note: 'Real Fort Kochi nodes / edges (OpenStreetMap)' },
+      { label: 'AUTOMATED TESTS', value: '735', note: 'Passing on the v3 baseline' },
+      { label: 'GUIDELINE PASSAGES', value: '1,797', note: 'Indexed for dense, BM25 and hybrid retrieval' },
+      { label: 'CLAIM-SUPPORT CHECK', value: '— / 135', note: 'Phase 14B · shown only when complete' }
+    ];
+    const mk = { done: ['background:var(--ok);border-radius:50%;', 'var(--ok)', 'DONE'], prog: ['background:var(--warn);transform:rotate(45deg) scale(.8);', 'var(--warn)', 'IN PROGRESS'], next: ['border:2px solid var(--ink3);', 'var(--ink3)', 'PLANNED'] };
+    const miles = [['Phases 0–13 · simulator, planners, RL, retrieval', 'done'], ['Phases 16–19 · real map, demo, human-in-the-loop', 'done'], ['Phase 14B · claim-support evaluation', 'prog'], ['Phases 20–24 · keyed futures, joint check, certifier', 'next'], ['Phases 25–27 · gate, replay, migration, evaluation', 'next'], ['Phase 28 · hardware-in-the-loop rig', 'next'], ['Phases 30–34 · web console (this design)', 'next']]
+      .map((m) => ({ label: m[0], mark: 'flex:none;display:inline-block;width:10px;height:10px;box-sizing:border-box;' + mk[m[1]][0], color: mk[m[1]][1], state: mk[m[1]][2] }));
+    const tabNames = [['rules', 'Safety rules (NDMA)'], ['results', 'Results'], ['project', 'About the project']];
+    const tabs = tabNames.map(([id, label]) => ({ label, on: this.state.tab === id, pick: () => this.setState({ tab: id }), style: 'flex:1 1 160px;min-height:42px;border:0;cursor:pointer;font-size:14px;font-weight:600;' + (this.state.tab === id ? 'background:var(--ink);color:var(--surface);' : 'background:transparent;color:var(--ink);') }));
+    return {
+      theme, themeLabel: theme === 'Night' ? 'Day theme' : 'Night theme', toggleTheme: () => this.setState({ themeOverride: theme === 'Night' ? 'Day' : 'Night' }),
+      tabs, tabRules: this.state.tab === 'rules', tabResults: this.state.tab === 'results', tabProject: this.state.tab === 'project',
+      rules, cur, planners, retrieval, exps, headline, miles
+    };
+  }
+}
+</script>
+</body>
+</html>

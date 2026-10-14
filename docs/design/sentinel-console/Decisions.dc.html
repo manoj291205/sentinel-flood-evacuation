@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Decisions & Certificates</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Sans+Condensed:wght@600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.app{--ground:#E9ECEE;--surface:#F7F8F9;--sunk:#DDE2E6;--ink:#101418;--ink2:#3D4750;--ink3:#55616B;--rule:#C3CBD2;--primary:#0E2A3F;--onprimary:#FFFFFF;--ok:#0F7B4A;--warn:#8F5600;--bad:#B42318;--info:#1F5FA8;--w1:#DCEBF7;--w2:#9CC6E8;--w3:#4A93C9;--w4:#1D5F96;--road:#C4CDD5;--roadc:#F7F8F9;--route:#0E2A3F}
+.app[data-theme="Night"]{--ground:#080B0E;--surface:#0F141A;--sunk:#18202A;--ink:#D9E1E8;--ink2:#A7B4BF;--ink3:#8D9BA7;--rule:#26313C;--primary:#7FB3D9;--onprimary:#06121C;--ok:#45C08A;--warn:#E0A84A;--bad:#F27566;--info:#8CC0E6;--w1:#0F2436;--w2:#163A57;--w3:#1F5F8E;--w4:#3E86BF;--road:#2B3643;--roadc:#0F141A;--route:#8CC0E6}
+a{color:var(--info)}a:hover{color:var(--ink)}
+.nav a{color:var(--ink2);text-decoration:none}.nav a:hover{color:var(--ink);background:var(--sunk)}
+button{font-family:inherit}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}" style="min-height:100vh;background:var(--ground);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:22px;">
+  <header style="min-height:64px;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:10px 24px;background:var(--surface);border-bottom:2px solid var(--ink);">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="1" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"></rect><path d="M5 15 L11 6 L17 15" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+      <span style="font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;letter-spacing:.2em;font-size:16px;">SENTINEL</span>
+    </div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink2);">KOCHI-SIM-620000 · t = 6 / 16 · Δt 2 min</div>
+    <span style="font-size:12px;font-weight:600;letter-spacing:.06em;padding:2px 8px;border:1px solid var(--ink2);border-radius:4px;">MEDIUM UNCERTAINTY</span>
+    <div style="flex:1 1 40px;"></div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;">14:32:08 IST</div>
+    <button type="button" onClick="{{toggleTheme}}" aria-label="Switch Day or Night theme" style="min-height:36px;padding:0 12px;border:1px solid var(--ink2);border-radius:6px;background:transparent;color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;">{{themeLabel}}</button>
+    <div style="font-size:13px;color:var(--ink2);">Operator 01 · Ernakulam EOC</div>
+  </header>
+  <div role="note" style="background:var(--sunk);border-bottom:1px solid var(--rule);padding:6px 24px;font-size:12px;line-height:16px;letter-spacing:.08em;font-weight:600;color:var(--ink);">REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED</div>
+  <div style="display:flex;flex-wrap:wrap;align-items:flex-start;">
+    <nav class="nav" aria-label="Main" style="flex:1 1 200px;max-width:220px;box-sizing:border-box;padding:20px 12px;display:flex;flex-direction:column;gap:2px;font-size:14px;">
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:8px 10px 4px;">OPERATE</div>
+      <a href="Overview.dc.html" style="padding:8px 10px;border-radius:4px;">Overview</a>
+      <a href="Main.dc.html" style="padding:8px 10px;border-radius:4px;">Live Operations</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">VERIFY</div>
+      <a href="Decisions.dc.html" aria-current="page" style="padding:8px 10px;border-radius:4px;background:var(--primary);color:var(--onprimary);font-weight:600;">Decisions &amp; Certificates</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">EVIDENCE</div>
+      <a href="Evidence.dc.html" style="padding:8px 10px;border-radius:4px;">Evidence &amp; Results</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">SYSTEM</div>
+      <a href="System.dc.html" style="padding:8px 10px;border-radius:4px;">System &amp; Hardware</a>
+    </nav>
+    <main style="flex:999 1 560px;min-width:0;box-sizing:border-box;padding:24px;display:flex;flex-direction:column;gap:20px;">
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;">
+        <div style="flex:1 1 400px;">
+          <h1 style="margin:0;font-size:28px;line-height:36px;font-weight:600;">Decisions &amp; Certificates</h1>
+          <p style="margin:4px 0 0;font-size:15px;color:var(--ink2);">Every suggestion Sentinel made, why the gate allowed or blocked it, what the operator did — and a certificate anyone can replay to prove it.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button type="button" style="min-height:40px;padding:0 14px;border:1px solid var(--ink2);border-radius:6px;background:transparent;color:var(--ink);font-weight:600;font-size:13px;cursor:pointer;">Export audit (CSV)</button>
+          <button type="button" style="min-height:40px;padding:0 14px;border:1px solid var(--ink2);border-radius:6px;background:transparent;color:var(--ink);font-weight:600;font-size:13px;cursor:pointer;">Export certificates (JSON)</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start;">
+        <section aria-label="Decision list" style="flex:1 1 320px;max-width:400px;background:var(--surface);border:1px solid var(--rule);display:flex;flex-direction:column;">
+          <div style="padding:12px 14px;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;align-items:baseline;"><h2 style="margin:0;font-size:16px;font-weight:600;">This session</h2><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink2);">6 decisions</span></div>
+          <sc-for list="{{items}}" as="d" hint-placeholder-count="6">
+            <button type="button" onClick="{{d.pick}}" aria-pressed="{{d.on}}" style="{{d.style}}">
+              <span style="display:flex;justify-content:space-between;gap:8px;width:100%;"><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;">{{d.id}}</span><span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:{{d.color}};">{{d.outcome}}</span></span>
+              <span style="font-size:14px;font-weight:600;text-align:left;">{{d.title}}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink2);">t {{d.t}} · {{d.by}}</span>
+            </button>
+          </sc-for>
+        </section>
+        <section style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px;">
+          <div style="background:var(--surface);border:1px solid var(--rule);border-top:3px solid var(--primary);padding:16px;display:flex;flex-wrap:wrap;gap:12px 32px;align-items:baseline;">
+            <div style="flex:1 1 300px;"><div style="font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--ink3);">{{cur.kind}}</div><div style="font-size:22px;line-height:30px;font-weight:600;">{{cur.title}}</div><div style="font-size:14px;color:var(--ink2);">{{cur.summary}}</div></div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:20px;"><div>{{cur.id}}</div><div style="color:var(--ink2);">t {{cur.t}} · 14:{{cur.clock}} IST</div></div>
+          </div>
+          <div role="tablist" aria-label="Decision detail" style="display:flex;flex-wrap:wrap;border:2px solid var(--ink);background:var(--surface);">
+            <sc-for list="{{tabs}}" as="tb" hint-placeholder-count="3"><button type="button" role="tab" aria-selected="{{tb.on}}" onClick="{{tb.pick}}" style="{{tb.style}}">{{tb.label}}</button></sc-for>
+          </div>
+          <sc-if value="{{tabWhy}}" hint-placeholder-val="{{true}}">
+            <div style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:14px;">
+              <h2 style="margin:0;font-size:16px;font-weight:600;">Options the gate checked</h2>
+              <div style="overflow:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:14px;">
+                  <thead><tr style="text-align:left;border-bottom:2px solid var(--ink);"><th style="padding:8px 6px;">Option</th><th style="padding:8px 6px;">Futures OK</th><th style="padding:8px 6px;">Certified bound</th><th style="padding:8px 6px;">Verdict</th></tr></thead>
+                  <tbody>
+                    <sc-for list="{{cur.cands}}" as="c" hint-placeholder-count="4">
+                      <tr style="border-bottom:1px solid var(--rule);"><td style="padding:8px 6px;font-weight:600;">{{c.label}}</td><td style="padding:8px 6px;font-family:'IBM Plex Mono',monospace;">{{c.ok}}</td><td style="padding:8px 6px;font-family:'IBM Plex Mono',monospace;">{{c.bound}}</td><td style="padding:8px 6px;font-size:12px;font-weight:700;letter-spacing:.06em;color:{{c.color}};">{{c.verdict}}</td></tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:16px;">
+                <div style="flex:1 1 260px;border:1px solid var(--rule);padding:12px;display:flex;flex-direction:column;gap:6px;">
+                  <div style="font-size:12px;font-weight:600;letter-spacing:.08em;">CHECKED TOGETHER (SENTINEL)</div>
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:26px;line-height:34px;color:var(--ok);">{{cur.joint}}</div>
+                  <div style="font-size:13px;color:var(--ink2);">Road open <b>and</b> shelter safe <b>and</b> seats left — all at the same arrival moment, in the same future.</div>
+                </div>
+                <div style="flex:1 1 260px;border:1px dashed var(--rule);padding:12px;display:flex;flex-direction:column;gap:6px;">
+                  <div style="font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--ink2);">CHECKED SEPARATELY (BASELINE)</div>
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:26px;line-height:34px;color:var(--ink2);">{{cur.sep}}</div>
+                  <div style="font-size:13px;color:var(--ink2);">Each condition looks fine on its own; the baseline misses futures where they fail together.</div>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:12px;font-weight:600;letter-spacing:.08em;margin-bottom:6px;">PREDICTED ARRIVAL TIME ACROSS FUTURES</div>
+                <div style="display:flex;align-items:flex-end;gap:6px;height:110px;border-bottom:2px solid var(--ink);padding:0 4px;">
+                  <sc-for list="{{cur.hist}}" as="b" hint-placeholder-count="7"><div style="flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink2);">{{b.n}}</span><span style="{{b.style}}"></span></div></sc-for>
+                </div>
+                <div style="display:flex;gap:6px;padding:4px 4px 0;"><sc-for list="{{cur.hist}}" as="b" hint-placeholder-count="7"><span style="flex:1 1 0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink2);">{{b.label}}</span></sc-for></div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{tabCert}}" hint-placeholder-val="{{false}}">
+            <div style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:14px;">
+              <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+                <h2 style="margin:0;font-size:16px;font-weight:600;flex:1 1 200px;">Certificate &amp; bit-exact replay</h2>
+                <label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;"><input type="checkbox" onChange="{{toggleTamper}}" checked="{{tamper}}"> Simulate a tampered record</label>
+                <button type="button" onClick="{{replay}}" style="min-height:40px;padding:0 16px;border:0;border-radius:6px;background:var(--primary);color:var(--onprimary);font-weight:600;font-size:14px;cursor:pointer;">Replay certificate</button>
+              </div>
+              <sc-if value="{{hasCert}}" hint-placeholder-val="{{true}}">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);">
+                <sc-for list="{{keys}}" as="k" hint-placeholder-count="8"><div style="background:var(--surface);padding:10px 12px;"><div style="font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--ink3);">{{k.k}}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:13px;word-break:break-all;">{{k.v}}</div></div></sc-for>
+              </div>
+              </sc-if>
+              <sc-if value="{{noCert}}" hint-placeholder-val="{{false}}"><div style="font-size:14px;color:var(--ink2);">HOLD decisions dispatch nothing, so they carry an audit record instead of a dispatch certificate.</div></sc-if>
+              <sc-if value="{{showMatch}}" hint-placeholder-val="{{false}}">
+                <div role="status" style="display:flex;gap:10px;align-items:center;padding:12px;border:2px solid var(--ok);"><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="7" style="fill:var(--ok)"></circle></svg><span style="font-weight:700;letter-spacing:.06em;color:var(--ok);">MATCH</span><span style="font-size:14px;">Re-ran the same keyed futures from the stored inputs — identical verdicts and bounds, bit for bit.</span></div>
+              </sc-if>
+              <sc-if value="{{showMismatch}}" hint-placeholder-val="{{false}}">
+                <div role="alert" style="display:flex;flex-direction:column;gap:6px;padding:12px;border:2px solid var(--bad);"><div style="display:flex;gap:10px;align-items:center;"><svg width="14" height="13" aria-hidden="true"><path d="M7 0 L14 13 L0 13 Z" style="fill:var(--bad)"></path></svg><span style="font-weight:700;letter-spacing:.06em;color:var(--bad);">MISMATCH</span><span style="font-size:14px;">The record no longer reproduces. Tampering detected.</span></div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink2);">forecast_hash stored 9f3c…a71e ≠ recomputed 4b02…19cd · hash chain broken at entry 127</div></div>
+              </sc-if>
+            </div>
+          </sc-if>
+          <sc-if value="{{tabAudit}}" hint-placeholder-val="{{false}}">
+            <div style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:10px;">
+              <h2 style="margin:0;font-size:16px;font-weight:600;">Audit trail</h2>
+              <sc-for list="{{audit}}" as="a" hint-placeholder-count="6">
+                <div style="display:flex;flex-wrap:wrap;gap:4px 14px;padding:8px 0;border-bottom:1px solid var(--rule);font-size:14px;{{a.emph}}">
+                  <span style="font-family:'IBM Plex Mono',monospace;color:var(--ink2);min-width:90px;">{{a.time}}</span>
+                  <span style="font-weight:600;min-width:120px;">{{a.who}}</span>
+                  <span style="flex:1 1 260px;">{{a.what}}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </section>
+      </div>
+
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Day","Night"],"default":"Day"},"$preview":{"width":1440,"height":1240}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sel: 'CERT-000127', tab: 'why', replayed: false, tamper: false, themeOverride: null }; }
+  renderVals() {
+    const theme = this.state.themeOverride || this.props.theme || 'Day';
+    const F = ['FEASIBLE', 'var(--ok)'], U = ['UNDECIDED · BLOCKED', 'var(--warn)'], I = ['INFEASIBLE', 'var(--bad)'], H = ['ALWAYS ALLOWED', 'var(--ink2)'];
+    const cand = (label, ok, lo, hi, v) => ({ label, ok, bound: lo === null ? '—' : ('[' + lo + ', ' + hi + ']'), verdict: v[0], color: v[1] });
+    const hist = (arr) => { const m = Math.max.apply(null, arr); return arr.map((n, k) => ({ n, label: 't+' + (k + 1), style: 'display:block;width:100%;height:' + Math.round(n / m * 80) + 'px;background:' + (k >= 5 ? 'var(--bad)' : 'var(--ink)') + ';' })); };
+    const D = [
+      { id: 'CERT-000128', t: 8, clock: '36:11', kind: 'DISPATCH · ACCEPTED', title: 'Z-02 → S-05 · 40 people', by: 'Operator 01', outcome: 'ACCEPTED', oc: 'var(--ok)', summary: 'Blocked at n = 256 (UNDECIDED), certified after sampling 512 futures.', joint: '0.953', sep: '0.961', fut: 512, fh: '9f3c…a71e',
+        cands: [cand('Z-02 → S-05 · 40', '503 / 512', '0.953', '0.981', F), cand('Z-04 → S-01 · 30', '433 / 512', '0.792', '0.889', I), cand('HOLD', '—', null, null, H)], h: [12, 61, 140, 188, 91, 14, 6] },
+      { id: 'CERT-000127', t: 7, clock: '34:52', kind: 'DISPATCH · ACCEPTED', title: 'Z-03 → S-04 · 40 people', by: 'Operator 01', outcome: 'ACCEPTED', oc: 'var(--ok)', summary: 'Certified jointly with G-0009 already reserved at S-04.', joint: '0.962', sep: '0.978', fut: 256, fh: '2d81…c40b',
+        cands: [cand('Z-03 → S-04 · 40', '252 / 256', '0.962', '0.995', F), cand('Z-01 → S-02 · 35', '250 / 256', '0.955', '0.991', F), cand('Z-02 → S-05 · 40', '243 / 256', '0.914', '0.975', U), cand('Z-04 → S-01 · 30', '219 / 256', '0.801', '0.903', I), cand('HOLD', '—', null, null, H)], h: [4, 38, 97, 81, 29, 5, 2] },
+      { id: 'CERT-000126', t: 5, clock: '31:40', kind: 'IN-TRANSIT MIGRATION · AUTOMATIC', title: 'G-0009 · S-03 → S-04', by: 'Sentinel (auto)', outcome: 'AUTO', oc: 'var(--info)', summary: 'S-03 closed; G-0009 fell below keep threshold 0.90. Release + reserve committed in one step.', joint: '0.963', sep: '0.981', fut: 256, fh: '71aa…09f2',
+        cands: [cand('G-0009 → S-04', '252 / 256', '0.963', '0.994', F), cand('G-0009 keeps S-03', '171 / 256', '0.62', '0.79', I)], h: [0, 22, 131, 77, 21, 4, 1] },
+      { id: 'CERT-000125', t: 4, clock: '29:03', kind: 'DISPATCH · ACCEPTED', title: 'Z-01 → S-02 · 35 people', by: 'Operator 01', outcome: 'ACCEPTED', oc: 'var(--ok)', summary: 'Earliest-flooding zone, shortest certified route.', joint: '0.958', sep: '0.970', fut: 256, fh: 'c09e…5d13',
+        cands: [cand('Z-01 → S-02 · 35', '251 / 256', '0.958', '0.992', F), cand('Z-03 → S-04 · 40', '247 / 256', '0.936', '0.984', U), cand('Z-02 → S-05 · 40', '244 / 256', '0.921', '0.978', U), cand('HOLD', '—', null, null, H)], h: [41, 150, 52, 10, 3, 0, 0] },
+      { id: 'AUD-000412', t: 8, clock: '36:40', kind: 'HOLD · ESCALATED', title: 'Zone 04 held · field team notified', by: 'Operator 01', outcome: 'HOLD', oc: 'var(--warn)', summary: 'No option reached 0.95; Sentinel refused to guess.', joint: '0.784', sep: '0.902', fut: 512, fh: '—',
+        cands: [cand('Z-04 → S-01 · 30', '431 / 512', '0.784', '0.881', I), cand('HOLD', '—', null, null, H)], h: [0, 8, 44, 120, 210, 96, 34] },
+      { id: 'AUD-000398', t: 3, clock: '27:15', kind: 'OVERRIDE', title: 'Z-04 → S-05 replaced by HOLD', by: 'Operator 01', outcome: 'OVERRIDE', oc: 'var(--ink)', summary: 'Reason: “Field team reports bridge on Calvetty Rd unsafe.” Alternative was a certified option.', joint: '0.951', sep: '0.966', fut: 256, fh: '—',
+        cands: [cand('Z-04 → S-05 · 30', '249 / 256', '0.951', '0.989', F), cand('HOLD', '—', null, null, H)], h: [9, 77, 120, 39, 8, 3, 0] }
+    ];
+    const cur0 = D.find((d) => d.id === this.state.sel) || D[0];
+    const items = D.map((d) => { const on = d.id === cur0.id; return { ...d, on, color: d.oc, pick: () => this.setState({ sel: d.id, replayed: false, tamper: false }),
+      style: 'display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:12px 14px;min-height:44px;cursor:pointer;color:var(--ink);font-family:inherit;text-align:left;border:0;border-bottom:1px solid var(--rule);border-left:' + (on ? '4px solid var(--primary)' : '4px solid transparent') + ';background:' + (on ? 'var(--sunk)' : 'transparent') + ';' }; });
+    const cur = { ...cur0, hist: hist(cur0.h) };
+    const isCert = cur.id.indexOf('CERT') === 0;
+    const keys = [
+      { k: 'CERTIFICATE', v: cur.id }, { k: 'EPISODE / SEED KEY', v: 'KOCHI-SIM-620000 · k=0x6d1f' }, { k: 'FORECAST HASH', v: cur.fh + ' (SHA-256)' }, { k: 'ROAD GRAPH FINGERPRINT', v: 'osm-fortkochi-v2 · 622 n / 1,358 e · e4b7…' },
+      { k: 'FUTURES / RISK', v: 'n = ' + cur.fut + ' · ε = 0.05 · δ = 0.01' }, { k: 'CERTIFIED LOWER BOUND', v: cur.joint + ' (Clopper–Pearson)' }, { k: 'LEDGER ENTRY', v: 'seq ' + (cur.t * 16 + 1) + ' · prev 5e10…bb72' }, { k: 'COMMANDS', v: 'VEH-12 route set · S-04 seats reserved' }
+    ];
+    const audit = [
+      { time: '14:' + cur.clock, who: 'Sentinel', what: 'Sampled ' + cur.fut + ' keyed futures and evaluated ' + cur.cands.length + ' options' },
+      { time: '14:' + cur.clock, who: 'Dispatch gate', what: 'Verdicts issued · best certified bound ' + cur.joint },
+      { time: '14:' + cur.clock, who: 'Sentinel', what: 'Suggestion shown: ' + cur.title },
+      { time: '14:' + cur.clock, who: cur.by, what: cur.outcome === 'AUTO' ? 'Automatic safety action — operator notified' : ('Decision: ' + cur.outcome + (cur.outcome === 'OVERRIDE' ? ' · reason recorded' : '')), emph: 'font-weight:600;' },
+      { time: '14:' + cur.clock, who: 'Ledger', what: isCert ? ('Atomic commit · ' + cur.id + ' · hash chained') : ('Audit record ' + cur.id + ' written · no dispatch') },
+      { time: '14:' + cur.clock, who: 'Actuation', what: isCert ? 'Vehicle and shelter commands accepted (valid certificate id)' : 'No commands sent' }
+    ];
+    const tabNames = [['why', 'Why it was allowed'], ['cert', 'Certificate & replay'], ['audit', 'Audit trail']];
+    const tabs = tabNames.map(([id, label]) => ({ label, on: this.state.tab === id, pick: () => this.setState({ tab: id }), style: 'flex:1 1 160px;min-height:42px;border:0;cursor:pointer;font-size:14px;font-weight:600;' + (this.state.tab === id ? 'background:var(--ink);color:var(--surface);' : 'background:transparent;color:var(--ink);') }));
+    return {
+      theme, themeLabel: theme === 'Night' ? 'Day theme' : 'Night theme', toggleTheme: () => this.setState({ themeOverride: theme === 'Night' ? 'Day' : 'Night' }),
+      items, cur, tabs, tabWhy: this.state.tab === 'why', tabCert: this.state.tab === 'cert', tabAudit: this.state.tab === 'audit',
+      keys, hasCert: isCert, noCert: !isCert, audit, tamper: this.state.tamper,
+      toggleTamper: () => this.setState({ tamper: !this.state.tamper, replayed: false }),
+      replay: () => this.setState({ replayed: true }),
+      showMatch: isCert && this.state.replayed && !this.state.tamper, showMismatch: isCert && this.state.replayed && this.state.tamper
+    };
+  }
+}
+</script>
+</body>
+</html>

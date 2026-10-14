@@ -1,0 +1,15 @@
+{"v":3,"createdOnFiles":{"v":1,"at":"2026-10-14T16:10:00Z"},"title":"Sentinel V4 console design","launch":{"view":"canvas"},"pages":[],
+"boards":{
+"Overview.dc.html":{"x":0,"y":0,"w":1440,"h":1180,"title":"1 · Overview","expand":"fill","is_interactive":true},
+"Main.dc.html":{"x":1520,"y":0,"w":1440,"h":1400,"title":"2 · Live Operations (guided demo)","expand":"fill","is_interactive":true},
+"Decisions.dc.html":{"x":3040,"y":0,"w":1440,"h":1240,"title":"3 · Decisions & Certificates","expand":"fill","is_interactive":true},
+"Evidence.dc.html":{"x":4560,"y":0,"w":1440,"h":1240,"title":"4 · Evidence & Results","expand":"fill","is_interactive":true},
+"System.dc.html":{"x":6080,"y":0,"w":1440,"h":1240,"title":"5 · System & Hardware","expand":"fill","is_interactive":true},
+"Components.dc.html":{"x":0,"y":1760,"w":1440,"h":1240,"title":"Design system · tokens & components"}
+},
+"order":["Overview.dc.html","Main.dc.html","Decisions.dc.html","Evidence.dc.html","System.dc.html","Components.dc.html"],
+"notes":{
+"row1":{"x":0,"y":-300,"text":"Sentinel console — 5 pages. Start at 2 · Live Operations and press Run demo.","kind":"title1","maxW":7600},
+"row2":{"x":0,"y":1460,"text":"Design system","kind":"title1","maxW":3000}
+},
+"designSystems":[]}

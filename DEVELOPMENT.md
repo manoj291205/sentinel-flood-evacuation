@@ -17,6 +17,14 @@ unfiled invention. Never make it public or show the gate work before the Indian 
 - Git: `core.autocrlf=false` locally until `.gitattributes` lands (Phase 20); otherwise frozen hashes break.
 - `GEMINI_API_KEY` comes from the environment only — never write it to a file or commit it.
 
+## Two builders (read docs/patent-roadmap/LANES.md)
+- Builder S = **Lane S** (this folder, branches `m<NN>-*`). Builder X = **Lane X** (worktree
+  `D:/Project - 1/sentinel-builder-x`, branches `builder-x/m<NN>-*`, instructions in `AGENTS.md`).
+- Edit only files your lane owns. Never edit, rebase, merge or delete `builder-x/*` branches or Lane X files
+  (`src/api/`, `src/presentation/`, `web/`, `hil/`, `src/hil/`, `docs/course/`, 14B files, `tests/test_cx_*`).
+  Report bugs there in `STATUS.md` -> Notes for Builder X.
+- Only Lead merges into `main`, after auditing both lanes (LANES.md -> Merge and audit).
+
 ## Hard rules
 - Frozen, read-only: `data/eval_v3/**`, `data/eval_results/**` (existing files), `models/**`, `data/geospatial_v3/**`.
 - New behaviour only behind new `v4-*` config IDs; legacy results must stay bit-identical.

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>System & Hardware</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Sans+Condensed:wght@600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.app{--ground:#E9ECEE;--surface:#F7F8F9;--sunk:#DDE2E6;--ink:#101418;--ink2:#3D4750;--ink3:#55616B;--rule:#C3CBD2;--primary:#0E2A3F;--onprimary:#FFFFFF;--ok:#0F7B4A;--warn:#8F5600;--bad:#B42318;--info:#1F5FA8;--w1:#DCEBF7;--w2:#9CC6E8;--w3:#4A93C9;--w4:#1D5F96;--road:#C4CDD5;--roadc:#F7F8F9;--route:#0E2A3F}
+.app[data-theme="Night"]{--ground:#080B0E;--surface:#0F141A;--sunk:#18202A;--ink:#D9E1E8;--ink2:#A7B4BF;--ink3:#8D9BA7;--rule:#26313C;--primary:#7FB3D9;--onprimary:#06121C;--ok:#45C08A;--warn:#E0A84A;--bad:#F27566;--info:#8CC0E6;--w1:#0F2436;--w2:#163A57;--w3:#1F5F8E;--w4:#3E86BF;--road:#2B3643;--roadc:#0F141A;--route:#8CC0E6}
+a{color:var(--info)}a:hover{color:var(--ink)}
+.nav a{color:var(--ink2);text-decoration:none}.nav a:hover{color:var(--ink);background:var(--sunk)}
+button{font-family:inherit}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}" style="min-height:100vh;background:var(--ground);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:22px;">
+  <header style="min-height:64px;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:10px 24px;background:var(--surface);border-bottom:2px solid var(--ink);">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="1" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"></rect><path d="M5 15 L11 6 L17 15" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+      <span style="font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;letter-spacing:.2em;font-size:16px;">SENTINEL</span>
+    </div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink2);">KOCHI-SIM-620000 · t = 6 / 16 · Δt 2 min</div>
+    <span style="font-size:12px;font-weight:600;letter-spacing:.06em;padding:2px 8px;border:1px solid var(--ink2);border-radius:4px;">MEDIUM UNCERTAINTY</span>
+    <div style="flex:1 1 40px;"></div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;">14:32:08 IST</div>
+    <button type="button" onClick="{{toggleTheme}}" aria-label="Switch Day or Night theme" style="min-height:36px;padding:0 12px;border:1px solid var(--ink2);border-radius:6px;background:transparent;color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;">{{themeLabel}}</button>
+    <div style="font-size:13px;color:var(--ink2);">Operator 01 · Ernakulam EOC</div>
+  </header>
+  <div role="note" style="background:var(--sunk);border-bottom:1px solid var(--rule);padding:6px 24px;font-size:12px;line-height:16px;letter-spacing:.08em;font-weight:600;color:var(--ink);">REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED</div>
+  <div style="display:flex;flex-wrap:wrap;align-items:flex-start;">
+    <nav class="nav" aria-label="Main" style="flex:1 1 200px;max-width:220px;box-sizing:border-box;padding:20px 12px;display:flex;flex-direction:column;gap:2px;font-size:14px;">
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:8px 10px 4px;">OPERATE</div>
+      <a href="Overview.dc.html" style="padding:8px 10px;border-radius:4px;">Overview</a>
+      <a href="Main.dc.html" style="padding:8px 10px;border-radius:4px;">Live Operations</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">VERIFY</div>
+      <a href="Decisions.dc.html" style="padding:8px 10px;border-radius:4px;">Decisions &amp; Certificates</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">EVIDENCE</div>
+      <a href="Evidence.dc.html" style="padding:8px 10px;border-radius:4px;">Evidence &amp; Results</a>
+      <div style="font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);padding:14px 10px 4px;">SYSTEM</div>
+      <a href="System.dc.html" aria-current="page" style="padding:8px 10px;border-radius:4px;background:var(--primary);color:var(--onprimary);font-weight:600;">System &amp; Hardware</a>
+    </nav>
+    <main style="flex:999 1 560px;min-width:0;box-sizing:border-box;padding:24px;display:flex;flex-direction:column;gap:20px;">
+      <div>
+        <h1 style="margin:0;font-size:28px;line-height:36px;font-weight:600;">System &amp; Hardware</h1>
+        <p style="margin:4px 0 0;font-size:15px;color:var(--ink2);">Set up a scenario, watch the sensors and edge devices, and see how the parts fit together.</p>
+      </div>
+      <div role="tablist" aria-label="System sections" style="display:flex;flex-wrap:wrap;border:2px solid var(--ink);background:var(--surface);">
+        <sc-for list="{{tabs}}" as="tb" hint-placeholder-count="3"><button type="button" role="tab" aria-selected="{{tb.on}}" onClick="{{tb.pick}}" style="{{tb.style}}">{{tb.label}}</button></sc-for>
+      </div>
+      <sc-if value="{{tabScenario}}" hint-placeholder-val="{{true}}">
+        <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start;">
+          <section style="flex:1 1 380px;background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:14px;">
+            <h2 style="margin:0;font-size:16px;font-weight:600;">New scenario</h2>
+            <div style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;">UNCERTAINTY LEVEL</span>
+              <div style="display:flex;border:1px solid var(--ink2);"><sc-for list="{{regimes}}" as="r" hint-placeholder-count="3"><button type="button" onClick="{{r.pick}}" aria-pressed="{{r.on}}" style="{{r.style}}">{{r.label}}</button></sc-for></div>
+              <span style="font-size:13px;color:var(--ink2);">{{regimeNote}}</span>
+            </div>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;letter-spacing:.06em;">SEED<input type="text" value="620000" style="min-height:40px;border:1px solid var(--ink2);border-radius:4px;background:var(--surface);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:0 8px;"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;letter-spacing:.06em;">PLANNER<select style="min-height:40px;border:1px solid var(--ink2);border-radius:4px;background:var(--surface);color:var(--ink);font-family:inherit;font-size:14px;padding:0 8px;"><option>Certified planner (V4 gate)</option><option>MPC (baseline)</option><option>Lookahead-3 (baseline)</option><option>Risk-Greedy (baseline)</option></select></label>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <label style="flex:1 1 120px;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;letter-spacing:.06em;">RISK ε<input type="text" value="0.05" style="min-height:40px;border:1px solid var(--ink2);border-radius:4px;background:var(--surface);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:0 8px;"></label>
+              <label style="flex:1 1 120px;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;letter-spacing:.06em;">CONFIDENCE δ<input type="text" value="0.01" style="min-height:40px;border:1px solid var(--ink2);border-radius:4px;background:var(--surface);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:0 8px;"></label>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button type="button" onClick="{{start}}" style="flex:1 1 140px;min-height:44px;border:0;border-radius:6px;background:var(--primary);color:var(--onprimary);font-weight:600;font-size:14px;cursor:pointer;">Start scenario</button>
+              <a href="Main.dc.html" style="flex:1 1 140px;display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:2px solid var(--ink);border-radius:6px;color:var(--ink);font-weight:600;font-size:14px;text-decoration:none;">Open guided demo</a>
+            </div>
+            <sc-if value="{{started}}" hint-placeholder-val="{{false}}"><div role="status" style="padding:10px;border:1px solid var(--ok);font-size:13px;">Session KOCHI-SIM-620000 started · {{regime}} uncertainty · opening Live Operations…</div></sc-if>
+          </section>
+          <section style="flex:1 1 380px;background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:6px;">
+            <h2 style="margin:0 0 6px;font-size:16px;font-weight:600;">Saved sessions</h2>
+            <sc-for list="{{sessions}}" as="s" hint-placeholder-count="4">
+              <div style="display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule);font-size:14px;">
+                <span style="font-family:'IBM Plex Mono',monospace;font-weight:600;">{{s.id}}</span><span style="color:var(--ink2);">{{s.meta}}</span><span style="flex:1 1 10px;"></span>
+                <button type="button" style="min-height:32px;padding:0 10px;border:1px solid var(--ink2);border-radius:4px;background:transparent;color:var(--ink);font-size:13px;cursor:pointer;">Replay</button>
+              </div>
+            </sc-for>
+          </section>
+        </div>
+      </sc-if>
+      <sc-if value="{{tabHil}}" hint-placeholder-val="{{false}}">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;flex-wrap:wrap;gap:16px;">
+            <sc-for list="{{devices}}" as="d" hint-placeholder-count="4">
+              <div style="flex:1 1 240px;background:var(--surface);border:1px solid var(--rule);border-top:3px solid {{d.color}};padding:14px;display:flex;flex-direction:column;gap:6px;">
+                <div style="display:flex;justify-content:space-between;gap:8px;"><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;">{{d.id}}</span><span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:{{d.color}};">{{d.state}}</span></div>
+                <div style="font-size:14px;font-weight:600;">{{d.name}}</div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:22px;line-height:30px;">{{d.reading}}</div>
+                <div style="font-size:12px;color:var(--ink2);">{{d.meta}}</div>
+              </div>
+            </sc-for>
+          </div>
+          <section style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:8px;">
+            <h2 style="margin:0;font-size:16px;font-weight:600;">Actuator command log</h2>
+            <div style="font-size:13px;color:var(--ink2);">The relay / SMS actuator only executes commands that carry a valid certificate id.</div>
+            <sc-for list="{{cmds}}" as="c" hint-placeholder-count="4">
+              <div style="display:flex;flex-wrap:wrap;gap:4px 14px;padding:8px 0;border-bottom:1px solid var(--rule);font-size:14px;"><span style="font-family:'IBM Plex Mono',monospace;color:var(--ink2);min-width:80px;">{{c.time}}</span><span style="flex:1 1 260px;">{{c.what}}</span><span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:{{c.color}};">{{c.res}}</span></div>
+            </sc-for>
+          </section>
+        </div>
+      </sc-if>
+      <sc-if value="{{tabArch}}" hint-placeholder-val="{{false}}">
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <section style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:10px;">
+            <h2 style="margin:0;font-size:16px;font-weight:600;">How a suggestion becomes a dispatch</h2>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;">
+              <sc-for list="{{pipe}}" as="p" hint-placeholder-count="6">
+                <div style="flex:1 1 150px;border:2px solid var(--ink);padding:10px;display:flex;flex-direction:column;gap:4px;"><span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--ink3);">{{p.n}}</span><span style="font-weight:600;">{{p.t}}</span><span style="font-size:13px;color:var(--ink2);">{{p.d}}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink3);">{{p.code}}</span></div>
+              </sc-for>
+            </div>
+          </section>
+          <section style="background:var(--surface);border:1px solid var(--rule);padding:16px;display:flex;flex-direction:column;gap:10px;">
+            <h2 style="margin:0;font-size:16px;font-weight:600;">Site map</h2>
+            <div style="overflow:auto;border:2px solid var(--ink);">
+              <svg role="img" aria-label="Site map: five pages connected to Overview and Live Operations" width="880" height="360" viewBox="0 0 880 360" style="display:block;">
+                <defs><pattern id="sg" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0 L0 0 0 40" fill="none" style="stroke:var(--rule)" stroke-width="0.6"></path></pattern></defs>
+                <rect width="880" height="360" fill="url(#sg)"></rect>
+                <path d="M150 180 L380 180 M380 180 L620 80 M380 180 L620 180 M380 180 L620 280" fill="none" style="stroke:var(--road)" stroke-width="12" stroke-linecap="round"></path>
+                <path d="M150 180 L380 180 M380 180 L620 80 M380 180 L620 180 M380 180 L620 280" fill="none" style="stroke:var(--roadc)" stroke-width="1" stroke-dasharray="6 6"></path>
+                <g fill="none" style="stroke:var(--ink)" stroke-width="1.5" stroke-dasharray="7 5"><rect x="40" y="110" width="440" height="140"></rect><rect x="540" y="30" width="300" height="300"></rect></g>
+                <g style="fill:var(--ink)" font-family="IBM Plex Sans Condensed, sans-serif" font-size="12" font-weight="700" letter-spacing="1.2"><text x="48" y="128">OPERATE</text><text x="548" y="48">VERIFY · EVIDENCE · SYSTEM</text></g>
+                <g font-family="IBM Plex Sans Condensed, sans-serif" font-size="12" font-weight="700" letter-spacing="1">
+                  <rect x="143" y="173" width="14" height="14" style="fill:var(--ink)"></rect><rect x="160" y="146" width="90" height="18" style="fill:var(--surface);stroke:var(--ink)"></rect><text x="166" y="159" style="fill:var(--ink)">1 OVERVIEW</text>
+                  <circle cx="380" cy="180" r="18" fill="none" style="stroke:var(--ok)" stroke-width="3"></circle><rect x="373" y="173" width="14" height="14" style="fill:var(--ink)"></rect><rect x="390" y="140" width="138" height="18" style="fill:var(--primary)"></rect><text x="396" y="153" style="fill:var(--onprimary)">2 LIVE OPERATIONS</text>
+                  <rect x="613" y="73" width="14" height="14" style="fill:var(--ink)"></rect><rect x="632" y="62" width="170" height="18" style="fill:var(--surface);stroke:var(--ink)"></rect><text x="638" y="75" style="fill:var(--ink)">3 DECISIONS &amp; CERTIFICATES</text>
+                  <rect x="613" y="173" width="14" height="14" style="fill:var(--ink)"></rect><rect x="632" y="162" width="140" height="18" style="fill:var(--surface);stroke:var(--ink)"></rect><text x="638" y="175" style="fill:var(--ink)">4 EVIDENCE &amp; RESULTS</text>
+                  <rect x="613" y="273" width="14" height="14" style="fill:var(--ink)"></rect><rect x="632" y="262" width="140" height="18" style="fill:var(--surface);stroke:var(--ink)"></rect><text x="638" y="275" style="fill:var(--ink)">5 SYSTEM &amp; HARDWARE</text>
+                </g>
+                <g font-family="IBM Plex Mono, monospace" font-size="11" style="fill:var(--ink2)"><text x="632" y="98">why · certificate &amp; replay · audit</text><text x="632" y="198">NDMA rules · results · about</text><text x="632" y="298">scenario · hardware · architecture</text><text x="390" y="214">map · suggestion · gate · decide</text></g>
+              </svg>
+            </div>
+          </section>
+        </div>
+      </sc-if>
+
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Day","Night"],"default":"Day"},"$preview":{"width":1440,"height":1240}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'scenario', regime: 'MEDIUM', started: false, themeOverride: null }; }
+  renderVals() {
+    const theme = this.state.themeOverride || this.props.theme || 'Day';
+    const notes = { LOW: 'Few closures, slow water rise — most options certify quickly.', MEDIUM: 'Some closures and a shelter failure — the guided demo uses this level.', HIGH: 'Fast rise, many closures — expect more UNDECIDED and HOLD.' };
+    const regimes = ['LOW', 'MEDIUM', 'HIGH'].map((r) => ({ label: r, on: this.state.regime === r, pick: () => this.setState({ regime: r, started: false }), style: 'flex:1 1 0;min-height:40px;border:0;cursor:pointer;font-size:13px;font-weight:700;letter-spacing:.06em;' + (this.state.regime === r ? 'background:var(--ink);color:var(--surface);' : 'background:transparent;color:var(--ink);') }));
+    const sessions = [['KOCHI-SIM-620000', 'MEDIUM · certified · t 10/16 · 4 certs'], ['KOCHI-SIM-620001', 'HIGH · certified · t 16/16 · 9 certs'], ['KOCHI-SIM-610042', 'MEDIUM · MPC baseline · t 16/16'], ['KOCHI-SIM-600007', 'LOW · certified · t 16/16 · 6 certs']].map((s) => ({ id: s[0], meta: s[1] }));
+    const col = { ONLINE: 'var(--ok)', DEGRADED: 'var(--warn)', OFFLINE: 'var(--bad)' };
+    const devices = [
+      ['WL-02', 'Water level · ESP32 ultrasonic', '1.42 m', 'ONLINE', 'age 4 s · rising 6 cm/min'],
+      ['PC-04', 'People counter · S-04 entrance', '88 in', 'ONLINE', 'IR beam pair · age 2 s'],
+      ['EDGE-01', 'Raspberry Pi gate node', 'p95 61 ms', 'ONLINE', 'MQTT broker · 512 futures/decision'],
+      ['WL-05', 'Water level · near S-01', 'stale', 'DEGRADED', 'no reading for 38 s · margin widened']
+    ].map((d) => ({ id: d[0], name: d[1], reading: d[2], state: d[3], meta: d[4], color: col[d[3]] }));
+    const cmds = [['14:36:12', 'VEH-14 route Z-02 → S-05 · CERT-000128', 'EXECUTED', 'var(--ok)'], ['14:34:53', 'S-04 seat reservation +40 · CERT-000127', 'EXECUTED', 'var(--ok)'], ['14:33:20', 'Siren relay ZONE-04 · no certificate id', 'REJECTED', 'var(--bad)'], ['14:31:41', 'VEH-09 reroute → S-04 · CERT-000126', 'EXECUTED', 'var(--ok)']].map((c) => ({ time: c[0], what: c[1], res: c[2], color: c[3] }));
+    const pipe = [
+      ['1', 'Sense', 'Sensors + simulator state', 'src/hil · src/sim'], ['2', 'Forecast', 'Keyed hazard futures (same for every option)', 'src/certify/futures'], ['3', 'Suggest', 'Planner ranks dispatch options', 'src/planners'],
+      ['4', 'Certify', 'Joint arrival-time check, fail-closed bound', 'src/certify/certifier'], ['5', 'Decide', 'Operator accepts / overrides / rejects', 'web · src/api'], ['6', 'Commit', 'Atomic ledger + certificate + commands', 'src/certify/gate']
+    ].map((p) => ({ n: 'STEP ' + p[0], t: p[1], d: p[2], code: p[3] }));
+    const tabNames = [['scenario', 'Scenario control'], ['hil', 'Hardware-in-the-loop'], ['arch', 'Architecture & site map']];
+    const tabs = tabNames.map(([id, label]) => ({ label, on: this.state.tab === id, pick: () => this.setState({ tab: id }), style: 'flex:1 1 160px;min-height:42px;border:0;cursor:pointer;font-size:14px;font-weight:600;' + (this.state.tab === id ? 'background:var(--ink);color:var(--surface);' : 'background:transparent;color:var(--ink);') }));
+    return {
+      theme, themeLabel: theme === 'Night' ? 'Day theme' : 'Night theme', toggleTheme: () => this.setState({ themeOverride: theme === 'Night' ? 'Day' : 'Night' }),
+      tabs, tabScenario: this.state.tab === 'scenario', tabHil: this.state.tab === 'hil', tabArch: this.state.tab === 'arch',
+      regimes, regime: this.state.regime, regimeNote: notes[this.state.regime], started: this.state.started, start: () => this.setState({ started: true }),
+      sessions, devices, cmds, pipe
+    };
+  }
+}
+</script>
+</body>
+</html>
