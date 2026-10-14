@@ -1,6 +1,6 @@
 # V4_CLAIM_SUPPORT_14B_SPEC — Phase 14B: rebuild provider, run, score
 
-Lane X (Builder X) · branch `builder-x/m14b-claim-support` · tests `tests/test_p14b_claim_support.py`
+Lane X · branch `lane-x/m14b-claim-support` · tests `tests/test_p14b_claim_support.py`
 Protocol authority: `V3_CLAIM_SUPPORT_SPEC.md` (frozen). This spec **adds no protocol change**; it
 records the run amendment below and specifies the missing code.
 

@@ -1,4 +1,4 @@
-// Phase 31 acceptance (Lead). Builder X copies this file UNCHANGED to web/e2e/p31_guided_demo.spec.ts.
+// Phase 31 acceptance (Lead). the Lane X agent copies this file UNCHANGED to web/e2e/p31_guided_demo.spec.ts.
 // Runs against the dev server in mock mode (VITE_API_MOCK=1) or against the real API in fixture mode.
 import { expect, test } from '@playwright/test';
 

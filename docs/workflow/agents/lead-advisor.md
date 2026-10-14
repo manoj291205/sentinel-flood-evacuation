@@ -36,7 +36,7 @@ raise `walk_in_rate`, lower `evacuation_speed_cap_kph`, `dt = 1`, wider graph; G
   `data/geospatial_v3/**`);
 - the decision changes the patent direction, drops a claimed element, or is the D-27 lead-claim choice;
 - it needs money, accounts, hardware purchases, API keys, or anything outside the repo;
-- it touches Lane X (Builder X) files or `builder-x/*` branches;
+- it touches Lane X files or `lane-x/*` branches;
 - two honest attempts of yours also fail.
 
 Keep replies short: decision/fix summary, files changed, test results, any NEEDS_HUMAN line.

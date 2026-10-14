@@ -2,7 +2,7 @@
 
 Confidential. This is the reference design for the V4 web console (Phases 31–33). The live, interactive
 version is a private the design tool artifact owned by the project lead; these files are its source so that
-every builder (Builder S and Builder X) can read it from the repo.
+every builder (Builder S and the Lane X agent) can read it from the repo.
 
 | File | Page |
 |---|---|
