@@ -5,7 +5,7 @@ name: tests
 # arithmetic, eval-suite integrity) are all pure logic.
 on:
   push:
-    branches: [main, "m*", "builder-x/**"]
+    branches: [main, "m*", "lane-x/**"]
   pull_request:
   workflow_dispatch:
 
