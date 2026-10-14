@@ -41,10 +41,10 @@ def load_evidence():
     from src.rag.ingest import chunk_page
 
     base = ROOT / "data/eval_v3/phase13"
-    with (base / "ai_assisted_passage_labels_extended.csv").open() as handle:
+    with (base / "ai_assisted_passage_labels_extended.csv").open(encoding="utf-8") as handle:
         grades = {(row["question_id"], row["chunk_id"]): int(row["ai_relevance_grade"])
                   for row in csv.DictReader(handle)}
-    with (base / "phase13b_rankings_v2.csv").open() as handle:
+    with (base / "phase13b_rankings_v2.csv").open(encoding="utf-8") as handle:
         rows = sorted((row for row in csv.DictReader(handle)
                        if row["question_id"] == "Q015" and row["method_id"] == "hybrid-rrf-v1"),
                       key=lambda row: int(row["rank"]))

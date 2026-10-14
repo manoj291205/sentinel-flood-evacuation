@@ -236,7 +236,7 @@ def test_dashboard_reject_without_reason_reports_validation_error():
 
 
 def test_feature_has_no_gemini_or_network_integration():
-    source = (ROOT / "src/human_decision.py").read_text() + (ROOT / "review_dashboard.py").read_text()
+    source = (ROOT / "src/human_decision.py").read_text(encoding="utf-8") + (ROOT / "review_dashboard.py").read_text(encoding="utf-8")
     for forbidden in (
         "google.genai",
         "call_gemini",

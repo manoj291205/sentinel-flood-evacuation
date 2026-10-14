@@ -32,12 +32,12 @@ EXAMPLE = ROOT / "data" / "scenarios_v3" / "example_v3_scenario.json"
 
 @pytest.fixture
 def raw() -> dict:
-    return json.loads(EXAMPLE.read_text())
+    return json.loads(EXAMPLE.read_text(encoding="utf-8"))
 
 
 @pytest.fixture
 def scenario() -> ScenarioV3:
-    return ScenarioV3.from_dict(json.loads(EXAMPLE.read_text()))
+    return ScenarioV3.from_dict(json.loads(EXAMPLE.read_text(encoding="utf-8")))
 
 
 def _scenario(raw: dict, *, z1_population: int | None = None) -> ScenarioV3:

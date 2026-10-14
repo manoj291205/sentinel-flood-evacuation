@@ -275,7 +275,7 @@ def main() -> int:
         "ppo_training_performed": False,
         "reward_weights_selected_from_results": False,
     }
-    OUTPUT.write_text(json.dumps(artifact, indent=2, sort_keys=True) + "\n")
+    OUTPUT.write_text(json.dumps(artifact, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"reward configs: {', '.join(sorted(REWARD_CONFIGS))}")
     print(f"micro-case checks: {sum(checks.values())}/{len(checks)} PASS")
     print(

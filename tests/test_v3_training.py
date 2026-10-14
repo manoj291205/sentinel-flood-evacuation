@@ -43,7 +43,7 @@ MODELS = ROOT / "models" / "v3"
 
 
 def load_json(path: Path):
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def test_training_config_is_frozen_versioned_and_exact_budget():

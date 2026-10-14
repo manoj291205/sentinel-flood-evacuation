@@ -38,7 +38,7 @@ FORBIDDEN_FRAGMENTS = (
 
 
 def main() -> int:
-    with SOURCE.open(newline="") as handle:
+    with SOURCE.open(newline="", encoding="utf-8") as handle:
         source_rows = list(csv.DictReader(handle))
     if len(source_rows) != 485:
         raise ValueError(f"expected 485 retained passages, got {len(source_rows)}")
@@ -90,7 +90,7 @@ def main() -> int:
     }:
         raise ValueError("blind payload query-style balance changed")
 
-    OUTPUT.write_text("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in payload))
+    OUTPUT.write_text("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in payload), encoding="utf-8")
     print(f"Wrote {len(payload)} blind question-passage pairs for {len(question_rows)} questions")
     print("Included fields: " + ", ".join(ALLOWED_FIELDS))
     return 0

@@ -17,11 +17,11 @@ from .training import DATA_DIR, MODEL_DIR, model_metadata
 
 
 def _read_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def _write_json(path: Path, payload: Any) -> None:
-    path.write_text(json.dumps(payload, indent=2) + "\n")
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
 
 def _sha256(path: Path) -> str:
@@ -89,7 +89,7 @@ def _write_learning_csv(individual: list[dict[str, Any]], aggregate: list[dict[s
         combined = dict(row)
         combined.update(aggregate_by_timestep[row["timestep"]])
         rows.append(combined)
-    with (DATA_DIR / "learning_curves.csv").open("w", newline="") as handle:
+    with (DATA_DIR / "learning_curves.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
@@ -166,7 +166,7 @@ def _svg_learning_curves(individual: list[dict[str, Any]], aggregate: list[dict[
             '</svg>',
         ]
     )
-    (DATA_DIR / "learning_curves.svg").write_text("\n".join(pieces) + "\n")
+    (DATA_DIR / "learning_curves.svg").write_text("\n".join(pieces) + "\n", encoding="utf-8")
 
 
 def finalize_training_artifacts() -> dict[str, Any]:

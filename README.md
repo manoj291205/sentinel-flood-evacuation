@@ -176,12 +176,13 @@ v3-dynamic-stochastic
 | 12    | Dense + BM25 + hybrid retrieval                        | ✅ Complete |
 | 13    | AI-assisted retrieval benchmark                        | ✅ Complete |
 | 14A   | Construction-labeled claim-support challenge           | ✅ Complete |
-| 14B   | Semantic claim-support evaluation                      | ⏸ API quota |
-| 15    | Evidence-grounded policy constraint integration        | ⏳ Planned  |
+| 14B   | Semantic claim-support evaluation                      | ⏸ Paused   |
+| 15    | Re-scoped to 15′ (tier-verified constraints)           | ⏳ Planned  |
 | 16    | Cached geospatial road graph and routing engine        | ✅ Complete |
 | 17    | Dynamic hazard-aware graph routing integration         | ✅ Complete |
 | 18    | Human-in-the-loop override and session audit trail     | ✅ Complete |
-| 19–20 | Final review dashboard and presentation verification    | ✅ Complete |
+| 19    | Streamlit review dashboard (legacy)                    | ✅ Complete |
+| 20    | Verified baseline (frozen-artifact guard, UTF-8, CI)   | ✅ Complete |
 
 ---
 
@@ -504,15 +505,15 @@ The simulator, safety layer, and action masks therefore maintained their intende
 
 ## Testing
 
-The full offline regression suite in the isolated simulation branch was verified with
+The full offline regression suite was verified on Windows without `PYTHONUTF8` with
 `python -m pytest tests/ -ra`:
 
 ```text
-735 passed, 0 skipped
+841 passed, 46 xfailed
 ```
 
-This count covers this branch’s tracked tests; paused Phase 14B runtime/test changes
-in the primary checkout were not copied into the simulation worktree.
+The 46 xfailed tests are V4 acceptance tests for milestones not yet built. Phase 14B
+(paused) runtime/test changes are not part of this count.
 
 Coverage includes:
 
@@ -626,3 +627,9 @@ It is **not**:
 - validated for real-world evacuation deployment.
 
 The current evaluation demonstrates behavior only within the project's controlled synthetic experimental environment.
+
+---
+
+## V4 Roadmap
+
+V4 roadmap: private, see `docs/patent-roadmap/`.

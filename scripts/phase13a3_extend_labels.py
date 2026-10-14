@@ -261,7 +261,7 @@ def canonical_rows_bytes(
 
 
 def write_csv(path: Path, fields: Sequence[str], rows: Sequence[Mapping[str, str]]) -> None:
-    with path.open("w", newline="") as handle:
+    with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
@@ -270,7 +270,7 @@ def write_csv(path: Path, fields: Sequence[str], rows: Sequence[Mapping[str, str
 def load_and_verify_gaps() -> list[dict]:
     if file_sha256(GAP_PATH) != GAP_ARTIFACT_SHA256:
         raise ValueError("Phase 13B gap artifact differs from the frozen preflight commit")
-    artifact = json.loads(GAP_PATH.read_text())
+    artifact = json.loads(GAP_PATH.read_text(encoding="utf-8"))
     gate = artifact.get("coverage_gate", {})
     if (
         artifact.get("phase13b_status") != "NEEDS_LABEL_COVERAGE_EXTENSION"
@@ -595,7 +595,7 @@ def main() -> int:
         "reranker_added": False,
     }
     EXTENDED_MANIFEST_PATH.write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n"
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
 
     print(f"Extension rows: {len(extension_rows)}")

@@ -11,7 +11,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 warnings.filterwarnings("ignore")
 ROOT = Path(__file__).resolve().parents[1]
-D = json.loads((ROOT / "data/eval_results/gate1a5_tail_check.json").read_text())
+D = json.loads((ROOT / "data/eval_results/gate1a5_tail_check.json").read_text(encoding="utf-8"))
 rows, lat = D["rows"], D["latency_seconds_per_decision"]
 POLICIES = list(rows[0]["scores"])
 W = 84
@@ -127,4 +127,4 @@ print("\n" + "=" * W); print(f"VERDICT: {verdict}"); print("=" * W)
                      "structured": bool(structured)},
     "q4_latency": q4, "rl_reference_ms": (rl_lat * 1e3) if rl_lat else None,
     "strongest_planner": best, "verdict": verdict,
-}, indent=2) + "\n")
+}, indent=2) + "\n", encoding="utf-8")

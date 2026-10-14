@@ -54,13 +54,13 @@ FINGERPRINT = "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753"
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
-    with path.open(newline="") as handle:
+    with path.open(newline="", encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
 
 
 @pytest.fixture(scope="module")
 def payload() -> list[dict[str, str]]:
-    return [json.loads(line) for line in PAYLOAD_PATH.read_text().splitlines() if line]
+    return [json.loads(line) for line in PAYLOAD_PATH.read_text(encoding="utf-8").splitlines() if line]
 
 
 @pytest.fixture(scope="module")
@@ -70,7 +70,7 @@ def labels() -> list[dict[str, str]]:
 
 @pytest.fixture(scope="module")
 def manifest() -> dict:
-    return json.loads(MANIFEST_PATH.read_text())
+    return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
 
 @pytest.fixture(scope="module")
@@ -290,13 +290,13 @@ def test_weighted_kappa_synthetic_disagreement():
 
 
 def test_spotcheck_has_five_examples_per_grade():
-    text = (ROOT / "V3_RETRIEVAL_AI_LABEL_SPOTCHECK.md").read_text()
+    text = (ROOT / "V3_RETRIEVAL_AI_LABEL_SPOTCHECK.md").read_text(encoding="utf-8")
     assert text.count("\n## ") == 15
     assert all(text.count(f"**AI grade:** {grade}") == 5 for grade in (0, 1, 2))
 
 
 def test_spotcheck_does_not_claim_human_review():
-    text = (ROOT / "V3_RETRIEVAL_AI_LABEL_SPOTCHECK.md").read_text()
+    text = (ROOT / "V3_RETRIEVAL_AI_LABEL_SPOTCHECK.md").read_text(encoding="utf-8")
     assert "AI-assisted and have not been human reviewed" in text
 
 
@@ -338,7 +338,7 @@ def test_no_reranker_was_added():
 
 
 def test_amendment_preserves_human_benchmark_history_and_discloses_limitation():
-    text = " ".join(AMENDMENT_PATH.read_text().split())
+    text = " ".join(AMENDMENT_PATH.read_text(encoding="utf-8").split())
     assert "originally planned human-gold benchmark cannot honestly be completed" in text
     assert "AI-assisted relevance benchmark" in text
     assert "does not have the same evidentiary strength" in text
@@ -346,6 +346,6 @@ def test_amendment_preserves_human_benchmark_history_and_discloses_limitation():
 
 
 def test_documentation_prominently_discloses_ai_assisted_passage_labels():
-    text = DOCUMENTATION_PATH.read_text()
+    text = DOCUMENTATION_PATH.read_text(encoding="utf-8")
     assert "passage-level relevance judgments are AI-assisted" in text
     assert "not independently human annotated" in text

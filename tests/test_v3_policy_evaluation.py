@@ -49,7 +49,7 @@ RAW_RESULTS = ROOT / "data" / "eval_v3" / "phase10" / "heldout_raw_results.json"
 
 @pytest.fixture(scope="module")
 def manifest():
-    return json.loads(MANIFEST.read_text())
+    return json.loads(MANIFEST.read_text(encoding="utf-8"))
 
 
 @pytest.fixture(scope="module")
@@ -64,7 +64,7 @@ def first_generated(manifest):
 
 @pytest.fixture(scope="module")
 def raw_results():
-    return json.loads(RAW_RESULTS.read_text())["rows"]
+    return json.loads(RAW_RESULTS.read_text(encoding="utf-8"))["rows"]
 
 
 def test_phase10_counts_and_seeds_are_frozen():
@@ -153,21 +153,21 @@ def test_recorded_physical_metrics_and_mechanical_integrity(raw_results):
         assert row["unsafe_dispatches"] == 0
         if row["policy"] == "ppo":
             assert row["invalid_masked_actions"] == 0
-    latency = json.loads((ROOT / "data" / "eval_v3" / "phase10" / "latency_results.json").read_text())
+    latency = json.loads((ROOT / "data" / "eval_v3" / "phase10" / "latency_results.json").read_text(encoding="utf-8"))
     assert all(value["n"] >= 1_000 for value in latency["policies"].values())
 
 
 def test_result_artifacts_record_normalisation_bootstrap_and_frozen_outcome():
     output = ROOT / "data" / "eval_v3" / "phase10"
     for path in output.glob("*.json"):
-        payload = json.loads(path.read_text())
+        payload = json.loads(path.read_text(encoding="utf-8"))
         assert payload.get("normalisation", payload.get("metadata", {}).get("normalisation")) == "practical"
-    bootstrap = json.loads((output / "pairwise_bootstrap.json").read_text())
+    bootstrap = json.loads((output / "pairwise_bootstrap.json").read_text(encoding="utf-8"))
     for interval in bootstrap["combined"]["effects"].values():
         assert interval["valid_draws"] == 10_000
         assert interval["invalid_draws"] == 0
         assert interval["lower"] <= interval["estimate"] <= interval["upper"]
-    summary = json.loads((output / "heldout_summary.json").read_text())
+    summary = json.loads((output / "heldout_summary.json").read_text(encoding="utf-8"))
     assert summary["formal_result"] == "NO"
 
 
@@ -326,7 +326,7 @@ def test_permutation_remaps_actions_and_preserves_paired_dynamics(first_generate
 def test_phase9_alarm_thresholds_are_not_relaxed():
     assert FROZEN_PHASE10_CONFIG.material_nsu == 0.02
     assert FROZEN_PHASE10_CONFIG.material_exposure_reduction == 0.05
-    manifest = json.loads((ROOT / "data" / "eval_v3" / "phase10" / "permutation_manifest.json").read_text())
+    manifest = json.loads((ROOT / "data" / "eval_v3" / "phase10" / "permutation_manifest.json").read_text(encoding="utf-8"))
     assert manifest["alarm"]["median_absolute_normalised_return_difference"] == 0.05
     assert manifest["alarm"]["mean_absolute_safe_population_difference"] == 0.05
 
@@ -345,8 +345,8 @@ def test_threshold_logic_is_independent_of_model_performance():
 
 
 def test_phase10_source_has_no_learning_call():
-    source = (ROOT / "scripts" / "run_phase10.py").read_text()
-    package = "\n".join(path.read_text() for path in (ROOT / "src" / "evaluation_v3").glob("*.py"))
+    source = (ROOT / "scripts" / "run_phase10.py").read_text(encoding="utf-8")
+    package = "\n".join(path.read_text(encoding="utf-8") for path in (ROOT / "src" / "evaluation_v3").glob("*.py"))
     forbidden = "." + "learn("
     assert forbidden not in source
     assert forbidden not in package

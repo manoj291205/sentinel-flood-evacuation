@@ -20,7 +20,7 @@ def main() -> None:
     }
     for name, payload in artifacts.items():
         path = OUTPUT / name
-        path.write_text(json.dumps(payload, indent=2) + "\n")
+        path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
         print(f"wrote {path.relative_to(ROOT)}")
 
 

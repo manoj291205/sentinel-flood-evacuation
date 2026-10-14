@@ -431,9 +431,9 @@ def main() -> int:
     dump_suite(EXACT_SUITE_PATH, "exact")
     dump_suite(PRACTICAL_SUITE_PATH, "practical")
     summary = summarize(exact, practical)
-    EXACT_PATH.write_text(json.dumps(exact, indent=2) + "\n")
-    PRACTICAL_PATH.write_text(json.dumps(practical, indent=2) + "\n")
-    SUMMARY_PATH.write_text(json.dumps(summary, indent=2) + "\n")
+    EXACT_PATH.write_text(json.dumps(exact, indent=2) + "\n", encoding="utf-8")
+    PRACTICAL_PATH.write_text(json.dumps(practical, indent=2) + "\n", encoding="utf-8")
+    SUMMARY_PATH.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2))
     return 0
 

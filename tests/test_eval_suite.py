@@ -16,7 +16,7 @@ SUITE = Path(__file__).resolve().parents[1] / "data" / "eval_scenarios.json"
 def suite():
     if not SUITE.exists():
         pytest.skip("eval suite not generated")
-    return json.loads(SUITE.read_text())
+    return json.loads(SUITE.read_text(encoding="utf-8"))
 
 
 def test_suite_declares_its_generation_distribution(suite):

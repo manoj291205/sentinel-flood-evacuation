@@ -53,7 +53,7 @@ def corpus_fingerprint(documents: Iterable[dict[str, Any]]) -> str:
 
 
 def load_manifest(path: Path = MANIFEST_PATH) -> dict[str, Any]:
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def canonical_documents(manifest: dict[str, Any] | None = None) -> list[dict[str, Any]]:

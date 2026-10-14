@@ -218,7 +218,7 @@ def main() -> int:
     failed = [key for key, value in artifact.items() if value == "FAIL"]
     if failed:
         raise AssertionError(f"Phase 7 sanity failures: {failed}")
-    OUTPUT.write_text(json.dumps(artifact, indent=2, sort_keys=True) + "\n")
+    OUTPUT.write_text(json.dumps(artifact, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"wrote {OUTPUT.relative_to(ROOT)}")
     return 0
 

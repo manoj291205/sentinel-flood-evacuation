@@ -74,7 +74,7 @@ def get_constraints() -> dict | None:
         return None
     import json
 
-    return json.loads(CACHE_PATH.read_text())
+    return json.loads(CACHE_PATH.read_text(encoding="utf-8"))
 
 
 @st.cache_resource

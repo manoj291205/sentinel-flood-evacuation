@@ -385,7 +385,7 @@ def test_different_planner_actions_preserve_paired_exogenous_world():
 
 
 def test_committed_gate6_summary_matches_frozen_gate():
-    payload = json.loads((ROOT / "data" / "eval_v3" / "gate6_summary.json").read_text())
+    payload = json.loads((ROOT / "data" / "eval_v3" / "gate6_summary.json").read_text(encoding="utf-8"))
     assert payload["exact_units"] == 120
     assert payload["invalid_normalization_units"] == 0
     assert payload["oracle_timeouts"] == 0

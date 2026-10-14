@@ -111,7 +111,7 @@ class IncompleteLabelCoverageError(RuntimeError):
 
 
 def read_csv_rows(path: Path) -> list[dict[str, str]]:
-    with path.open(newline="") as handle:
+    with path.open(newline="", encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
 
 
@@ -177,7 +177,7 @@ def verify_frozen_inputs() -> tuple[
     dict[str, CanonicalChunk],
 ]:
     """Fail before retrieval if any frozen Phase 11/12/13 identity has drifted."""
-    label_manifest = json.loads(LABEL_MANIFEST_PATH.read_text())
+    label_manifest = json.loads(LABEL_MANIFEST_PATH.read_text(encoding="utf-8"))
     expected_manifest_values = {
         "benchmark_version": BENCHMARK_VERSION,
         "label_protocol_version": LABEL_PROTOCOL,
@@ -406,7 +406,7 @@ def main() -> int:
         construct_frozen_retrievers(prepared),
         catalog,
     )
-    OUTPUT_PATH.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+    OUTPUT_PATH.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     gate = report["coverage_gate"]
     print(f"Wrote {OUTPUT_PATH}")
     print(

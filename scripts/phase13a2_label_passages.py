@@ -150,7 +150,7 @@ STOPWORDS = set(
 def read_payload() -> list[dict[str, str]]:
     if hashlib.sha256(PAYLOAD_PATH.read_bytes()).hexdigest() != BLIND_PAYLOAD_SHA256:
         raise ValueError("blind payload differs from the exact question/passage text reviewed")
-    rows = [json.loads(line) for line in PAYLOAD_PATH.read_text().splitlines() if line]
+    rows = [json.loads(line) for line in PAYLOAD_PATH.read_text(encoding="utf-8").splitlines() if line]
     expected = {
         "question_id", "effective_question", "topic", "query_style", "chunk_id",
         "source_id", "filename", "page", "original_text",
@@ -257,7 +257,7 @@ def weighted_kappa(first: list[int], second: list[int]) -> float:
 
 
 def write_csv(path: Path, fields: tuple[str, ...], rows: list[dict[str, str]]) -> None:
-    with path.open("w", newline="") as handle:
+    with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
@@ -298,7 +298,7 @@ def write_spotcheck(labels: list[dict[str, str]], fingerprint: str) -> None:
             "> " + row["original_text"].replace("\n", " ").rstrip(),
             "",
         ])
-    SPOTCHECK_PATH.write_text("\n".join(lines).rstrip() + "\n")
+    SPOTCHECK_PATH.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
 
 
 def main() -> int:
@@ -402,7 +402,7 @@ def main() -> int:
         "official_retrieval_metrics_calculated": False,
         "phase13b_started": False,
     }
-    MANIFEST_PATH.write_text(json.dumps(manifest, indent=2) + "\n")
+    MANIFEST_PATH.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     write_spotcheck(labels, fingerprint)
 
     print(f"Labeled {len(labels)} passages across {len(question_ids)} questions")

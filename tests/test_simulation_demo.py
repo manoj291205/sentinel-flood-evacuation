@@ -244,7 +244,7 @@ def test_runtime_is_offline_and_phase14_artifacts_untouched(monkeypatch):
     session.export_csv(); session.export_json()
     assert snapshot() == before
     for relative in ("simulation_demo.py", "src/simulation_session.py", "src/simulation_views.py"):
-        source = (ROOT / relative).read_text()
+        source = (ROOT / relative).read_text(encoding="utf-8")
         assert "google.genai" not in source and "from google import genai" not in source
         assert "requests." not in source and "httpx." not in source
 

@@ -186,7 +186,7 @@ def main() -> int:
         "config": dict(gc.CFG), "n": N_INSTANCES, "seed": gc.SEED,
         "latency_seconds_per_decision": {k: statistics.fmean(v) for k, v in lat.items()},
         "rows": rows,
-    }, indent=2) + "\n")
+    }, indent=2) + "\n", encoding="utf-8")
     print(f"wrote {OUT.name} ({time.time()-t_start:.0f}s total)")
     return 0
 

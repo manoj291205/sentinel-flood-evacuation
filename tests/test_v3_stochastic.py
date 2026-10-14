@@ -51,7 +51,7 @@ EXAMPLE = ROOT / "data" / "scenarios_v3" / "example_v3_scenario.json"
 
 @pytest.fixture
 def raw() -> dict:
-    return json.loads(EXAMPLE.read_text())
+    return json.loads(EXAMPLE.read_text(encoding="utf-8"))
 
 
 @pytest.fixture
@@ -643,7 +643,7 @@ def test_config_serialization_contains_units_parameters_and_disclaimer():
 
 def test_process_sanity_artifact_is_ordered_and_nondegenerate():
     payload = json.loads(
-        (ROOT / "data" / "eval_v3" / "phase4_stochastic_sanity.json").read_text()
+        (ROOT / "data" / "eval_v3" / "phase4_stochastic_sanity.json").read_text(encoding="utf-8")
     )
     by_id = {item["config_id"]: item for item in payload["configs"]}
     low = by_id[LOW.config_id]

@@ -71,13 +71,13 @@ COMBINED_SHA256 = "3bbaf030673b76e573c6f721142ac39f8f8f98a2a5985f55b8c6d1210bfa2
 
 
 def csv_rows(path: Path) -> list[dict[str, str]]:
-    with path.open(newline="") as handle:
+    with path.open(newline="", encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
 
 
 @pytest.fixture(scope="module")
 def result() -> dict:
-    return json.loads(RESULT_PATH.read_text())
+    return json.loads(RESULT_PATH.read_text(encoding="utf-8"))
 
 
 @pytest.fixture(scope="module")
@@ -307,7 +307,7 @@ def test_no_phase13b_output_duplicates_full_passage_text():
     for path in PHASE13.glob("phase13b*.*"):
         if path.suffix not in {".json", ".csv"}:
             continue
-        payload = path.read_text()
+        payload = path.read_text(encoding="utf-8")
         assert '"original_text"' not in payload
         assert '"passage_text"' not in payload
         if path.name != "phase13b_label_coverage_gaps.json":
@@ -326,7 +326,7 @@ def test_parent_extension_and_combined_label_files_are_unchanged():
 
 
 def test_extended_manifest_still_denies_human_gold_and_metric_execution():
-    manifest = json.loads(EXTENDED_MANIFEST_PATH.read_text())
+    manifest = json.loads(EXTENDED_MANIFEST_PATH.read_text(encoding="utf-8"))
     assert manifest["independent_human_annotation"] is False
     assert manifest["human_passage_labels_created"] == 0
     assert manifest["official_retrieval_metrics_calculated"] is False
@@ -360,7 +360,7 @@ def test_source_distributions_each_cover_225_ranked_results(result):
 
 
 def test_report_states_scientific_boundaries_and_phase10_freeze():
-    report = REPORT_PATH.read_text()
+    report = REPORT_PATH.read_text(encoding="utf-8")
     for phrase in (
         "not be represented as independently human-annotated gold data",
         "PooledRecall@5",
