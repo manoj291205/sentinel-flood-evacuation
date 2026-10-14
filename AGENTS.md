@@ -93,9 +93,16 @@ Frozen forever (never write): `data/eval_v3/**`, existing files in `data/eval_re
 6. **Stuck after 3 distinct attempts**, or the spec/contract/acceptance test looks wrong: write
    `docs/patent-roadmap/escalations/LX-P<NN>-<n>.md` (error, failing test, trimmed log ≤ 40 lines, the 3
    attempts, hypothesis), set `ESCALATED` in `STATUS_LANE_X.md`, commit + push your branch, and end with:
-   `>>> ESCALATE (Lane X): escalations/LX-P<NN>-<n>.md — ask Lead to resolve`
+   `>>> ESCALATE (Lane X): escalations/LX-P<NN>-<n>.md`
+   then, on the next lines, print this block with the real file name filled in, so the user can copy it:
+   ```
+   ⚠ NEEDS LEAD REVIEW — open a NEW Builder S session, Model: Lead, folder D:\Project - 1\sentinel-sprint, paste:
+   Read DEVELOPMENT.md, docs/patent-roadmap/STATUS.md, docs/patent-roadmap/STATUS_LANE_X.md and docs/patent-roadmap/escalations/LX-P<NN>-<n>.md, then follow docs/patent-roadmap/prompts/OPUS_ESCALATION.md.
+   ```
+   Make sure the escalation file is committed and pushed before printing it.
 7. When the whole checklist is ticked and pushed, end with:
    `>>> LANE X WAVE <X> DONE — branches pushed: <list>. Lead can audit and merge.`
+   then print: `⚠ SWITCH NOW (after Lane S also prints WAVE <X> DONE): new lead session · Model: Lead · Paste: Read DEVELOPMENT.md, docs/patent-roadmap/STATUS.md and docs/patent-roadmap/STATUS_LANE_X.md, then follow docs/patent-roadmap/prompts/W<X>_OPUS_review.md exactly.`
 
 - **Naming and authorship:** never put an AI tool or model name in a branch name, commit message, or
   file name, and never add `Co-Authored-By` or similar trailers. Branches are `m<NN>-<slug>` (Lane S) and
