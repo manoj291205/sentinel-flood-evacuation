@@ -136,7 +136,7 @@ st.markdown(
 @st.cache_data(show_spinner=False)
 def load_json(path: Path) -> tuple[dict[str, Any] | None, str | None]:
     try:
-        return json.loads(path.read_text()), None
+        return json.loads(path.read_text(encoding="utf-8")), None
     except Exception as exc:  # surfaced visibly by each tab
         return None, f"Could not load {path.relative_to(ROOT)}: {exc}"
 
@@ -152,7 +152,7 @@ def load_csv(path: Path) -> tuple[pd.DataFrame | None, str | None]:
 @st.cache_data(show_spinner=False)
 def load_test_count() -> int | None:
     try:
-        matches = re.findall(r"passes all ([0-9,]+) collected tests", DOCUMENTATION_PATH.read_text())
+        matches = re.findall(r"passes all ([0-9,]+) collected tests", DOCUMENTATION_PATH.read_text(encoding="utf-8"))
         return int(matches[-1].replace(",", "")) if matches else None
     except Exception:
         return None

@@ -1069,7 +1069,7 @@ def load_v3_scenario(path: str | Path) -> ScenarioV3:
     """Load and validate V3 JSON. V1 JSON fails explicitly on schema version."""
     source = Path(path)
     try:
-        raw = json.loads(source.read_text())
+        raw = json.loads(source.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise ScenarioValidationError(f"{source}: could not load scenario: {exc}") from exc
     return ScenarioV3.from_dict(raw)
@@ -1079,4 +1079,4 @@ def dump_v3_scenario(scenario: ScenarioV3, path: str | Path) -> None:
     """Serialize an already validated immutable definition to JSON."""
     if not isinstance(scenario, ScenarioV3):
         _error("scenario", "must be a ScenarioV3 instance")
-    Path(path).write_text(scenario.to_json())
+    Path(path).write_text(scenario.to_json(), encoding="utf-8")

@@ -64,12 +64,12 @@ EXPECTED_STYLES = {"LEXICAL": 15, "SEMANTIC_PARAPHRASE": 15, "OPERATIONAL_TASK":
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
-    with path.open(newline="") as handle:
+    with path.open(newline="", encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
 
 
 def write_csv(path: Path, fields: list[str], rows: list[dict[str, object]]) -> None:
-    with path.open("w", newline="") as handle:
+    with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
@@ -285,7 +285,7 @@ def write_packet(
             f"{row['bm25_rank'] or '—'} | {row['hybrid_rank'] or '—'} | "
             f"{row['machine_seed_evidence']} | {row['machine_suggested_grade'] or '—'} |"
         )
-    FINAL_PACKET_PATH.write_text("\n".join(lines).rstrip() + "\n")
+    FINAL_PACKET_PATH.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
 
 
 def main() -> int:
@@ -351,7 +351,7 @@ def main() -> int:
         "consistency_question_ids": consistency_ids,
         "official_retrieval_metrics_calculated": False,
     }
-    PROVENANCE_PATH.write_text(json.dumps(provenance, indent=2) + "\n")
+    PROVENANCE_PATH.write_text(json.dumps(provenance, indent=2) + "\n", encoding="utf-8")
     write_packet(retained_questions, retained_passages)
 
     print(f"Retained questions: {len(retained_questions)}")

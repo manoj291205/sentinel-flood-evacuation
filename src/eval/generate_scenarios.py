@@ -190,7 +190,7 @@ def main() -> int:
         "_regime_counts": counts,
         "scenarios": scenarios,
     }
-    OUTPUT_PATH.write_text(json.dumps(payload, indent=2) + "\n")
+    OUTPUT_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
     print(f"Generated {len(scenarios)} scenarios (seed {SEED}) -> {OUTPUT_PATH.name}")
     print(f"  attempts needed: {attempts}")

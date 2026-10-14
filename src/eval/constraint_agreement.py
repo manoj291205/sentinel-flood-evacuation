@@ -98,13 +98,13 @@ def call_with_quota_retry(fn, *, label: str, budget_seconds: float = 900.0):
 
 def load_cache() -> dict:
     if CACHE_PATH.exists():
-        return json.loads(CACHE_PATH.read_text())
+        return json.loads(CACHE_PATH.read_text(encoding="utf-8"))
     return {}
 
 
 def save_cache(cache: dict) -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    CACHE_PATH.write_text(json.dumps(cache, indent=2) + "\n")
+    CACHE_PATH.write_text(json.dumps(cache, indent=2) + "\n", encoding="utf-8")
 
 
 def generate_without_retrieval(scenario: dict) -> dict:
@@ -122,7 +122,7 @@ def verdicts_of(payload: dict) -> dict[str, str]:
 
 def main() -> int:
     refresh = "--refresh" in sys.argv
-    suite = json.loads(SUITE_PATH.read_text())
+    suite = json.loads(SUITE_PATH.read_text(encoding="utf-8"))
     scenarios = suite["scenarios"][:N_SUBSET]
     cache = {} if refresh else load_cache()
 
@@ -278,7 +278,7 @@ def main() -> int:
             ),
         },
         indent=2,
-    ) + "\n")
+    ) + "\n", encoding="utf-8")
     print(f"\nWrote {out.relative_to(PROJECT_ROOT)}")
     return 0
 

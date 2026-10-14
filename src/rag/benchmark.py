@@ -222,7 +222,7 @@ def pool_question(
 
 
 def read_csv_rows(path: Path) -> list[dict[str, str]]:
-    with path.open(newline="") as handle:
+    with path.open(newline="", encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
 
 
@@ -349,4 +349,4 @@ def stable_file_sha256(path: Path) -> str:
 
 
 def load_candidate_manifest(path: Path) -> dict:
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))

@@ -223,4 +223,4 @@ def suite_manifest(kind: SuiteKind) -> dict:
 
 
 def dump_suite(path: str | Path, kind: SuiteKind) -> None:
-    Path(path).write_text(json.dumps(suite_manifest(kind), indent=2) + "\n")
+    Path(path).write_text(json.dumps(suite_manifest(kind), indent=2) + "\n", encoding="utf-8")

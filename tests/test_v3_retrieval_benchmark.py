@@ -72,18 +72,18 @@ def catalog(prepared: PreparedCorpus) -> dict[str, CanonicalChunk]:
 
 @pytest.fixture(scope="module")
 def manifest() -> dict:
-    return json.loads(MANIFEST_PATH.read_text())
+    return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
 
 @pytest.fixture(scope="module")
 def question_rows() -> list[dict[str, str]]:
-    with QUESTION_REVIEW_PATH.open(newline="") as handle:
+    with QUESTION_REVIEW_PATH.open(newline="", encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
 
 
 @pytest.fixture(scope="module")
 def passage_rows() -> list[dict[str, str]]:
-    with PASSAGE_REVIEW_PATH.open(newline="") as handle:
+    with PASSAGE_REVIEW_PATH.open(newline="", encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
 
 
@@ -266,22 +266,22 @@ def test_all_human_passage_fields_are_pending_or_blank(passage_rows):
 
 def test_no_human_confirmation_is_fabricated():
     paths = [MANIFEST_PATH, QUESTION_REVIEW_PATH, PASSAGE_REVIEW_PATH, PACKET_PATH]
-    combined = "\n".join(path.read_text() for path in paths)
+    combined = "\n".join(path.read_text(encoding="utf-8") for path in paths)
     assert "HUMAN_CONFIRMED" not in combined
     assert "human_verified" not in combined
 
 
 def test_consistency_audit_uses_only_selected_retained_questions():
-    with CONSISTENCY_PATH.open(newline="") as handle:
+    with CONSISTENCY_PATH.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     assert len({row["question_id"] for row in rows}) == 10
     assert all(row["second_pass_status"] == "PENDING" for row in rows)
     assert all(row["first_pass_grade"] == row["second_pass_grade"] == "" for row in rows)
-    assert "second_pass_grade" in CONSISTENCY_PATH.read_text().splitlines()[0]
+    assert "second_pass_grade" in CONSISTENCY_PATH.read_text(encoding="utf-8").splitlines()[0]
 
 
 def test_human_packet_contains_all_questions_and_grade_definitions(manifest):
-    packet = PACKET_PATH.read_text()
+    packet = PACKET_PATH.read_text(encoding="utf-8")
     assert packet.count("— MACHINE_PROPOSED") == 60
     assert "2 — DIRECTLY RELEVANT" in packet
     assert "1 — PARTIALLY RELEVANT" in packet
@@ -407,7 +407,7 @@ def test_paired_bootstrap_is_question_level_and_deterministic():
 
 
 def test_spec_freezes_primary_secondary_metrics_and_claim_rule():
-    spec = SPEC_PATH.read_text()
+    spec = SPEC_PATH.read_text(encoding="utf-8")
     assert "DirectHit@5" in spec
     assert all(metric in spec for metric in ("DirectHit@1", "DirectHit@3", "MRR@5", "nDCG@5", "pooled Recall@5"))
     assert "10,000" in spec and "131313" in spec

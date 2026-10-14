@@ -180,7 +180,7 @@ def human_readable_example() -> str:
 def main() -> None:
     payload = run_sanity()
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_PATH.write_text(json.dumps(payload, indent=2) + "\n")
+    OUTPUT_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(payload, indent=2))
     print("\nHUMAN-READABLE THREE-CASE EXAMPLE\n")
     print(human_readable_example())

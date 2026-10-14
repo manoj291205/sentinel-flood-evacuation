@@ -65,7 +65,7 @@ EXTENSION_FINGERPRINT = "df1d939661fa6a44bee9e6978326e79f1a136b00cf210299563742c
 
 
 def csv_rows(path: Path) -> list[dict[str, str]]:
-    with path.open(newline="") as handle:
+    with path.open(newline="", encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
 
 
@@ -91,7 +91,7 @@ def parent() -> list[dict[str, str]]:
 
 @pytest.fixture(scope="module")
 def manifest() -> dict:
-    return json.loads(EXTENDED_MANIFEST_PATH.read_text())
+    return json.loads(EXTENDED_MANIFEST_PATH.read_text(encoding="utf-8"))
 
 
 @pytest.fixture(scope="module")
@@ -189,7 +189,7 @@ def test_blind_judge_rejects_any_extra_metadata(blind):
 
 
 def test_label_script_does_not_run_retrieval():
-    source = (ROOT / "scripts" / "phase13a3_extend_labels.py").read_text()
+    source = (ROOT / "scripts" / "phase13a3_extend_labels.py").read_text(encoding="utf-8")
     assert "get_retriever" not in source
     assert ".retrieve(" not in source
 
@@ -225,7 +225,7 @@ def test_extension_status_rationale_confidence_and_protocol(extension):
 
 
 def test_extension_stores_hash_not_full_source_text(extension, prepared):
-    serialized = EXTENSION_PATH.read_text()
+    serialized = EXTENSION_PATH.read_text(encoding="utf-8")
     assert all(field not in extension[0] for field in ("text", "original_text", "excerpt"))
     for row in extension:
         chunk = get_chunk_by_id(row["chunk_id"], prepared)
@@ -370,9 +370,9 @@ def test_consistency_diagnostic_is_exact_without_reconciliation(consistency, man
 
 def test_new_tracked_artifacts_contain_no_full_passage_text(prepared):
     paths = (EXTENSION_PATH, EXTENDED_LABEL_PATH, EXTENDED_MANIFEST_PATH, CONSISTENCY_PATH)
-    serialized = "\n".join(path.read_text() for path in paths)
-    assert "original_text" not in EXTENSION_PATH.read_text().splitlines()[0]
-    assert "original_text" not in EXTENDED_LABEL_PATH.read_text().splitlines()[0]
+    serialized = "\n".join(path.read_text(encoding="utf-8") for path in paths)
+    assert "original_text" not in EXTENSION_PATH.read_text(encoding="utf-8").splitlines()[0]
+    assert "original_text" not in EXTENDED_LABEL_PATH.read_text(encoding="utf-8").splitlines()[0]
     gap_ids = [pair[1] for pair in JUDGMENTS]
     for chunk_id in gap_ids:
         assert get_chunk_by_id(chunk_id, prepared).text not in serialized
@@ -380,7 +380,7 @@ def test_new_tracked_artifacts_contain_no_full_passage_text(prepared):
 
 def test_no_retrieval_quality_metric_or_verdict_was_created(manifest):
     paths = (EXTENSION_PATH, EXTENDED_LABEL_PATH, EXTENDED_MANIFEST_PATH, CONSISTENCY_PATH)
-    content = "\n".join(path.read_text() for path in paths)
+    content = "\n".join(path.read_text(encoding="utf-8") for path in paths)
     assert all(
         token not in content
         for token in (
@@ -429,7 +429,7 @@ def test_human_passage_fields_remain_untouched(manifest):
 
 
 def test_documentation_discloses_coverage_extension_and_ai_assisted_status():
-    content = AMENDMENT_PATH.read_text() + "\n" + DOCUMENTATION_PATH.read_text()
+    content = AMENDMENT_PATH.read_text(encoding="utf-8") + "\n" + DOCUMENTATION_PATH.read_text(encoding="utf-8")
     assert "Phase 13A.3" in content
     assert "v3-retrieval-benchmark-ai-assisted-v2" in content
     assert "AI-assisted" in content

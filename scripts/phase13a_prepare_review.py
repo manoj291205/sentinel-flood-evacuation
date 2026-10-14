@@ -193,7 +193,7 @@ def resolve_seed(definition, catalog):
 
 
 def write_csv(path, fieldnames, rows):
-    with path.open("w", newline="") as handle:
+    with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
@@ -257,7 +257,7 @@ def main() -> int:
     }
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    MANIFEST_PATH.write_text(json.dumps(manifest, indent=2) + "\n")
+    MANIFEST_PATH.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
     question_fields = [
         "question_id", "question", "topic", "query_style",
@@ -397,7 +397,7 @@ def main() -> int:
                 "**HUMAN NOTES:** __________",
                 "",
             ]
-    PACKET_PATH.write_text("\n".join(lines).rstrip() + "\n")
+    PACKET_PATH.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
 
     print(f"Wrote {len(candidates)} candidate questions")
     print(f"Topic counts: {dict(topic_counts)}")

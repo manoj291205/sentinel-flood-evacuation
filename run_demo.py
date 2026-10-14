@@ -114,7 +114,7 @@ def stage_corpus(rebuild: bool) -> bool:
 
     manifest_path = RAW_DOCS / "MANIFEST.json"
     if manifest_path.exists():
-        for doc in json.loads(manifest_path.read_text())["documents"]:
+        for doc in json.loads(manifest_path.read_text(encoding="utf-8"))["documents"]:
             print(f"  {doc['filename']} — {doc['pages']} pages, {doc['bytes']:,} bytes")
             print(f"    {doc['title']}")
             print(f"    {doc['publisher']}, {doc['dated']}")

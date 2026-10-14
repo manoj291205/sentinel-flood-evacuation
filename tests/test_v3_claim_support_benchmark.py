@@ -41,12 +41,12 @@ PHASE13_RESULT = ROOT / "data/eval_v3/phase13/phase13b_retrieval_results_v2.json
 
 @pytest.fixture(scope="module")
 def records() -> list[dict]:
-    return json.loads(CHALLENGE_PATH.read_text())
+    return json.loads(CHALLENGE_PATH.read_text(encoding="utf-8"))
 
 
 @pytest.fixture(scope="module")
 def manifest() -> dict:
-    return json.loads(MANIFEST_PATH.read_text())
+    return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
 
 @pytest.fixture(scope="module")
@@ -165,14 +165,14 @@ def test_evaluation_order_is_deterministic_unique_and_label_independent(records,
 
 
 def test_spotcheck_is_15_balanced_and_not_human_reviewed():
-    spot = json.loads(SPOTCHECK_PATH.read_text())
+    spot = json.loads(SPOTCHECK_PATH.read_text(encoding="utf-8"))
     assert len(spot["examples"]) == 15
     assert Counter(row["construction_label"] for row in spot["examples"]) == {label: 5 for label in ClaimSupportVerdict}
     assert "not human-reviewed" in spot["purpose"]
 
 
 def test_audit_marks_negative_claims_and_uses_short_excerpts(records):
-    text = REVIEW_PATH.read_text()
+    text = REVIEW_PATH.read_text(encoding="utf-8")
     assert text.count("SYNTHETIC CHALLENGE CLAIM — NOT AUTHORITATIVE POLICY") == 90
     assert text.count("CONSTRUCTED PARAPHRASE — NOT AUTHORITATIVE POLICY WORDING") == 45
     assert text.count("> Evidence excerpt:") == 135
@@ -265,7 +265,7 @@ def test_phase14a_records_no_official_performance_result(manifest):
 
 
 def test_frozen_phase13_and_retrieval_results_are_unchanged():
-    result = json.loads(PHASE13_RESULT.read_text())
+    result = json.loads(PHASE13_RESULT.read_text(encoding="utf-8"))
     assert result["principal_comparison"]["final_verdict"] == "HYBRID_SUPPORTED"
     assert result["overall"]["bm25"]["direct_hit_at_5"] == pytest.approx(39 / 45)
     assert RETRIEVAL_CONFIG_VERSION == "v3-retrieval-v1"
@@ -286,5 +286,5 @@ def test_builder_reproduces_committed_artifacts(records, manifest):
     built_records, built_manifest, built_spotcheck, built_review = build_artifacts()
     assert built_records == records
     assert built_manifest == manifest
-    assert built_spotcheck == json.loads(SPOTCHECK_PATH.read_text())
-    assert built_review == REVIEW_PATH.read_text()
+    assert built_spotcheck == json.loads(SPOTCHECK_PATH.read_text(encoding="utf-8"))
+    assert built_review == REVIEW_PATH.read_text(encoding="utf-8")

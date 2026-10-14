@@ -45,7 +45,7 @@ EXAMPLE = ROOT / "data" / "scenarios_v3" / "example_v3_scenario.json"
 
 @pytest.fixture
 def raw() -> dict:
-    return json.loads(EXAMPLE.read_text())
+    return json.loads(EXAMPLE.read_text(encoding="utf-8"))
 
 
 @pytest.fixture
@@ -451,7 +451,7 @@ def test_safety_snapshot_rejects_action_evaluation_misalignment(scenario):
 
 def test_committed_sanity_artifact_records_required_zero_failures():
     payload = json.loads(
-        (ROOT / "data" / "eval_v3" / "phase5_safety_sanity.json").read_text()
+        (ROOT / "data" / "eval_v3" / "phase5_safety_sanity.json").read_text(encoding="utf-8")
     )
     assert payload["safety_config"]["config_id"] == V3_SAFETY_V1.config_id
     assert payload["states_examined"] >= 1000

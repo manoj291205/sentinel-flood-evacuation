@@ -37,7 +37,7 @@ def load_suite() -> dict:
         raise FileNotFoundError(
             f"{SUITE_PATH} missing. Run: .venv/bin/python -m src.eval.generate_scenarios"
         )
-    return json.loads(SUITE_PATH.read_text())
+    return json.loads(SUITE_PATH.read_text(encoding="utf-8"))
 
 
 def rl_choice(model, scenario, mask) -> int:
@@ -202,7 +202,7 @@ def main() -> int:
             "per_scenario": per_scenario,
         },
         indent=2,
-    ) + "\n")
+    ) + "\n", encoding="utf-8")
     print(f"\nWrote {out.relative_to(PROJECT_ROOT)}")
     return 0
 

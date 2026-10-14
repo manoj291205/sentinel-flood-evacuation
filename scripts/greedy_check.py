@@ -455,7 +455,7 @@ def evaluate(n_instances: int = N_INSTANCES, quiet: bool = False) -> dict:
         "degenerate_instances": degenerate,
         "total_brute_force_leaves": total_leaves,
         "instances": instances,
-    }, indent=2) + "\n")
+    }, indent=2) + "\n", encoding="utf-8")
     return summary
 
 
@@ -510,7 +510,7 @@ def sweep() -> int:
         print("         small to require planning. Re-gate at the larger size.")
     print("=" * w)
     (OUT.parent / "gate1a_sweep.json").write_text(json.dumps(
-        {"_note": "Gate 1A horizon sweep. Fictional instances.", "sizes": out}, indent=2) + "\n")
+        {"_note": "Gate 1A horizon sweep. Fictional instances.", "sizes": out}, indent=2) + "\n", encoding="utf-8")
     return 0
 
 
@@ -560,7 +560,7 @@ def compare() -> int:
         {"_note": "Gate 1A: design variant comparison. Fictional instances.",
          "variant_A": "complementarity + contention + time-dependence",
          "variant_B": "variant A plus per-cell delivery lag (transit time)",
-         "rows": out, "verdict_variant_B": gate}, indent=2) + "\n")
+         "rows": out, "verdict_variant_B": gate}, indent=2) + "\n", encoding="utf-8")
     return 0
 
 

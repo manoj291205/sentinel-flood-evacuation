@@ -233,7 +233,7 @@ def test_existing_citation_verifier_accepts_v3_chunk_metadata():
 
 
 def test_exclusion_log_is_complete_and_reconciled():
-    excluded = json.loads(EXCLUDED_SOURCES_PATH.read_text())
+    excluded = json.loads(EXCLUDED_SOURCES_PATH.read_text(encoding="utf-8"))
     assert excluded["urls_examined"] == 8
     assert excluded["exact_duplicate_urls"] == 2
     assert excluded["near_duplicate_urls"] == 1
@@ -244,7 +244,7 @@ def test_exclusion_log_is_complete_and_reconciled():
 
 
 def test_summary_matches_manifest_and_ingestion(manifest: dict, prepared: PreparedCorpus):
-    summary = json.loads(SUMMARY_PATH.read_text())
+    summary = json.loads(SUMMARY_PATH.read_text(encoding="utf-8"))
     assert summary["corpus_version"] == manifest["corpus_version"]
     assert summary["fingerprint"] == manifest["fingerprint"]
     assert summary["canonical_document_count"] == len(canonical_documents(manifest))

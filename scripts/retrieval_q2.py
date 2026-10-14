@@ -38,8 +38,8 @@ def margin(fact: dict, population: int) -> float:
 
 
 def main() -> int:
-    cache = json.loads((ROOT / "data/eval_results/constraint_agreement_cache.json").read_text())
-    suite = json.loads((ROOT / "data/eval_scenarios.json").read_text())
+    cache = json.loads((ROOT / "data/eval_results/constraint_agreement_cache.json").read_text(encoding="utf-8"))
+    suite = json.loads((ROOT / "data/eval_scenarios.json").read_text(encoding="utf-8"))
     scen = {s["scenario_id"]: s for s in suite["scenarios"]}
 
     rows = []
@@ -114,7 +114,7 @@ def main() -> int:
         "median_margin_unflipped": med(marg(unflipped)),
         "claim_supported": bool(supported),
         "rows": rows,
-    }, indent=2) + "\n")
+    }, indent=2) + "\n", encoding="utf-8")
     return 0
 
 

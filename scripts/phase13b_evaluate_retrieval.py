@@ -137,7 +137,7 @@ def _sha256(path: Path) -> str:
 
 def verify_frozen_inputs_v2() -> tuple[list[dict[str, str]], list[dict[str, str]], object]:
     """Verify every benchmark/corpus/retrieval identity before ranking."""
-    manifest = json.loads(EXTENDED_MANIFEST_PATH.read_text())
+    manifest = json.loads(EXTENDED_MANIFEST_PATH.read_text(encoding="utf-8"))
     expected = {
         "benchmark_version": EXTENDED_BENCHMARK_VERSION,
         "parent_benchmark_version": "v3-retrieval-benchmark-ai-assisted-v1",
@@ -478,7 +478,7 @@ def evaluate(
                 }
             )
 
-    phase12 = json.loads(PHASE12_PATH.read_text())
+    phase12 = json.loads(PHASE12_PATH.read_text(encoding="utf-8"))
     result = {
         "evaluation_version": EVALUATION_VERSION,
         "benchmark_version": EXTENDED_BENCHMARK_VERSION,
@@ -546,7 +546,7 @@ def evaluate(
 
 
 def _write_csv(path: Path, fields: Sequence[str], rows: Sequence[Mapping]) -> None:
-    with path.open("w", newline="") as handle:
+    with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
@@ -775,7 +775,7 @@ def main() -> int:
         "repeat_bootstrap_identical": True,
         "repeat_verdict_identical": True,
     }
-    RESULT_PATH.write_text(json.dumps(first_result, indent=2, ensure_ascii=False) + "\n")
+    RESULT_PATH.write_text(json.dumps(first_result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     csv_rows = []
     for row in first_per_question:
         csv_rows.append({
@@ -788,7 +788,7 @@ def main() -> int:
         })
     _write_csv(PER_QUESTION_PATH, PER_QUESTION_FIELDS, csv_rows)
     _write_csv(RANKINGS_PATH, RANKING_FIELDS, first_rankings)
-    REPORT_PATH.write_text(render_report(first_result))
+    REPORT_PATH.write_text(render_report(first_result), encoding="utf-8")
     print(f"Coverage: {first_result['coverage_gate']['labeled']}/{first_result['coverage_gate']['unique_top5_pairs']}")
     print(json.dumps(first_result["overall"], indent=2))
     print(json.dumps(first_result["principal_comparison"], indent=2))

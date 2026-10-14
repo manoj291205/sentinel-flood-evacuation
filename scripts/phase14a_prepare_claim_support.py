@@ -282,7 +282,7 @@ CLAIMS: dict[str, tuple[tuple[str, str, str], tuple[str, str, str], tuple[str, s
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
-    with path.open(newline="") as handle:
+    with path.open(newline="", encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
 
 
@@ -461,10 +461,10 @@ def duplicate_audit(records: Sequence[Mapping[str, object]], evidence_text: Mapp
 def main() -> int:
     records, manifest, spotcheck, review = build_artifacts()
     PHASE14.mkdir(parents=True, exist_ok=True)
-    CHALLENGE_PATH.write_text(json.dumps(records, indent=2, ensure_ascii=False) + "\n")
-    MANIFEST_PATH.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n")
-    SPOTCHECK_PATH.write_text(json.dumps(spotcheck, indent=2, ensure_ascii=False) + "\n")
-    REVIEW_PATH.write_text(review)
+    CHALLENGE_PATH.write_text(json.dumps(records, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    MANIFEST_PATH.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    SPOTCHECK_PATH.write_text(json.dumps(spotcheck, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    REVIEW_PATH.write_text(review, encoding="utf-8")
     print(f"questions={manifest['questions']} base_evidence={manifest['base_evidence_passages']} pairs={manifest['claim_pairs']}")
     print(f"labels={manifest['label_counts']}")
     print(f"fingerprint={manifest['challenge_fingerprint']}")

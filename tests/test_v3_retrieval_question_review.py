@@ -47,13 +47,13 @@ EDITS = {
 
 
 def csv_rows(path: Path) -> list[dict[str, str]]:
-    with path.open(newline="") as handle:
+    with path.open(newline="", encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
 
 
 @pytest.fixture(scope="module")
 def manifest() -> dict:
-    return json.loads(MANIFEST_PATH.read_text())
+    return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
 
 @pytest.fixture(scope="module")
@@ -78,7 +78,7 @@ def retained_passages() -> list[dict[str, str]]:
 
 @pytest.fixture(scope="module")
 def provenance() -> dict:
-    return json.loads(PROVENANCE_PATH.read_text())
+    return json.loads(PROVENANCE_PATH.read_text(encoding="utf-8"))
 
 
 def test_question_review_provenance_is_explicit(provenance):
@@ -195,21 +195,21 @@ def test_consistency_audit_has_no_fabricated_grades():
 
 
 def test_final_packet_contains_only_45_retained_questions(retained_questions):
-    packet = PACKET_PATH.read_text()
+    packet = PACKET_PATH.read_text(encoding="utf-8")
     assert packet.count("\n## Q") == 45
     assert all(f"## {row['question_id']}\n" in packet for row in retained_questions)
     assert all(f"## {question_id}\n" not in packet for question_id in REJECTED)
 
 
 def test_final_packet_deemphasizes_ranks_in_main_review():
-    main, appendix = PACKET_PATH.read_text().split("## Technical appendix", maxsplit=1)
+    main, appendix = PACKET_PATH.read_text(encoding="utf-8").split("## Technical appendix", maxsplit=1)
     assert "Retrieved by:" not in main
     assert "Machine suggested grade:" not in main
     assert "| Question | Chunk | Dense | BM25 | Hybrid |" in appendix
 
 
 def test_documentation_discloses_actual_review_method():
-    combined = SPEC_PATH.read_text() + "\n" + DOCUMENTATION_PATH.read_text()
+    combined = SPEC_PATH.read_text(encoding="utf-8") + "\n" + DOCUMENTATION_PATH.read_text(encoding="utf-8")
     assert "PROJECT_OWNER_ADOPTED_AI_ASSISTED_QUESTION_REVIEW" in combined
     assert "PROJECT_OWNER_ADOPTED_AI_ASSISTED_RECOMMENDATIONS" in combined
     assert "not blind, independent" in combined

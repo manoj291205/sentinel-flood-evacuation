@@ -33,12 +33,12 @@ MODEL_DIR = ROOT / "models" / "v3"
 
 
 def _read_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def _write_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2) + "\n")
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
 
 def _git_commit() -> str:
@@ -166,7 +166,7 @@ def _finite_logger_values(model) -> dict[str, float]:
 
 def _episode_csv(path: Path, episodes: list[dict[str, Any]]) -> None:
     fields = list(episodes[0]) if episodes else ["training_timestep"]
-    with path.open("w", newline="") as handle:
+    with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
         writer.writerows(episodes)

@@ -24,7 +24,7 @@ EXAMPLE = ROOT / "data" / "scenarios_v3" / "example_v3_scenario.json"
 
 @pytest.fixture
 def raw() -> dict:
-    return json.loads(EXAMPLE.read_text())
+    return json.loads(EXAMPLE.read_text(encoding="utf-8"))
 
 
 def test_minimal_example_loads():

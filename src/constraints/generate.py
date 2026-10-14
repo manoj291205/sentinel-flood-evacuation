@@ -60,7 +60,7 @@ class ConstraintError(RuntimeError):
 
 
 def load_scenario(path: Path = SCENARIO_PATH) -> dict:
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def scenario_fingerprint(scenario: dict) -> str:
@@ -83,7 +83,7 @@ def known_documents() -> set[str]:
     """
     if not MANIFEST_PATH.exists():
         return set()
-    manifest = json.loads(MANIFEST_PATH.read_text())
+    manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
     return {d["filename"] for d in manifest.get("documents", [])}
 
 
@@ -454,7 +454,7 @@ def load_or_generate(refresh: bool = False, verbose: bool = True) -> dict:
     fingerprint = scenario_fingerprint(scenario)
 
     if not refresh and CACHE_PATH.exists():
-        cached = json.loads(CACHE_PATH.read_text())
+        cached = json.loads(CACHE_PATH.read_text(encoding="utf-8"))
         if cached.get("_meta", {}).get("scenario_fingerprint") == fingerprint:
             if verbose:
                 print(f"Using cached constraints from {CACHE_PATH.name} (no API call).")
@@ -463,7 +463,7 @@ def load_or_generate(refresh: bool = False, verbose: bool = True) -> dict:
             print("Cached constraints are stale (scenario changed); regenerating.")
 
     payload = generate_constraints(scenario, verbose=verbose)
-    CACHE_PATH.write_text(json.dumps(payload, indent=2) + "\n")
+    CACHE_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     if verbose:
         print(f"Wrote {CACHE_PATH}")
     return payload

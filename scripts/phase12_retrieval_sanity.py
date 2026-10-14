@@ -202,7 +202,7 @@ def main() -> int:
         "gemini_invoked": False,
         "phase10_rl_result_changed": False,
     }
-    OUTPUT_PATH.write_text(json.dumps(artifact, indent=2) + "\n")
+    OUTPUT_PATH.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     print(f"\nWrote {OUTPUT_PATH}")
     for name, values in latency.items():
         print(

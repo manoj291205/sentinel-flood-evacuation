@@ -87,11 +87,11 @@ NUMERIC_METRICS = (
 
 def _write(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def _read(path: Path) -> Any:
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def metadata() -> dict[str, Any]:
@@ -1194,7 +1194,7 @@ def _svg_bars(path: Path, title: str, labels: Sequence[str], values: Sequence[fl
         parts.append(f'<text x="{x:.2f}" y="{max(95, y - 7):.2f}" fill="#f5f7ff" font-family="sans-serif" font-size="11">{value:.4f}</text>')
         parts.append(f'<text transform="translate({x + 8:.2f},455) rotate(35)" fill="#d9e1f2" font-family="sans-serif" font-size="11">{label}</text>')
     parts.append("</svg>")
-    path.write_text("\n".join(parts) + "\n")
+    path.write_text("\n".join(parts) + "\n", encoding="utf-8")
 
 
 def generate_figures() -> None:
@@ -1458,7 +1458,7 @@ def generate_report() -> None:
             "Phase 10 stops here. Any Phase 11 dashboard or future permutation-aware architecture experiment requires separate project-owner direction and cannot rewrite this result.",
         ]
     )
-    (ROOT / "V3_POLICY_EVALUATION.md").write_text("\n".join(lines) + "\n")
+    (ROOT / "V3_POLICY_EVALUATION.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def run_all(workers: int) -> None:
