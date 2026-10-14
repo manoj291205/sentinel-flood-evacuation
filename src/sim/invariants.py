@@ -133,7 +133,7 @@ def assert_episode_invariants(scenario: ScenarioV3, state: EpisodeState) -> None
                 event.arrival_timestep >= state.current_timestep,
                 f"event {event.event_id} is overdue",
             )
-        else:
+        elif event.status is DispatchStatus.ARRIVED:
             arrived_by_shelter[event.destination_shelter_id] += event.people
 
     for zone in state.zones:
@@ -143,23 +143,37 @@ def assert_episode_invariants(scenario: ScenarioV3, state: EpisodeState) -> None
             f"source population ledger mismatch in {zone.zone_id}",
         )
 
+    v4 = state.is_v4
     arrived_people = sum(
         event.people
         for event in state.dispatch_events
         if event.status is DispatchStatus.ARRIVED
     )
-    _require(
-        state.people_safely_arrived == arrived_people,
-        "safe-arrival ledger does not equal arrived dispatch events",
-    )
+    if not v4:
+        _require(
+            state.people_safely_arrived == arrived_people,
+            "safe-arrival ledger does not equal arrived dispatch events",
+        )
     _require(state.people_safely_arrived >= 0, "safe population must be nonnegative")
+    _require(
+        min(state.people_stranded, state.people_unsafe_arrival, state.people_overflow) >= 0,
+        "failure counters must be nonnegative",
+    )
     _require(
         state.initial_evacuation_population
         == state.population_remaining
         + state.people_in_transit
-        + state.people_safely_arrived,
+        + state.people_safely_arrived
+        + state.people_stranded
+        + state.people_unsafe_arrival
+        + state.people_overflow,
         "population conservation violated",
     )
+    if not v4:
+        _require(
+            state.people_stranded == state.people_unsafe_arrival == state.people_overflow == 0,
+            "legacy state carries v4 failure counters",
+        )
 
     initial_occupancy = {
         shelter.shelter_id: shelter.occupancy_initial for shelter in scenario.shelters
@@ -175,7 +189,14 @@ def assert_episode_invariants(scenario: ScenarioV3, state: EpisodeState) -> None
         _require(shelter.capacity_total >= 0, f"negative capacity in {shelter.shelter_id}")
         _require(shelter.occupancy_current >= 0, f"negative occupancy in {shelter.shelter_id}")
         _require(shelter.capacity_reserved >= 0, f"negative reservation in {shelter.shelter_id}")
-        _require(shelter.capacity_available >= 0, f"overbooked shelter {shelter.shelter_id}")
+        if v4:
+            # Walk-ins raise occupancy but not reservations, so reserved seats may be lost.
+            _require(
+                shelter.occupancy_current <= shelter.capacity_total,
+                f"over capacity shelter {shelter.shelter_id}",
+            )
+        else:
+            _require(shelter.capacity_available >= 0, f"overbooked shelter {shelter.shelter_id}")
         _require(
             0.0 <= shelter.flood_severity_current <= 1.0,
             f"invalid current severity in {shelter.shelter_id}",
@@ -193,12 +214,13 @@ def assert_episode_invariants(scenario: ScenarioV3, state: EpisodeState) -> None
             shelter.capacity_reserved == pending_by_shelter[shelter.shelter_id],
             f"reservation ledger mismatch in {shelter.shelter_id}",
         )
-        _require(
-            shelter.occupancy_current
-            == initial_occupancy[shelter.shelter_id]
-            + arrived_by_shelter[shelter.shelter_id],
-            f"occupancy ledger mismatch in {shelter.shelter_id}",
-        )
+        if not v4:  # v4 occupancy also holds walk-ins and partial admissions
+            _require(
+                shelter.occupancy_current
+                == initial_occupancy[shelter.shelter_id]
+                + arrived_by_shelter[shelter.shelter_id],
+                f"occupancy ledger mismatch in {shelter.shelter_id}",
+            )
 
     for route in state.routes:
         _require(

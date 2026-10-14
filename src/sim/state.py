@@ -119,6 +119,14 @@ class EpisodeState:
     audit_log: tuple[AuditRecord, ...]
     uncertainty_config_id: str | None = None
     forecast_for_timestep: int | None = None
+    # v4-world outcome counters (serialised only when the config id is a v4 id)
+    people_stranded: int = 0
+    people_unsafe_arrival: int = 0
+    people_overflow: int = 0
+
+    @property
+    def is_v4(self) -> bool:
+        return (self.uncertainty_config_id or "").startswith("v4-")
 
     @property
     def pending_dispatches(self) -> tuple[DispatchEvent, ...]:
@@ -185,6 +193,14 @@ class EpisodeState:
         }
 
     def to_dict(self) -> dict[str, Any]:
+        data = self._to_dict_base()
+        if self.is_v4:
+            data["people_stranded"] = self.people_stranded
+            data["people_unsafe_arrival"] = self.people_unsafe_arrival
+            data["people_overflow"] = self.people_overflow
+        return data
+
+    def _to_dict_base(self) -> dict[str, Any]:
         return {
             "scenario_id": self.scenario_id,
             "current_timestep": self.current_timestep,

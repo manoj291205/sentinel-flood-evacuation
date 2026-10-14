@@ -84,6 +84,7 @@ class ModelState:
     maximum_closure_probability: float
     travel_noise_fraction: float
     next_event: int
+    max_destination_hazard: float = 0.70
 
     @classmethod
     def from_input(cls, value: PlannerInput) -> "ModelState":
@@ -161,6 +162,7 @@ class ModelState:
             maximum_closure_probability=config.maximum_closure_probability,
             travel_noise_fraction=config.travel_noise_fraction,
             next_event=len(pending) + observation["people_safely_arrived"] + 1,
+            max_destination_hazard=value.max_destination_hazard,
         )
 
     @cached_property
@@ -206,7 +208,7 @@ class ModelState:
                 and shelter is not None
                 and shelter.status != "CLOSED"
                 and shelter.available > 0
-                and shelter.severity < 0.70
+                and shelter.severity < self.max_destination_hazard
                 and route is not None
                 and route.reachable
                 and route.expected_travel is not None

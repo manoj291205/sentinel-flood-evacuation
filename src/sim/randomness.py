@@ -20,6 +20,7 @@ class RandomStream(str, Enum):
     TRAVEL = "travel"
     ROUTE_CLOSURE = "route_closure"
     SHELTER_DEGRADATION = "shelter_degradation"
+    WALK_IN = "walk_in"
 
 
 @dataclass(frozen=True)

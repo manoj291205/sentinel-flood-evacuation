@@ -10,6 +10,9 @@ from typing import Any, TypeAlias
 class DispatchStatus(str, Enum):
     IN_TRANSIT = "IN_TRANSIT"
     ARRIVED = "ARRIVED"
+    STRANDED = "STRANDED"
+    ARRIVAL_UNSAFE = "ARRIVAL_UNSAFE"
+    ARRIVAL_OVERFLOW = "ARRIVAL_OVERFLOW"
 
 
 class AuditEventType(str, Enum):
@@ -23,6 +26,10 @@ class AuditEventType(str, Enum):
     SHELTER_RESTRICTED = "SHELTER_RESTRICTED"
     SHELTER_CLOSED = "SHELTER_CLOSED"
     TRAVEL_TIME_REALIZED = "TRAVEL_TIME_REALIZED"
+    GROUP_STRANDED = "GROUP_STRANDED"
+    ARRIVAL_UNSAFE = "ARRIVAL_UNSAFE"
+    ARRIVAL_OVERFLOW = "ARRIVAL_OVERFLOW"
+    WALK_IN = "WALK_IN"
 
 
 class ActionRejectionCode(str, Enum):
