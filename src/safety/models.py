@@ -14,12 +14,14 @@ SafetyValue: TypeAlias = str | int | float | bool | None
 class RuleLayer(str, Enum):
     MECHANICAL = "MECHANICAL"
     HARD_SAFETY = "HARD_SAFETY"
+    CERTIFIED = "CERTIFIED"
 
 
 class RuleProvenance(str, Enum):
     SIMULATOR_MECHANIC = "SIMULATOR_MECHANIC"
     SYNTHETIC_SAFETY_RULE = "SYNTHETIC_SAFETY_RULE"
     DOCUMENT_POLICY = "DOCUMENT_POLICY"
+    CERTIFIED_CHANCE = "CERTIFIED_CHANCE"
 
 
 @dataclass(frozen=True)
