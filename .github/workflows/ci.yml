@@ -27,6 +27,11 @@ jobs:
           cache: pip
           cache-dependency-path: requirements.txt
 
+      - name: Install CPU-only torch (Linux)
+        # The default Linux wheel bundles CUDA and fills the runner disk.
+        if: runner.os == 'Linux'
+        run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+
       - name: Install project dependencies
         run: |
           python -m pip install --upgrade pip
