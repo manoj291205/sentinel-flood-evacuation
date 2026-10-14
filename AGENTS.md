@@ -68,9 +68,10 @@ Frozen forever (never write): `data/eval_v3/**`, existing files in `data/eval_re
 3. Code against `specs/contracts/**` exactly. Where Lane S code does not exist yet, use the contract
    fixtures (e.g. `specs/contracts/demo_steps.json`, `certificate.schema.json`) behind an interface the
    spec defines — never import unmerged Lane S branches.
-4. **After each step:** targeted tests green → full Python suite green → commit
-   (`Phase NN: <summary>` + last line `Co-Authored-By: Builder X <noreply@openai.com>`) → `git push -u origin builder-x/m<NN>-<slug>`
-   → tick the checkbox and update `STATUS_CODEX.md` (state `REVIEW`) in the same commit.
+4. **Work through the whole checklist without stopping to ask the user.** Commit as you go
+   (`Phase NN: <summary>` + last line `Co-Authored-By: Builder X <noreply@openai.com>`) and tick each checkbox.
+   **Push once per milestone:** when its tests and the full Python suite are green,
+   `git push -u origin builder-x/m<NN>-<slug>` with `STATUS_CODEX.md` set to `REVIEW` in that commit.
 5. Results are never invented. A metric appears only after the run that produced it. UI shows "—" and
    the reason when a number is not available.
 6. **Stuck after 3 distinct attempts**, or the spec/contract/acceptance test looks wrong: write

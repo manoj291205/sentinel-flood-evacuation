@@ -30,8 +30,12 @@ unfiled invention. Never make it public or show the gate work before the Indian 
 - New behaviour only behind new `v4-*` config IDs; legacy results must stay bit-identical.
 - Lead writes specs (`specs/V4_*_SPEC.md`) and acceptance tests (`tests/test_p<NN>_*.py`); Builder S must not
   edit or weaken them — escalate instead (`docs/patent-roadmap/escalations/`).
-- Push after every completed step: tests green → commit `Phase NN: …` with the model's Co-Authored-By
-  trailer → `git push` → `STATUS.md` updated in the same commit.
+- Work autonomously through the build order; do not stop to ask the user between steps. Commit as you go
+  (`Phase NN: …` + the model's Co-Authored-By trailer); **push once per milestone** when its tests and the
+  full suite are green, with `STATUS.md` updated in that commit.
+- Design decisions the spec does not settle, failures that survive 3 attempts, and failed gates go to the
+  `lead-advisor` subagent (`docs/workflow/agents/lead-advisor.md`). Only if it answers NEEDS_HUMAN or its fix
+  fails, stop and show the user a `⚠ NEEDS YOU` block (see the build prompts).
 - Never invent results. A number appears only after the run that produced it.
 - Runner subagent `task-runner` (`docs/workflow/agents/task-runner.md`) is for test runs, grep, mechanical
   edits, fixtures and doc counts only.
