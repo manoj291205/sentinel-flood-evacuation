@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sentinel-demo-step-v1",
+  "title": "One guided-demo step (contract v1)",
+  "description": "Element of demo_steps.json -> steps[]. Served by /api/demo/* (Phase 30) and rendered by the Live Operations page (Phase 31).",
+  "type": "object",
+  "required": ["step_index", "timestep", "pipeline_stage", "highlight_zone", "default_selection", "kind", "caption",
+               "suggestion", "gate", "decision_required", "override_alternatives", "certificate_id", "hold_record",
+               "auto_note", "events", "kpis", "moving_group", "g0009_label", "groups", "shelters"],
+  "additionalProperties": false,
+  "properties": {
+    "step_index": {"type": "integer", "minimum": 0},
+    "timestep": {"type": "integer", "minimum": 0},
+    "pipeline_stage": {"type": "integer", "minimum": 0, "maximum": 5},
+    "highlight_zone": {"type": ["string", "null"], "pattern": "^Z-[0-9]{2}$"},
+    "default_selection": {"type": "string"},
+    "kind": {"type": "string"},
+    "caption": {"type": "string", "minLength": 1},
+    "suggestion": {
+      "type": "object", "required": ["title", "meta", "why"], "additionalProperties": false,
+      "properties": {
+        "title": {"type": "string"}, "meta": {"type": "string"},
+        "why": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "string"}}
+      }
+    },
+    "gate": {
+      "type": "object", "required": ["meta", "candidates"], "additionalProperties": false,
+      "properties": {
+        "meta": {"type": "string"},
+        "candidates": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "required": ["id", "label", "status", "lower", "upper", "meta"], "additionalProperties": false,
+            "properties": {
+              "id": {"type": "string"}, "label": {"type": "string"},
+              "status": {"enum": ["FEASIBLE", "UNDECIDED", "INFEASIBLE", "ALWAYS ALLOWED"]},
+              "lower": {"type": ["number", "null"]}, "upper": {"type": ["number", "null"]}, "meta": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "decision_required": {"type": "boolean"},
+    "override_alternatives": {"type": "array", "items": {"type": "string"}},
+    "certificate_id": {"type": ["string", "null"]},
+    "hold_record": {"type": ["string", "null"]},
+    "auto_note": {"type": ["string", "null"]},
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["timestep", "kind", "text"], "additionalProperties": false,
+        "properties": {"timestep": {"type": "integer"}, "kind": {"enum": ["ok", "bad", "warn", "info"]}, "text": {"type": "string"}}
+      }
+    },
+    "kpis": {
+      "type": "object", "required": ["waiting", "on_road", "safe", "certificates_issued"], "additionalProperties": false,
+      "properties": {
+        "waiting": {"type": "integer"}, "on_road": {"type": "integer"}, "safe": {"type": "integer"}, "certificates_issued": {"type": "integer"}
+      }
+    },
+    "moving_group": {
+      "type": ["object", "null"], "required": ["x", "y", "label"], "additionalProperties": false,
+      "properties": {"x": {"type": "number"}, "y": {"type": "number"}, "label": {"type": "string"}}
+    },
+    "g0009_label": {"type": "string"},
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["group_id", "route", "meta", "state", "tone"], "additionalProperties": false,
+        "properties": {
+          "group_id": {"type": "string"}, "route": {"type": "string"}, "meta": {"type": "string"},
+          "state": {"type": "string"}, "tone": {"enum": ["ok", "warn", "info", "bad"]}
+        }
+      }
+    },
+    "shelters": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["shelter_id", "name", "capacity_total", "occupied", "reserved", "status"], "additionalProperties": false,
+        "properties": {
+          "shelter_id": {"type": "string"}, "name": {"type": "string"},
+          "capacity_total": {"type": "integer"}, "occupied": {"type": "integer"}, "reserved": {"type": "integer"},
+          "status": {"enum": ["OPEN", "RESTRICTED", "CLOSED"]}
+        }
+      }
+    }
+  }
+}

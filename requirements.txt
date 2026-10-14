@@ -20,3 +20,4 @@ networkx==3.6.1       # cached Phase 16 road-graph routing; no runtime OSM acces
 
 # Evaluation & tests (dev)
 pytest==9.1.1
+hypothesis==6.169.1   # Phase 22 property tests (keyed futures)

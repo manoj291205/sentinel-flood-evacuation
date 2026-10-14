@@ -1,0 +1,883 @@
+{
+  "contract": "sentinel-demo-steps-v1",
+  "source": "FIXTURE",
+  "note": "Scripted guided demo copied from docs/design/sentinel-console/Main.dc.html. Simulated values only. Replaced by live gate output in Phase 34A.",
+  "routes": {
+    "c1": {
+      "label": "Z-03 -> S-04",
+      "svg_path": "M270.5 271.0L286.8 277.7L333.2 296.8L330.0 306.2L366.4 315.3L403.3 314.8L436.1 328.8L517.1 355.6L553.3 363.9L591.9 375.6L604.5 380.6L620.4 388.3L638.5 399.6L649.2 407.3L689.3 440.0L725.3 468.6L744.9 479.0L744.4 443.5L739.3 406.9"
+    },
+    "c2": {
+      "label": "Z-01 -> S-02",
+      "svg_path": "M152.6 582.2L178.3 503.3L110.3 476.1L132.3 424.8L82.6 401.6L86.3 384.6"
+    },
+    "c3": {
+      "label": "Z-02 -> S-05",
+      "svg_path": "M717.2 663.4L749.1 661.8L744.2 651.0L737.5 615.1L735.5 586.5L738.1 570.6L741.0 553.1L741.8 527.7L743.4 503.0L744.9 479.0L744.4 443.5L739.3 406.9L736.1 382.6L732.4 359.4L732.1 357.8L730.9 332.8L730.5 297.0L729.2 267.0L726.1 235.1L683.4 222.8L647.7 210.8L621.2 202.3L615.7 200.6L570.4 187.8L503.9 182.4L481.4 174.6L405.4 142.3"
+    },
+    "c4": {
+      "label": "Z-04 -> S-01",
+      "svg_path": "M660.8 153.4L625.1 148.9L615.7 200.6L575.9 311.2L566.4 335.7L555.2 359.7L553.3 363.9L541.7 385.5L530.4 400.3L523.2 406.2L485.9 444.8L483.9 447.8L482.3 451.8L482.9 455.6L485.8 462.2L490.6 471.8L495.9 483.5L501.4 494.6L501.9 501.9L504.1 548.1L508.3 583.7L503.9 604.2L498.8 616.5L486.8 642.8L485.2 651.1L484.8 659.2L485.0 679.0L484.9 680.8L484.9 706.6L468.7 707.5L436.0 713.0"
+    },
+    "m9": {
+      "label": "G-0009 -> S-04",
+      "svg_path": "M553.3 363.9L591.9 375.6L604.5 380.6L620.4 388.3L638.5 399.6L649.2 407.3L689.3 440.0L725.3 468.6L744.9 479.0L744.4 443.5L739.3 406.9"
+    }
+  },
+  "steps": [
+    {
+      "step_index": 0,
+      "timestep": 4,
+      "pipeline_stage": 4,
+      "highlight_zone": "Z-01",
+      "default_selection": "c2",
+      "kind": "NEW DISPATCH",
+      "caption": "Water at sensor WL-02 is rising (1.18 m). Sentinel samples 256 possible hazard futures and checks every dispatch option against all of them before suggesting anything.",
+      "suggestion": {
+        "title": "Dispatch Z-01 → S-02 · 35 people",
+        "meta": "320 m · ETA t+2 · certified 0.958 ≥ 0.95",
+        "why": [
+          "Zone 01 is forecast to flood first (simulated hazard 0.78 by t+3).",
+          "Shortest route that stays open in 251 of 256 futures.",
+          "S-02 still has 41 certified free seats after this group arrives."
+        ]
+      },
+      "gate": {
+        "meta": "n = 256 futures · 39 ms · δ = 0.01",
+        "candidates": [
+          {
+            "id": "c2",
+            "label": "Z-01 → S-02 · 35",
+            "status": "FEASIBLE",
+            "lower": 0.958,
+            "upper": 0.992,
+            "meta": "S 251/256 · ETA t+2"
+          },
+          {
+            "id": "c1",
+            "label": "Z-03 → S-04 · 40",
+            "status": "UNDECIDED",
+            "lower": 0.936,
+            "upper": 0.984,
+            "meta": "S 247/256 · blocked"
+          },
+          {
+            "id": "c3",
+            "label": "Z-02 → S-05 · 40",
+            "status": "UNDECIDED",
+            "lower": 0.921,
+            "upper": 0.978,
+            "meta": "S 244/256 · blocked"
+          },
+          {
+            "id": "hold",
+            "label": "HOLD · no dispatch",
+            "status": "ALWAYS ALLOWED",
+            "lower": null,
+            "upper": null,
+            "meta": "escalates if alone"
+          }
+        ]
+      },
+      "decision_required": true,
+      "override_alternatives": [
+        "HOLD (no dispatch)"
+      ],
+      "certificate_id": "CERT-000125",
+      "hold_record": null,
+      "auto_note": null,
+      "events": [
+        {
+          "timestep": 4,
+          "kind": "info",
+          "text": "Sensor WL-02 water level 1.18 m (age 3 s)"
+        },
+        {
+          "timestep": 4,
+          "kind": "ok",
+          "text": "Gate certified Z-01 → S-02 at 0.958 — suggestion shown to operator"
+        }
+      ],
+      "kpis": {
+        "waiting": 555,
+        "on_road": 75,
+        "safe": 90,
+        "certificates_issued": 124
+      },
+      "moving_group": null,
+      "g0009_label": "G-0009 · 40 · → S-03 · ETA t+7",
+      "groups": [
+        {
+          "group_id": "G-0008",
+          "route": "Z-01 → S-02 · 30",
+          "meta": "ETA t+5 · bound 0.981",
+          "state": "ON TRACK",
+          "tone": "ok"
+        },
+        {
+          "group_id": "G-0009",
+          "route": "Z-04 → S-03 · 40",
+          "meta": "ETA t+7 · bound 0.968",
+          "state": "ON TRACK",
+          "tone": "ok"
+        }
+      ],
+      "shelters": [
+        {
+          "shelter_id": "S-01",
+          "name": "Fort Kochi Hall",
+          "capacity_total": 120,
+          "occupied": 96,
+          "reserved": 0,
+          "status": "RESTRICTED"
+        },
+        {
+          "shelter_id": "S-02",
+          "name": "St. Francis School",
+          "capacity_total": 150,
+          "occupied": 104,
+          "reserved": 0,
+          "status": "OPEN"
+        },
+        {
+          "shelter_id": "S-03",
+          "name": "Parade Ground Centre",
+          "capacity_total": 140,
+          "occupied": 60,
+          "reserved": 40,
+          "status": "OPEN"
+        },
+        {
+          "shelter_id": "S-04",
+          "name": "Veli Community Hall",
+          "capacity_total": 200,
+          "occupied": 88,
+          "reserved": 0,
+          "status": "OPEN"
+        },
+        {
+          "shelter_id": "S-05",
+          "name": "Kunnumpuram School",
+          "capacity_total": 160,
+          "occupied": 52,
+          "reserved": 0,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "step_index": 1,
+      "timestep": 5,
+      "pipeline_stage": 3,
+      "highlight_zone": null,
+      "default_selection": "m9",
+      "kind": "AUTOMATIC SAFETY ACTION",
+      "caption": "Shelter S-03 is closed (sensed severity 0.91) while group G-0009 is still on its way there. Sentinel re-checks every group already on the road — not just new dispatches.",
+      "suggestion": {
+        "title": "Migrate G-0009 · S-03 → S-04",
+        "meta": "G-0009 bound fell 0.968 → 0.71 · keep threshold 0.90",
+        "why": [
+          "S-03 is no longer safe at G-0009’s arrival time.",
+          "S-04 is certified at 0.963 and 40 seats are reserved before the group is re-routed.",
+          "Hysteresis (keep 0.90 vs dispatch 0.95) stops groups being bounced between shelters."
+        ]
+      },
+      "gate": {
+        "meta": "n = 256 futures · 44 ms · re-certification",
+        "candidates": [
+          {
+            "id": "m9",
+            "label": "G-0009 → S-04 (migrate)",
+            "status": "FEASIBLE",
+            "lower": 0.963,
+            "upper": 0.994,
+            "meta": "S 252/256 · +1 step"
+          },
+          {
+            "id": "keep",
+            "label": "G-0009 keeps S-03",
+            "status": "INFEASIBLE",
+            "lower": 0.62,
+            "upper": 0.79,
+            "meta": "below keep 0.90"
+          }
+        ]
+      },
+      "decision_required": false,
+      "override_alternatives": [],
+      "certificate_id": null,
+      "hold_record": null,
+      "auto_note": "Committed automatically as CERT-000126 (release S-03 + reserve S-04 in one step). The operator is notified and can reverse it from the audit log.",
+      "events": [
+        {
+          "timestep": 5,
+          "kind": "ok",
+          "text": "Operator accepted Z-01 → S-02 · CERT-000125 · group G-0011 dispatched"
+        },
+        {
+          "timestep": 5,
+          "kind": "bad",
+          "text": "S-03 closed — sensed severity 0.91"
+        },
+        {
+          "timestep": 5,
+          "kind": "warn",
+          "text": "G-0009 bound 0.71 < keep 0.90 → re-certifying"
+        }
+      ],
+      "kpis": {
+        "waiting": 520,
+        "on_road": 110,
+        "safe": 90,
+        "certificates_issued": 126
+      },
+      "moving_group": null,
+      "g0009_label": "G-0009 · re-routing → S-04",
+      "groups": [
+        {
+          "group_id": "G-0008",
+          "route": "Z-01 → S-02 · 30",
+          "meta": "arriving · bound 0.990",
+          "state": "ON TRACK",
+          "tone": "ok"
+        },
+        {
+          "group_id": "G-0009",
+          "route": "Z-04 → S-03 · 40",
+          "meta": "bound 0.71 < keep 0.90",
+          "state": "MIGRATING",
+          "tone": "warn"
+        },
+        {
+          "group_id": "G-0011",
+          "route": "Z-01 → S-02 · 35",
+          "meta": "ETA t+7 · bound 0.958",
+          "state": "ON TRACK",
+          "tone": "ok"
+        }
+      ],
+      "shelters": [
+        {
+          "shelter_id": "S-01",
+          "name": "Fort Kochi Hall",
+          "capacity_total": 120,
+          "occupied": 96,
+          "reserved": 0,
+          "status": "RESTRICTED"
+        },
+        {
+          "shelter_id": "S-02",
+          "name": "St. Francis School",
+          "capacity_total": 150,
+          "occupied": 104,
+          "reserved": 35,
+          "status": "OPEN"
+        },
+        {
+          "shelter_id": "S-03",
+          "name": "Parade Ground Centre",
+          "capacity_total": 140,
+          "occupied": 60,
+          "reserved": 0,
+          "status": "CLOSED"
+        },
+        {
+          "shelter_id": "S-04",
+          "name": "Veli Community Hall",
+          "capacity_total": 200,
+          "occupied": 88,
+          "reserved": 40,
+          "status": "OPEN"
+        },
+        {
+          "shelter_id": "S-05",
+          "name": "Kunnumpuram School",
+          "capacity_total": 160,
+          "occupied": 52,
+          "reserved": 0,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "step_index": 2,
+      "timestep": 6,
+      "pipeline_stage": 4,
+      "highlight_zone": "Z-03",
+      "default_selection": "c1",
+      "kind": "NEW DISPATCH",
+      "caption": "G-0009 is now heading to S-04 with its seats already reserved. With the ledger updated, Sentinel suggests the next dispatch: Zone 03 to S-04.",
+      "suggestion": {
+        "title": "Dispatch Z-03 → S-04 · 40 people",
+        "meta": "683 m · ETA t+4 · certified 0.962 ≥ 0.95",
+        "why": [
+          "Zone 03 has the most people still waiting (142).",
+          "Route stays open in 252 of 256 futures, including after the t+3 closure.",
+          "S-04 can take G-0009 and this group together — checked jointly, not one at a time."
+        ]
+      },
+      "gate": {
+        "meta": "n = 256 futures · 41 ms · δ = 0.01",
+        "candidates": [
+          {
+            "id": "c1",
+            "label": "Z-03 → S-04 · 40",
+            "status": "FEASIBLE",
+            "lower": 0.962,
+            "upper": 0.995,
+            "meta": "S 252/256 · ETA t+4"
+          },
+          {
+            "id": "c2",
+            "label": "Z-01 → S-02 · 35",
+            "status": "FEASIBLE",
+            "lower": 0.955,
+            "upper": 0.991,
+            "meta": "S 250/256 · ETA t+2"
+          },
+          {
+            "id": "c3",
+            "label": "Z-02 → S-05 · 40",
+            "status": "UNDECIDED",
+            "lower": 0.914,
+            "upper": 0.975,
+            "meta": "S 243/256 · blocked"
+          },
+          {
+            "id": "c4",
+            "label": "Z-04 → S-01 · 30",
+            "status": "INFEASIBLE",
+            "lower": 0.801,
+            "upper": 0.903,
+            "meta": "S 219/256 · shelter rising"
+          },
+          {
+            "id": "hold",
+            "label": "HOLD · no dispatch",
+            "status": "ALWAYS ALLOWED",
+            "lower": null,
+            "upper": null,
+            "meta": "escalates if alone"
+          }
+        ]
+      },
+      "decision_required": true,
+      "override_alternatives": [
+        "Z-01 → S-02 · certified 0.955",
+        "HOLD (no dispatch)"
+      ],
+      "certificate_id": "CERT-000127",
+      "hold_record": null,
+      "auto_note": null,
+      "events": [
+        {
+          "timestep": 6,
+          "kind": "ok",
+          "text": "G-0009 migrated S-03 → S-04 · CERT-000126"
+        },
+        {
+          "timestep": 6,
+          "kind": "bad",
+          "text": "Road segment near Z-02 forecast to close at t+3"
+        },
+        {
+          "timestep": 6,
+          "kind": "ok",
+          "text": "Gate certified Z-03 → S-04 at 0.962 — suggestion shown"
+        }
+      ],
+      "kpis": {
+        "waiting": 520,
+        "on_road": 110,
+        "safe": 90,
+        "certificates_issued": 126
+      },
+      "moving_group": {
+        "x": 270.5,
+        "y": 271,
+        "label": "G-0010 · 40 · ready"
+      },
+      "g0009_label": "G-0009 · migrated → S-04",
+      "groups": [
+        {
+          "group_id": "G-0009",
+          "route": "Z-04 → S-04 · 40",
+          "meta": "ETA t+8 · bound 0.963",
+          "state": "MIGRATED",
+          "tone": "info"
+        },
+        {
+          "group_id": "G-0011",
+          "route": "Z-01 → S-02 · 35",
+          "meta": "ETA t+7 · bound 0.960",
+          "state": "ON TRACK",
+          "tone": "ok"
+        }
+      ],
+      "shelters": [
+        {
+          "shelter_id": "S-01",
+          "name": "Fort Kochi Hall",
+          "capacity_total": 120,
+          "occupied": 96,
+          "reserved": 0,
+          "status": "RESTRICTED"
+        },
+        {
+          "shelter_id": "S-02",
+          "name": "St. Francis School",
+          "capacity_total": 150,
+          "occupied": 104,
+          "reserved": 35,
+          "status": "OPEN"
+        },
+        {
+          "shelter_id": "S-03",
+          "name": "Parade Ground Centre",
+          "capacity_total": 140,
+          "occupied": 60,
+          "reserved": 0,
+          "status": "CLOSED"
+        },
+        {
+          "shelter_id": "S-04",
+          "name": "Veli Community Hall",
+          "capacity_total": 200,
+          "occupied": 88,
+          "reserved": 40,
+          "status": "OPEN"
+        },
+        {
+          "shelter_id": "S-05",
+          "name": "Kunnumpuram School",
+          "capacity_total": 160,
+          "occupied": 52,
+          "reserved": 0,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "step_index": 3,
+      "timestep": 7,
+      "pipeline_stage": 3,
+      "highlight_zone": "Z-02",
+      "default_selection": "c3",
+      "kind": "NEW DISPATCH",
+      "caption": "Z-02 → S-05 was UNDECIDED: the evidence was too thin to call it safe, so it stayed blocked (fail-closed). Sentinel doubled the sample to 512 futures — now the bound clears 0.95.",
+      "suggestion": {
+        "title": "Dispatch Z-02 → S-05 · 40 people",
+        "meta": "897 m · ETA t+6 · certified 0.953 ≥ 0.95 (n = 512)",
+        "why": [
+          "Zone 02 sits next to the road forecast to close — waiting longer increases risk.",
+          "With 512 futures the lower bound is 0.953, above the 0.95 threshold.",
+          "Uncertain options are never sent: if the bound had stayed below 0.95, this would still be blocked."
+        ]
+      },
+      "gate": {
+        "meta": "n = 512 futures · 86 ms · δ = 0.01",
+        "candidates": [
+          {
+            "id": "c3",
+            "label": "Z-02 → S-05 · 40",
+            "status": "FEASIBLE",
+            "lower": 0.953,
+            "upper": 0.981,
+            "meta": "S 503/512 · ETA t+6"
+          },
+          {
+            "id": "c4",
+            "label": "Z-04 → S-01 · 30",
+            "status": "INFEASIBLE",
+            "lower": 0.792,
+            "upper": 0.889,
+            "meta": "S 433/512 · shelter rising"
+          },
+          {
+            "id": "hold",
+            "label": "HOLD · no dispatch",
+            "status": "ALWAYS ALLOWED",
+            "lower": null,
+            "upper": null,
+            "meta": "escalates if alone"
+          }
+        ]
+      },
+      "decision_required": true,
+      "override_alternatives": [
+        "HOLD (no dispatch)"
+      ],
+      "certificate_id": "CERT-000128",
+      "hold_record": null,
+      "auto_note": null,
+      "events": [
+        {
+          "timestep": 7,
+          "kind": "ok",
+          "text": "Operator accepted Z-03 → S-04 · CERT-000127 · group G-0010 dispatched"
+        },
+        {
+          "timestep": 7,
+          "kind": "warn",
+          "text": "Z-02 → S-05 UNDECIDED at n = 256 → sampling 512 futures"
+        },
+        {
+          "timestep": 7,
+          "kind": "ok",
+          "text": "Z-02 → S-05 certified at 0.953 — suggestion shown"
+        }
+      ],
+      "kpis": {
+        "waiting": 480,
+        "on_road": 150,
+        "safe": 90,
+        "certificates_issued": 127
+      },
+      "moving_group": {
+        "x": 436.1,
+        "y": 328.8,
+        "label": "G-0010 · 40 · ETA t+3"
+      },
+      "g0009_label": "G-0009 · migrated → S-04",
+      "groups": [
+        {
+          "group_id": "G-0009",
+          "route": "Z-04 → S-04 · 40",
+          "meta": "ETA t+8 · bound 0.966",
+          "state": "MIGRATED",
+          "tone": "info"
+        },
+        {
+          "group_id": "G-0010",
+          "route": "Z-03 → S-04 · 40",
+          "meta": "ETA t+10 · bound 0.962",
+          "state": "ON TRACK",
+          "tone": "ok"
+        },
+        {
+          "group_id": "G-0011",
+          "route": "Z-01 → S-02 · 35",
+          "meta": "ETA t+7 · bound 0.971",
+          "state": "ON TRACK",
+          "tone": "ok"
+        }
+      ],
+      "shelters": [
+        {
+          "shelter_id": "S-01",
+          "name": "Fort Kochi Hall",
+          "capacity_total": 120,
+          "occupied": 96,
+          "reserved": 0,
+          "status": "RESTRICTED"
+        },
+        {
+          "shelter_id": "S-02",
+          "name": "St. Francis School",
+          "capacity_total": 150,
+          "occupied": 104,
+          "reserved": 35,
+          "status": "OPEN"
+        },
+        {
+          "shelter_id": "S-03",
+          "name": "Parade Ground Centre",
+          "capacity_total": 140,
+          "occupied": 60,
+          "reserved": 0,
+          "status": "CLOSED"
+        },
+        {
+          "shelter_id": "S-04",
+          "name": "Veli Community Hall",
+          "capacity_total": 200,
+          "occupied": 88,
+          "reserved": 80,
+          "status": "OPEN"
+        },
+        {
+          "shelter_id": "S-05",
+          "name": "Kunnumpuram School",
+          "capacity_total": 160,
+          "occupied": 52,
+          "reserved": 40,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "step_index": 4,
+      "timestep": 8,
+      "pipeline_stage": 4,
+      "highlight_zone": "Z-04",
+      "default_selection": "hold",
+      "kind": "HOLD + ESCALATE",
+      "caption": "The forecast closure happens. For Zone 04 no option reaches 0.95, so Sentinel does not guess: it suggests HOLD and escalates to the field team.",
+      "suggestion": {
+        "title": "HOLD Zone 04 · escalate to field team",
+        "meta": "best option 0.784 < 0.95 · re-check every step",
+        "why": [
+          "S-01 water level is still rising — arrival would be unsafe in 1 of 9 futures.",
+          "Every other shelter route crosses the closed segment.",
+          "Holding 96 people is safer than sending them into an uncertified route."
+        ]
+      },
+      "gate": {
+        "meta": "n = 512 futures · 91 ms · δ = 0.01",
+        "candidates": [
+          {
+            "id": "c4",
+            "label": "Z-04 → S-01 · 30",
+            "status": "INFEASIBLE",
+            "lower": 0.784,
+            "upper": 0.881,
+            "meta": "S 431/512 · shelter rising"
+          },
+          {
+            "id": "hold",
+            "label": "HOLD · no dispatch",
+            "status": "ALWAYS ALLOWED",
+            "lower": null,
+            "upper": null,
+            "meta": "selected · escalation"
+          }
+        ]
+      },
+      "decision_required": true,
+      "override_alternatives": [],
+      "certificate_id": null,
+      "hold_record": "HOLD logged as AUD-000412 · escalation sent to Field Team 3.",
+      "auto_note": null,
+      "events": [
+        {
+          "timestep": 8,
+          "kind": "ok",
+          "text": "Operator accepted Z-02 → S-05 · CERT-000128 · group G-0012 dispatched"
+        },
+        {
+          "timestep": 8,
+          "kind": "bad",
+          "text": "Road near Z-02 closed (as forecast)"
+        },
+        {
+          "timestep": 8,
+          "kind": "ok",
+          "text": "G-0011 arrived at S-02 · 35 people safe"
+        },
+        {
+          "timestep": 8,
+          "kind": "warn",
+          "text": "Zone 04: no certified option — HOLD suggested"
+        }
+      ],
+      "kpis": {
+        "waiting": 440,
+        "on_road": 155,
+        "safe": 125,
+        "certificates_issued": 128
+      },
+      "moving_group": {
+        "x": 638.5,
+        "y": 399.6,
+        "label": "G-0010 · 40 · ETA t+2"
+      },
+      "g0009_label": "G-0009 · arriving S-04",
+      "groups": [
+        {
+          "group_id": "G-0009",
+          "route": "Z-04 → S-04 · 40",
+          "meta": "ETA t+9 · bound 0.972",
+          "state": "MIGRATED",
+          "tone": "info"
+        },
+        {
+          "group_id": "G-0010",
+          "route": "Z-03 → S-04 · 40",
+          "meta": "ETA t+10 · bound 0.968",
+          "state": "ON TRACK",
+          "tone": "ok"
+        },
+        {
+          "group_id": "G-0012",
+          "route": "Z-02 → S-05 · 40",
+          "meta": "ETA t+13 · bound 0.953",
+          "state": "ON TRACK",
+          "tone": "ok"
+        }
+      ],
+      "shelters": [
+        {
+          "shelter_id": "S-01",
+          "name": "Fort Kochi Hall",
+          "capacity_total": 120,
+          "occupied": 96,
+          "reserved": 0,
+          "status": "RESTRICTED"
+        },
+        {
+          "shelter_id": "S-02",
+          "name": "St. Francis School",
+          "capacity_total": 150,
+          "occupied": 139,
+          "reserved": 0,
+          "status": "OPEN"
+        },
+        {
+          "shelter_id": "S-03",
+          "name": "Parade Ground Centre",
+          "capacity_total": 140,
+          "occupied": 60,
+          "reserved": 0,
+          "status": "CLOSED"
+        },
+        {
+          "shelter_id": "S-04",
+          "name": "Veli Community Hall",
+          "capacity_total": 200,
+          "occupied": 88,
+          "reserved": 80,
+          "status": "OPEN"
+        },
+        {
+          "shelter_id": "S-05",
+          "name": "Kunnumpuram School",
+          "capacity_total": 160,
+          "occupied": 52,
+          "reserved": 40,
+          "status": "OPEN"
+        }
+      ]
+    },
+    {
+      "step_index": 5,
+      "timestep": 10,
+      "pipeline_stage": 0,
+      "highlight_zone": null,
+      "default_selection": "c4",
+      "kind": "MONITORING",
+      "caption": "G-0010 reaches S-04: 40 more people safe. Every decision so far has a certificate that can be replayed bit-for-bit — open Decisions & Certificates to check any of them.",
+      "suggestion": {
+        "title": "Monitoring · 2 groups on the road",
+        "meta": "Zone 04 re-check: 0.932 — still blocked",
+        "why": [
+          "S-01 water level has started to fall, so the Zone 04 bound is improving.",
+          "Not yet above 0.95 — the gate keeps it blocked until it is.",
+          "Next forecast update arrives at t 11."
+        ]
+      },
+      "gate": {
+        "meta": "n = 512 futures · 88 ms · δ = 0.01",
+        "candidates": [
+          {
+            "id": "c4",
+            "label": "Z-04 → S-01 · 30",
+            "status": "UNDECIDED",
+            "lower": 0.932,
+            "upper": 0.971,
+            "meta": "S 497/512 · improving"
+          },
+          {
+            "id": "hold",
+            "label": "HOLD · no dispatch",
+            "status": "ALWAYS ALLOWED",
+            "lower": null,
+            "upper": null,
+            "meta": "escalates if alone"
+          }
+        ]
+      },
+      "decision_required": false,
+      "override_alternatives": [],
+      "certificate_id": null,
+      "hold_record": null,
+      "auto_note": "No dispatch is certified this step, so there is nothing to approve. Sentinel keeps checking.",
+      "events": [
+        {
+          "timestep": 10,
+          "kind": "ok",
+          "text": "G-0010 arrived at S-04 · 40 people safe"
+        },
+        {
+          "timestep": 10,
+          "kind": "ok",
+          "text": "G-0009 arrived at S-04 · 40 people safe"
+        },
+        {
+          "timestep": 10,
+          "kind": "info",
+          "text": "Zone 04 bound improving: 0.784 → 0.932"
+        }
+      ],
+      "kpis": {
+        "waiting": 440,
+        "on_road": 75,
+        "safe": 205,
+        "certificates_issued": 128
+      },
+      "moving_group": {
+        "x": 739.3,
+        "y": 440,
+        "label": "G-0010 · arrived S-04"
+      },
+      "g0009_label": "G-0009 · arrived S-04",
+      "groups": [
+        {
+          "group_id": "G-0012",
+          "route": "Z-02 → S-05 · 40",
+          "meta": "ETA t+13 · bound 0.959",
+          "state": "ON TRACK",
+          "tone": "ok"
+        },
+        {
+          "group_id": "G-0013",
+          "route": "Z-01 → S-02 · 35",
+          "meta": "ETA t+12 · bound 0.977",
+          "state": "ON TRACK",
+          "tone": "ok"
+        }
+      ],
+      "shelters": [
+        {
+          "shelter_id": "S-01",
+          "name": "Fort Kochi Hall",
+          "capacity_total": 120,
+          "occupied": 96,
+          "reserved": 0,
+          "status": "RESTRICTED"
+        },
+        {
+          "shelter_id": "S-02",
+          "name": "St. Francis School",
+          "capacity_total": 150,
+          "occupied": 139,
+          "reserved": 35,
+          "status": "OPEN"
+        },
+        {
+          "shelter_id": "S-03",
+          "name": "Parade Ground Centre",
+          "capacity_total": 140,
+          "occupied": 60,
+          "reserved": 0,
+          "status": "CLOSED"
+        },
+        {
+          "shelter_id": "S-04",
+          "name": "Veli Community Hall",
+          "capacity_total": 200,
+          "occupied": 168,
+          "reserved": 0,
+          "status": "OPEN"
+        },
+        {
+          "shelter_id": "S-05",
+          "name": "Kunnumpuram School",
+          "capacity_total": 160,
+          "occupied": 52,
+          "reserved": 40,
+          "status": "OPEN"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "contract": "sentinel-decision-why-fixture-v1",
+  "source": "FIXTURE",
+  "items": [
+    {
+      "decision_id": "CERT-000125",
+      "source": "FIXTURE",
+      "title": "Dispatch Z-01 -> S-02 \u00b7 35 people",
+      "reasons": [
+        "Zone 01 is forecast to flood first (simulated hazard 0.78 by t+3).",
+        "Shortest route that stays open in 251 of 256 futures.",
+        "S-02 still has 41 certified free seats after this group arrives."
+      ],
+      "certified_lower": 0.958,
+      "threshold": 0.95,
+      "futures_used": 256
+    },
+    {
+      "decision_id": "CERT-000126",
+      "source": "FIXTURE",
+      "title": "Migrate G-0009 \u00b7 S-03 -> S-04",
+      "reasons": [
+        "S-03 is no longer safe at G-0009's arrival time.",
+        "S-04 is certified at 0.963 and 40 seats are reserved before the group is re-routed.",
+        "Hysteresis (keep 0.90 vs dispatch 0.95) stops groups being bounced between shelters."
+      ],
+      "certified_lower": 0.963,
+      "threshold": 0.95,
+      "futures_used": 256
+    },
+    {
+      "decision_id": "CERT-000127",
+      "source": "FIXTURE",
+      "title": "Dispatch Z-03 -> S-04 \u00b7 40 people",
+      "reasons": [
+        "Zone 03 has the most people still waiting (142).",
+        "Route stays open in 252 of 256 futures, including after the t+3 closure.",
+        "S-04 can take G-0009 and this group together \u2014 checked jointly, not one at a time."
+      ],
+      "certified_lower": 0.962,
+      "threshold": 0.95,
+      "futures_used": 256
+    },
+    {
+      "decision_id": "CERT-000128",
+      "source": "FIXTURE",
+      "title": "Dispatch Z-02 -> S-05 \u00b7 40 people",
+      "reasons": [
+        "Zone 02 sits next to the road forecast to close \u2014 waiting longer increases risk.",
+        "With 512 futures the lower bound is 0.953, above the 0.95 threshold.",
+        "Uncertain options are never sent: below 0.95 it would still be blocked."
+      ],
+      "certified_lower": 0.953,
+      "threshold": 0.95,
+      "futures_used": 512
+    },
+    {
+      "decision_id": "AUD-000412",
+      "source": "FIXTURE",
+      "title": "HOLD Zone 04 \u00b7 escalate to field team",
+      "reasons": [
+        "S-01 water level is still rising \u2014 arrival would be unsafe in about 1 of 7 futures.",
+        "Every other shelter route crosses the closed segment.",
+        "Holding is safer than sending people on an uncertified route."
+      ],
+      "certified_lower": 0.784,
+      "threshold": 0.95,
+      "futures_used": 512
+    }
+  ]
+}

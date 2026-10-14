@@ -1,0 +1,517 @@
+{
+  "contract": "sentinel-certificates-fixture-v1",
+  "source": "FIXTURE",
+  "note": "Simulated, design-consistent certificates for Lane X UI/API work before Phase 25 lands. Hashes are fixture values.",
+  "hash_rule": "cert_hash = sha256(canonical JSON of the certificate without cert_hash, sort_keys, separators (',',':'))",
+  "certificates": [
+    {
+      "cert_id": "CERT-000125",
+      "cert_version": "sentinel-cert-v1",
+      "kind": "DISPATCH",
+      "incident_id": "KOCHI-SIM-620000",
+      "scenario_id": "gate6-practical-620000",
+      "timestep": 4,
+      "root_key": "d3b7bc836f9387908351a36b0cc518b36dfca18dfe6aa3a8713a643a5757ce5c",
+      "forecast_hash": "554f7dae6b7a2b532ca1adb77c52096d9d46b6c816b23a1d933fdc9cab428afd",
+      "graph_fingerprint": "e30ea946a94c4214bfa4afe938f6890728736c48baeee925eeac3cf7d5648dc6",
+      "ledger_hash": "4a327ac03738844c24b7dda381dc241b1a43eba6307b5dc56291fd002a193d0a",
+      "params": {
+        "params_id": "v4-cert-v1",
+        "eps_dispatch": 0.05,
+        "eps_keep": 0.1,
+        "delta": 0.01,
+        "k0": 256,
+        "max_looks": 4,
+        "a_max": 21,
+        "deadline_ms": 100.0,
+        "backend": "sha256"
+      },
+      "futures_used": 256,
+      "looks": 1,
+      "deadline_hit": false,
+      "candidates": [
+        {
+          "action_key": "Z-01->S-02",
+          "zone_id": "Z-01",
+          "shelter_id": "S-02",
+          "people": 35,
+          "verdict": "FEASIBLE",
+          "successes": 251,
+          "n": 256,
+          "lower": 0.958,
+          "upper": 0.992,
+          "mean_utility": 33.9,
+          "outcome_counts": {
+            "OK": 251,
+            "STRANDED": 3,
+            "UNSAFE": 0,
+            "OVERFLOW": 2
+          }
+        },
+        {
+          "action_key": "Z-03->S-04",
+          "zone_id": "Z-03",
+          "shelter_id": "S-04",
+          "people": 40,
+          "verdict": "UNDECIDED",
+          "successes": 247,
+          "n": 256,
+          "lower": 0.936,
+          "upper": 0.984,
+          "mean_utility": 37.1,
+          "outcome_counts": {
+            "OK": 247,
+            "STRANDED": 6,
+            "UNSAFE": 1,
+            "OVERFLOW": 2
+          }
+        },
+        {
+          "action_key": "Z-02->S-05",
+          "zone_id": "Z-02",
+          "shelter_id": "S-05",
+          "people": 40,
+          "verdict": "UNDECIDED",
+          "successes": 244,
+          "n": 256,
+          "lower": 0.921,
+          "upper": 0.978,
+          "mean_utility": 36.0,
+          "outcome_counts": {
+            "OK": 244,
+            "STRANDED": 9,
+            "UNSAFE": 2,
+            "OVERFLOW": 1
+          }
+        },
+        {
+          "action_key": "WAIT",
+          "zone_id": null,
+          "shelter_id": null,
+          "people": 0,
+          "verdict": "ALWAYS_ALLOWED",
+          "successes": 0,
+          "n": 0,
+          "lower": null,
+          "upper": null,
+          "mean_utility": 0.0,
+          "outcome_counts": {}
+        }
+      ],
+      "chosen": {
+        "action_key": "Z-01->S-02",
+        "people": 35,
+        "group_id": "G-0011"
+      },
+      "operator": {
+        "decision": "ACCEPT",
+        "actor": "Operator 01",
+        "reason": ""
+      },
+      "commands": [
+        {
+          "target": "vehicle-terminal",
+          "command": "route Z-01->S-02"
+        },
+        {
+          "target": "shelter-S-02",
+          "command": "reserve 35"
+        }
+      ],
+      "prev_cert_hash": null,
+      "cert_hash": "1bce3de2cb2a037fbc6056d675c41ff5a8dc4c6014d1f089c7c4704369fc2158"
+    },
+    {
+      "cert_id": "CERT-000126",
+      "cert_version": "sentinel-cert-v1",
+      "kind": "MIGRATION",
+      "incident_id": "KOCHI-SIM-620000",
+      "scenario_id": "gate6-practical-620000",
+      "timestep": 5,
+      "root_key": "c04e98685ee5a009f4887603e8017f4eb0b2a9ca171641f49480e8bdb1890cc7",
+      "forecast_hash": "d330d2681683718db0adae92765b1fd3d4d7d4b63aac210cb2b1c24f53231804",
+      "graph_fingerprint": "e30ea946a94c4214bfa4afe938f6890728736c48baeee925eeac3cf7d5648dc6",
+      "ledger_hash": "9280fd3ffb32178ab89040b71612d2214110b70db0800b7c35bf2e6fdc27d1c5",
+      "params": {
+        "params_id": "v4-cert-v1",
+        "eps_dispatch": 0.05,
+        "eps_keep": 0.1,
+        "delta": 0.01,
+        "k0": 256,
+        "max_looks": 4,
+        "a_max": 21,
+        "deadline_ms": 100.0,
+        "backend": "sha256"
+      },
+      "futures_used": 256,
+      "looks": 1,
+      "deadline_hit": false,
+      "candidates": [
+        {
+          "action_key": "Z-04->S-04",
+          "zone_id": "Z-04",
+          "shelter_id": "S-04",
+          "people": 40,
+          "verdict": "FEASIBLE",
+          "successes": 252,
+          "n": 256,
+          "lower": 0.963,
+          "upper": 0.994,
+          "mean_utility": 38.6,
+          "outcome_counts": {
+            "OK": 252,
+            "STRANDED": 2,
+            "UNSAFE": 0,
+            "OVERFLOW": 2
+          }
+        },
+        {
+          "action_key": "Z-04->S-03",
+          "zone_id": "Z-04",
+          "shelter_id": "S-03",
+          "people": 40,
+          "verdict": "INFEASIBLE",
+          "successes": 171,
+          "n": 256,
+          "lower": 0.62,
+          "upper": 0.79,
+          "mean_utility": 12.4,
+          "outcome_counts": {
+            "OK": 171,
+            "STRANDED": 0,
+            "UNSAFE": 85,
+            "OVERFLOW": 0
+          }
+        }
+      ],
+      "chosen": {
+        "action_key": "Z-04->S-04",
+        "people": 40,
+        "group_id": "G-0009"
+      },
+      "operator": {
+        "decision": "AUTO",
+        "actor": "Sentinel",
+        "reason": "S-03 closed; G-0009 below keep threshold 0.90"
+      },
+      "commands": [
+        {
+          "target": "vehicle-terminal",
+          "command": "route Z-04->S-04"
+        },
+        {
+          "target": "shelter-S-04",
+          "command": "reserve 40"
+        }
+      ],
+      "prev_cert_hash": "1bce3de2cb2a037fbc6056d675c41ff5a8dc4c6014d1f089c7c4704369fc2158",
+      "cert_hash": "38bfdd3d68c86ada230131a37d49b66b8036c412656d7b08d5096ac859690e2f"
+    },
+    {
+      "cert_id": "CERT-000127",
+      "cert_version": "sentinel-cert-v1",
+      "kind": "DISPATCH",
+      "incident_id": "KOCHI-SIM-620000",
+      "scenario_id": "gate6-practical-620000",
+      "timestep": 6,
+      "root_key": "1f4a66cfe255356534a9603faa877581de2d1b1d0b90a5e96db3b1f2121e6266",
+      "forecast_hash": "08d6e5a7c408903e599cc41b986d47bec38c42494c05440bf3cd51ba0f7e4f51",
+      "graph_fingerprint": "e30ea946a94c4214bfa4afe938f6890728736c48baeee925eeac3cf7d5648dc6",
+      "ledger_hash": "37d1f43bb278bdc06d8d554fbab1c47e4d053e234560917147eb80dc3e2685cc",
+      "params": {
+        "params_id": "v4-cert-v1",
+        "eps_dispatch": 0.05,
+        "eps_keep": 0.1,
+        "delta": 0.01,
+        "k0": 256,
+        "max_looks": 4,
+        "a_max": 21,
+        "deadline_ms": 100.0,
+        "backend": "sha256"
+      },
+      "futures_used": 256,
+      "looks": 1,
+      "deadline_hit": false,
+      "candidates": [
+        {
+          "action_key": "Z-03->S-04",
+          "zone_id": "Z-03",
+          "shelter_id": "S-04",
+          "people": 40,
+          "verdict": "FEASIBLE",
+          "successes": 252,
+          "n": 256,
+          "lower": 0.962,
+          "upper": 0.995,
+          "mean_utility": 38.4,
+          "outcome_counts": {
+            "OK": 252,
+            "STRANDED": 2,
+            "UNSAFE": 0,
+            "OVERFLOW": 2
+          }
+        },
+        {
+          "action_key": "Z-01->S-02",
+          "zone_id": "Z-01",
+          "shelter_id": "S-02",
+          "people": 35,
+          "verdict": "FEASIBLE",
+          "successes": 250,
+          "n": 256,
+          "lower": 0.955,
+          "upper": 0.991,
+          "mean_utility": 33.5,
+          "outcome_counts": {
+            "OK": 250,
+            "STRANDED": 4,
+            "UNSAFE": 0,
+            "OVERFLOW": 2
+          }
+        },
+        {
+          "action_key": "Z-02->S-05",
+          "zone_id": "Z-02",
+          "shelter_id": "S-05",
+          "people": 40,
+          "verdict": "UNDECIDED",
+          "successes": 243,
+          "n": 256,
+          "lower": 0.914,
+          "upper": 0.975,
+          "mean_utility": 35.2,
+          "outcome_counts": {
+            "OK": 243,
+            "STRANDED": 10,
+            "UNSAFE": 2,
+            "OVERFLOW": 1
+          }
+        },
+        {
+          "action_key": "Z-04->S-01",
+          "zone_id": "Z-04",
+          "shelter_id": "S-01",
+          "people": 30,
+          "verdict": "INFEASIBLE",
+          "successes": 219,
+          "n": 256,
+          "lower": 0.801,
+          "upper": 0.903,
+          "mean_utility": 20.3,
+          "outcome_counts": {
+            "OK": 219,
+            "STRANDED": 4,
+            "UNSAFE": 33,
+            "OVERFLOW": 0
+          }
+        },
+        {
+          "action_key": "WAIT",
+          "zone_id": null,
+          "shelter_id": null,
+          "people": 0,
+          "verdict": "ALWAYS_ALLOWED",
+          "successes": 0,
+          "n": 0,
+          "lower": null,
+          "upper": null,
+          "mean_utility": 0.0,
+          "outcome_counts": {}
+        }
+      ],
+      "chosen": {
+        "action_key": "Z-03->S-04",
+        "people": 40,
+        "group_id": "G-0010"
+      },
+      "operator": {
+        "decision": "ACCEPT",
+        "actor": "Operator 01",
+        "reason": ""
+      },
+      "commands": [
+        {
+          "target": "vehicle-terminal",
+          "command": "route Z-03->S-04"
+        },
+        {
+          "target": "shelter-S-04",
+          "command": "reserve 40"
+        }
+      ],
+      "prev_cert_hash": "38bfdd3d68c86ada230131a37d49b66b8036c412656d7b08d5096ac859690e2f",
+      "cert_hash": "e61a6b4a5ae266746ff49aa2dcadeeccff6165acda89a2e3ea96a96e083e0f6b"
+    },
+    {
+      "cert_id": "CERT-000128",
+      "cert_version": "sentinel-cert-v1",
+      "kind": "DISPATCH",
+      "incident_id": "KOCHI-SIM-620000",
+      "scenario_id": "gate6-practical-620000",
+      "timestep": 7,
+      "root_key": "802c0bdf503edc651ccf34277212407b761b72b8c08ca416bdc8a5e1dd643722",
+      "forecast_hash": "1455056bac9f8e5758e3c126968c2c2833f98f0a918a102e3b33e0a86b95c3bd",
+      "graph_fingerprint": "e30ea946a94c4214bfa4afe938f6890728736c48baeee925eeac3cf7d5648dc6",
+      "ledger_hash": "91b35461a212be476b0aea478948f6500e471a67af93dc9705d33ea47acbb71a",
+      "params": {
+        "params_id": "v4-cert-v1",
+        "eps_dispatch": 0.05,
+        "eps_keep": 0.1,
+        "delta": 0.01,
+        "k0": 256,
+        "max_looks": 4,
+        "a_max": 21,
+        "deadline_ms": 100.0,
+        "backend": "sha256"
+      },
+      "futures_used": 512,
+      "looks": 2,
+      "deadline_hit": false,
+      "candidates": [
+        {
+          "action_key": "Z-02->S-05",
+          "zone_id": "Z-02",
+          "shelter_id": "S-05",
+          "people": 40,
+          "verdict": "FEASIBLE",
+          "successes": 503,
+          "n": 512,
+          "lower": 0.953,
+          "upper": 0.981,
+          "mean_utility": 37.2,
+          "outcome_counts": {
+            "OK": 503,
+            "STRANDED": 7,
+            "UNSAFE": 1,
+            "OVERFLOW": 1
+          }
+        },
+        {
+          "action_key": "Z-04->S-01",
+          "zone_id": "Z-04",
+          "shelter_id": "S-01",
+          "people": 30,
+          "verdict": "INFEASIBLE",
+          "successes": 433,
+          "n": 512,
+          "lower": 0.792,
+          "upper": 0.889,
+          "mean_utility": 19.8,
+          "outcome_counts": {
+            "OK": 433,
+            "STRANDED": 9,
+            "UNSAFE": 70,
+            "OVERFLOW": 0
+          }
+        },
+        {
+          "action_key": "WAIT",
+          "zone_id": null,
+          "shelter_id": null,
+          "people": 0,
+          "verdict": "ALWAYS_ALLOWED",
+          "successes": 0,
+          "n": 0,
+          "lower": null,
+          "upper": null,
+          "mean_utility": 0.0,
+          "outcome_counts": {}
+        }
+      ],
+      "chosen": {
+        "action_key": "Z-02->S-05",
+        "people": 40,
+        "group_id": "G-0012"
+      },
+      "operator": {
+        "decision": "ACCEPT",
+        "actor": "Operator 01",
+        "reason": ""
+      },
+      "commands": [
+        {
+          "target": "vehicle-terminal",
+          "command": "route Z-02->S-05"
+        },
+        {
+          "target": "shelter-S-05",
+          "command": "reserve 40"
+        }
+      ],
+      "prev_cert_hash": "e61a6b4a5ae266746ff49aa2dcadeeccff6165acda89a2e3ea96a96e083e0f6b",
+      "cert_hash": "35ce43e62d8b81f5d18b589b8276ebd91cb3c1ae11e4a69da807e9a080602d14"
+    },
+    {
+      "cert_id": "AUD-000412",
+      "cert_version": "sentinel-cert-v1",
+      "kind": "HOLD",
+      "incident_id": "KOCHI-SIM-620000",
+      "scenario_id": "gate6-practical-620000",
+      "timestep": 8,
+      "root_key": "bbcccb11b83eb285de7698dbc1b83506c9cf7e50aa44ff21ae107d3a373286ac",
+      "forecast_hash": "c08ecbe1bb772e29d5d8046ab24de565a21a7b4147feb752e5fb48825f7bac28",
+      "graph_fingerprint": "e30ea946a94c4214bfa4afe938f6890728736c48baeee925eeac3cf7d5648dc6",
+      "ledger_hash": "d747231aa059021fbe74180362c528523e395217654b21d67fed7cf156b2a3ea",
+      "params": {
+        "params_id": "v4-cert-v1",
+        "eps_dispatch": 0.05,
+        "eps_keep": 0.1,
+        "delta": 0.01,
+        "k0": 256,
+        "max_looks": 4,
+        "a_max": 21,
+        "deadline_ms": 100.0,
+        "backend": "sha256"
+      },
+      "futures_used": 512,
+      "looks": 2,
+      "deadline_hit": false,
+      "candidates": [
+        {
+          "action_key": "Z-04->S-01",
+          "zone_id": "Z-04",
+          "shelter_id": "S-01",
+          "people": 30,
+          "verdict": "INFEASIBLE",
+          "successes": 431,
+          "n": 512,
+          "lower": 0.784,
+          "upper": 0.881,
+          "mean_utility": 19.0,
+          "outcome_counts": {
+            "OK": 431,
+            "STRANDED": 8,
+            "UNSAFE": 73,
+            "OVERFLOW": 0
+          }
+        },
+        {
+          "action_key": "WAIT",
+          "zone_id": null,
+          "shelter_id": null,
+          "people": 0,
+          "verdict": "ALWAYS_ALLOWED",
+          "successes": 0,
+          "n": 0,
+          "lower": null,
+          "upper": null,
+          "mean_utility": 0.0,
+          "outcome_counts": {}
+        }
+      ],
+      "chosen": {
+        "action_key": "WAIT",
+        "people": 0,
+        "group_id": null
+      },
+      "operator": {
+        "decision": "ACCEPT",
+        "actor": "Operator 01",
+        "reason": "No certified option for Zone 04; escalated to Field Team 3"
+      },
+      "commands": [],
+      "prev_cert_hash": "35ce43e62d8b81f5d18b589b8276ebd91cb3c1ae11e4a69da807e9a080602d14",
+      "cert_hash": "6834d63a9781f385fe95777bba7979dfc08d830f03547d7b18077fe2e4bc30dd"
+    }
+  ]
+}

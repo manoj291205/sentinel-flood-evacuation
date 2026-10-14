@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sentinel-certificate-v1",
+  "title": "Sentinel dispatch certificate (contract v1)",
+  "description": "Produced by Lane S Phase 25 (src/certify/certificate.py); consumed by Lane X API/web. Fixture: certificates_fixture.json.",
+  "type": "object",
+  "required": ["cert_id", "cert_version", "kind", "incident_id", "scenario_id", "timestep", "root_key",
+               "forecast_hash", "graph_fingerprint", "ledger_hash", "params", "futures_used", "looks",
+               "deadline_hit", "candidates", "chosen", "operator", "prev_cert_hash", "cert_hash"],
+  "additionalProperties": false,
+  "properties": {
+    "cert_id": {"type": "string", "pattern": "^(CERT|AUD)-[0-9]{6}$"},
+    "cert_version": {"const": "sentinel-cert-v1"},
+    "kind": {"enum": ["DISPATCH", "MIGRATION", "HOLD", "OVERRIDE"]},
+    "incident_id": {"type": "string"},
+    "scenario_id": {"type": "string"},
+    "timestep": {"type": "integer", "minimum": 0},
+    "root_key": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "forecast_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "graph_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "ledger_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "params": {
+      "type": "object",
+      "required": ["params_id", "eps_dispatch", "eps_keep", "delta", "k0", "max_looks", "a_max", "deadline_ms", "backend"],
+      "additionalProperties": false,
+      "properties": {
+        "params_id": {"type": "string"},
+        "eps_dispatch": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "eps_keep": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "delta": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "k0": {"type": "integer", "minimum": 1},
+        "max_looks": {"type": "integer", "minimum": 1},
+        "a_max": {"type": "integer", "minimum": 1},
+        "deadline_ms": {"type": "number", "exclusiveMinimum": 0},
+        "backend": {"enum": ["sha256", "philox"]}
+      }
+    },
+    "futures_used": {"type": "integer", "minimum": 0},
+    "looks": {"type": "integer", "minimum": 0},
+    "deadline_hit": {"type": "boolean"},
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["action_key", "zone_id", "shelter_id", "people", "verdict", "successes", "n", "lower", "upper", "mean_utility", "outcome_counts"],
+        "additionalProperties": false,
+        "properties": {
+          "action_key": {"type": "string"},
+          "zone_id": {"type": ["string", "null"]},
+          "shelter_id": {"type": ["string", "null"]},
+          "people": {"type": "integer", "minimum": 0},
+          "verdict": {"enum": ["FEASIBLE", "INFEASIBLE", "UNDECIDED", "ALWAYS_ALLOWED"]},
+          "successes": {"type": "integer", "minimum": 0},
+          "n": {"type": "integer", "minimum": 0},
+          "lower": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+          "upper": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+          "mean_utility": {"type": ["number", "null"]},
+          "outcome_counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "OK": {"type": "integer", "minimum": 0},
+              "STRANDED": {"type": "integer", "minimum": 0},
+              "UNSAFE": {"type": "integer", "minimum": 0},
+              "OVERFLOW": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
+      }
+    },
+    "chosen": {
+      "type": "object",
+      "required": ["action_key", "people", "group_id"],
+      "additionalProperties": false,
+      "properties": {
+        "action_key": {"type": "string"},
+        "people": {"type": "integer", "minimum": 0},
+        "group_id": {"type": ["string", "null"]}
+      }
+    },
+    "operator": {
+      "type": "object",
+      "required": ["decision", "actor", "reason"],
+      "additionalProperties": false,
+      "properties": {
+        "decision": {"enum": ["ACCEPT", "OVERRIDE", "REJECT", "AUTO"]},
+        "actor": {"type": "string"},
+        "reason": {"type": "string"}
+      }
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target", "command"],
+        "additionalProperties": false,
+        "properties": {"target": {"type": "string"}, "command": {"type": "string"}}
+      }
+    },
+    "prev_cert_hash": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "cert_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}
