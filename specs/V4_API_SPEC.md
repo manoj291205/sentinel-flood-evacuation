@@ -1,6 +1,6 @@
 # V4_API_SPEC — Phase 30: FastAPI service layer
 
-Lane X (Builder X) · branch `builder-x/m30-api` · tests `tests/test_p30_api.py` · contracts `specs/contracts/`
+Lane X · branch `lane-x/m30-api` · tests `tests/test_p30_api.py` · contracts `specs/contracts/`
 
 ## Goal
 A local HTTP + WebSocket API over the **existing** `SimulationSession` (real planner, real mask, real
@@ -12,7 +12,7 @@ only to this API.
 `src/api/__init__.py`, `src/api/app.py` (`create_app()`), `src/api/sessions.py` (`SessionRegistry`),
 `src/api/dto.py` (Pydantic v2 models), `src/api/routes_*.py`, `src/api/fixtures.py`,
 `src/presentation/artifacts.py` (frozen-result loaders), `src/presentation/map_geometry.py`,
-`requirements-api.txt` (`fastapi`, `uvicorn[standard]`), `tests/test_cx_*.py` (your unit tests).
+`requirements-api.txt` (`fastapi`, `uvicorn[standard]`), `tests/test_lx_*.py` (your unit tests).
 Run: `python -m uvicorn src.api.app:create_app --factory --port 8000`.
 
 ## Rules

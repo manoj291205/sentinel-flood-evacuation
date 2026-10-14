@@ -1,6 +1,6 @@
 # V4_WEB_SPEC — Phase 31: React shell + Live Operations with guided demo
 
-Lane X (Builder X) · branch `builder-x/m31-web` · acceptance `specs/acceptance/web/p31_guided_demo.spec.ts`
+Lane X · branch `lane-x/m31-web` · acceptance `specs/acceptance/web/p31_guided_demo.spec.ts`
 Design source: `docs/design/sentinel-console/` (read its README first). Pages 32–33 are specified in Wave B.
 
 ## Stack
