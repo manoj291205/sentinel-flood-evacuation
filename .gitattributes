@@ -1,0 +1,15 @@
+* text=auto eol=lf
+*.pdf binary
+*.png binary
+*.jpg binary
+*.zip binary
+*.pt binary
+*.pkl binary
+*.npz binary
+*.parquet binary
+*.sqlite binary
+# Frozen folders: never convert line endings (stored bytes are hashed)
+data/eval_v3/** -text
+data/eval_results/** -text
+models/** -text
+data/geospatial_v3/** -text
