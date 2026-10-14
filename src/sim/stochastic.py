@@ -49,6 +49,37 @@ def _next_status(status: ShelterStatus) -> ShelterStatus:
     return ShelterStatus.CLOSED
 
 
+def degrade_shelter_status(
+    previous: ShelterStatus,
+    severity: float,
+    config: UncertaintyConfig,
+    streams: Any,
+    timestep: int,
+    shelter_id: str,
+) -> tuple[ShelterStatus, str | None, float]:
+    """Pure shelter-status step: (new status, trigger code, degradation probability)."""
+    if previous is ShelterStatus.CLOSED:
+        return previous, None, 0.0
+    updated = previous
+    trigger_code: str | None = None
+    probability = min(1.0, config.shelter_degradation_probability * severity)
+    if severity >= config.closed_threshold:
+        updated = ShelterStatus.CLOSED
+        trigger_code = "SYNTHETIC_CLOSED_SEVERITY_THRESHOLD"
+    elif severity >= config.restricted_threshold and previous is ShelterStatus.OPEN:
+        updated = ShelterStatus.RESTRICTED
+        trigger_code = "SYNTHETIC_RESTRICTED_SEVERITY_THRESHOLD"
+    if (
+        trigger_code is None
+        and streams.uniform(RandomStream.SHELTER_DEGRADATION, timestep, shelter_id)
+        < probability
+        and updated is not ShelterStatus.CLOSED
+    ):
+        updated = _next_status(updated)
+        trigger_code = "KEYED_SYNTHETIC_SHELTER_DEGRADATION"
+    return updated, trigger_code, probability
+
+
 def _degrade_shelters(
     state: EpisodeState,
     context: _StochasticContext,
@@ -59,34 +90,10 @@ def _degrade_shelters(
     records: list[AuditRecord] = []
     for shelter in state.shelters:
         previous = shelter.status_current
-        updated = previous
         severity = shelter.flood_severity_current
-        trigger_code: str | None = None
-        if previous is not ShelterStatus.CLOSED:
-            degradation_probability = min(
-                1.0, config.shelter_degradation_probability * severity
-            )
-            if severity >= config.closed_threshold:
-                updated = ShelterStatus.CLOSED
-                trigger_code = "SYNTHETIC_CLOSED_SEVERITY_THRESHOLD"
-            elif severity >= config.restricted_threshold and previous is ShelterStatus.OPEN:
-                updated = ShelterStatus.RESTRICTED
-                trigger_code = "SYNTHETIC_RESTRICTED_SEVERITY_THRESHOLD"
-            if (
-                trigger_code is None
-                and context.streams.uniform(
-                    RandomStream.SHELTER_DEGRADATION,
-                    timestep,
-                    shelter.shelter_id,
-                )
-                < degradation_probability
-                and updated is not ShelterStatus.CLOSED
-            ):
-                updated = _next_status(updated)
-                trigger_code = "KEYED_SYNTHETIC_SHELTER_DEGRADATION"
-        else:
-            degradation_probability = 0.0
-
+        updated, trigger_code, degradation_probability = degrade_shelter_status(
+            previous, severity, config, context.streams, timestep, shelter.shelter_id
+        )
         shelters.append(replace(shelter, status_current=updated))
         if updated is not previous:
             event_type = (

@@ -274,6 +274,14 @@ def process_v4_transit(
     return result, arrived, tuple(records)
 
 
+def walk_in_demand(
+    streams: Any, world: "V4WorldConfig", t: int, shelter_id: str, mean_hazard: float
+) -> int:
+    """Unconstrained keyed walk-in count for one shelter and step."""
+    u = streams.uniform(RandomStream.WALK_IN, t, shelter_id)
+    return math.floor(world.walk_in_rate * mean_hazard * 2.0 * u)
+
+
 def apply_walk_ins(
     state: EpisodeState,
     streams: EpisodeRandomStreams,
@@ -290,8 +298,7 @@ def apply_walk_ins(
         if shelter.status_current is ShelterStatus.CLOSED:
             shelters.append(shelter)
             continue
-        u = streams.uniform(RandomStream.WALK_IN, t, shelter.shelter_id)
-        want = math.floor(world.walk_in_rate * mean_hazard * 2.0 * u)
+        want = walk_in_demand(streams, world, t, shelter.shelter_id, mean_hazard)
         count = max(0, min(want, shelter.capacity_total - shelter.occupancy_current))
         if count > 0:
             records.append(

@@ -91,3 +91,6 @@ Performance smoke: building 256 futures × 10 steps on the Fort Kochi graph < 20
 
 ## Runner may
 H1 test runs, H4 Hypothesis strategy boilerplate from the signatures above.
+
+## Amendments
+- 2026-10-14 (lead-advisor): `FutureSet.__init__` gains `edge_ids: tuple[str, ...] | None = None`. When given, `_build` calls the unchanged `derive_road_state` on a `RoadGraph` with all nodes, only those edges, and the same `graph_fingerprint` string. Per-edge values are bit-identical to the full graph (draws keyed by (t, edge_id); hazard uses only endpoints and anchors). Callers must pass the union of `shortest_valid_path` over ALL canonical zone x shelter dispatches at the decision timestep (the A_MAX budget), never only the candidates passed in, so set-invariance holds. Accessors for an excluded edge raise KeyError. `root_key` is unchanged. The certificate records `sha256("\n".join(sorted(edge_ids)))` (`FutureSet.edge_set_digest()`). Test `tests/test_s_p22_edge_subset.py` checks bit-identity. Default `None` keeps current behaviour. Reason: ~60 ms per future-step on the full 1358-edge graph.
