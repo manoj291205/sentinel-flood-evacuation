@@ -134,6 +134,7 @@ class CertifiedGate:
                 candidates.append(Candidate(action.zone_id, action.shelter_id, people, path, t))
         candidates.sort(key=lambda c: (c.zone_id, c.shelter_id))
         fs = self.futures_factory(fc, self.graph, self.world, root, horizon, edge_ids=edges)
+        self.last_futureset = fs  # evaluation scripts read executed-dispatch rollouts from it
         result = certify(candidates, fs, view, self.world, self.params, self.graph,
                          clock=self.clock, rollout=self.rollout)
         inputs = CertificateInputs(
