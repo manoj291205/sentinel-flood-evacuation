@@ -1,5 +1,8 @@
 # V4_CLAIM_SUPPORT_14B_SPEC — Phase 14B: rebuild provider, run, score
 
+> **SUPERSEDED 2026-10-15 by Phase 14C** (`V4_CLAIM_SUPPORT_14C_SPEC.md`). The Gemini provider does not work;
+> 14B is not run to completion or scored. This spec and its code stay unchanged as history.
+
 Lane X · branch `lane-x/m14b-claim-support` · tests `tests/test_p14b_claim_support.py`
 Protocol authority: `V3_CLAIM_SUPPORT_SPEC.md` (frozen). This spec **adds no protocol change**; it
 records the run amendment below and specifies the missing code.
