@@ -206,6 +206,16 @@ class SimLedgerAdapter:
             raise LedgerConflict("transaction ended without a certificate")
         cert, inputs = tx.pending_cert
         key = cert["chosen"]["action_key"]
+        if cert["kind"] == "MIGRATION":
+            cand = next(c for c in inputs.candidates if c.action_key == key)
+            try:
+                self.simulator.migrate(cert["chosen"]["group_id"], cand.shelter_id, cand.edge_ids)
+            except ValueError as exc:
+                raise LedgerConflict(str(exc)) from exc
+            self.last_transition = None
+            self._certs.append(cert)
+            self._inputs[cert["cert_id"]] = inputs
+            return
         if key == "WAIT":
             action = WaitAction()
         else:

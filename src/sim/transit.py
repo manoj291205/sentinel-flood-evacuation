@@ -121,6 +121,61 @@ def build_transit_plan(
     )
 
 
+@dataclass(frozen=True)
+class GroupPosition:
+    event_id: str
+    node_id: str
+    at_minutes: float
+    remaining_edge_ids: tuple[str, ...]
+
+
+def group_position(plan: TransitPlan, graph: Any, now_minutes: float) -> GroupPosition:
+    """Where the group will next be free to turn: the end node of the edge it is on.
+
+    Before the first edge entry (boarding) the node is the origin and ``at_minutes`` is the first entry.
+    """
+    current = None
+    for i, entry in enumerate(plan.edge_entry_minutes):
+        if entry <= now_minutes:
+            current = i
+    if current is None:
+        first = plan.edge_ids[0] if plan.edge_ids else None
+        node = graph.zone_node_map[plan.zone_id]
+        at = plan.edge_entry_minutes[0] if plan.edge_ids else plan.arrival_minutes
+        return GroupPosition(plan.event_id, node, at, tuple(plan.edge_ids))
+    node = graph.edges_by_id[plan.edge_ids[current]].v
+    nxt = current + 1
+    at = plan.edge_entry_minutes[nxt] if nxt < len(plan.edge_ids) else plan.arrival_minutes
+    return GroupPosition(plan.event_id, node, at, tuple(plan.edge_ids[nxt:]))
+
+
+def reroute_plan(
+    plan: TransitPlan, position: GroupPosition, new_shelter_id: str, new_edge_ids: tuple[str, ...],
+    road_state: Any, graph: Any, world: "V4WorldConfig", config: UncertaintyConfig, streams: Any,
+    timestep: int,
+) -> TransitPlan:
+    """New plan from ``position`` to another shelter: no boarding, noise keyed by the new path."""
+    clock = position.at_minutes
+    entries: list[float] = []
+    for edge_id in new_edge_ids:
+        edge = graph.edges_by_id[edge_id]
+        hazard = road_state.edge(edge_id).hazard_severity
+        minutes = edge_travel_minutes(edge.length_m, edge.assumed_speed_kph, hazard, world)
+        raw = 1.0 + config.travel_noise_fraction * streams.normal(
+            RandomStream.TRAVEL, timestep, plan.zone_id, new_shelter_id, edge_id
+        )
+        multiplier = min(
+            config.maximum_travel_multiplier, max(config.minimum_travel_multiplier, raw)
+        )
+        entries.append(clock)
+        clock += minutes * multiplier
+    return TransitPlan(
+        event_id=plan.event_id, zone_id=plan.zone_id, shelter_id=new_shelter_id, people=plan.people,
+        departure_timestep=timestep, edge_ids=tuple(new_edge_ids), edge_entry_minutes=tuple(entries),
+        arrival_minutes=clock, timestep_minutes=plan.timestep_minutes,
+    )
+
+
 def _release(state: EpisodeState, shelter_id: str, people: int) -> tuple:
     return tuple(
         replace(s, capacity_reserved=s.capacity_reserved - people)

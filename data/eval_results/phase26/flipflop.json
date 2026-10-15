@@ -1,0 +1,13 @@
+{
+  "seeds": 1000,
+  "steps": 40,
+  "policy": {
+    "cooldown_steps": 3,
+    "max_migrations": 2
+  },
+  "returns_to_left_shelter": 0,
+  "max_migrations_observed": 2,
+  "seeds_with_migration": 671,
+  "total_migrations": 854,
+  "wall_seconds": 345
+}

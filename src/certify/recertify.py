@@ -76,16 +76,20 @@ def migration_candidates(
     return tuple(out)
 
 
+def would_cool_down(history: GroupHistory, timestep: int, policy: RecertPolicy) -> bool:
+    return history.migrations >= policy.max_migrations or (
+        history.last_migration_step is not None
+        and timestep - history.last_migration_step < policy.cooldown_steps
+    )
+
+
 def recertify_group(
     event_id: str, keep: Candidate, alternatives: Sequence[Candidate], futures: Any, ledger: LedgerView,
     world: Any, params: CertParams, graph: Any, *, timestep: int, history: GroupHistory,
     policy: RecertPolicy = RecertPolicy(), rollout=rollout_joint,
 ) -> RecertDecision:
     """Pure core: no ledger writes. ``certificate`` is None (the gate builds it on commit)."""
-    if history.migrations >= policy.max_migrations or (
-        history.last_migration_step is not None
-        and timestep - history.last_migration_step < policy.cooldown_steps
-    ):
+    if would_cool_down(history, timestep, policy):
         return RecertDecision(event_id, Verdict.UNDECIDED, 0.0, 1.0, "COOLDOWN", None, None)
     keep_params = dataclasses.replace(params, eps_dispatch=params.eps_keep)
     kept = certify([keep], futures, ledger, world, keep_params, graph, rollout=rollout)

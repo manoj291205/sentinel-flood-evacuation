@@ -73,7 +73,7 @@ def replay_certificate(
         if key != HOLD_KEY and chosen is None:
             return ReplayReport("MISMATCH", ("chosen.action_key",))
         kind = cert["kind"]
-        if kind == "DISPATCH" and key != result.chosen_key:
+        if kind in ("DISPATCH", "MIGRATION") and key != result.chosen_key:
             return ReplayReport("MISMATCH", ("chosen.action_key",))
         rebuilt = build_certificate(
             cert_id=cert["cert_id"], kind=kind, incident_id=fc.incident_id,
