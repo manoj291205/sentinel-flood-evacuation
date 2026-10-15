@@ -99,3 +99,6 @@ for candidate A identical whether or not candidate B was rolled out first.
 
 ## Runner may
 H1 runs, H4 trajectory-stub fixtures from the dataclass signatures.
+
+## Amendments
+- 2026-10-14 (lead-advisor): G23 pilot deviation for performance. n = 256 futures per estimate; p_J and the three marginals each use their own disjoint k-block of one FutureSet (1..256, 257..512, 513..768, 769..1024). H per decision = min(scenario remaining, ceil((boarding + 1.5 x max nominal canonical-path time at the speed cap) / dt) + 1). A rollout whose arrival falls beyond H counts as z = 0 and the pilot logs that share; if it exceeds 1 %, rerun with H + 4. PASS iff >= 2,000 pairs AND either (a) the paired-bootstrap 95 % CI of the signed mean (p_M - p_J) excludes 0, or (b) verdict disagreement minus a noise floor is >= 1.0 %. The noise floor is the expected flip rate at 0.95 between two Binomial(256, p_J_hat)/256 draws (parametric bootstrap). The criterion |p_M - p_J| >= 0.01 is dropped because noise biases it upward.

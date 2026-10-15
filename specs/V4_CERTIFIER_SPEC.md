@@ -106,3 +106,6 @@ the laptop; Pi in Phase 27C) — informational, written to `data/eval_results/ph
 
 ## Runner may
 H1 runs; H2 locate `evaluate_actions` callers; H4 reference-value table fixture.
+
+## Amendments
+- 2026-10-14 (lead-advisor): latency re-scoped. `scripts/phase24_latency.py` reports at n = 256 on seed 620000: (i) certify-only time on already-built futures, target p95 <= 100 ms; (ii) end-to-end time including future generation on the restricted edge set, target p95 <= 10 s on the laptop. Both informational. `CertParams.deadline_ms` default is 30_000.0 (a decision epoch is 120 s of simulated time). Pi latency and any vectorised/Philox fast path move to Phase 27C and must pass a bit-identity test against `derive_road_state`.
