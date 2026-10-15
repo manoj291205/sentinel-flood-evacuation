@@ -1,0 +1,11 @@
+{
+  "world_id": "v4-medium-dt2-v1",
+  "params_id": "v4-cert-test-v1",
+  "first_seed": 1060000,
+  "seeds_used": 64,
+  "n": 1274,
+  "matched": 1274,
+  "match_rate": 1.0,
+  "mismatches": [],
+  "wall_seconds": 779
+}
