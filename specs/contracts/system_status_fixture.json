@@ -1,0 +1,41 @@
+{
+  "simulated": true,
+  "honesty": "REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED",
+  "source": "FIXTURE",
+  "broker": {
+    "connected": false,
+    "host": null
+  },
+  "devices": [
+    {
+      "device_id": "sim-level-01",
+      "kind": "simulated",
+      "last_seen_utc": null,
+      "age_s": null,
+      "online": false,
+      "firmware": null
+    },
+    {
+      "device_id": "sim-shelter-01",
+      "kind": "simulated",
+      "last_seen_utc": null,
+      "age_s": null,
+      "online": false,
+      "firmware": null
+    }
+  ],
+  "topics": [
+    "sentinel/v1/shelter/+/occupancy",
+    "sentinel/v1/zone/+/water_level",
+    "sentinel/v1/cert/+",
+    "sentinel/v1/command/vehicle/+",
+    "sentinel/v1/command/shelter/+/admission",
+    "sentinel/v1/ack/+",
+    "sentinel/v1/status/+"
+  ],
+  "latency": {
+    "p50_ms": null,
+    "p95_ms": null,
+    "source_path": null
+  }
+}

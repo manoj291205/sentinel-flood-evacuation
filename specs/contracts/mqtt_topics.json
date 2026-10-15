@@ -1,0 +1,105 @@
+{
+  "contract": "sentinel-mqtt-topics-v1",
+  "prefix": "sentinel/v1/",
+  "qos": 1,
+  "note": "Lane X Phase 28. Bodies validate against hil_messages.schema.json, except cert/* which carries a certificate (certificate.schema.json). Examples are synthetic.",
+  "topics": [
+    {
+      "pattern": "sentinel/v1/shelter/+/occupancy",
+      "schema": "occupancy-v1",
+      "from": "shelter node",
+      "example_topic": "sentinel/v1/shelter/S-04/occupancy",
+      "example": {
+        "schema": "occupancy-v1",
+        "device_id": "esp32-shelter-01",
+        "shelter_id": "S-04",
+        "count": 112,
+        "sigma": 2.74,
+        "seq": 41,
+        "ts_utc": "2026-10-15T08:00:00Z"
+      }
+    },
+    {
+      "pattern": "sentinel/v1/zone/+/water_level",
+      "schema": "water-level-v1",
+      "from": "water-level node",
+      "example_topic": "sentinel/v1/zone/Z-03/water_level",
+      "example": {
+        "schema": "water-level-v1",
+        "device_id": "esp32-level-01",
+        "zone_id": "Z-03",
+        "level_cm": 18.5,
+        "seq": 907,
+        "ts_utc": "2026-10-15T08:00:00Z"
+      }
+    },
+    {
+      "pattern": "sentinel/v1/cert/+",
+      "schema": "certificate",
+      "from": "bridge",
+      "example_topic": "sentinel/v1/cert/CERT-000127",
+      "example": null
+    },
+    {
+      "pattern": "sentinel/v1/command/vehicle/+",
+      "schema": "vehicle-cmd-v1",
+      "from": "bridge",
+      "example_topic": "sentinel/v1/command/vehicle/V-01",
+      "example": {
+        "schema": "vehicle-cmd-v1",
+        "cert_id": "CERT-000127",
+        "cert_hash": "e61a6b4a5ae20000000000000000000000000000000000000000000000000000",
+        "group_id": "G-0010",
+        "zone_id": "Z-03",
+        "shelter_id": "S-04",
+        "people": 40,
+        "edge_ids": [],
+        "ts_utc": "2026-10-15T08:00:00Z"
+      }
+    },
+    {
+      "pattern": "sentinel/v1/command/shelter/+/admission",
+      "schema": "admission-cmd-v1",
+      "from": "bridge",
+      "example_topic": "sentinel/v1/command/shelter/S-04/admission",
+      "example": {
+        "schema": "admission-cmd-v1",
+        "cert_id": "CERT-000127",
+        "cert_hash": "e61a6b4a5ae20000000000000000000000000000000000000000000000000000",
+        "group_id": "G-0010",
+        "shelter_id": "S-04",
+        "people": 40,
+        "ts_utc": "2026-10-15T08:00:00Z"
+      }
+    },
+    {
+      "pattern": "sentinel/v1/ack/+",
+      "schema": "ack-v1",
+      "from": "actuator",
+      "example_topic": "sentinel/v1/ack/esp32-shelter-01",
+      "example": {
+        "schema": "ack-v1",
+        "device_id": "esp32-shelter-01",
+        "cert_id": "CERT-000127",
+        "accepted": true,
+        "reason": "OK",
+        "ts_utc": "2026-10-15T08:00:00Z"
+      }
+    },
+    {
+      "pattern": "sentinel/v1/status/+",
+      "schema": "status-v1",
+      "from": "every device",
+      "example_topic": "sentinel/v1/status/esp32-level-01",
+      "example": {
+        "schema": "status-v1",
+        "device_id": "esp32-level-01",
+        "kind": "water_level",
+        "uptime_s": 3600,
+        "rssi_dbm": -61.0,
+        "firmware": "hil-fw-0.1.0",
+        "ts_utc": "2026-10-15T08:00:00Z"
+      }
+    }
+  ]
+}

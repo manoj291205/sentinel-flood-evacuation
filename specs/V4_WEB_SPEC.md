@@ -57,3 +57,55 @@ outline + age) if no successful fetch for 5 s in live mode.
   ends with "Replay demo"; step 4 shows `UNDECIDED` before and the 512-future certification caption;
   step 5 suggests HOLD; Accept on step 3 shows `CERT-000127`; Override requires a reason; Day/Night toggle
   flips `data-theme`; layout has no horizontal scroll at 390 px width.
+
+---
+
+# Wave B — Phase 32 and Phase 33 (added 2026-10-15, Lead)
+
+Lane X · branches `lane-x/m32-decisions` (from `main`), `lane-x/m33-pages` (from `lane-x/m32-decisions`)
+· acceptance `specs/acceptance/web/p32_decisions.spec.ts`, `specs/acceptance/web/p33_pages.spec.ts`
+(copy **unchanged** into `web/e2e/`), API tests `tests/test_p33_api.py`. Design sources:
+`docs/design/sentinel-console/Decisions.dc.html`, `Overview.dc.html`, `Evidence.dc.html`, `System.dc.html`.
+Rule for every page: **numbers only from the API**, which reads them from frozen artifacts or fixtures;
+anything absent is shown as `-` with a one-line reason. Never type a number into the UI code. Every page
+keeps the honesty banner. Gate pages are confidential until P0 is filed (local only, no screenshots out).
+
+## Phase 32 — Decisions & Certificates (`/decisions`)
+Data: `GET /api/certificates`, `GET /api/certificates/{cert_id}`, `POST /api/certificates/{cert_id}/replay`,
+`GET /api/decisions/{decision_id}/why` (all FIXTURE until 34A; the why fixture's `decision_id` values map
+to certificates by `cert_id`; show "No explanation recorded" when 404).
+- Heading `Decisions & Certificates` (h1). Action keys are shown as `Z-03 → S-04` everywhere (arrow U+2192, spaces). List `aria-label="Decision list"`: one row per certificate,
+  newest first, each a button whose accessible name starts with the cert id (e.g. `CERT-000127 · DISPATCH ·
+  Z-03 → S-04 · 40`). `?cert=<id>` in the URL selects a row (deep link from Live Operations "accepted" state).
+- Detail `aria-label="Decision detail"`: kind, timestep, futures used, looks, params (ε, δ, A_MAX), operator
+  decision and reason; candidate table (verdict word + shape, successes / n, interval bar lower–upper on a
+  0.80–1.00 scale with the `1 − ε` line, outcome counts OK / STRANDED / UNSAFE / OVERFLOW); hash chain
+  strip `prev_cert_hash → cert_hash` (first 12 hex chars, full value in a `title` and copy button).
+- `Replay certificate` button → caption (`role="status"`) `MATCH — regenerated bit-for-bit` or
+  `MISMATCH — <fields>`; checkbox `Tamper with forecast (demo)` sends `{tamper: true}`.
+- "Why this suggestion" panel: exactly the three reasons from the why document, `certified_lower` vs
+  `threshold`, futures used.
+- Filters: kind (All / Dispatch / Migration / Hold / Override) as a `radiogroup` named `Kind`.
+- States: loading rules, error banner with Retry, empty list text `No certificates yet`.
+
+## Phase 33 — Overview (`/`), Evidence & Results (`/evidence`), System & Hardware (`/system`)
+New API (Lane X, `src/api/`, `src/presentation/`): see `V4_API_SPEC.md` "Wave B additions".
+- **Overview** h1 `Incident overview`: KPI tiles from `/api/demo/state` (FIXTURE) or a live session
+  state; sections `Population ledger`, `Shelters`, `Dispatch gate activity` (counts by kind from
+  `/api/certificates`), `System health` (from `/api/system/status`), `Latest certificates` (5, links to
+  `/decisions?cert=…`), `What is real vs simulated` (static honesty text — not numbers).
+- **Evidence & Results** h1 `Evidence & Results`: one table per manifest `group` from `/api/evidence`
+  (label, display value, unit, `source_path` shown as a small monospace link-free label, `-` + note when
+  value is null). Section `Patent experiments (Phase 27 · pre-registered)` shows bar names from the
+  `p27-analysis` item or `-  Not run yet` — never placeholders that look like results.
+- **System & Hardware** h1 `System & Hardware`: `Devices` table from `/api/system/status` (device id, kind,
+  online word + shape, last seen, age), `MQTT topics` list, `Actuator command log` (acks, newest first,
+  max 20; empty text `No commands yet`), `How a suggestion becomes a dispatch` (static 6-step text), latency
+  `-` until `data/eval_results/phase28/latency.json` exists.
+- Every page: works at 390 px without horizontal scroll; axe zero serious/critical (Day and Night).
+
+## Acceptance (Wave B web)
+`npx tsc --noEmit`, Vitest (one test per new component), Playwright including the two copied Lead specs
+and your own axe spec for the three new pages. Mock mode serves the new contract fixtures
+(`evidence` from a mock built **only** from `specs/contracts/evidence_manifest.json` with every value null,
+`system_status_fixture.json`).

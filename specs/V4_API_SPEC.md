@@ -61,3 +61,24 @@ calling `SimulationSession.decide` directly on a twin session (API-vs-direct par
 reason → 422; demo start/next/prev/reset walk all steps and every payload validates the schema;
 certificate replay MATCH / tamper MISMATCH; why endpoint validates; WS sequence strictly increasing and
 first message is `state`; OpenAPI document lists every path above.
+
+## Amendments
+- 2026-10-15 (Lead, resolves Lane X request): schema-bound documents (`GET /certificates/{cert_id}`, `GET /decisions/{decision_id}/why`) are returned exactly as their contract (no extra body fields: a certificate is a hashed document). For these two, `simulated` / `honesty` / `source` travel in the headers `X-Sentinel-Simulated`, `X-Sentinel-Honesty`, `X-Sentinel-Source` (the why document also carries `source` in its body). Every other response keeps the body fields. The web console shows the honesty banner on every page regardless.
+- 2026-10-15 (Lead): CI now installs `requirements-api.txt`, so the Phase 30 tests run on both CI platforms.
+
+## Wave B additions (Phase 33, Lane X, 2026-10-15)
+| Method | Path | Response | Backed by |
+|---|---|---|---|
+| GET | `/evidence` | `evidence.schema.json` | ARTIFACT: `specs/contracts/evidence_manifest.json` allowlist |
+| GET | `/system/status` | `system_status.schema.json` | FIXTURE (`system_status_fixture.json`) until a bridge is attached; SIMULATED with `hil/sim/publisher.py`; LIVE with hardware |
+| GET | `/system/acks` | `{items: [ack-v1 …]}` newest first, max 50 | same as status |
+`/evidence`: for each manifest item read `path` (repo-relative) and resolve `json_pointer` (RFC 6901);
+`value` = the raw JSON value, `display` formatted per `format` (`percent1` → `30.1 %`, `percent2`,
+`signed4`, `integer`, `number`, `ms0` → `1539 ms`, `bool` → `yes`/`no`, `text`, `bars` → comma list of
+bar names with PASS/FAIL), `source_sha256` of the file bytes. Missing file → `value null`, `display "-"`,
+`note "not produced yet"`; missing pointer → `note "field not in artifact"`. The endpoint never writes,
+never computes a statistic and reads nothing outside the manifest. New items only via a
+`Requests to Lane S` row (exact path + pointer); Lead adds them to the manifest.
+Acceptance `tests/test_p33_api.py`: schema validity; every non-null `value` equals the pointer value in
+the file; `source_sha256` matches; a manifest entry pointing at a missing file renders `-`; status and
+acks validate.

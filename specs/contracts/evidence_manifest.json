@@ -1,0 +1,159 @@
+{
+  "contract": "sentinel-evidence-manifest-v1",
+  "note": "Allowlist for GET /api/evidence (Phase 33). Values are read ONLY from these files at these JSON pointers; a missing file or pointer gives value null, display '-' and a note. Never computed or typed in.",
+  "items": [
+    {
+      "id": "g21-high-failure",
+      "group": "Gates",
+      "label": "G21 failure rate, HIGH",
+      "path": "data/eval_results/phase21/g21.json",
+      "json_pointer": "/levels/high/failure_rate",
+      "unit": "fraction",
+      "format": "percent1"
+    },
+    {
+      "id": "g21-medium-failure",
+      "group": "Gates",
+      "label": "G21 failure rate, MEDIUM",
+      "path": "data/eval_results/phase21/g21.json",
+      "json_pointer": "/levels/medium/failure_rate",
+      "unit": "fraction",
+      "format": "percent1"
+    },
+    {
+      "id": "g21-medium-lag",
+      "group": "Gates",
+      "label": "G21 median travel lag, MEDIUM",
+      "path": "data/eval_results/phase21/g21.json",
+      "json_pointer": "/levels/medium/median_lag_steps",
+      "unit": "steps",
+      "format": "number"
+    },
+    {
+      "id": "g21-passed",
+      "group": "Gates",
+      "label": "G21 passed",
+      "path": "data/eval_results/phase21/g21.json",
+      "json_pointer": "/passed",
+      "unit": "bool",
+      "format": "bool"
+    },
+    {
+      "id": "g23-pairs",
+      "group": "Gates",
+      "label": "G23 pilot pairs",
+      "path": "data/eval_results/phase23/g23.json",
+      "json_pointer": "/pairs",
+      "unit": "count",
+      "format": "integer"
+    },
+    {
+      "id": "g23-mean-diff",
+      "group": "Gates",
+      "label": "G23 mean p_M − p_J",
+      "path": "data/eval_results/phase23/g23.json",
+      "json_pointer": "/mean_p_M_minus_p_J",
+      "unit": "probability",
+      "format": "signed4"
+    },
+    {
+      "id": "g23-net-disagreement",
+      "group": "Gates",
+      "label": "G23 net verdict disagreement",
+      "path": "data/eval_results/phase23/g23.json",
+      "json_pointer": "/net_disagreement",
+      "unit": "fraction",
+      "format": "percent2"
+    },
+    {
+      "id": "g23-passed",
+      "group": "Gates",
+      "label": "G23 passed (weak, see decision log)",
+      "path": "data/eval_results/phase23/g23.json",
+      "json_pointer": "/passed",
+      "unit": "bool",
+      "format": "bool"
+    },
+    {
+      "id": "p24-accept-094",
+      "group": "Certifier",
+      "label": "False-accept rate at true p = 0.94",
+      "path": "data/eval_results/phase24/coverage.json",
+      "json_pointer": "/rows/1/accept_rate",
+      "unit": "fraction",
+      "format": "percent2"
+    },
+    {
+      "id": "p24-false-accept-ok",
+      "group": "Certifier",
+      "label": "False-accept bound holds (10,000 reps)",
+      "path": "data/eval_results/phase24/coverage.json",
+      "json_pointer": "/false_accept_ok",
+      "unit": "bool",
+      "format": "bool"
+    },
+    {
+      "id": "p24-certify-p95",
+      "group": "Latency",
+      "label": "Certify-only p95, laptop, n = 256",
+      "path": "data/eval_results/phase24/latency.json",
+      "json_pointer": "/certify_only_ms/p95",
+      "unit": "ms",
+      "format": "ms0"
+    },
+    {
+      "id": "p24-e2e-p95",
+      "group": "Latency",
+      "label": "End-to-end p95, laptop, n = 256",
+      "path": "data/eval_results/phase24/latency.json",
+      "json_pointer": "/end_to_end_ms/p95",
+      "unit": "ms",
+      "format": "ms0"
+    },
+    {
+      "id": "p14b-verdict",
+      "group": "Claim support",
+      "label": "14B usefulness verdict",
+      "path": "data/eval_results/phase14b/score.json",
+      "json_pointer": "/verdict",
+      "unit": "text",
+      "format": "text"
+    },
+    {
+      "id": "p14b-supported-precision",
+      "group": "Claim support",
+      "label": "14B SUPPORTED precision",
+      "path": "data/eval_results/phase14b/score.json",
+      "json_pointer": "/supported_precision",
+      "unit": "fraction",
+      "format": "percent1"
+    },
+    {
+      "id": "p25-replay-match",
+      "group": "Gate",
+      "label": "Replay match rate (1,000 replays)",
+      "path": "data/eval_results/phase25/replay_batch.json",
+      "json_pointer": "/match_rate",
+      "unit": "fraction",
+      "format": "percent1"
+    },
+    {
+      "id": "p27-analysis",
+      "group": "Evaluation",
+      "label": "Pre-registered evaluation (D-27)",
+      "path": "data/eval_results/phase27/analysis.json",
+      "json_pointer": "/bars",
+      "unit": "object",
+      "format": "bars"
+    },
+    {
+      "id": "p28-latency-p95",
+      "group": "Hardware",
+      "label": "HIL publish→ack p95",
+      "path": "data/eval_results/phase28/latency.json",
+      "json_pointer": "/p95_ms",
+      "unit": "ms",
+      "format": "ms0"
+    }
+  ]
+}

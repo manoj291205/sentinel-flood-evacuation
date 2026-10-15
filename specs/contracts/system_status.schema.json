@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sentinel-system-status-v1",
+  "title": "GET /api/system/status response (contract v1)",
+  "type": "object",
+  "required": [
+    "simulated",
+    "honesty",
+    "source",
+    "broker",
+    "devices",
+    "topics",
+    "latency"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "simulated": {
+      "const": true
+    },
+    "honesty": {
+      "type": "string"
+    },
+    "source": {
+      "enum": [
+        "FIXTURE",
+        "SIMULATED",
+        "LIVE"
+      ]
+    },
+    "broker": {
+      "type": "object",
+      "required": [
+        "connected",
+        "host"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "connected": {
+          "type": "boolean"
+        },
+        "host": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "devices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "device_id",
+          "kind",
+          "last_seen_utc",
+          "age_s",
+          "online",
+          "firmware"
+        ],
+        "properties": {
+          "device_id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "water_level",
+              "shelter",
+              "vehicle",
+              "bridge",
+              "simulated"
+            ]
+          },
+          "last_seen_utc": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "age_s": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "online": {
+            "type": "boolean"
+          },
+          "firmware": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "latency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "p50_ms",
+        "p95_ms",
+        "source_path"
+      ],
+      "properties": {
+        "p50_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "p95_ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "source_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

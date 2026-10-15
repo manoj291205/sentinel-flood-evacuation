@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sentinel-evidence-v1",
+  "title": "GET /api/evidence response (contract v1)",
+  "type": "object",
+  "required": [
+    "simulated",
+    "honesty",
+    "source",
+    "items"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "simulated": {
+      "const": true
+    },
+    "honesty": {
+      "type": "string"
+    },
+    "source": {
+      "const": "ARTIFACT"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "group",
+          "label",
+          "value",
+          "display",
+          "unit",
+          "source_path",
+          "source_sha256",
+          "note"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "group": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "value": {},
+          "display": {
+            "type": "string",
+            "minLength": 1
+          },
+          "unit": {
+            "type": "string"
+          },
+          "source_path": {
+            "type": "string"
+          },
+          "source_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -35,6 +35,7 @@
         "backend": {"enum": ["sha256", "philox"]}
       }
     },
+    "edge_set_digest": {"type": "string", "pattern": "^([0-9a-f]{64}|ALL)$", "description": "sha256 of the sorted restricted edge ids (FutureSet.edge_set_digest); optional in v1, always written by Phase 25"},
     "futures_used": {"type": "integer", "minimum": 0},
     "looks": {"type": "integer", "minimum": 0},
     "deadline_hit": {"type": "boolean"},
