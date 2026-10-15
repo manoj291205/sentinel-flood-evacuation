@@ -1,0 +1,22 @@
+{
+  "gate": "G23",
+  "n_futures_per_estimate": 256,
+  "pairs": 2631,
+  "mean_p_M_minus_p_J": -0.002550896357692543,
+  "mean_p_M_minus_p_J_ci95": [
+    -0.0039703595189711114,
+    -0.0011666233391872335
+  ],
+  "mean_abs_diff": 0.02789598349970314,
+  "verdict_disagreement": 0.039148612694792854,
+  "noise_floor": 0.03565583365192343,
+  "net_disagreement": 0.0034927790428694247,
+  "share_arrival_beyond_horizon": 2.969403268719118e-06,
+  "checks": {
+    "pairs_ge_2000": true,
+    "ci_excludes_zero": true,
+    "net_disagreement_ge_1pct": false,
+    "beyond_horizon_le_1pct": true
+  },
+  "passed": true
+}
