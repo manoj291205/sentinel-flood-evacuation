@@ -1,0 +1,28 @@
+.page{display:flex;flex-direction:column;gap:20px;max-width:1500px}
+.heading h1{font-size:28px;line-height:36px;margin:0;font-weight:600}
+.heading p:last-child{margin:4px 0 0;color:var(--ink2)}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--ink3);text-transform:uppercase;margin:0 0 5px}
+.layout{display:grid;grid-template-columns:minmax(260px,340px) minmax(0,1fr);gap:20px;align-items:start}
+.list,.panel,.summary{background:var(--surface);border:1px solid var(--rule)}
+.list{display:flex;flex-direction:column;min-width:0}
+.sectionHead{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:2px solid var(--ink);gap:8px}
+.sectionHead h2{margin:0;font-size:16px}.sectionHead span{font-size:12px;color:var(--ink2)}
+.filters{border:0;border-bottom:1px solid var(--rule);padding:10px 14px;margin:0}
+.filters legend{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.filters>div{display:flex;flex-wrap:wrap;gap:7px 12px}.filters label{display:flex;align-items:center;gap:3px;font-size:13px}
+.filters input{accent-color:var(--primary)}
+.row{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;width:100%;padding:12px 14px;background:transparent;border:0;border-left:4px solid transparent;border-bottom:1px solid var(--rule);color:var(--ink);min-height:62px;cursor:pointer}
+.row[aria-pressed="true"]{border-left-color:var(--primary);background:var(--sunk)}.row:hover{background:var(--sunk)}
+.rowTop{display:flex;width:100%;justify-content:space-between;gap:8px}.row small{color:var(--ink2)}
+.detail{display:flex;flex-direction:column;gap:16px;min-width:0}
+.summary{padding:16px;border-top:3px solid var(--primary)}.summary h2{font-size:22px;line-height:29px;margin:0}.summary p{margin:4px 0 0;color:var(--ink2)}
+.panel{padding:16px;min-width:0}.panel h3{margin:0 0 12px;font-size:17px}.panel ol{padding-left:22px}.panel li{margin:8px 0}
+.tableScroll{max-width:100%;overflow-x:auto}.table{border-collapse:collapse;width:100%;font-size:13px;text-align:left;min-width:690px}
+.table caption{text-align:left;color:var(--ink2);font-size:12px;padding-bottom:6px}.table th,.table td{padding:8px 6px;border-bottom:1px solid var(--rule);vertical-align:top}.table th{border-bottom:2px solid var(--ink)}
+.verdict{font-size:11px;font-weight:700;letter-spacing:.03em;white-space:nowrap}.verdict[data-verdict="FEASIBLE"],.verdict[data-verdict="DISPATCH"]{color:var(--ok)}.verdict[data-verdict="INFEASIBLE"]{color:var(--bad)}.verdict[data-verdict="UNDECIDED"],.verdict[data-verdict="HOLD"]{color:var(--warn)}
+.interval{position:relative;height:12px;border:1px solid var(--rule);margin-top:5px;min-width:120px}.range{position:absolute;top:1px;bottom:1px;background:var(--w3)}.threshold{position:absolute;top:-3px;bottom:-3px;border-left:2px dashed var(--bad)}
+.meta{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 16px}.meta div{background:var(--sunk);padding:8px 10px;min-width:100px}.meta dt{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink2)}.meta dd{margin:3px 0 0;font-family:'IBM Plex Mono',monospace}
+.chain{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px;border:1px solid var(--rule);font-size:12px}.hash{display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;overflow-wrap:anywhere}.hash button{font-size:11px;padding:4px 6px;background:transparent;color:var(--ink);border:1px solid var(--rule);border-radius:4px}
+.replayControls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.replayControls label{display:inline-flex;align-items:center;gap:5px}.replayControls button,.error button{min-height:40px;padding:0 14px;background:var(--primary);color:var(--onprimary);border:0;border-radius:6px;font-weight:600}
+.match,.mismatch{padding:10px;border:2px solid var(--ok);font-weight:600}.mismatch{border-color:var(--bad)}.error{padding:12px;border:2px solid var(--bad)}.muted,.empty{color:var(--ink2)}.empty{padding:14px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.list{max-width:none}}

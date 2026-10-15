@@ -51,7 +51,7 @@ export function DecisionConsole({ step, accepted, onAccept }: { step: DemoStep; 
   if (!step.decision_required) return null;
   return <section className={styles.card} aria-label="Operator decision">
     <div className={styles.cardEyebrow}>OPERATOR DECIDES</div>
-    {accepted ? <p className={styles.success}>● ACCEPTED · Certificate <Link to="/decisions">{step.certificate_id ?? 'recorded'}</Link></p> : <>
+    {accepted ? <p className={styles.success}>● ACCEPTED · Certificate <Link to={step.certificate_id ? `/decisions?cert=${encodeURIComponent(step.certificate_id)}` : '/decisions'}>{step.certificate_id ?? 'recorded'}</Link></p> : <>
       <div className={styles.decisionButtons}>
         <button type="button" className={styles.primaryButton} onClick={onAccept}>Accept</button>
         <button type="button" className={styles.secondaryButton} onClick={() => setMode('override')}>Override</button>

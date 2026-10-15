@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Route, Routes } from 'react-router-dom';
 import LiveOperations from './live/LiveOperations';
+import Decisions from './decisions/Decisions';
 import styles from './App.module.css';
 
 const HONESTY = 'REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED';
@@ -14,7 +15,6 @@ function initialTheme(): Theme {
 
 const placeholderPages = [
   { path: '/', title: 'Overview', phase: 'Phase 33' },
-  { path: '/decisions', title: 'Decisions & Certificates', phase: 'Phase 32' },
   { path: '/evidence', title: 'Evidence & Results', phase: 'Phase 33' },
   { path: '/system', title: 'System & Hardware', phase: 'Phase 33' },
 ];
@@ -68,6 +68,7 @@ export default function App() {
       <main className={styles.content}>
         <Routes>
           <Route path="/live" element={<LiveOperations />} />
+          <Route path="/decisions" element={<Decisions />} />
           {placeholderPages.map(page => <Route key={page.path} path={page.path} element={<Placeholder title={page.title} phase={page.phase} />} />)}
         </Routes>
       </main>
