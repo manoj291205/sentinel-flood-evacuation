@@ -37,6 +37,11 @@ _REGISTRY = {
 
 
 def get_cert_params(params_id: str) -> CertParams:
+    base, plus, _digest = params_id.partition("+rules-")
+    if plus and base in _REGISTRY:
+        from dataclasses import replace
+
+        return replace(_REGISTRY[base], params_id=params_id)
     try:
         return _REGISTRY[params_id]
     except KeyError as exc:

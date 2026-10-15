@@ -127,6 +127,7 @@ def _apply_certifier(scenario, state, evaluations, certifier):
     certificates = certifier(scenario, state, candidates) if candidates else {}
     threshold = getattr(certificates, "threshold", 0.95)
     params_id = getattr(certificates, "params_id", "v4-cert-v1")
+    rules = getattr(certificates, "rules", ())
     gated = []
     for evaluation in evaluations:
         action = evaluation.action
@@ -158,7 +159,17 @@ def _apply_certifier(scenario, state, evaluations, certifier):
             replace(
                 evaluation,
                 final_allowed=feasible,
-                rule_verdicts=evaluation.rule_verdicts + (verdict,),
+                rule_verdicts=evaluation.rule_verdicts + (verdict,) + tuple(
+                    RuleVerdict(
+                        rule_id=tr.rule.rule_id, layer=RuleLayer.CERTIFIED,
+                        provenance=RuleProvenance.DOCUMENT_POLICY, allowed=feasible,
+                        reason_code=tr.tier.value,
+                        reason=f"document rule {tr.rule.rule_id} applied at trust tier {tr.tier.value}",
+                        current_values=(("tier", tr.tier.value), *sorted(dict(tr.active_params).items())),
+                        config_version=params_id,
+                    )
+                    for tr in rules
+                ),
                 exclusions=evaluation.exclusions if feasible else evaluation.exclusions + (verdict,),
             )
         )

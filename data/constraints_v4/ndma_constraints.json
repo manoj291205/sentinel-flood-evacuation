@@ -1,0 +1,74 @@
+{
+  "schema": "ndma-constraints-v1",
+  "rules": [
+    {
+      "rule_id": "NDMA-R01",
+      "text": "Destination shelters must not be exposed to flooding; keep the destination flood severity below 0.60 at arrival.",
+      "predicate": "MAX_DESTINATION_SEVERITY",
+      "params": {
+        "severity": 0.6
+      },
+      "strict_fallback": {
+        "severity": 0.45
+      },
+      "evidence": {
+        "source_id": "ndma-temporary-shelters-2019",
+        "filename": "ndma_temporary_shelters_2019.pdf",
+        "page": 38,
+        "chunk_id": "ndma-temporary-shelters-2019-p38-c1",
+        "passage_sha256": "b88e08776846207517b83f714249a1e9ae1915af53b6198f739c9a1ab887cc18",
+        "span": "To avoid ﬂooding, the temporary shelters should not be built in the low-lying areas."
+      },
+      "approved": false,
+      "approved_by": null,
+      "approved_utc": null,
+      "draft_note": "Source is qualitative; the 0.60 / 0.45 thresholds are a modelling proposal for the approver."
+    },
+    {
+      "rule_id": "NDMA-R02",
+      "text": "Shelters should keep room for safety, security, comfort and privacy; keep projected occupancy (including the arriving group) at or below 90 percent of capacity.",
+      "predicate": "MAX_OCCUPANCY_FRACTION",
+      "params": {
+        "fraction": 0.9
+      },
+      "strict_fallback": {
+        "fraction": 0.8
+      },
+      "evidence": {
+        "source_id": "ndma-temporary-shelters-2019",
+        "filename": "ndma_temporary_shelters_2019.pdf",
+        "page": 43,
+        "chunk_id": "ndma-temporary-shelters-2019-p43-c1",
+        "passage_sha256": "a2131c26725a284502f27cd9c5ba58fa9af0dd63dc7cb33181815ebb9c60ebc7",
+        "span": "Shelters should ensure safety, security, comfort and privacy for all."
+      },
+      "approved": false,
+      "approved_by": null,
+      "approved_utc": null,
+      "draft_note": "Source is qualitative; the 0.90 / 0.80 thresholds are a modelling proposal for the approver."
+    },
+    {
+      "rule_id": "NDMA-R03",
+      "text": "Evacuation must not add injury risk; avoid routes whose edge flood hazard at entry exceeds 0.60.",
+      "predicate": "MAX_ROUTE_HAZARD",
+      "params": {
+        "hazard": 0.6
+      },
+      "strict_fallback": {
+        "hazard": 0.45
+      },
+      "evidence": {
+        "source_id": "ndma-temporary-shelters-2019",
+        "filename": "ndma_temporary_shelters_2019.pdf",
+        "page": 23,
+        "chunk_id": "ndma-temporary-shelters-2019-p23-c2",
+        "passage_sha256": "a8c89b3fd3a08ce3119139bd4f05a93ca84f597f6de8716641d8db8a6510abfb",
+        "span": "Temporary shelters should be disaster resistant and not cause any further injury or loss of life."
+      },
+      "approved": false,
+      "approved_by": null,
+      "approved_utc": null,
+      "draft_note": "Weak support: the sentence is about shelters, not routes. Recommend rejecting unless the approver agrees; thresholds are a modelling proposal."
+    }
+  ]
+}

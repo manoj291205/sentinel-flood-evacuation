@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import dataclasses
+import functools
 from dataclasses import dataclass
-from typing import Any, Callable, Mapping
+from typing import Any, Callable, Mapping, Sequence
 
 from src.sim.world import get_world_config
 
@@ -47,12 +48,19 @@ def _never() -> float:
 def replay_certificate(
     cert: Mapping, inputs: CertificateInputs, *, graph,
     futures_factory: Callable[..., Any] | None = None, rollout: Callable = rollout_joint,
+    rules: Sequence[Any] = (),
 ) -> ReplayReport:
     if graph.graph_fingerprint != cert.get("graph_fingerprint"):
         return ReplayReport("MISMATCH", ("graph_fingerprint",))
     factory = futures_factory or FutureSet
     world = get_world_config(inputs.world_id)
     params = get_cert_params(inputs.params_id)
+    if "+rules-" in inputs.params_id:  # Phase 15': replay needs the same tiered rule set
+        from src.constraints.tiering import predicates_for, rules_digest
+
+        if not rules or inputs.params_id.partition("+rules-")[2] != rules_digest(rules):
+            return ReplayReport("MISMATCH", ("params.params_id",))
+        rollout = functools.partial(rollout, extra_terms=predicates_for(rules))
     fc = inputs.forecast
     ledger_hash = ledger_view_hash(inputs.ledger)
     root = root_key(
