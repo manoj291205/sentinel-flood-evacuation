@@ -14,8 +14,9 @@ src/rag/chroma_db/
 # Trained checkpoints are committed selectively; ignore stray artifacts
 models/*.zip.tmp
 
-# Secrets — GEMINI_API_KEY comes from the environment, never a committed file
+# Secrets — GEMINI_API_KEY / GROQ_API_KEY come from the environment, never a committed file
 .env
+.env.*
 
 # OS
 .DS_Store

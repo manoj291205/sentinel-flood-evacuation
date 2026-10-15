@@ -124,7 +124,34 @@
       "group": "Claim support",
       "label": "14B SUPPORTED precision",
       "path": "data/eval_results/phase14b/score.json",
+      "json_pointer": "/metrics/supported_precision",
+      "unit": "fraction",
+      "format": "percent1"
+    },
+    {
+      "id": "p14c-verdict",
+      "group": "Claim support",
+      "label": "14C usefulness verdict (second provider, separate from 14B)",
+      "path": "data/eval_results/phase14c/score.json",
+      "json_pointer": "/verdict",
+      "unit": "text",
+      "format": "text"
+    },
+    {
+      "id": "p14c-supported-precision",
+      "group": "Claim support",
+      "label": "14C SUPPORTED precision (second provider)",
+      "path": "data/eval_results/phase14c/score.json",
       "json_pointer": "/supported_precision",
+      "unit": "fraction",
+      "format": "percent1"
+    },
+    {
+      "id": "p14c-macro-f1",
+      "group": "Claim support",
+      "label": "14C three-class Macro-F1 (second provider)",
+      "path": "data/eval_results/phase14c/score.json",
+      "json_pointer": "/macro_f1",
       "unit": "fraction",
       "format": "percent1"
     },

@@ -50,6 +50,7 @@ Read only what the checklist and spec name. Do not read `DOCUMENTATION.md` or fr
 ## Lane X owns (you may create/edit only these)
 
 `src/constraints/claim_support_gemini.py`, `scripts/phase14b_*`, `data/eval_results/phase14b/**`,
+`src/constraints/claim_support_p14c.py`, `scripts/phase14c_*`, `data/eval_results/phase14c/**`,
 `src/api/**`, `src/presentation/**`, `requirements-api.txt`, `web/**`, `hil/**`, `src/hil/**`,
 `docs/course/**`, `tests/test_lx_*.py`, `docs/patent-roadmap/STATUS_LANE_X.md`,
 `docs/patent-roadmap/escalations/LX-*.md`, and the checkboxes in your `waves/W*_LANE_X_ORDER.md`.
@@ -74,7 +75,8 @@ Frozen forever (never write): `data/eval_v3/**`, existing files in `data/eval_re
   (drop `PYTHONUTF8=1` once STATUS.md shows Phase 20 DONE).
 - Web (`web/`): Node LTS, `npm ci`, `npm run test`, `npx playwright test`, `npx tsc --noEmit`.
 - Every text-mode `open()` / `read_text()` / `write_text()` must pass `encoding="utf-8"` (enforced by a test).
-- `GEMINI_API_KEY` only from the environment. Never write it to a file, log, or commit.
+- `GEMINI_API_KEY` and `GROQ_API_KEY` only from the environment. Never write them to a file, log, or commit,
+  and never print any part of them.
 
 ## How you work
 

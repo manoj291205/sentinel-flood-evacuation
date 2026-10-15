@@ -15,13 +15,13 @@ unfiled invention. Never make it public or show the gate work before the Indian 
   `PYTHONUTF8=1 HF_HUB_OFFLINE=1 .venv/Scripts/python -m pytest tests/ -p no:cacheprovider -o addopts="" -q`
   (`pytest.ini` already adds `-q`; `-o addopts=""` keeps the summary visible). Drop `PYTHONUTF8=1` after Phase 20.
 - Git: `core.autocrlf=false` locally until `.gitattributes` lands (Phase 20); otherwise frozen hashes break.
-- `GEMINI_API_KEY` comes from the environment only — never write it to a file or commit it.
+- `GEMINI_API_KEY` and `GROQ_API_KEY` come from the environment only — never write them to a file or commit them.
 
 ## Two builders (read docs/patent-roadmap/LANES.md)
 - Builder S = **Lane S** (this folder, branches `m<NN>-*`). the Lane X agent = **Lane X** (worktree
   `D:/Project - 1/sentinel-lane-x`, branches `lane-x/m<NN>-*`, instructions in `AGENTS.md`).
 - Edit only files your lane owns. Never edit, rebase, merge or delete `lane-x/*` branches or Lane X files
-  (`src/api/`, `src/presentation/`, `web/`, `hil/`, `src/hil/`, `docs/course/`, 14B files, `tests/test_lx_*`).
+  (`src/api/`, `src/presentation/`, `web/`, `hil/`, `src/hil/`, `docs/course/`, 14B and 14C files, `tests/test_lx_*`).
   Report bugs there in `STATUS.md` -> Notes for the Lane X agent.
 - Only Lead merges into `main`, after auditing both lanes (LANES.md -> Merge and audit).
 

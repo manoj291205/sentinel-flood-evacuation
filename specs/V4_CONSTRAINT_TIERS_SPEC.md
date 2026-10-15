@@ -86,3 +86,27 @@ H1 runs, H2 corpus search for candidate spans, H4 fixture rules.
 
 ## Out of scope
 Changing the 14B protocol, Gemini calls in tests, automatic rule extraction without human approval.
+
+## Amendment 2026-10-15 (Lead) — where T2's semantic verdict may come from
+Two separate claim-support evaluations exist: **14B** (`gemini-claim-support-v1`, `data/eval_results/phase14b/`)
+and **14C** (`groq-claim-support-v1`, model `openai/gpt-oss-120b`, `data/eval_results/phase14c/`,
+`specs/V4_CLAIM_SUPPORT_14C_SPEC.md`). Neither has a score yet, so **T2 stays disabled** and the gate keeps
+calling `assign_tier` without `semantic_verdict` (T1 is the highest tier). No change to the code built on
+`m15p-constraints` is required by this amendment.
+- **Approval record.** The gate may pass `semantic_verdict` only from an Lead-written file
+  `specs/approvals/t2_semantic_verifier.json` (does not exist yet):
+  `{"evaluation_id", "provider_id", "model_id", "prompt_version", "request_settings", "score_path",
+  "score_sha256", "verdict", "approved_by_user_utc", "approved_by_opus_utc"}`. It is written only when the
+  evaluation is 135/135, scored by its own scorer, verdict `CLAIM_SUPPORT_VERIFIER_USEFUL` under the frozen
+  thresholds, audited by Lead, **and** the user explicitly approves that verdict for T2.
+- **Verification at load.** The loader re-hashes `score_path`; on a missing file, hash mismatch, verdict other
+  than USEFUL, or provider/model/prompt/settings that differ from the `semantic` callable, it uses
+  `semantic_verdict = None` (T2 disabled) and records why. A 14C verdict enables only the 14C provider
+  configuration; a 14B verdict only the 14B one. Verdicts are never combined, averaged or substituted.
+- **Calls.** Semantic checks run once per rule when rules are loaded (never per dispatch decision), with the
+  same ZDR precondition as the evaluation. A provider error leaves the rule at T1 (never T0 for that reason,
+  never T2 by default) and is logged; T2 changes no parameters, only the recorded tier.
+- **UI honesty.** Evidence & Results lists 14B and 14C as separate rows; a missing score shows `-` and
+  "Not run yet" (manifest items `p14b-*`, `p14c-*`). The tier shown for a rule is the tier actually assigned;
+  "T2" never appears while the approval record is absent.
+- Wiring the approval record into the gate is Lane S work scheduled after an approval exists (Wave C).
