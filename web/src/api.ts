@@ -1,4 +1,4 @@
-import type { Certificate, DecisionWhy, DemoState, MapGeometry } from './types';
+import type { Ack, Certificate, DecisionWhy, DemoState, EvidenceResponse, MapGeometry, SystemStatus } from './types';
 
 async function json<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, init);
@@ -23,4 +23,7 @@ export const api = {
   certificate: (id: string) => json<Certificate>(`/api/certificates/${encodeURIComponent(id)}`),
   replay: (id: string, tamper: boolean) => json<{ result: 'MATCH' | 'MISMATCH'; mismatched_fields: string[] }>(`/api/certificates/${encodeURIComponent(id)}/replay`, post({ tamper })),
   why: (id: string) => json<DecisionWhy>(`/api/decisions/${encodeURIComponent(id)}/why`),
+  evidence: () => json<EvidenceResponse>('/api/evidence'),
+  systemStatus: () => json<SystemStatus>('/api/system/status'),
+  systemAcks: () => json<{ items: Ack[] }>('/api/system/acks'),
 };

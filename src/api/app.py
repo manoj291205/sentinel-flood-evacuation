@@ -19,6 +19,7 @@ from src.human_decision import (
     allowed_override_actions,
 )
 from src.presentation.artifacts import load_contract_fixture
+from src.presentation.evidence import evidence_items
 from src.presentation.map_geometry import project_graph
 
 HONESTY = "REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED"
@@ -87,6 +88,7 @@ def create_app() -> FastAPI:
     cert_by_id = {item["cert_id"]: item for item in certificates}
     explanations = load_contract_fixture("decision_why_fixture.json")["items"]
     why_by_id = {item["decision_id"]: item for item in explanations}
+    system_fixture = load_contract_fixture("system_status_fixture.json")
     subscribers: dict[str, set[asyncio.Queue]] = defaultdict(set)
     app = FastAPI(title="Sentinel local API", version=VERSION)
     app.add_middleware(
@@ -224,6 +226,20 @@ def create_app() -> FastAPI:
     def certificate_list(response: Response):
         response.headers["X-Sentinel-Source"] = "FIXTURE"
         return _public({"certificates": certificates}, "FIXTURE")
+
+    @app.get("/api/evidence")
+    def evidence():
+        return _public({"items": evidence_items()}, "ARTIFACT")
+
+    @app.get("/api/system/status")
+    def system_status(response: Response):
+        response.headers["X-Sentinel-Source"] = "FIXTURE"
+        return system_fixture
+
+    @app.get("/api/system/acks")
+    def system_acks(response: Response):
+        response.headers["X-Sentinel-Source"] = "FIXTURE"
+        return _public({"items": []}, "FIXTURE")
 
     @app.get("/api/certificates/{cert_id}")
     def certificate(cert_id: str, response: Response):
