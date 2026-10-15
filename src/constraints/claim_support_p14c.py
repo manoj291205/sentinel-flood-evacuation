@@ -177,7 +177,7 @@ def verify_claim_support_p14c(
                 sleep(delay)
                 continue
             raise ProviderStop("RATE_LIMITED", status, delay)
-        if status in (500, 502, 503, 504):
+        if status >= 500:
             raise ProviderStop("PROVIDER_UNAVAILABLE", status)
         if status in (401, 403):
             raise ProviderStop("AUTH_ERROR", status)
@@ -185,7 +185,7 @@ def verify_claim_support_p14c(
         code = error.get("code") if isinstance(error, dict) else None
         if status == 400 and code == "json_validate_failed":
             parse_failures += 1
-        elif status >= 400:
+        elif status != 200:
             raise ProviderStop("REQUEST_REJECTED", status)
         else:
             try:
