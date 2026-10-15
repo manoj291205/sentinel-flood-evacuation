@@ -20,16 +20,36 @@ from src.sim import DispatchAction, WaitAction
 class SimulationSession:
     """Caller-owned live state; never put an instance in a shared Streamlit cache."""
 
-    def __init__(self, seed=620000, regime="v3-medium-v1", *, graph=None):
+    def __init__(self, seed=620000, regime="v3-medium-v1", *, graph=None,
+                 certified=False, params_id="v4-cert-v1"):
+        self.certified = certified
+        self.params_id = params_id
         self.reset(seed, regime, graph=graph)
 
     def reset(self, seed=620000, regime="v3-medium-v1", *, graph=None):
         if isinstance(seed, bool) or not isinstance(seed, int) or seed < 0:
             raise ValueError("scenario generator seed must be a non-negative integer")
         self.seed = seed
-        self.scenario, self.simulator, self.graph, self.overlay = build_geospatial_demo_runtime(
-            regime, graph=graph, generator_seed=seed,
-        )
+        self._gate_cache = None
+        if self.certified:
+            from src.actuation.commands import InMemorySink
+            from src.certify.gate import CertifiedGate
+            from src.certify.ledger import SimLedgerAdapter
+            from src.certify.params import get_cert_params
+            from src.geospatial.v4_runtime import build_v4_runtime
+
+            (self.scenario, self.simulator, self.graph, self.overlay,
+             self.world) = build_v4_runtime(regime, generator_seed=seed, graph=graph)
+            self.ledger = SimLedgerAdapter(self.simulator)
+            self.sink = InMemorySink()
+            self.gate = CertifiedGate(
+                self.scenario, self.graph, self.world, get_cert_params(self.params_id),
+                self.ledger, sink=self.sink, world_id=regime,
+            )
+        else:
+            self.scenario, self.simulator, self.graph, self.overlay = build_geospatial_demo_runtime(
+                regime, graph=graph, generator_seed=seed,
+            )
         self.audit = []
         self.timeline = []
         self.population_history = []
@@ -44,9 +64,35 @@ class SimulationSession:
             return self.simulator.state
         return self.simulator.prepared_state_for_debug()
 
+    def certificates(self):
+        return self.ledger.certificates() if self.certified else []
+
+    def _certified_context(self):
+        from src.human_decision import DecisionContext, _evaluation_for
+        from src.planners import CertifiedPlanner, build_planner_input
+        from src.safety import evaluate_actions
+
+        self.simulator.observe()
+        state = self.simulator.prepared_state_for_debug()
+        cached = self._gate_cache
+        if cached is None or cached[0] != state.current_timestep:
+            base = evaluate_actions(self.scenario, state)
+            result, inputs = self.gate.evaluate(state, self.overlay.road_state, base)
+            self._gate_cache = cached = (state.current_timestep, result, inputs)
+        _, result, inputs = cached
+        snapshot = evaluate_actions(
+            self.scenario, state, certifier=lambda sc, st, cands: self.gate.certificate_map(result)
+        )
+        planner_input = build_planner_input(self.scenario, state, snapshot, self.simulator.config)
+        recommendation = CertifiedPlanner(lambda _: result).choose_action(planner_input)
+        evaluation = _evaluation_for(snapshot, recommendation.action)
+        return DecisionContext(self.scenario, state, snapshot, recommendation, evaluation)
+
     def context(self):
         if self.simulator.state.terminal:
             return None
+        if self.certified:
+            return self._certified_context()
         return current_decision_context(self.scenario, self.simulator)
 
     def _capture_events(self, state):
@@ -100,12 +146,17 @@ class SimulationSession:
         # A rejection has recommendation provenance but no executed graph path.
         if decision == "REJECT":
             metadata.update(audit_route_metadata(self.graph, road_state, WaitAction()))
+        executor = self.simulator
+        if self.certified:
+            executor = _GateExecutor(self, decision, reason)
         record, transition = apply_human_decision(
-            context, self.simulator, decision=decision, evidence=evidence,
+            context, executor, decision=decision, evidence=evidence,
             audit_sequence=len(self.audit) + 1, generator_seed=self.seed,
             selected_action=selected_action, human_reason=reason,
             audit_metadata=metadata,
         )
+        if self.certified and decision == "REJECT":
+            transition = executor.hold()  # a rejection is committed as a HOLD certificate
         self.audit.append(record)
         self.timeline.extend({**row, "category": "HUMAN"} for row in timeline_entries(record, None))
         if transition is not None:
@@ -172,3 +223,34 @@ class SimulationSession:
                 "Closed at": route.closed_at_timestep,
             })
         return rows
+
+
+class _GateExecutor:
+    """Stands in for the simulator in ``apply_human_decision``: every step goes through the gate."""
+
+    def __init__(self, session, decision, reason):
+        self._session, self._reason = session, reason
+        self._decision = decision if isinstance(decision, str) else decision.value
+
+    @property
+    def config(self):
+        return self._session.simulator.config
+
+    def prepared_state_for_debug(self):
+        return self._session.simulator.prepared_state_for_debug()
+
+    def _commit(self, key):
+        session = self._session
+        _, result, inputs = session._gate_cache
+        operator = {"decision": self._decision, "actor": "session-operator", "reason": self._reason}
+        session.gate.commit(result, inputs, operator=operator, selected_key=key)
+        session._gate_cache = None
+        return session.ledger.last_transition
+
+    def step(self, action):
+        from src.human_decision import action_key
+
+        return self._commit(action_key(action))
+
+    def hold(self):
+        return self._commit("WAIT")

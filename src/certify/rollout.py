@@ -31,6 +31,7 @@ class Candidate:
     people: int
     edge_ids: tuple[str, ...]
     departure_timestep: int
+    start_minutes: float | None = None  # Phase 26 (in-transit groups); None = departure time
 
     @property
     def action_key(self) -> str:

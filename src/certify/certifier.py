@@ -82,8 +82,14 @@ def certify(
     *,
     clock: Callable[[], float] = time.perf_counter,
     rollout: Callable = rollout_joint,
+    stop_after_looks: int | None = None,
 ) -> CertificationResult:
     ordered = sorted(candidates, key=lambda c: (c.zone_id, c.shelter_id))
+    if not ordered:  # nothing to certify: do not generate futures
+        return CertificationResult(
+            root=getattr(futures, "root", ""), params_id=params.params_id, a_max=futures.A_MAX,
+            looks=0, n_final=0, elapsed_ms=0.0, deadline_hit=False, candidates=(), chosen_key=HOLD_KEY,
+        )
     alpha = params.delta / (params.max_looks * futures.A_MAX)
     keys = [c.action_key for c in ordered]
     status = {k: Verdict.UNDECIDED for k in keys}
@@ -92,13 +98,15 @@ def certify(
     outcomes = {k: [] for k in keys}
     frozen: dict[str, tuple[int, int, float, float]] = {}  # key -> (S, n, lo, hi) at decision look
     start = clock()
-    deadline_s = params.deadline_ms / 1000.0
+    deadline_s = params.deadline_ms / 1000.0  # replay passes a frozen clock
     deadline_hit = False
     n = 0
     completed_n = 0
     looks = 0
     target = params.k0
     for look in range(1, params.max_looks + 1):
+        if stop_after_looks is not None and look > stop_after_looks:
+            break  # replay: reproduce exactly the recorded number of looks
         for k in range(n + 1, target + 1):
             future = futures.future(k)
             for c in ordered:
