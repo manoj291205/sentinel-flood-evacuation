@@ -154,9 +154,10 @@ def finalize_semantic_result(
 
 
 def verify_claim_support(claim: str, evidence: EvidenceChunk) -> ClaimSupportResult:
-    """Frozen Phase 14B interface; deliberately has no implementation in Phase 14A."""
-    del claim, evidence
-    raise NotImplementedError("semantic claim-support evaluation begins in Phase 14B")
+    """Frozen Phase 14B interface; delegates to the Gemini provider (V4_CLAIM_SUPPORT_14B_SPEC)."""
+    from src.constraints.claim_support_gemini import verify_claim_support_gemini
+
+    return verify_claim_support_gemini(claim, evidence)
 
 
 def safe_to_cite(verdict: ClaimSupportVerdict | str) -> bool:

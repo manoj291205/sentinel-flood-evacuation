@@ -25,7 +25,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: requirements.txt
+          cache-dependency-path: |
+            requirements.txt
+            requirements-api.txt
 
       - name: Install CPU-only torch (Linux)
         # The default Linux wheel bundles CUDA and fills the runner disk.
@@ -36,6 +38,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
+          python -m pip install -r requirements-api.txt
 
       - name: Assert no API key is present
         shell: bash

@@ -196,11 +196,15 @@ def test_verdict_schema_confidence_and_required_spans():
         replace(result, verdict="INVALID")
 
 
-def test_quote_integrity_baseline_name_and_phase14b_stub():
+def test_quote_integrity_baseline_name_and_phase14b_delegation(monkeypatch):
+    import src.constraints.claim_support_gemini as provider
+
     assert QUOTE_INTEGRITY_PROTOCOL_VERSION == "quote-integrity-v1"
     evidence = EvidenceChunk("c", "s", "f", 1, "text", hashlib.sha256(b"text").hexdigest())
-    with pytest.raises(NotImplementedError, match="Phase 14B"):
-        verify_claim_support("claim", evidence)
+    calls = []
+    monkeypatch.setattr(provider, "verify_claim_support_gemini", lambda claim, ev: calls.append((claim, ev)) or "result")
+    assert verify_claim_support("claim", evidence) == "result"
+    assert calls == [("claim", evidence)]
 
 
 def test_supporting_spans_are_verbatim_and_integrity_cannot_be_overridden():

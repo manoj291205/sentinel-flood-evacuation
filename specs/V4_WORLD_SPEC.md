@@ -140,3 +140,7 @@ table for the STATUS note (H5).
 
 ## Out of scope
 Certification (22–24), wider graph download, any change to v3 configs or frozen data.
+
+## Amendments
+- 2026-10-15 (Lead, Wave A audit): accepted as built for `v4-*-dt2-v1`. (1) Stranding and arrival checks run after the edge overlay, against the current step's roads. (2) Walk-ins skip CLOSED shelters. (3) The live `TransitPlan` fixes edge speeds from the dispatch-time edge hazard; rollouts (Phase 23) use the future's hazard at entry. This can move a rollout arrival by one step relative to the live trip; Phase 27 reports live-vs-rollout arrival agreement. A progressive at-entry live model, if ever needed, ships under new `v4-*-v2` IDs. (4) `edge_travel_minutes` (speed floor 0.5 km/h) is the single edge-time function for both the simulator and rollouts; it supersedes `max(v, 1.0)` in the rollout pseudocode. (5) Live `ARRIVAL_UNSAFE` uses `closed_threshold`; rollouts use `CertParams.theta_unsafe` (0.70, stricter). Both stay.
+- 2026-10-15 (Lead): **G21 PASS** (HIGH 30.1 % >= 3 %, MEDIUM 20.0 % >= 1 %, median lag 4 >= 3 steps on all levels, MEDIUM correlation 0.640 > 0.1). Stranding dominates; unsafe (0.8 %) and overflow (0.2 %) occur only on HIGH, so the shelter and capacity terms rarely bind. Phase 27 therefore pre-registers a secondary capacity-stress world (`V4_EVALUATION_PREREG.md`).

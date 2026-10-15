@@ -28,9 +28,9 @@ RESPONSE_SCHEMA = {
 }
 
 _INSTRUCTIONS = """Judge only whether the evidence supports the exact claim.
-SUPPORTED: every material proposition is established. Paraphrasing is allowed, but do not strengthen modality, certainty, scope, actor responsibility, timing, numerical quantity, or conditions.
-PARTIALLY_SUPPORTED: a meaningful component is established, but at least one material component is not, including an added actor, deadline, number, or population, or a recommendation turned into a mandate.
-UNSUPPORTED: the evidence does not materially establish the core factual claim. Same-topic wrong facts, wrong actors/actions/conditions/populations, reversed advice, unsupported quantities, and contradictions belong here.
+SUPPORTED: every material proposition is established. Paraphrasing is allowed, but the claim cannot materially strengthen modality, certainty, scope, actor responsibility, timing, numerical quantity, or conditions.
+PARTIALLY_SUPPORTED: a meaningful component is established, but at least one material component is not. Examples include supported A plus unsupported B, turning a recommendation into a mandate, or adding an actor, deadline, number, or population.
+UNSUPPORTED: the evidence does not materially establish the core factual claim. Same-topic wrong facts, wrong actors/actions/conditions/populations, reversed advice, unsupported quantities, and contradictions belong here. Contradiction is an UNSUPPORTED subtype.
 Copy supporting spans verbatim from the evidence. Give a short reason. Do not include chain-of-thought. Return only the structured JSON object.
 """
 
