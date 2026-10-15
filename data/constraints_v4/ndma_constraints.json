@@ -19,10 +19,10 @@
         "passage_sha256": "b88e08776846207517b83f714249a1e9ae1915af53b6198f739c9a1ab887cc18",
         "span": "To avoid ﬂooding, the temporary shelters should not be built in the low-lying areas."
       },
-      "approved": false,
-      "approved_by": null,
-      "approved_utc": null,
-      "draft_note": "Source is qualitative; the 0.60 / 0.45 thresholds are a modelling proposal for the approver."
+      "approved": true,
+      "approved_by": "user-delegated (Claude Code, at the user's explicit instruction)",
+      "approved_utc": "2026-10-15T00:00:00Z",
+      "draft_note": "Source is qualitative; the 0.60 / 0.45 thresholds are a modelling proposal for the approver. Approved on the user's delegation: the source sentence is real and verbatim; the threshold is a conservative modelling choice."
     },
     {
       "rule_id": "NDMA-R02",
@@ -42,10 +42,10 @@
         "passage_sha256": "a2131c26725a284502f27cd9c5ba58fa9af0dd63dc7cb33181815ebb9c60ebc7",
         "span": "Shelters should ensure safety, security, comfort and privacy for all."
       },
-      "approved": false,
-      "approved_by": null,
-      "approved_utc": null,
-      "draft_note": "Source is qualitative; the 0.90 / 0.80 thresholds are a modelling proposal for the approver."
+      "approved": true,
+      "approved_by": "user-delegated (Claude Code, at the user's explicit instruction)",
+      "approved_utc": "2026-10-15T00:00:00Z",
+      "draft_note": "Source is qualitative; the 0.90 / 0.80 thresholds are a modelling proposal for the approver. Approved on the user's delegation: the source sentence is real and verbatim; the threshold is a conservative modelling choice."
     },
     {
       "rule_id": "NDMA-R03",
@@ -68,7 +68,7 @@
       "approved": false,
       "approved_by": null,
       "approved_utc": null,
-      "draft_note": "Weak support: the sentence is about shelters, not routes. Recommend rejecting unless the approver agrees; thresholds are a modelling proposal."
+      "draft_note": "Weak support: the sentence is about shelters, not routes. Recommend rejecting unless the approver agrees; thresholds are a modelling proposal. Left unapproved on review: the source sentence is about shelters, not routes."
     }
   ]
 }
