@@ -1,0 +1,37 @@
+{
+  "delta": 0.01,
+  "threshold": 0.95,
+  "rows": [
+    {
+      "true_p": 0.9,
+      "reps": 10000,
+      "accept_rate": 0.0,
+      "infeasible_rate": 1.0
+    },
+    {
+      "true_p": 0.94,
+      "reps": 10000,
+      "accept_rate": 0.0,
+      "infeasible_rate": 0.0572
+    },
+    {
+      "true_p": 0.949,
+      "reps": 10000,
+      "accept_rate": 0.0,
+      "infeasible_rate": 0.0003
+    },
+    {
+      "true_p": 0.96,
+      "reps": 10000,
+      "accept_rate": 0.057,
+      "infeasible_rate": 0.0
+    },
+    {
+      "true_p": 0.99,
+      "reps": 10000,
+      "accept_rate": 1.0,
+      "infeasible_rate": 0.0
+    }
+  ],
+  "false_accept_ok": true
+}

@@ -29,6 +29,7 @@ from .objective import (
     exact_headroom,
 )
 from .random_valid import RandomValidPlanner
+from .certified import CertifiedPlanner
 from .risk_greedy import RISK_GREEDY_WEIGHTS, RiskGreedyPlanner, score_dispatch
 
 __all__ = [
@@ -55,6 +56,7 @@ __all__ = [
     "PracticalPlanner",
     "RISK_GREEDY_WEIGHTS",
     "RandomValidPlanner",
+    "CertifiedPlanner",
     "RiskGreedyPlanner",
     "SAFE_WEIGHT",
     "SampledMPCPlanner",

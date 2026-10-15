@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+from typing import Any, Callable, Mapping
+
 from src.sim.events import WAIT, DispatchAction, SimulationAction
 from src.sim.schemas import ScenarioV3
 from src.sim.state import EpisodeState
@@ -9,7 +12,13 @@ from src.sim.transition import validate_action
 
 from .audit import mechanical_verdict
 from .hard_rules import SafetyConfig, V3_SAFETY_V1, evaluate_destination_hazard, get_safety_config
-from .models import ActionSafetyEvaluation, SafetySnapshot
+from .models import (
+    ActionSafetyEvaluation,
+    RuleLayer,
+    RuleProvenance,
+    RuleVerdict,
+    SafetySnapshot,
+)
 
 
 def enumerate_canonical_actions(scenario: ScenarioV3) -> tuple[SimulationAction, ...]:
@@ -81,6 +90,7 @@ def evaluate_actions(
     safety_config: str | SafetyConfig = V3_SAFETY_V1,
     *,
     enable_hard_safety: bool = True,
+    certifier: Callable[[ScenarioV3, EpisodeState, tuple[DispatchAction, ...]], Mapping[str, Any]] | None = None,
 ) -> SafetySnapshot:
     """Recompute a fully aligned semantic mask for the current decision state."""
     config = get_safety_config(safety_config)
@@ -95,6 +105,8 @@ def evaluate_actions(
         )
         for action in actions
     )
+    if certifier is not None:
+        evaluations = _apply_certifier(scenario, state, evaluations, certifier)
     return SafetySnapshot(
         scenario_id=state.scenario_id,
         timestep=state.current_timestep,
@@ -104,3 +116,48 @@ def evaluate_actions(
         allowed_mask=tuple(item.final_allowed for item in evaluations),
         evaluations=evaluations,
     )
+
+
+def _apply_certifier(scenario, state, evaluations, certifier):
+    """Gate every mechanically valid, hard-safe dispatch on its certificate (fail-closed)."""
+    candidates = tuple(
+        e.action for e in evaluations
+        if e.final_allowed and isinstance(e.action, DispatchAction)
+    )
+    certificates = certifier(scenario, state, candidates) if candidates else {}
+    gated = []
+    for evaluation in evaluations:
+        action = evaluation.action
+        if not (evaluation.final_allowed and isinstance(action, DispatchAction)):
+            gated.append(evaluation)
+            continue
+        certificate = certificates.get(evaluation.action_key)
+        feasible = certificate is not None and certificate.verdict.value == "FEASIBLE"
+        verdict = RuleVerdict(
+            rule_id="CERTIFIED_ARRIVAL_FEASIBILITY",
+            layer=RuleLayer.CERTIFIED,
+            provenance=RuleProvenance.CERTIFIED_CHANCE,
+            allowed=feasible,
+            reason_code=certificate.verdict.value if certificate is not None else "UNDECIDED",
+            reason=(
+                "certified arrival feasibility lower bound meets the dispatch threshold"
+                if feasible
+                else "arrival feasibility is not certified; the dispatch is blocked (fail-closed)"
+            ),
+            current_values=(
+                ("lower", certificate.lower if certificate else 0.0),
+                ("upper", certificate.upper if certificate else 1.0),
+                ("n", certificate.n if certificate else 0),
+                ("threshold", 0.95),
+            ),
+            config_version="v4-cert-v1",
+        )
+        gated.append(
+            replace(
+                evaluation,
+                final_allowed=feasible,
+                rule_verdicts=evaluation.rule_verdicts + (verdict,),
+                exclusions=evaluation.exclusions if feasible else evaluation.exclusions + (verdict,),
+            )
+        )
+    return tuple(gated)
