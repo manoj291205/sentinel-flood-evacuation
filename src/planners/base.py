@@ -7,7 +7,7 @@ import time
 from dataclasses import dataclass
 from typing import Any, Protocol
 
-from src.safety import SafetySnapshot
+from src.safety import SafetySnapshot, get_safety_config
 from src.sim.configs import UncertaintyConfig
 from src.sim.events import DispatchAction, SimulationAction
 from src.sim.schemas import ScenarioV3
@@ -40,6 +40,7 @@ class PlannerInput:
     observation: dict[str, Any]
     safety_snapshot: SafetySnapshot
     uncertainty_config: UncertaintyConfig
+    max_destination_hazard: float = 0.70  # not serialised: legacy to_dict() is unchanged
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -101,6 +102,9 @@ def build_planner_input(
         observation=copy.deepcopy(state.to_policy_observation()),
         safety_snapshot=safety_snapshot,
         uncertainty_config=uncertainty_config,
+        max_destination_hazard=get_safety_config(
+            safety_snapshot.safety_config_id
+        ).max_destination_hazard,
     )
 
 

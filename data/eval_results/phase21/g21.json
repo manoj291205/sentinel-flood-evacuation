@@ -1,0 +1,66 @@
+{
+  "gate": "G21",
+  "baseline": "risk_greedy + V3_SAFETY_V1",
+  "seeds": [
+    620000,
+    620119
+  ],
+  "replication_id": 0,
+  "levels": {
+    "low": {
+      "world_id": "v4-low-dt2-v1",
+      "episodes": 120,
+      "dispatched": 2144,
+      "stranded": 215,
+      "unsafe": 0,
+      "overflow": 0,
+      "failure_rate": 0.10027985074626866,
+      "stranded_rate": 0.10027985074626866,
+      "unsafe_rate": 0.0,
+      "overflow_rate": 0.0,
+      "median_lag_steps": 4.0,
+      "p90_lag_steps": 5,
+      "hazard_severity_correlation": 0.5452465478218181,
+      "runtime_seconds": 329.7
+    },
+    "medium": {
+      "world_id": "v4-medium-dt2-v1",
+      "episodes": 120,
+      "dispatched": 2033,
+      "stranded": 407,
+      "unsafe": 0,
+      "overflow": 0,
+      "failure_rate": 0.20019675356615838,
+      "stranded_rate": 0.20019675356615838,
+      "unsafe_rate": 0.0,
+      "overflow_rate": 0.0,
+      "median_lag_steps": 4,
+      "p90_lag_steps": 5,
+      "hazard_severity_correlation": 0.640452149842851,
+      "runtime_seconds": 407.9
+    },
+    "high": {
+      "world_id": "v4-high-dt2-v1",
+      "episodes": 120,
+      "dispatched": 1883,
+      "stranded": 548,
+      "unsafe": 15,
+      "overflow": 4,
+      "failure_rate": 0.30111524163568776,
+      "stranded_rate": 0.29102496016994156,
+      "unsafe_rate": 0.007966011683483803,
+      "overflow_rate": 0.002124269782262347,
+      "median_lag_steps": 4,
+      "p90_lag_steps": 5,
+      "hazard_severity_correlation": 0.7612901989318214,
+      "runtime_seconds": 414.5
+    }
+  },
+  "checks": {
+    "failure_rate_high_ge_3pct": true,
+    "failure_rate_medium_ge_1pct": true,
+    "median_lag_ge_3_all_levels": true,
+    "correlation_medium_gt_0_1": true
+  },
+  "passed": true
+}

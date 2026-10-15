@@ -216,6 +216,7 @@ def derive_road_state(
     *,
     scenario_seed: int,
     previous: RoadState | None = None,
+    streams: EpisodeRandomStreams | None = None,
 ) -> tuple[RoadState, tuple[AuditRecord, ...]]:
     """Apply seeded simulated hazards and absorbing closures to real road edges."""
     selected = get_uncertainty_config(config)
@@ -229,7 +230,8 @@ def derive_road_state(
         if previous.timestep > state.current_timestep:
             raise ValueError("previous road state is ahead of the episode")
     previous_edges = {item.edge_id: item for item in previous.edges} if previous else {}
-    streams = EpisodeRandomStreams(scenario_seed, selected.config_id)
+    if streams is None:
+        streams = EpisodeRandomStreams(scenario_seed, selected.config_id)
     anchors = _entity_hazards(graph, state)
     dynamic: list[DynamicRoadEdge] = []
     records: list[AuditRecord] = []
@@ -414,7 +416,14 @@ def _adapt_routes(
 class GeospatialRouteOverlay:
     """Stateful simulator intervention that projects graph paths to route abstractions."""
 
-    def __init__(self, graph: RoadGraph, config: UncertaintyConfig, scenario_seed: int):
+    def __init__(
+        self,
+        graph: RoadGraph,
+        config: UncertaintyConfig,
+        scenario_seed: int,
+        streams: EpisodeRandomStreams | None = None,
+    ):
+        self.streams = streams  # v4 passes the simulator's streams; None keeps legacy keying
         self.graph = graph
         self.config = config
         self.scenario_seed = scenario_seed
@@ -430,6 +439,7 @@ class GeospatialRouteOverlay:
             self.config,
             scenario_seed=self.scenario_seed,
             previous=self.road_state,
+            streams=self.streams,
         )
         self.road_state = road_state
         return _adapt_routes(state, self.graph, road_state, self.config), records

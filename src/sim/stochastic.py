@@ -19,6 +19,8 @@ from .randomness import EpisodeRandomStreams, RandomStream
 from .routes import realize_dispatch_travel, update_route_state
 from .schemas import ScenarioV3, ShelterStatus
 from .state import EpisodeState
+from .transit import TransitPlan, apply_walk_ins, build_transit_plan, process_v4_transit
+from .world import V4WorldConfig, get_world_config, scaled_uncertainty
 from .transition import (
     TransitionResult,
     _execute_accepted_action,
@@ -37,6 +39,8 @@ class _StochasticContext:
     streams: EpisodeRandomStreams
     config: UncertaintyConfig
     regional_hazard_state: float = 0.0
+    world: V4WorldConfig | None = None
+    plans: tuple[TransitPlan, ...] = ()
 
 
 def _next_status(status: ShelterStatus) -> ShelterStatus:
@@ -121,6 +125,8 @@ def _prepare_timestep(
     tuple[AuditRecord, ...],
 ]:
     """Realize current exogenous state before a policy observes and selects an action."""
+    if context.world is not None:
+        return _prepare_v4_timestep(scenario, committed_state, context, intervention)
     state, arrivals, arrival_records = _process_arrivals(committed_state)
     exogenous_records: tuple[AuditRecord, ...] = ()
     next_context = context
@@ -161,6 +167,63 @@ def _prepare_timestep(
     return state, next_context, arrivals, arrival_records + exogenous_records
 
 
+def _prepare_v4_timestep(
+    scenario: ScenarioV3,
+    committed_state: EpisodeState,
+    context: _StochasticContext,
+    intervention: Callable[
+        [ScenarioV3, EpisodeState], tuple[EpisodeState, tuple[AuditRecord, ...]]
+    ]
+    | None,
+):
+    """v4 order: hazards, shelters, edge closures, then transit (stranding sees this step's roads)."""
+    world = context.world
+    assert world is not None
+    state = committed_state
+    exogenous_records: tuple[AuditRecord, ...] = ()
+    next_context = context
+    if state.current_timestep > 0:
+        state, regional, flood_records = evolve_flood_state(
+            scenario, state, context.config, context.streams, context.regional_hazard_state
+        )
+        next_context = replace(context, regional_hazard_state=regional)
+        exogenous_records += flood_records
+    # Edge closures are authoritative in v4: never realize route-level closures.
+    state, route_records = update_route_state(
+        scenario, state, context.config, context.streams, realize_closures=False
+    )
+    exogenous_records += route_records
+    if state.current_timestep > 0:
+        state, shelter_records = _degrade_shelters(state, next_context)
+        exogenous_records += shelter_records
+    if intervention is not None:
+        state, intervention_records = intervention(scenario, state)
+        exogenous_records += intervention_records
+    road_state = getattr(intervention, "road_state", None)
+    arrivals: tuple[DispatchEvent, ...] = ()
+    transit_records: tuple[AuditRecord, ...] = ()
+    if world.enable_transit_failures:
+        state, arrivals, transit_records = process_v4_transit(
+            state, next_context.plans, road_state, context.config, world
+        )
+    walk_records: tuple[AuditRecord, ...] = ()
+    if state.current_timestep > 0:
+        state, walk_records = apply_walk_ins(state, context.streams, world)
+    state = update_observable_forecasts(scenario, state, context.config)
+    state = replace(
+        state,
+        uncertainty_config_id=context.config.config_id,
+        dispatches_used_this_timestep=0,
+        audit_log=state.audit_log + exogenous_records,
+    )
+    return (
+        state,
+        next_context,
+        arrivals,
+        transit_records + walk_records + exogenous_records,
+    )
+
+
 class StochasticSimulator:
     """Two-stage observe/step harness that prevents policy access to future draws.
 
@@ -180,9 +243,11 @@ class StochasticSimulator:
             [ScenarioV3, EpisodeState], tuple[EpisodeState, tuple[AuditRecord, ...]]
         ]
         | None = None,
+        world: V4WorldConfig | str | None = None,
     ) -> None:
         self._scenario = scenario
         selected = get_uncertainty_config(config)
+        selected_world = get_world_config(world) if world is not None else None
         self._context = _StochasticContext(
             streams=EpisodeRandomStreams(
                 root_seed=scenario.seed,
@@ -190,6 +255,7 @@ class StochasticSimulator:
                 replication_id=replication_id,
             ),
             config=selected,
+            world=selected_world,
         )
         self._intervention = intervention
         base = replace(
@@ -239,6 +305,33 @@ class StochasticSimulator:
             "regional_hazard_state": current_context.regional_hazard_state,
         }
 
+    def _plan_v4_dispatch(self, prepared, action, validation, context):
+        from src.geospatial.road_network import shortest_valid_path
+
+        overlay = self._intervention
+        graph, road_state = overlay.graph, overlay.road_state
+        path = shortest_valid_path(
+            graph,
+            road_state,
+            graph.zone_node_map[action.zone_id],
+            graph.shelter_node_map[action.shelter_id],
+        )
+        if not path.reachable:  # validate_action saw the same road state; defensive only
+            raise ValueError("validated v4 dispatch has no open path")
+        return build_transit_plan(
+            graph=graph,
+            road_state=road_state,
+            path_edge_ids=path.edge_ids,
+            event_id=f"dispatch-{prepared.next_dispatch_sequence:06d}",
+            zone_id=action.zone_id,
+            shelter_id=action.shelter_id,
+            people=validation.people,
+            departure_timestep=prepared.current_timestep,
+            world=context.world,
+            config=context.config,
+            streams=context.streams,
+        )
+
     def step(self, action: SimulationAction | object) -> TransitionResult:
         """Execute one action against the state last returned by ``observe()``."""
         if self.state.terminal:
@@ -250,34 +343,50 @@ class StochasticSimulator:
         if not validation.valid:
             return _rejected_result(self.state, action, validation)
 
-        travel = None
+        travel_kwargs: dict[str, Any] = {}
         if isinstance(action, DispatchAction):
-            route_state = prepared.route(validation.route_id or "")
-            route_definition = next(
-                route
-                for route in self._scenario.network.routes
-                if route.route_id == validation.route_id
-            )
-            assert route_state is not None
-            travel = realize_dispatch_travel(
-                route_definition,
-                route_state,
-                next_context.config,
-                next_context.streams,
-                departure_timestep=prepared.current_timestep,
-                event_id=f"dispatch-{prepared.next_dispatch_sequence:06d}",
-            )
+            if next_context.world is not None:
+                realization = self._plan_v4_dispatch(prepared, action, validation, next_context)
+                next_context = replace(
+                    next_context, plans=next_context.plans + (realization.plan,)
+                )
+                travel_kwargs = dict(
+                    base_travel_time_minutes=realization.base_minutes,
+                    realized_travel_time_minutes=realization.realized_minutes,
+                    travel_multiplier=realization.multiplier,
+                    expected_travel_time_minutes=realization.base_minutes,
+                    travel_uncertainty_minutes=0.0,
+                )
+            else:
+                route_state = prepared.route(validation.route_id or "")
+                route_definition = next(
+                    route
+                    for route in self._scenario.network.routes
+                    if route.route_id == validation.route_id
+                )
+                assert route_state is not None
+                travel = realize_dispatch_travel(
+                    route_definition,
+                    route_state,
+                    next_context.config,
+                    next_context.streams,
+                    departure_timestep=prepared.current_timestep,
+                    event_id=f"dispatch-{prepared.next_dispatch_sequence:06d}",
+                )
+                travel_kwargs = dict(
+                    base_travel_time_minutes=travel.base_minutes,
+                    realized_travel_time_minutes=travel.realized_minutes,
+                    travel_multiplier=travel.multiplier,
+                    expected_travel_time_minutes=travel.expected_minutes,
+                    travel_uncertainty_minutes=travel.uncertainty_minutes,
+                )
 
         working, people, created, action_records = _execute_accepted_action(
             self._scenario,
             prepared,
             action,
             validation,
-            base_travel_time_minutes=travel.base_minutes if travel else None,
-            realized_travel_time_minutes=travel.realized_minutes if travel else None,
-            travel_multiplier=travel.multiplier if travel else 1.0,
-            expected_travel_time_minutes=travel.expected_minutes if travel else None,
-            travel_uncertainty_minutes=travel.uncertainty_minutes if travel else None,
+            **travel_kwargs,
             uncertainty_config_id=next_context.config.config_id,
         )
         working, termination_records = _finalize_accepted_transition(
