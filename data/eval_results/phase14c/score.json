@@ -1,0 +1,118 @@
+{
+  "evaluation_id": "v3-claim-support-eval-14c-v1",
+  "provider_id": "groq-claim-support-v1",
+  "model_id": "openai/gpt-oss-120b",
+  "prompt_version": "14b-prompt-v1",
+  "request_settings": {
+    "temperature": 0.0,
+    "seed": 14,
+    "reasoning_effort": "low",
+    "include_reasoning": false,
+    "max_completion_tokens": 2048
+  },
+  "challenge_fingerprint": "54efc3722593fcba154ce360fe22452c8524bd1d195fc0ee96bc4ebbffd5fcc0",
+  "protocol_sha256": "5675f1880c0a8b0ff73a1f967a52f32cbd0d98a80c9b6797a4e17b996854a43e",
+  "temperature_requested": 0.0,
+  "temperature_note": "provider converts 0 to 1e-8",
+  "ledger_sha256": "6a915f6a6bfbc26e2a134bccbcf7ce45899ea4c1009b94fe25cc8ecc72fc3c3a",
+  "claim_pairs": 135,
+  "verdict": "CLAIM_SUPPORT_VERIFIER_NOT_YET_RELIABLE",
+  "conditions": {
+    "macro_f1": false,
+    "supported_precision": true,
+    "unsafe_acceptance": true,
+    "span_integrity_failure": false
+  },
+  "metrics": {
+    "accuracy": 0.6814814814814815,
+    "macro_f1": 0.5853118512692981,
+    "per_class": {
+      "SUPPORTED": {
+        "precision": 0.9782608695652174,
+        "recall": 1.0,
+        "f1": 0.989010989010989,
+        "support": 45
+      },
+      "PARTIALLY_SUPPORTED": {
+        "precision": 1.0,
+        "recall": 0.044444444444444446,
+        "f1": 0.0851063829787234,
+        "support": 45
+      },
+      "UNSUPPORTED": {
+        "precision": 0.5172413793103449,
+        "recall": 1.0,
+        "f1": 0.6818181818181819,
+        "support": 45
+      }
+    },
+    "confusion_matrix": {
+      "SUPPORTED": {
+        "SUPPORTED": 45,
+        "PARTIALLY_SUPPORTED": 0,
+        "UNSUPPORTED": 0
+      },
+      "PARTIALLY_SUPPORTED": {
+        "SUPPORTED": 1,
+        "PARTIALLY_SUPPORTED": 2,
+        "UNSUPPORTED": 42
+      },
+      "UNSUPPORTED": {
+        "SUPPORTED": 0,
+        "PARTIALLY_SUPPORTED": 0,
+        "UNSUPPORTED": 45
+      }
+    },
+    "safe_to_cite_precision": 0.9782608695652174,
+    "safe_to_cite_recall": 1.0,
+    "unsafe_citation_acceptance_rate": 0.011111111111111112,
+    "supported_precision": 0.9782608695652174,
+    "span_integrity_failure_rate": 0.1037037037037037
+  },
+  "supported_precision": 0.9782608695652174,
+  "macro_f1": 0.5853118512692981,
+  "calls_total": 136,
+  "system_fingerprints": [
+    "fp_02b0d31eca",
+    "fp_068241849b",
+    "fp_0708ac49a5",
+    "fp_1d982b31b2",
+    "fp_27194a498a",
+    "fp_4200b3f836",
+    "fp_47082602e2",
+    "fp_4727af4560",
+    "fp_4a7bb72c24",
+    "fp_4b2f03d631",
+    "fp_5082008e34",
+    "fp_5a93aea882",
+    "fp_60e4b492db",
+    "fp_64b2f1c926",
+    "fp_69334c0be3",
+    "fp_6b677c2caf",
+    "fp_6c36ac20de",
+    "fp_803c0ba83d",
+    "fp_854fa9be4c",
+    "fp_8655ddce88",
+    "fp_86dc843b12",
+    "fp_87b3c396db",
+    "fp_8ea50c0161",
+    "fp_90620edd96",
+    "fp_9241e9962b",
+    "fp_93703442d9",
+    "fp_96d96a151c",
+    "fp_a655021f7d",
+    "fp_bb691ea66b",
+    "fp_c15aa9c1b7",
+    "fp_c3da0d4bb9",
+    "fp_c652c0ffaa",
+    "fp_c800245357",
+    "fp_dee443f41b",
+    "fp_df9620fe21",
+    "fp_e1a78f200e",
+    "fp_e5b4e54fbb",
+    "fp_f640395b96",
+    "fp_f73454f048",
+    "fp_fe269835c7"
+  ],
+  "label": "Phase 14C (second provider); not a Phase 14B / Gemini result"
+}
