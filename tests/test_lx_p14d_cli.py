@@ -53,6 +53,7 @@ def test_dry_run_leaves_results_untouched(monkeypatch, runner, tmp_path):
 
 def test_live_guards_before_network(monkeypatch, runner, tmp_path):
     monkeypatch.setattr(runner, "DEFAULT_OUT_DIR", tmp_path / "results")
+    monkeypatch.setattr(runner, "FREEZE", tmp_path / "no_freeze.json")
     monkeypatch.delenv("GROQ_API_KEY", raising=False)
     with pytest.raises(RuntimeError, match="GROQ_API_KEY"):
         invoke(monkeypatch, runner, "--live", "--attest-zdr", "--set", "practice", "--round", "1",

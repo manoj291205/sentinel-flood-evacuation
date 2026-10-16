@@ -1,0 +1,13 @@
+{
+  "evaluation_id": "v4-claim-support-eval-14d-v1",
+  "prompt_version": "14d-prompt-r0",
+  "prompt_sha256": "a81671a5e35cad1ef56f01f4c82f6e6af278306713e3b86313215a7f888eedbe",
+  "practice_rounds": [
+    {
+      "round": 1,
+      "prompt_version": "14d-prompt-r0",
+      "score_sha256": "2d473c38dd66673c82cedc3ea68107536c4bef7608bc7d22272675bd2828b982"
+    }
+  ],
+  "frozen_by_opus_utc": "2026-10-16T15:12:12Z"
+}
