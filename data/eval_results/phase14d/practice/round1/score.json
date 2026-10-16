@@ -1,0 +1,114 @@
+{
+  "evaluation_id": "v4-claim-support-eval-14d-v1",
+  "provider_id": "groq-claim-support-14d-v1",
+  "model_id": "openai/gpt-oss-120b",
+  "prompt_version": "14d-prompt-r0",
+  "prompt_sha256": "a81671a5e35cad1ef56f01f4c82f6e6af278306713e3b86313215a7f888eedbe",
+  "request_settings": {
+    "temperature": 0.0,
+    "seed": 14,
+    "reasoning_effort": "medium",
+    "include_reasoning": false,
+    "max_completion_tokens": 4096
+  },
+  "challenge_id": "v4-claim-support-challenge-14d-v1",
+  "challenge_set": "practice",
+  "challenge_fingerprint": "b5f7f76bb01daa2ea63e4075e847d120189d7acbf4b259b88087a224bbe64ee7",
+  "protocol_sha256": "f22f3e33ad260187c550f595b190b2b3b72d4d25b11289bcef938c55b17e9aee",
+  "temperature_requested": 0.0,
+  "temperature_note": "provider converts 0 to 1e-8",
+  "ledger_sha256": "9bc9dec01c89ace514417a37efa91d5d43b9d3e499fe96b9ad273d3ebb3ed5f1",
+  "claim_pairs": 30,
+  "verdict": "T2_VERIFIER_USEFUL",
+  "t2_verdict": "T2_VERIFIER_USEFUL",
+  "t2_conditions": {
+    "t2_precision": true,
+    "t2_unsafe_acceptance": true,
+    "t2_recall": true,
+    "supported_integrity_failure": true
+  },
+  "t2_metrics": {
+    "t2_positive_count": 10,
+    "t2_precision": 1.0,
+    "t2_unsafe_acceptance": 0.0,
+    "t2_recall": 1.0,
+    "supported_integrity_failure": 0.0
+  },
+  "v3_verdict": "CLAIM_SUPPORT_VERIFIER_USEFUL",
+  "v3_conditions": {
+    "macro_f1": true,
+    "supported_precision": true,
+    "unsafe_acceptance": true,
+    "span_integrity_failure": true
+  },
+  "metrics": {
+    "accuracy": 0.9666666666666667,
+    "macro_f1": 0.9665831244778613,
+    "per_class": {
+      "SUPPORTED": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "PARTIALLY_SUPPORTED": {
+        "precision": 1.0,
+        "recall": 0.9,
+        "f1": 0.9473684210526316,
+        "support": 10
+      },
+      "UNSUPPORTED": {
+        "precision": 0.9090909090909091,
+        "recall": 1.0,
+        "f1": 0.9523809523809523,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "SUPPORTED": {
+        "SUPPORTED": 10,
+        "PARTIALLY_SUPPORTED": 0,
+        "UNSUPPORTED": 0
+      },
+      "PARTIALLY_SUPPORTED": {
+        "SUPPORTED": 0,
+        "PARTIALLY_SUPPORTED": 9,
+        "UNSUPPORTED": 1
+      },
+      "UNSUPPORTED": {
+        "SUPPORTED": 0,
+        "PARTIALLY_SUPPORTED": 0,
+        "UNSUPPORTED": 10
+      }
+    },
+    "safe_to_cite_precision": 1.0,
+    "safe_to_cite_recall": 1.0,
+    "unsafe_citation_acceptance_rate": 0.0,
+    "supported_precision": 1.0,
+    "span_integrity_failure_rate": 0.0
+  },
+  "supported_precision": 1.0,
+  "macro_f1": 0.9665831244778613,
+  "calls_total": 30,
+  "system_fingerprints": [
+    "fp_02b0d31eca",
+    "fp_1d982b31b2",
+    "fp_27194a498a",
+    "fp_4200b3f836",
+    "fp_5082008e34",
+    "fp_64b2f1c926",
+    "fp_69334c0be3",
+    "fp_803c0ba83d",
+    "fp_86dc843b12",
+    "fp_87b3c396db",
+    "fp_9241e9962b",
+    "fp_93703442d9",
+    "fp_a655021f7d",
+    "fp_bb691ea66b",
+    "fp_c15aa9c1b7",
+    "fp_c800245357",
+    "fp_f640395b96",
+    "fp_fe269835c7"
+  ],
+  "label": "PRACTICE — not an evaluation result"
+}
