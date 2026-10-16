@@ -131,7 +131,7 @@
     {
       "id": "p14c-verdict",
       "group": "Claim support",
-      "label": "14C usefulness verdict (claim-support evaluation of record)",
+      "label": "14C usefulness verdict (failed; superseded by 14D)",
       "path": "data/eval_results/phase14c/score.json",
       "json_pointer": "/verdict",
       "unit": "text",
@@ -140,7 +140,7 @@
     {
       "id": "p14c-supported-precision",
       "group": "Claim support",
-      "label": "14C SUPPORTED precision",
+      "label": "14C SUPPORTED precision (failed; superseded by 14D)",
       "path": "data/eval_results/phase14c/score.json",
       "json_pointer": "/supported_precision",
       "unit": "fraction",
@@ -149,11 +149,56 @@
     {
       "id": "p14c-macro-f1",
       "group": "Claim support",
-      "label": "14C three-class Macro-F1",
+      "label": "14C three-class Macro-F1 (failed: below 0.75)",
       "path": "data/eval_results/phase14c/score.json",
       "json_pointer": "/macro_f1",
       "unit": "fraction",
       "format": "percent1"
+    },
+    {
+      "id": "p14c-span-integrity-failure",
+      "group": "Claim support",
+      "label": "14C span-integrity failure rate (failed: above 0.05)",
+      "path": "data/eval_results/phase14c/score.json",
+      "json_pointer": "/metrics/span_integrity_failure_rate",
+      "unit": "fraction",
+      "format": "percent1"
+    },
+    {
+      "id": "p14d-t2-verdict",
+      "group": "Claim support",
+      "label": "14D T2-use verdict (claim-support evaluation of record)",
+      "path": "data/eval_results/phase14d/test/score.json",
+      "json_pointer": "/t2_verdict",
+      "unit": "text",
+      "format": "text"
+    },
+    {
+      "id": "p14d-t2-precision",
+      "group": "Claim support",
+      "label": "14D T2 precision (verified SUPPORTED answers)",
+      "path": "data/eval_results/phase14d/test/score.json",
+      "json_pointer": "/t2_metrics/t2_precision",
+      "unit": "fraction",
+      "format": "percent1"
+    },
+    {
+      "id": "p14d-t2-recall",
+      "group": "Claim support",
+      "label": "14D T2 recall",
+      "path": "data/eval_results/phase14d/test/score.json",
+      "json_pointer": "/t2_metrics/t2_recall",
+      "unit": "fraction",
+      "format": "percent1"
+    },
+    {
+      "id": "p14d-v3-verdict",
+      "group": "Claim support",
+      "label": "14D verdict under the original V3 gate (secondary)",
+      "path": "data/eval_results/phase14d/test/score.json",
+      "json_pointer": "/v3_verdict",
+      "unit": "text",
+      "format": "text"
     },
     {
       "id": "p25-replay-match",

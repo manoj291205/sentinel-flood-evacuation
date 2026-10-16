@@ -115,3 +115,18 @@ calling `assign_tier` without `semantic_verdict` (T1 is the highest tier). No ch
 The Gemini provider does not work, so 14B is superseded and will never be scored. **14C is the only source a T2
 semantic verdict can come from.** The approval record, load-time verification and call rules above are unchanged;
 read every "14B" there as historical. Evidence & Results keeps the `p14b-*` rows, labelled superseded (always "-").
+
+## Amendment 2026-10-16 (user + Lead) — 14D replaces 14C as the only T2 source
+14C failed its gate (`CLAIM_SUPPORT_VERIFIER_NOT_YET_RELIABLE`, 2026-10-16) and can never enable T2. **Phase 14D
+(`specs/V4_CLAIM_SUPPORT_14D_SPEC.md`) is now the only source a T2 semantic verdict can come from.**
+- The approval record `specs/approvals/t2_semantic_verifier.json` may be written only per 14D §8, with
+  `"verdict": "T2_VERIFIER_USEFUL"` (14D's primary T2-use gate) and an extra field `prompt_sha256`. The loader
+  accepts only that verdict string from that record, re-hashes `score_path`, and checks provider, model, prompt
+  version, prompt hash and request settings against the `semantic` callable; any mismatch → T2 disabled.
+- An accepted record makes the loader call `assign_tier(..., semantic_verdict="CLAIM_SUPPORT_VERIFIER_USEFUL")`.
+  That string stays the internal "approved verifier" token of `assign_tier`, so the code on `m15p-constraints`
+  and `tests/test_p15p_constraints.py` need no change.
+- The 14D semantic callable cites by sentence number (14D §4); T2 still requires `SUPPORTED` with
+  `source_integrity_pass`. Call rules, ZDR precondition and "T2 changes no parameters" are unchanged.
+- Evidence & Results shows 14D as the evaluation of record, 14C as failed with its reasons (`p14c-*`), and 14B
+  as superseded. "T2" never appears while the approval record is absent.
