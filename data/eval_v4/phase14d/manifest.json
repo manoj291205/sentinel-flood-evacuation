@@ -1,0 +1,238 @@
+{
+  "challenge_id": "v4-claim-support-challenge-14d-v1",
+  "construction_protocol_version": "v4-claim-support-construction-14d-v1",
+  "corpus_version": "v3-authoritative-corpus-v1",
+  "corpus_fingerprint": "a4877d0f837a07311e47bd1c3ca35cb4c368c533012b631ed67cbc8ff3aeb753",
+  "selection_rule": "Exclude every chunk whose (source_id, page) holds a V3 challenge chunk and every chunk shorter than 400 characters; walk the rest in ascending SHA-256('14d-v1:' + chunk_id) order; skip NON_SUBSTANTIVE, GARBLED_TEXT or NEAR_DUPLICATE (>= 80% of the chunk's word set in an accepted chunk); first 45 accepted = test, next 10 = practice.",
+  "canonical_fields_in_order": [
+    "claim_pair_id",
+    "challenge_set",
+    "chunk_id",
+    "source_id",
+    "filename",
+    "page",
+    "passage_sha256",
+    "claim",
+    "construction_label",
+    "construction_reason",
+    "reason_subtype",
+    "synthetic_variant",
+    "not_authoritative_policy",
+    "benchmark_version",
+    "construction_protocol_version"
+  ],
+  "sets": {
+    "test": {
+      "claim_pairs": 135,
+      "label_counts": {
+        "PARTIALLY_SUPPORTED": 45,
+        "SUPPORTED": 45,
+        "UNSUPPORTED": 45
+      },
+      "reason_subtype_counts": {
+        "ACTOR_MISMATCH": 7,
+        "CONDITION_ADDITION": 1,
+        "CONTRADICTION": 40,
+        "MODALITY_OVERSTATEMENT": 5,
+        "NUMERIC_ADDITION": 7,
+        "POPULATION_MISMATCH": 4,
+        "SAME_TOPIC_WRONG_CLAIM": 5,
+        "SCOPE_OVERSTATEMENT": 10,
+        "SUPPORTED_PARAPHRASE": 45,
+        "TIMING_ADDITION": 8,
+        "UNSUPPORTED_ADDITION": 3
+      },
+      "chunk_ids": [
+        "ndma-national-disaster-management-plan-2019-p335-c1",
+        "ndma-national-disaster-management-plan-2019-p99-c2",
+        "ndma-national-disaster-management-plan-2019-p349-c3",
+        "ndma-flood-guidelines-2008-p113-c2",
+        "ndma-national-disaster-management-plan-2019-p340-c1",
+        "ndma-temporary-shelters-2019-p90-c0",
+        "ndma-flood-guidelines-2008-p112-c2",
+        "ndma-temporary-shelters-2019-p47-c2",
+        "ndma-flood-guidelines-2008-p78-c0",
+        "ndma-national-disaster-management-plan-2019-p50-c0",
+        "ndma-flood-guidelines-2008-p135-c1",
+        "ndma-flood-guidelines-2008-p21-c2",
+        "ndma-temporary-shelters-2019-p22-c2",
+        "ndma-flood-guidelines-2008-p43-c3",
+        "ndma-national-disaster-management-plan-2019-p60-c0",
+        "ndma-temporary-shelters-2019-p33-c0",
+        "ndma-flood-guidelines-2008-p51-c3",
+        "ndma-flood-guidelines-2008-p49-c1",
+        "ndma-flood-guidelines-2008-p59-c3",
+        "ndma-national-disaster-management-plan-2019-p66-c3",
+        "ndma-national-disaster-management-plan-2019-p42-c2",
+        "ndma-flood-guidelines-2008-p132-c2",
+        "ndma-temporary-shelters-2019-p79-c1",
+        "ndma-flood-guidelines-2008-p74-c2",
+        "ndma-flood-guidelines-2008-p116-c0",
+        "ndma-national-disaster-management-plan-2019-p69-c1",
+        "ndma-temporary-shelters-2019-p47-c0",
+        "ndma-flood-guidelines-2008-p39-c2",
+        "ndma-national-disaster-management-plan-2019-p33-c1",
+        "ndma-national-disaster-management-plan-2019-p45-c2",
+        "ndma-temporary-shelters-2019-p48-c1",
+        "ndma-flood-guidelines-2008-p87-c2",
+        "ndma-national-disaster-management-plan-2019-p349-c1",
+        "ndma-flood-guidelines-2008-p62-c0",
+        "ndma-flood-guidelines-2008-p30-c0",
+        "ndma-flood-guidelines-2008-p155-c2",
+        "ndma-national-disaster-management-plan-2019-p351-c1",
+        "ndma-national-disaster-management-plan-2019-p56-c1",
+        "ndma-flood-guidelines-2008-p37-c0",
+        "ndma-flood-guidelines-2008-p105-c0",
+        "ndma-temporary-shelters-2019-p44-c2",
+        "ndma-flood-guidelines-2008-p79-c0",
+        "ndma-national-disaster-management-plan-2019-p340-c0",
+        "ndma-flood-guidelines-2008-p37-c1",
+        "ndma-national-disaster-management-plan-2019-p59-c1"
+      ],
+      "challenge_fingerprint": "20f6bc629dd216ec17dd9f5f76092c7ca9f7f271f67072f6efa6d5ecc60ab56f"
+    },
+    "practice": {
+      "claim_pairs": 30,
+      "label_counts": {
+        "PARTIALLY_SUPPORTED": 10,
+        "SUPPORTED": 10,
+        "UNSUPPORTED": 10
+      },
+      "reason_subtype_counts": {
+        "ACTOR_MISMATCH": 2,
+        "CONTRADICTION": 9,
+        "MODALITY_OVERSTATEMENT": 1,
+        "NUMERIC_ADDITION": 2,
+        "POPULATION_MISMATCH": 1,
+        "SAME_TOPIC_WRONG_CLAIM": 1,
+        "SCOPE_OVERSTATEMENT": 2,
+        "SUPPORTED_PARAPHRASE": 10,
+        "TIMING_ADDITION": 2
+      },
+      "chunk_ids": [
+        "ndma-flood-guidelines-2008-p51-c1",
+        "ndma-national-disaster-management-plan-2019-p93-c3",
+        "ndma-flood-guidelines-2008-p21-c3",
+        "ndma-national-disaster-management-plan-2019-p113-c1",
+        "ndma-flood-guidelines-2008-p68-c2",
+        "ndma-flood-guidelines-2008-p40-c0",
+        "ndma-national-disaster-management-plan-2019-p65-c2",
+        "ndma-flood-guidelines-2008-p148-c0",
+        "ndma-national-disaster-management-plan-2019-p341-c2",
+        "ndma-flood-guidelines-2008-p154-c0"
+      ],
+      "challenge_fingerprint": "b5f7f76bb01daa2ea63e4075e847d120189d7acbf4b259b88087a224bbe64ee7"
+    }
+  },
+  "excluded_v3_pages": [
+    [
+      "ndma-flood-guidelines-2008",
+      31
+    ],
+    [
+      "ndma-flood-guidelines-2008",
+      56
+    ],
+    [
+      "ndma-flood-guidelines-2008",
+      64
+    ],
+    [
+      "ndma-flood-guidelines-2008",
+      86
+    ],
+    [
+      "ndma-flood-guidelines-2008",
+      89
+    ],
+    [
+      "ndma-flood-guidelines-2008",
+      91
+    ],
+    [
+      "ndma-flood-guidelines-2008",
+      92
+    ],
+    [
+      "ndma-flood-guidelines-2008",
+      96
+    ],
+    [
+      "ndma-flood-guidelines-2008",
+      108
+    ],
+    [
+      "ndma-national-disaster-management-plan-2019",
+      107
+    ],
+    [
+      "ndma-national-disaster-management-plan-2019",
+      108
+    ],
+    [
+      "ndma-national-disaster-management-plan-2019",
+      109
+    ],
+    [
+      "ndma-national-disaster-management-plan-2019",
+      110
+    ],
+    [
+      "ndma-national-disaster-management-plan-2019",
+      114
+    ],
+    [
+      "ndma-national-disaster-management-plan-2019",
+      115
+    ],
+    [
+      "ndma-national-disaster-management-plan-2019",
+      256
+    ],
+    [
+      "ndma-national-disaster-management-plan-2019",
+      311
+    ],
+    [
+      "ndma-national-disaster-management-plan-2019",
+      313
+    ],
+    [
+      "ndma-national-disaster-management-plan-2019",
+      321
+    ],
+    [
+      "ndma-temporary-shelters-2019",
+      21
+    ],
+    [
+      "ndma-temporary-shelters-2019",
+      29
+    ],
+    [
+      "ndma-temporary-shelters-2019",
+      37
+    ],
+    [
+      "ndma-temporary-shelters-2019",
+      38
+    ],
+    [
+      "ndma-temporary-shelters-2019",
+      39
+    ],
+    [
+      "ndma-temporary-shelters-2019",
+      40
+    ],
+    [
+      "ndma-temporary-shelters-2019",
+      54
+    ],
+    [
+      "ndma-temporary-shelters-2019",
+      63
+    ]
+  ],
+  "provenance": "Construction-labeled by Opus under the V3 construction rules; not human gold. Claims are synthetic benchmark material, not NDMA guidance. No model output was used."
+}

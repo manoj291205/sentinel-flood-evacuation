@@ -1,0 +1,404 @@
+{
+  "walked": [
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p212-c1",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p335-c1",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p99-c2",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p349-c3",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p280-c1",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p113-c2",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p340-c1",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-temporary-shelters-2019-p90-c0",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p112-c2",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-temporary-shelters-2019-p47-c2",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p162-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p78-c0",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p179-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p50-c0",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p204-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p135-c1",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p21-c2",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-temporary-shelters-2019-p22-c2",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p43-c3",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p60-c0",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p121-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-temporary-shelters-2019-p33-c0",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p216-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p144-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p51-c3",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p49-c1",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p59-c3",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p66-c3",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p289-c1",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p42-c2",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p132-c2",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-temporary-shelters-2019-p79-c1",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p74-c2",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p116-c0",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p246-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p290-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p69-c1",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p137-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-temporary-shelters-2019-p47-c0",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p39-c2",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p33-c1",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p45-c2",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p344-c1",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-temporary-shelters-2019-p48-c1",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p87-c2",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p272-c2",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p349-c1",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p62-c0",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p30-c0",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p155-c2",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p351-c1",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p56-c1",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p278-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p37-c0",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p105-c0",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-temporary-shelters-2019-p44-c2",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p29-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p79-c0",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p340-c0",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-temporary-shelters-2019-p13-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p37-c1",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p59-c1",
+      "decision": "ACCEPTED_TEST",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p51-c1",
+      "decision": "ACCEPTED_PRACTICE",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p93-c3",
+      "decision": "ACCEPTED_PRACTICE",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p183-c1",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p21-c3",
+      "decision": "ACCEPTED_PRACTICE",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p27-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p113-c1",
+      "decision": "ACCEPTED_PRACTICE",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p254-c1",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p68-c2",
+      "decision": "ACCEPTED_PRACTICE",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p40-c0",
+      "decision": "ACCEPTED_PRACTICE",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p65-c2",
+      "decision": "ACCEPTED_PRACTICE",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p211-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p320-c2",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p156-c1",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p151-c1",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p148-c0",
+      "decision": "ACCEPTED_PRACTICE",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p196-c0",
+      "decision": "SKIPPED",
+      "reason": "NON_SUBSTANTIVE"
+    },
+    {
+      "chunk_id": "ndma-national-disaster-management-plan-2019-p341-c2",
+      "decision": "ACCEPTED_PRACTICE",
+      "reason": null
+    },
+    {
+      "chunk_id": "ndma-flood-guidelines-2008-p154-c0",
+      "decision": "ACCEPTED_PRACTICE",
+      "reason": null
+    }
+  ]
+}
