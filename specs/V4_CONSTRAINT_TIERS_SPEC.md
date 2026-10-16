@@ -1,8 +1,8 @@
 # V4_CONSTRAINT_TIERS_SPEC — Phase 15′: tier-verified NDMA constraints in the joint indicator
 
 Lane S (Builder S) · branch `m15p-constraints` (from `m26-recertify`, or from `main` after 25/26 merge)
-· tests `tests/test_p15p_constraints.py` · dependent claim 13. **Build last in Wave B**: T2 needs the 14B
-verdict (`data/eval_results/phase14b/score.json`, Lane X run, ≈ 7 days of free-tier quota).
+· tests `tests/test_p15p_constraints.py` · dependent claim 13. **Build last in Wave B**: T2 needs the 14C
+verdict (`data/eval_results/phase14c/score.json`, Lane X run; 14C replaced 14B — see Amendment below).
 
 ## Goal
 Document rules (NDMA flood guidelines) enter the **joint indicator** of Phase 23 as extra per-future
@@ -110,3 +110,8 @@ calling `assign_tier` without `semantic_verdict` (T1 is the highest tier). No ch
   "Not run yet" (manifest items `p14b-*`, `p14c-*`). The tier shown for a rule is the tier actually assigned;
   "T2" never appears while the approval record is absent.
 - Wiring the approval record into the gate is Lane S work scheduled after an approval exists (Wave C).
+
+## Amendment 2026-10-15 (user + Lead) — 14C replaces 14B
+The Gemini provider does not work, so 14B is superseded and will never be scored. **14C is the only source a T2
+semantic verdict can come from.** The approval record, load-time verification and call rules above are unchanged;
+read every "14B" there as historical. Evidence & Results keeps the `p14b-*` rows, labelled superseded (always "-").

@@ -113,7 +113,7 @@
     {
       "id": "p14b-verdict",
       "group": "Claim support",
-      "label": "14B usefulness verdict",
+      "label": "14B usefulness verdict (Gemini, superseded by 14C)",
       "path": "data/eval_results/phase14b/score.json",
       "json_pointer": "/verdict",
       "unit": "text",
@@ -122,7 +122,7 @@
     {
       "id": "p14b-supported-precision",
       "group": "Claim support",
-      "label": "14B SUPPORTED precision",
+      "label": "14B SUPPORTED precision (Gemini, superseded by 14C)",
       "path": "data/eval_results/phase14b/score.json",
       "json_pointer": "/metrics/supported_precision",
       "unit": "fraction",
@@ -131,7 +131,7 @@
     {
       "id": "p14c-verdict",
       "group": "Claim support",
-      "label": "14C usefulness verdict (second provider, separate from 14B)",
+      "label": "14C usefulness verdict (claim-support evaluation of record)",
       "path": "data/eval_results/phase14c/score.json",
       "json_pointer": "/verdict",
       "unit": "text",
@@ -140,7 +140,7 @@
     {
       "id": "p14c-supported-precision",
       "group": "Claim support",
-      "label": "14C SUPPORTED precision (second provider)",
+      "label": "14C SUPPORTED precision",
       "path": "data/eval_results/phase14c/score.json",
       "json_pointer": "/supported_precision",
       "unit": "fraction",
@@ -149,7 +149,7 @@
     {
       "id": "p14c-macro-f1",
       "group": "Claim support",
-      "label": "14C three-class Macro-F1 (second provider)",
+      "label": "14C three-class Macro-F1",
       "path": "data/eval_results/phase14c/score.json",
       "json_pointer": "/macro_f1",
       "unit": "fraction",
