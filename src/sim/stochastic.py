@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Any, Callable
+from types import MappingProxyType
+from typing import Any, Callable, Mapping
 
 from .configs import UncertaintyConfig, get_uncertainty_config
 from .events import (
@@ -301,6 +302,10 @@ class StochasticSimulator:
         """Current decision state for simulator diagnostics, not a policy API."""
         prepared, _, _, _ = self._ensure_prepared()
         return prepared
+
+    def transit_plans(self) -> Mapping[str, TransitPlan]:
+        """Read-only view of v4 transit plans by event id (``{}`` for v3 worlds)."""
+        return MappingProxyType({p.event_id: p for p in self._context.plans})
 
     def internal_debug_snapshot(self) -> dict[str, Any]:
         """Current latent metadata only; it contains no pre-generated future schedule."""

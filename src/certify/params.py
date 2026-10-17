@@ -23,7 +23,14 @@ class CertParams:
     backend: str = "sha256"
 
 
-_REGISTRY = {"v4-cert-v1": CertParams()}
+_REGISTRY = {
+    "v4-cert-v1": CertParams(),
+    # CI speed only; never used for results.
+    "v4-cert-test-v1": CertParams(
+        params_id="v4-cert-test-v1", eps_dispatch=0.30, eps_keep=0.40, k0=32, max_looks=2,
+        deadline_ms=600_000.0,
+    ),
+}
 
 
 def get_cert_params(params_id: str) -> CertParams:

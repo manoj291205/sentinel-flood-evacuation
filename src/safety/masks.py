@@ -125,6 +125,8 @@ def _apply_certifier(scenario, state, evaluations, certifier):
         if e.final_allowed and isinstance(e.action, DispatchAction)
     )
     certificates = certifier(scenario, state, candidates) if candidates else {}
+    threshold = getattr(certificates, "threshold", 0.95)
+    params_id = getattr(certificates, "params_id", "v4-cert-v1")
     gated = []
     for evaluation in evaluations:
         action = evaluation.action
@@ -148,9 +150,9 @@ def _apply_certifier(scenario, state, evaluations, certifier):
                 ("lower", certificate.lower if certificate else 0.0),
                 ("upper", certificate.upper if certificate else 1.0),
                 ("n", certificate.n if certificate else 0),
-                ("threshold", 0.95),
+                ("threshold", threshold),
             ),
-            config_version="v4-cert-v1",
+            config_version=params_id,
         )
         gated.append(
             replace(
