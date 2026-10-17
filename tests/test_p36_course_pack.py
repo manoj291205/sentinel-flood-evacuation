@@ -92,7 +92,7 @@ def test_video_is_at_most_three_minutes_and_poster_is_a1():
              for a, b, c, d in re.findall(r"^\|\s*(\d+):(\d\d)–(\d+):(\d\d)\s*\|", text, re.M)]
     assert spans and spans[0][0] == 0 and spans[-1][1] <= 180
     assert all(spans[i][1] == spans[i + 1][0] for i in range(len(spans) - 1))
-    assert "Run demo" in text
+    assert "Run demo" in text and "Live session" in text
     poster = _read("POSTER.md")
     assert "A1" in poster and "594" in poster and "841" in poster
 

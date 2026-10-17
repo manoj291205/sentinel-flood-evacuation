@@ -46,7 +46,7 @@ mechanism sections; no agent switches the level.
 | `DISCLOSURE.md` | §2 |
 | `REPORT.md` | headings exactly `## Problem`, `## Literature`, `## Method`, `## Experiments`, `## Results`, `## Limitations`, `## Ethics and safety`, `## Future work` (no numbering in headings); ~4,000–6,000 words; citations `[n]` into `REFERENCES.md` |
 | `POSTER.md` | A1 portrait (594 × 841 mm): panel grid with sizes in mm, title block, per-panel text (≤ 120 words each) and which console screenshot or chart goes where; the user exports the PDF |
-| `VIDEO_SHOT_LIST.md` | 3-minute script: table `| Time | Shot | Screen | Voice-over |`, times `m:ss–m:ss` contiguous from `0:00`, ending ≤ `3:00`; the core shot screen-records **Run demo** (recorded run of the real engine) |
+| `VIDEO_SHOT_LIST.md` | 3-minute script: table `| Time | Shot | Screen | Voice-over |`, times `m:ss–m:ss` contiguous from `0:00`, ending ≤ `3:00`; the core shot screen-records **Run demo** (recorded run of the real engine), followed by a **Live session** shot (start, suggestion with reasons and alternatives, Accept or Override with a reason, the new certificate) |
 | `VIVA_QA.md` | exactly 30 entries `### Q<n>. <question> [topic: <topic>]` each followed by a paragraph starting `**Answer:**`; topics must include every one of: `problem`, `data`, `road-graph`, `hazard-model`, `planners`, `reinforcement-learning`, `retrieval`, `claim-support`, `rule-tiers`, `gate`, `evaluation`, `limitations`, `ethics`, `reproducibility`, `hardware`, `future-work` |
 | `USER_GUIDE.md` | start the console (`scripts/dev.ps1`, mock mode), the five pages (Overview, Live Operations, Decisions & Certificates, Evidence & Results, System & Hardware) and what each shows |
 | `CONTRIBUTION_LOG.md` | a template the student completes (line `To be completed by the student.`), table per milestone, and a section `## Use of AI assistance` left for the student to fill — agents never write the student's personal claims |
@@ -73,3 +73,4 @@ test after each file.
 
 ## Amendments
 - 2026-10-17 (Lead): the patent is ON HOLD (user; P0 optional). This changes nothing in §2: the pack stays at RESTRICTED until the user records `Disclosure level FULL approved by the user` in STATUS.md.
+- 2026-10-17 (Lead): the video shot list includes a Live session shot (Phase 34C). Disclosure rule unchanged.

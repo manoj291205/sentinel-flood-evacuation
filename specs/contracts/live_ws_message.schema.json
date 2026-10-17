@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sentinel-live-ws-message-v1",
+  "title": "WS /ws/sessions/{session_id} message (contract v1; Phase 30 types plus Phase 34C certificate and refusal)",
+  "description": "After a decision: decision, then one certificate per committed certificate (validates certificate.schema.json), then the new timeline events, then state. A refused uncertified override pushes one refusal. seq strictly increasing per session from 1.",
+  "type": "object",
+  "required": ["seq", "type", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "seq": {"type": "integer", "minimum": 1},
+    "type": {"enum": ["state", "event", "decision", "certificate", "refusal"]},
+    "payload": {"type": "object"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"type": {"const": "refusal"}}},
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "required": ["timestep", "decision", "action_key", "verdict", "reason", "flag", "utc"],
+            "additionalProperties": false,
+            "properties": {
+              "timestep": {"type": "integer", "minimum": 0},
+              "decision": {"const": "OVERRIDE"},
+              "action_key": {"type": "string"},
+              "verdict": {"enum": ["INFEASIBLE", "UNDECIDED", null]},
+              "reason": {"type": "string"},
+              "flag": {"const": "UNCERTIFIED_OVERRIDE_REFUSED"},
+              "utc": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  ]
+}

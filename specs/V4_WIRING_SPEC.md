@@ -129,7 +129,8 @@ Integrity · Note (the table's accessible name starts with `Document rules`), wi
   Phase 27 section shows the R item next to the bars. Rule tiers table (§6). Never show T2 unless the API row says `T2`.
 - `web/package.json` scripts: `test:e2e` (mock mode, all existing specs) and `test:e2e:live` (Playwright project
   `live`: starts `uvicorn src.api.app:create_app --factory --port 8000` with `SENTINEL_DEMO_SOURCE=RECORDED` and the
-  Vite dev server **without** `VITE_API_MOCK`, runs only `p34a_live_demo.spec.ts`). The mock project ignores that spec.
+  Vite dev server **without** `VITE_API_MOCK`, runs only `p34a_live_demo.spec.ts` and, from 34C, `p34c_live_session.spec.ts`).
+  The mock project ignores both.
   34B's CI calls exactly these two script names.
 
 ## 8. Edge cases
@@ -144,6 +145,63 @@ chain intact, replays MATCH from stored inputs; API demo/certificates/replay/why
 file (T2 shown only when the file says T2 and the approval matches; STALE → null); no network in the tiers path; new
 manifest items render; static + basic auth; no banned outcome wording in trace text. Web: `p34a_live_demo.spec.ts` via
 `npm run test:e2e:live`, plus `tsc`, Vitest, `npm run test:e2e` (p31/p32/p33 mock specs unchanged and green).
-Runner: not available to Lane X. Out of scope: live certified sessions over REST, hosting (34B), any Lane S change.
+Runner: not available to Lane X. Out of scope: hosting (34B), any Lane S change. Live certified sessions are Phase 34C (§10).
+
+## 10. Phase 34C — live certified session (added 2026-10-17 at the judges' request)
+Lane X · branch `lane-x/m34c-live-session` (from `origin/main` after X34A.9 is pushed, merging your pushed
+`lane-x/m34a-wire`; before 36) · acceptance `tests/test_p34c_live_session.py`, web `specs/acceptance/web/p34c_live_session.spec.ts`
+(copy unchanged) · contracts `live_context.schema.json`, `live_ws_message.schema.json`. Files: `src/api/**` (new
+`live_session.py`), `web/**`, `tests/test_lx_p34c_*.py`. Lane S code imported read-only: `SimulationSession(certified=True)`
+as merged (`context`, `decide`, `certificates`, `ledger.inputs`), `replay_certificate`, `CertificateInputs`.
+
+**10.1 API.** `POST /api/sessions` gains `certified: bool = false` and `params_id: str | null`. `certified: true` needs
+`regime` in {`v4-low-dt2-v1`, `v4-medium-dt2-v1`, `v4-high-dt2-v1`} and `params_id` = `v4-cert-test-v1` (the fast demo
+set; omitted → that value); anything else → 422. It builds `SimulationSession(seed, regime, graph=graph, certified=True,
+params_id=params_id)`; the `SessionDTO` adds `certified` and `params_id`. Without `certified` nothing changes (P30 parity).
+- `GET /sessions/{id}/context` (certified) = the Wave A `ContextDTO` plus `certified` (`live_context.schema.json`):
+  `params_id`, `timestep`, `threshold` = `1 − eps_dispatch`, `futures_used`, `looks`; `recommendation` (the certifier's
+  choice: action key, label, verdict, lower, upper, successes, n, outcome counts; `WAIT` → `HOLD`, verdict `ALWAYS_ALLOWED`,
+  bounds null); `why` = three reasons by the §4 templates, computed from the pending `CertificationResult` (DISPATCH or HOLD
+  form); `candidates` = every certified candidate; `alternatives` = up to 3 FEASIBLE candidates other than the choice
+  (by `mean_utility`, highest first), then up to 3 others by `lower`, each with `certified` (= FEASIBLE) and `comparison`:
+  FEASIBLE `"Chosen over {alt}: both cleared the bar; the choice has the higher mean utility over the same {n} futures ({u_c:.2f} vs {u_a:.2f})."`;
+  not FEASIBLE `"{alt} is not certified ({verdict}, lower bound {l:.3f} < {thr:.2f}), so the gate will not dispatch it."`;
+  for a HOLD choice every alternative uses the second form. `note` = `"Live sessions certify each new dispatch. Re-checks of
+  groups already on the road are shown in the recorded demo."` The pending result comes from one adapter,
+  `live_session.certification_of(session)`: `session.certification()` when that public method exists (Lane S adds it in
+  P34B.8), else `session._gate_cache[1:]`; no other private Lane S attribute is read, and nothing is re-certified.
+- `POST /sessions/{id}/decisions` (certified): ACCEPT; OVERRIDE with `selected_action` = a key from `allowed_override_actions`
+  (certified alternatives and HOLD) and a non-empty `reason`; REJECT with a reason (committed as a HOLD certificate). It calls
+  `session.decide` exactly like the Wave A path (so the audit row equals a direct call) and the session advances one step.
+  Response adds `certificates` = the certificates this decision committed. **Uncertified override** (a key that is a
+  certificate candidate but not FEASIBLE, or any key outside the mask): nothing is committed and the step does not advance;
+  422 with `{"detail": ..., "flag": "UNCERTIFIED_OVERRIDE_REFUSED", "action_key", "verdict"}`, and a refusal row
+  `{timestep, decision: "OVERRIDE", action_key, verdict, reason, flag, utc}` is appended to a per-session `refusals` list
+  (API layer, in memory) — never to the Lane S audit.
+- `GET /sessions/{id}/audit` adds `refusals`; `GET /sessions/{id}/certificates` → `{certificates}` (session ledger, oldest first);
+  `POST /sessions/{id}/certificates/{cert_id}/replay` → real replay from `session.ledger.inputs(cert_id)`.
+- WebSocket (`live_ws_message.schema.json`): after a decision `decision`, then one `certificate` per committed certificate,
+  then the timeline `event`s, then `state`; a refusal pushes one `refusal`. `seq` strictly increasing per session.
+- `context` and `decisions` are plain `def` endpoints (threadpool) holding the session lock, so certification (≈ 2–3 s) never
+  blocks the event loop. Certified sessions count toward the 8-session LRU limit like any other.
+
+**10.2 Web.** Live Operations gets a mode switch `Guided demo` / `Live session` (radiogroup named `Mode`). Live session:
+`Seed` number input (default 620003), `World` select (the three worlds), `Start` button; then map, KPI tiles, suggestion card
+with the three `why` reasons, an `Alternatives` list (`aria-label="Alternatives"`, each row: label, verdict word + shape,
+lower bound, comparison text), Accept / Override (choose a certified alternative, `REASON …` input with `required`, submit
+button `Confirm override`) / Reject (reason required),
+a `role="status"` indicator `Certifying…` while context or decision requests run, the newly committed certificate id linking
+to `/decisions?cert=…` (the Decisions page lists live-session certificates when `?session=` is set), the latest audit row,
+and a `Step on` button that fetches the next context. Uncertified alternatives are listed (so the operator sees why they are
+blocked) with `Override` disabled and the text `Not certified — the gate will not dispatch this`; a refused attempt (422)
+shows `Refused: not certified` and the refusal row. Banner: `Live session · simulated hazards · demo parameters
+v4-cert-test-v1 (not the evaluated configuration)`. No number appears unless the API sent it; no banned wording.
+
+**10.3 Acceptance.** `tests/test_p34c_live_session.py` (milestone `P34C`): validation of the new request fields; certified
+context parity with a direct `SimulationSession(certified=True)` twin (recommendation, schema, why from the pending result,
+comparisons); ACCEPT, OVERRIDE and REJECT audit rows and certificates equal the twin's after the same decisions; uncertified
+override refused, flagged, recorded, nothing committed; session certificates replay MATCH; WebSocket order; no banned wording.
+Web: `p34c_live_session.spec.ts` in the `live` project. Out of scope: in-transit re-certification in live sessions,
+persistence across restarts, multi-user sessions.
 
 ## Amendments

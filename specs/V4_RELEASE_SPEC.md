@@ -12,7 +12,7 @@ confirms in chat that P0 is filed (recorded in the STATUS decision log). **D-27:
 New: `scripts/dev.ps1`, `scripts/dev.sh`, `scripts/deploy_check.py`, `Dockerfile`, `.dockerignore`, `requirements-runtime.txt`,
 `docs/HOSTING.md`, `DEMO_SCRIPT_V4.md`, `tests/test_s_p34b_*.py`. Modified: `.github/workflows/ci.yml`, `README.md`
 (new section only), `simulation_demo.py` and `review_dashboard.py` (legacy label only), `src/certify/certificate.py`
-(POLICY, §2), `tests/test_s_p15p_gate.py` (its POLICY assertion, §2). Do not touch `src/api/**`, `web/**`, `docs/course/**`.
+(POLICY, §2), `src/simulation_session.py` (`certification()`, §2a), `tests/test_s_p15p_gate.py` (its POLICY assertion, §2). Do not touch `src/api/**`, `web/**`, `docs/course/**`.
 
 ## 2. POLICY count in certificates (Wave B audit follow-up)
 `build_certificate` drops `POLICY` from each candidate's `outcome_counts` (`if k != "POLICY"`), so `n` minus the sum is the
@@ -27,6 +27,13 @@ if rules_active: counts["POLICY"] = int(cc.outcome_counts.get("POLICY", 0))
 The HOLD row keeps `{}`. `replay_certificate` rebuilds through `build_certificate`, so replay needs no change. Update the
 last assertion of `tests/test_s_p15p_gate.py::test_tampered_chunk_blocks_dispatch_and_is_audited` (your own test) to the
 new rule: every non-HOLD candidate has `POLICY` and its counts sum to `n`.
+
+## 2a. `SimulationSession.certification()` (for Phase 34C, Lane X)
+Add a public read-only method to `src/simulation_session.py`: `certification() -> tuple[CertificationResult, CertificateInputs] | None`
+— `None` when not certified or the episode is terminal; otherwise the pending result for the current step from the same
+cache `context()` uses (compute it through the same path if the cache is empty or stale). Calling it never commits, never
+re-certifies a step already evaluated, and returns the identical objects on repeated calls. 34C reads it through its own
+adapter (falling back to the cache until this lands), so 34C does not wait for 34B.
 
 ## 3. CI (`.github/workflows/ci.yml`)
 Keep the `test` job unchanged. Add:
@@ -72,8 +79,10 @@ only the console with `VITE_API_MOCK=1`. They never set `SENTINEL_DEMO_PASSWORD`
 
 ## 6. Docs
 - `DEMO_SCRIPT_V4.md`: a 5-minute judge walkthrough built around **Run demo**: sections headed `## m:ss–m:ss <title>`
-  covering all five pages (Overview, Live Operations, Decisions & Certificates, Evidence & Results, System & Hardware),
-  the last ending at or before `5:00`; what to click and what to say. It must say the demo is a recorded run of the real
+  covering all five pages (Overview, Live Operations, Decisions & Certificates, Evidence & Results, System & Hardware)
+  and a **Live session** segment (start seed 620003 on `v4-medium-dt2-v1`, show the HOLD with uncertified alternatives,
+  Accept, Step on, Override with a reason, the new certificate and audit row; say an override to an uncertified action is
+  refused and recorded), the last ending at or before `5:00`; what to click and what to say. It must say the demo is a recorded run of the real
   engine with the fast parameter set (not the evaluated configuration), that the hazards are simulated, and that the
   pre-registered evaluation makes **no outcome-effect claim** (Bar 1 failed; R = 21.4 % is the number to quote with any
   failure rate). A first line `Confidential until P0 is filed — do not show outside the project.` Every number must come
@@ -94,3 +103,4 @@ Runner may: write the stub-server fixture data, README/HOSTING tables, run tests
 any public link, any change to the API or console.
 
 ## Amendments
+- 2026-10-17 (Lead): Phase 34C added — §2a `SimulationSession.certification()` and a Live session segment in `DEMO_SCRIPT_V4.md`.
