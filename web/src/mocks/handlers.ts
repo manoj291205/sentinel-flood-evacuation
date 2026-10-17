@@ -54,6 +54,7 @@ export const handlers = [
       value: null, display: '-', unit: item.unit, source_path: item.path,
       source_sha256: null, note: 'not produced yet in mock mode' })),
   })),
+  http.get('/api/constraints/tiers', () => HttpResponse.json({ status: 'MISSING', status_reason: 'No tier run in mock mode', rules: [] })),
   http.get('/api/system/status', () => HttpResponse.json(systemFixture)),
   http.get('/api/system/acks', () => HttpResponse.json({ items: [], source: 'FIXTURE', simulated: true, honesty })),
 ];

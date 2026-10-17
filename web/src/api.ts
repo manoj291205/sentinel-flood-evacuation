@@ -1,4 +1,4 @@
-import type { Ack, Certificate, DecisionWhy, DemoState, EvidenceResponse, MapGeometry, SystemStatus } from './types';
+import type { Ack, Certificate, DecisionWhy, DemoState, EvidenceResponse, MapGeometry, RuleTiersResponse, SystemStatus } from './types';
 
 async function json<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, init);
@@ -24,6 +24,7 @@ export const api = {
   replay: (id: string, tamper: boolean) => json<{ result: 'MATCH' | 'MISMATCH'; mismatched_fields: string[] }>(`/api/certificates/${encodeURIComponent(id)}/replay`, post({ tamper })),
   why: (id: string) => json<DecisionWhy>(`/api/decisions/${encodeURIComponent(id)}/why`),
   evidence: () => json<EvidenceResponse>('/api/evidence'),
+  ruleTiers: () => json<RuleTiersResponse>('/api/constraints/tiers'),
   systemStatus: () => json<SystemStatus>('/api/system/status'),
   systemAcks: () => json<{ items: Ack[] }>('/api/system/acks'),
 };

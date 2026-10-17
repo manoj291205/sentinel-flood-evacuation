@@ -29,7 +29,7 @@ export function GuidedDemoBar({ step, count, playing, completed, onPrevious, onN
   </section>;
 }
 
-const stages = ['SENSE', 'FORECAST 256+ FUTURES', 'SUGGEST', 'CERTIFY', 'OPERATOR DECIDES', 'COMMIT + CERTIFICATE'];
+const stages = ['SENSE', 'SAMPLE FUTURES', 'SUGGEST', 'CERTIFY', 'OPERATOR DECIDES', 'COMMIT + CERTIFICATE'];
 
 export function PipelineStrip({ current }: { current: number }) {
   return <ol className={styles.pipeline} aria-label="Decision pipeline">

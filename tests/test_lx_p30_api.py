@@ -17,7 +17,8 @@ def test_map_geometry_uses_loaded_graph():
     assert geometry["source"] == "LIVE"
 
 
-def test_fixture_certificate_provenance_and_cors():
+def test_fixture_certificate_provenance_and_cors(monkeypatch):
+    monkeypatch.setenv("SENTINEL_DEMO_SOURCE", "FIXTURE")
     with TestClient(create_app()) as client:
         certificate = client.get("/api/certificates/CERT-000127")
         allowed = client.options(

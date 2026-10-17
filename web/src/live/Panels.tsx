@@ -11,9 +11,9 @@ export function SideTabs({ active, onChange }: { active: SideTab; onChange: (tab
   </div>;
 }
 
-export function SuggestionCard({ step }: { step: DemoStep }) {
+export function SuggestionCard({ step, recorded = false }: { step: DemoStep; recorded?: boolean }) {
   return <section className={styles.card} aria-label="Suggestion">
-    <div className={styles.cardEyebrow}>{step.kind} · SCRIPTED PREVIEW</div>
+    <div className={styles.cardEyebrow}>{step.kind} · {recorded ? 'RECORDED RUN' : 'SCRIPTED PREVIEW'}</div>
     <h2>{step.suggestion.title}</h2>
     <p className={styles.muted}>{step.suggestion.meta}</p>
     <h3>WHY THIS SUGGESTION</h3>
@@ -45,7 +45,7 @@ export function GatePanel({ step, selected, onSelect }: { step: DemoStep; select
   </section>;
 }
 
-export function DecisionConsole({ step, accepted, onAccept }: { step: DemoStep; accepted: boolean; onAccept: () => void }) {
+export function DecisionConsole({ step, accepted, onAccept, recorded = false }: { step: DemoStep; accepted: boolean; onAccept: () => void; recorded?: boolean }) {
   const [mode, setMode] = useState<'none' | 'override' | 'reject'>('none');
   const [reason, setReason] = useState('');
   if (!step.decision_required) return null;
@@ -61,6 +61,7 @@ export function DecisionConsole({ step, accepted, onAccept }: { step: DemoStep; 
         {mode === 'override' && <label>Certified alternative<select aria-label="Certified alternative">{step.override_alternatives.map(option => <option key={option}>{option}</option>)}</select></label>}
         <label>REASON {mode === 'override' ? 'FOR OVERRIDE' : 'FOR REJECTION'}<input required value={reason} onChange={event => setReason(event.target.value)} /></label>
         <button type="button" className={styles.primaryButton} disabled={!reason.trim()} onClick={() => setMode('none')}>Record {mode}</button>
+        {recorded && <p>Not committed: the recorded demo replays the operator's ACCEPT. Use a live session to override.</p>}
       </div>}
     </>}
   </section>;

@@ -31,7 +31,7 @@ function CandidateTable({ cert }: { cert: Certificate }) {
   const scale = (value: number) => Math.max(0, Math.min(100, (value - 0.8) * 500));
   return <div className={styles.tableScroll} tabIndex={0} role="region" aria-label="Scrollable gate candidates"><table className={styles.table}>
     <caption>Gate candidates and joint future outcomes</caption>
-    <thead><tr><th scope="col">Option</th><th scope="col">Verdict</th><th scope="col">Futures OK</th><th scope="col">Certified interval</th><th scope="col">OK / Stranded / Unsafe / Overflow</th></tr></thead>
+    <thead><tr><th scope="col">Option</th><th scope="col">Verdict</th><th scope="col">Futures OK</th><th scope="col">Certified interval</th><th scope="col">OK / Stranded / Unsafe / Overflow / Policy</th></tr></thead>
     <tbody>{cert.candidates.map((candidate: CertificateCandidate) => <tr key={candidate.action_key}>
       <td>{actionLabel(candidate.action_key)}{candidate.people ? ` · ${candidate.people} people` : ''}</td>
       <td><Verdict verdict={candidate.verdict} /></td>
@@ -43,7 +43,7 @@ function CandidateTable({ cert }: { cert: Certificate }) {
           <span className={styles.threshold} style={{ left: `${scale(threshold)}%` }} />
         </div>
       </>}</td>
-      <td className="mono">{['OK', 'STRANDED', 'UNSAFE', 'OVERFLOW'].map(key => candidate.outcome_counts[key] ?? 0).join(' / ')}</td>
+      <td className="mono">{['OK', 'STRANDED', 'UNSAFE', 'OVERFLOW', ...('POLICY' in candidate.outcome_counts ? ['POLICY'] : [])].map(key => candidate.outcome_counts[key] ?? 0).join(' / ')}</td>
     </tr>)}</tbody>
   </table></div>;
 }
@@ -106,7 +106,7 @@ export default function Decisions() {
             {why.isPending && <p>Loading explanation…</p>}
             {why.isError && <p>No explanation recorded.</p>}
             {why.data && <><ol>{why.data.reasons.map(reason => <li key={reason}>{reason}</li>)}</ol>
-              <p className="mono">Certified lower {why.data.certified_lower.toFixed(3)} · threshold {why.data.threshold.toFixed(2)} · {why.data.futures_used} futures</p></>}
+              <p className="mono">Certified lower {why.data.certified_lower === null ? '— (HOLD)' : why.data.certified_lower.toFixed(3)} · threshold {why.data.threshold.toFixed(2)} · {why.data.futures_used} futures</p></>}
           </section>
           <section className={styles.panel}><h3>Certificate &amp; bit-exact replay</h3>
             <dl className={styles.meta}><div><dt>Futures used</dt><dd>{detail.data.futures_used}</dd></div><div><dt>Looks</dt><dd>{detail.data.looks}</dd></div><div><dt>ε / δ / A_MAX</dt><dd>{detail.data.params.eps_dispatch} / {detail.data.params.delta} / {detail.data.params.a_max}</dd></div></dl>
@@ -114,7 +114,7 @@ export default function Decisions() {
             <p className={styles.muted}>Replay checks stored inputs and verdicts. The tamper control changes the forecast hash only in this demo request.</p>
             <div className={styles.replayControls}><label><input type="checkbox" checked={tamper} onChange={event => { setTamper(event.target.checked); setReplay(null); }} />Tamper with forecast (demo)</label>
               <button type="button" onClick={() => void runReplay()} disabled={replaying}>Replay certificate</button></div>
-            {replay && <p role="status" className={replay.result === 'MATCH' ? styles.match : styles.mismatch}>{replay.result === 'MATCH' ? '● MATCH — regenerated bit-for-bit' : `▲ MISMATCH — ${replay.mismatched_fields.join(', ')}`}</p>}
+            {replay && <p role="status" className={replay.result === 'MATCH' ? styles.match : styles.mismatch}>{replay.result === 'MATCH' ? 'MATCH — regenerated bit-for-bit' : `MISMATCH — ${replay.mismatched_fields.join(', ')}`}</p>}
             {replayError && <p role="alert" className={styles.error}>{replayError}</p>}
           </section>
           <section className={styles.panel}><h3>Audit trail</h3><ol>

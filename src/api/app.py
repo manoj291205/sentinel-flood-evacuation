@@ -3,16 +3,27 @@
 from __future__ import annotations
 
 import asyncio
+import base64
+import binascii
+import hashlib
 import json
+import os
+import secrets
 from collections import defaultdict
+from pathlib import Path
 
+import jsonschema
 from fastapi import FastAPI, HTTPException, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import FileResponse, PlainTextResponse, JSONResponse
 
+from src.api.demo_live import load_demo_trace
 from src.api.dto import DecisionRequest, DemoStepRequest, ReplayRequest, SessionRequest
 from src.api.fixtures import DemoPlayback
 from src.api.sessions import SessionEntry, SessionRegistry
+from src.api.why import explanation
+from src.certify.certificate import CertificateInputs
+from src.certify.replay import replay_certificate
 from src.geospatial import load_road_graph
 from src.human_decision import (
     EvidenceReference, HumanDecisionError, action_key, action_label,
@@ -21,6 +32,7 @@ from src.human_decision import (
 from src.presentation.artifacts import load_contract_fixture
 from src.presentation.evidence import evidence_items
 from src.presentation.map_geometry import project_graph
+from src.presentation.rule_tiers import rule_tiers
 
 HONESTY = "REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED"
 VERSION = "v4-api-wave-a"
@@ -83,8 +95,17 @@ def _context_dto(entry: SessionEntry) -> dict:
 def create_app() -> FastAPI:
     graph = load_road_graph()
     registry = SessionRegistry(graph)
-    demo = DemoPlayback()
-    certificates = load_contract_fixture("certificates_fixture.json")["certificates"]
+    source = os.getenv("SENTINEL_DEMO_SOURCE", "RECORDED")
+    if source not in {"RECORDED", "FIXTURE"}:
+        raise ValueError("SENTINEL_DEMO_SOURCE must be RECORDED or FIXTURE")
+    trace = None
+    if source == "RECORDED":
+        try:
+            trace = load_demo_trace()
+        except (OSError, ValueError, KeyError, jsonschema.ValidationError):
+            pass
+    demo = DemoPlayback(trace["steps"] if trace else None, source) if trace or source == "FIXTURE" else None
+    certificates = (trace["certificates"] if trace else load_contract_fixture("certificates_fixture.json")["certificates"])
     cert_by_id = {item["cert_id"]: item for item in certificates}
     explanations = load_contract_fixture("decision_why_fixture.json")["items"]
     why_by_id = {item["decision_id"]: item for item in explanations}
@@ -96,11 +117,30 @@ def create_app() -> FastAPI:
         allow_origins=["http://localhost:5173"],
         allow_credentials=False,
         allow_methods=["GET", "POST"],
-        allow_headers=["Content-Type"],
+        allow_headers=["Content-Type", "Authorization"],
     )
+
+    password = os.getenv("SENTINEL_DEMO_PASSWORD", "")
+
+    def authorised(header: str | None) -> bool:
+        if not password or not header or not header.startswith("Basic "):
+            return not password
+        try:
+            user, supplied = base64.b64decode(header[6:], validate=True).decode("utf-8").split(":", 1)
+        except (ValueError, UnicodeDecodeError, binascii.Error):
+            return False
+        return secrets.compare_digest(user, "sentinel") and secrets.compare_digest(supplied, password)
+
+    def recorded_ready() -> None:
+        if source == "RECORDED" and trace is None:
+            raise HTTPException(503, "Recorded demo trace is missing or invalid")
 
     @app.middleware("http")
     async def response_provenance(request, call_next):
+        if password and not (request.method == "GET" and request.url.path == "/api/health"):
+            if not authorised(request.headers.get("authorization")):
+                return JSONResponse({"detail": "Authentication required"}, status_code=401,
+                                    headers={"WWW-Authenticate": 'Basic realm="sentinel"'})
         response = await call_next(request)
         response.headers["X-Sentinel-Simulated"] = "true"
         response.headers["X-Sentinel-Honesty"] = HONESTY.replace(" · ", " | ")
@@ -209,23 +249,31 @@ def create_app() -> FastAPI:
 
     @app.post("/api/demo/start")
     def demo_start(response: Response):
-        response.headers["X-Sentinel-Source"] = "FIXTURE"
-        return _public(demo.start(), "FIXTURE")
+        recorded_ready()
+        response.headers["X-Sentinel-Source"] = source
+        return _public({**demo.start(), **({"seed_note": trace["config"]["seed_note"]} if trace else {})}, source)
 
     @app.post("/api/demo/step")
     def demo_step(body: DemoStepRequest, response: Response):
-        response.headers["X-Sentinel-Source"] = "FIXTURE"
-        return _public(demo.step(body.action), "FIXTURE")
+        recorded_ready()
+        response.headers["X-Sentinel-Source"] = source
+        return _public({**demo.step(body.action), **({"seed_note": trace["config"]["seed_note"]} if trace else {})}, source)
 
     @app.get("/api/demo/state")
     def demo_state(response: Response):
-        response.headers["X-Sentinel-Source"] = "FIXTURE"
-        return _public(demo.state(), "FIXTURE")
+        recorded_ready()
+        response.headers["X-Sentinel-Source"] = source
+        return _public({**demo.state(), **({"seed_note": trace["config"]["seed_note"]} if trace else {})}, source)
 
     @app.get("/api/certificates")
     def certificate_list(response: Response):
-        response.headers["X-Sentinel-Source"] = "FIXTURE"
-        return _public({"certificates": certificates}, "FIXTURE")
+        recorded_ready()
+        response.headers["X-Sentinel-Source"] = source
+        return _public({"certificates": list(reversed(certificates)) if trace else certificates}, source)
+
+    @app.get("/api/constraints/tiers")
+    def constraints_tiers():
+        return rule_tiers()
 
     @app.get("/api/evidence")
     def evidence():
@@ -243,23 +291,36 @@ def create_app() -> FastAPI:
 
     @app.get("/api/certificates/{cert_id}")
     def certificate(cert_id: str, response: Response):
+        recorded_ready()
         if cert_id not in cert_by_id:
             raise HTTPException(404, "certificate not found")
-        response.headers["X-Sentinel-Source"] = "FIXTURE"
+        response.headers["X-Sentinel-Source"] = source
         return cert_by_id[cert_id]
 
     @app.post("/api/certificates/{cert_id}/replay")
     def replay(cert_id: str, body: ReplayRequest, response: Response):
+        recorded_ready()
         if cert_id not in cert_by_id:
             raise HTTPException(404, "certificate not found")
-        response.headers["X-Sentinel-Source"] = "FIXTURE"
-        return _public({
-            "result": "MISMATCH" if body.tamper else "MATCH",
-            "mismatched_fields": ["forecast_hash"] if body.tamper else [],
-        }, "FIXTURE")
+        response.headers["X-Sentinel-Source"] = source
+        if trace:
+            original = cert_by_id[cert_id]
+            candidate = ({**original, "forecast_hash": hashlib.sha256(b"tampered").hexdigest()}
+                         if body.tamper else original)
+            inputs = CertificateInputs.from_dict(trace["inputs"][cert_id])
+            report = replay_certificate(candidate, inputs, graph=graph)
+            return _public({"result": report.result, "mismatched_fields": list(report.mismatched_fields)}, source)
+        return _public({"result": "MISMATCH" if body.tamper else "MATCH",
+                        "mismatched_fields": ["forecast_hash"] if body.tamper else []}, source)
 
     @app.get("/api/decisions/{decision_id}/why")
     def why(decision_id: str, response: Response):
+        recorded_ready()
+        if trace:
+            if decision_id not in cert_by_id:
+                raise HTTPException(404, "decision explanation not found")
+            response.headers["X-Sentinel-Source"] = source
+            return explanation(cert_by_id[decision_id], source)
         if decision_id not in why_by_id:
             raise HTTPException(404, "decision explanation not found")
         response.headers["X-Sentinel-Source"] = "FIXTURE"
@@ -267,6 +328,9 @@ def create_app() -> FastAPI:
 
     @app.websocket("/ws/sessions/{session_id}")
     async def websocket_session(websocket: WebSocket, session_id: str):
+        if not authorised(websocket.headers.get("authorization")):
+            await websocket.close(code=4401)
+            return
         entry = registry.get(session_id)
         if entry is None:
             await websocket.close(code=4404)
@@ -294,5 +358,16 @@ def create_app() -> FastAPI:
             pass
         finally:
             subscribers[session_id].discard(queue)
+
+    dist = Path(os.getenv("SENTINEL_WEB_DIST", "web/dist"))
+    if (dist / "index.html").is_file():
+        @app.get("/{path:path}")
+        def static_console(path: str):
+            if path.startswith(("api/", "ws/")):
+                raise HTTPException(404, "not found")
+            asset = (dist / path).resolve()
+            if path and asset.is_relative_to(dist.resolve()) and asset.is_file():
+                return FileResponse(asset)
+            return FileResponse(dist / "index.html")
 
     return app

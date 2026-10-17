@@ -40,7 +40,8 @@ export interface DemoStep {
 }
 
 export interface DemoState {
-  source: 'FIXTURE' | 'LIVE';
+  source: 'FIXTURE' | 'LIVE' | 'RECORDED';
+  seed_note?: string;
   step_index: number;
   step_count: number;
   step: DemoStep;
@@ -94,7 +95,7 @@ export interface DecisionWhy {
   decision_id: string;
   title: string;
   reasons: string[];
-  certified_lower: number;
+  certified_lower: number | null;
   threshold: number;
   futures_used: number;
 }
@@ -112,6 +113,13 @@ export interface EvidenceItem {
 }
 
 export interface EvidenceResponse { source: 'ARTIFACT'; items: EvidenceItem[] }
+
+export interface RuleTiersResponse {
+  status: 'CURRENT' | 'STALE' | 'MISSING';
+  status_reason: string | null;
+  rules: { rule_id: string; predicate: string | null; tier: string | null;
+    semantic_outcome: string | null; source_integrity_pass: boolean | null; note: string | null }[];
+}
 
 export interface SystemStatus {
   source: 'FIXTURE' | 'SIMULATED' | 'LIVE';
