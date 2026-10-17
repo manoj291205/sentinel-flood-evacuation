@@ -102,8 +102,9 @@ export default function LiveSession({ geometry }: { geometry?: MapGeometry }) {
     <h1>Live Operations</h1>
     <p>Live session · simulated hazards · demo parameters v4-cert-test-v1 (not the evaluated configuration)</p>
     <p>REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED</p>
-    <label><input type="checkbox" checked={networkDemo} onChange={event => { setNetworkDemo(event.target.checked); setEscrowStatus(null); setSession(''); setContext(null); }} />Two-team network demo</label>
-    {networkDemo && <fieldset aria-label="Escrow"><legend>Escrow</legend>
+    {!escrowStatus ? <label><input type="checkbox" checked={networkDemo} onChange={event => { setNetworkDemo(event.target.checked); setEscrowStatus(null); setSession(''); setContext(null); }} />Two-team network demo</label>
+      : <button type="button" onClick={() => { setNetworkDemo(false); setEscrowStatus(null); }}>End two-team demo</button>}
+    {networkDemo && <fieldset role="radiogroup" aria-label="Escrow"><legend>Escrow</legend>
       <label><input type="radio" name="escrow-mode" checked={escrowMode === 'escrow'} onChange={() => { setEscrowMode('escrow'); if (escrowStatus) void start('escrow'); }} />With escrow</label>
       <label><input type="radio" name="escrow-mode" checked={escrowMode === 'last_known'} onChange={() => { setEscrowMode('last_known'); if (escrowStatus) void start('last_known'); }} />Without escrow</label>
     </fieldset>}
