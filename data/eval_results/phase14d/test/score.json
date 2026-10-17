@@ -1,0 +1,138 @@
+{
+  "evaluation_id": "v4-claim-support-eval-14d-v1",
+  "provider_id": "groq-claim-support-14d-v1",
+  "model_id": "openai/gpt-oss-120b",
+  "prompt_version": "14d-prompt-r0",
+  "prompt_sha256": "a81671a5e35cad1ef56f01f4c82f6e6af278306713e3b86313215a7f888eedbe",
+  "request_settings": {
+    "temperature": 0.0,
+    "seed": 14,
+    "reasoning_effort": "medium",
+    "include_reasoning": false,
+    "max_completion_tokens": 4096
+  },
+  "challenge_id": "v4-claim-support-challenge-14d-v1",
+  "challenge_set": "test",
+  "challenge_fingerprint": "20f6bc629dd216ec17dd9f5f76092c7ca9f7f271f67072f6efa6d5ecc60ab56f",
+  "protocol_sha256": "f22f3e33ad260187c550f595b190b2b3b72d4d25b11289bcef938c55b17e9aee",
+  "temperature_requested": 0.0,
+  "temperature_note": "provider converts 0 to 1e-8",
+  "ledger_sha256": "0e7302fb4dc5e67db9d7715fdf5bbc2c2ac5740f21104b442b2c61c999466f46",
+  "claim_pairs": 135,
+  "verdict": "T2_VERIFIER_USEFUL",
+  "t2_verdict": "T2_VERIFIER_USEFUL",
+  "t2_conditions": {
+    "t2_precision": true,
+    "t2_unsafe_acceptance": true,
+    "t2_recall": true,
+    "supported_integrity_failure": true
+  },
+  "t2_metrics": {
+    "t2_positive_count": 45,
+    "t2_precision": 1.0,
+    "t2_unsafe_acceptance": 0.0,
+    "t2_recall": 1.0,
+    "supported_integrity_failure": 0.0
+  },
+  "v3_verdict": "CLAIM_SUPPORT_VERIFIER_USEFUL",
+  "v3_conditions": {
+    "macro_f1": true,
+    "supported_precision": true,
+    "unsafe_acceptance": true,
+    "span_integrity_failure": true
+  },
+  "metrics": {
+    "accuracy": 0.9703703703703703,
+    "macro_f1": 0.9703117268678872,
+    "per_class": {
+      "SUPPORTED": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 45
+      },
+      "PARTIALLY_SUPPORTED": {
+        "precision": 1.0,
+        "recall": 0.9111111111111111,
+        "f1": 0.9534883720930233,
+        "support": 45
+      },
+      "UNSUPPORTED": {
+        "precision": 0.9183673469387755,
+        "recall": 1.0,
+        "f1": 0.9574468085106383,
+        "support": 45
+      }
+    },
+    "confusion_matrix": {
+      "SUPPORTED": {
+        "SUPPORTED": 45,
+        "PARTIALLY_SUPPORTED": 0,
+        "UNSUPPORTED": 0
+      },
+      "PARTIALLY_SUPPORTED": {
+        "SUPPORTED": 0,
+        "PARTIALLY_SUPPORTED": 41,
+        "UNSUPPORTED": 4
+      },
+      "UNSUPPORTED": {
+        "SUPPORTED": 0,
+        "PARTIALLY_SUPPORTED": 0,
+        "UNSUPPORTED": 45
+      }
+    },
+    "safe_to_cite_precision": 1.0,
+    "safe_to_cite_recall": 1.0,
+    "unsafe_citation_acceptance_rate": 0.0,
+    "supported_precision": 1.0,
+    "span_integrity_failure_rate": 0.0
+  },
+  "supported_precision": 1.0,
+  "macro_f1": 0.9703117268678872,
+  "calls_total": 135,
+  "system_fingerprints": [
+    "fp_02b0d31eca",
+    "fp_05e76be18c",
+    "fp_068241849b",
+    "fp_0708ac49a5",
+    "fp_27194a498a",
+    "fp_4200b3f836",
+    "fp_420c059a6a",
+    "fp_47082602e2",
+    "fp_4727af4560",
+    "fp_4a7bb72c24",
+    "fp_4de1d6a1ee",
+    "fp_5082008e34",
+    "fp_5a93aea882",
+    "fp_5e2577217c",
+    "fp_60e4b492db",
+    "fp_64b2f1c926",
+    "fp_69334c0be3",
+    "fp_6c36ac20de",
+    "fp_76082d2bd0",
+    "fp_803c0ba83d",
+    "fp_854fa9be4c",
+    "fp_8655ddce88",
+    "fp_86dc843b12",
+    "fp_8ea50c0161",
+    "fp_90620edd96",
+    "fp_9241e9962b",
+    "fp_93703442d9",
+    "fp_96d96a151c",
+    "fp_998410db10",
+    "fp_a655021f7d",
+    "fp_bb691ea66b",
+    "fp_c15aa9c1b7",
+    "fp_c3da0d4bb9",
+    "fp_c800245357",
+    "fp_c868cf1eaa",
+    "fp_ca5edfaab2",
+    "fp_dee443f41b",
+    "fp_df9620fe21",
+    "fp_e1a78f200e",
+    "fp_e5b4e54fbb",
+    "fp_f640395b96",
+    "fp_fe269835c7"
+  ],
+  "label": "Phase 14D (replaces 14C as the claim-support evaluation of record)"
+}
