@@ -148,16 +148,17 @@ manifest items render; static + basic auth; no banned outcome wording in trace t
 Runner: not available to Lane X. Out of scope: hosting (34B), any Lane S change. Live certified sessions are Phase 34C (§10).
 
 ## 10. Phase 34C — live certified session (added 2026-10-17 at the judges' request)
-Lane X · branch `lane-x/m34c-live-session` (from `origin/main` after X34A.9 is pushed, merging your pushed
-`lane-x/m34a-wire`; before 36) · acceptance `tests/test_p34c_live_session.py`, web `specs/acceptance/web/p34c_live_session.spec.ts`
+Lane X · branch `lane-x/m34c-live-session` (from `origin/main` after X34A.9 is pushed **and Lane S P34R is DONE on `main`**,
+merging your pushed `lane-x/m34a-wire`; before 36) · acceptance `tests/test_p34c_live_session.py`, web `specs/acceptance/web/p34c_live_session.spec.ts`
 (copy unchanged) · contracts `live_context.schema.json`, `live_ws_message.schema.json`. Files: `src/api/**` (new
-`live_session.py`), `web/**`, `tests/test_lx_p34c_*.py`. Lane S code imported read-only: `SimulationSession(certified=True)`
-as merged (`context`, `decide`, `certificates`, `ledger.inputs`), `replay_certificate`, `CertificateInputs`.
+`live_session.py`), `web/**`, `tests/test_lx_p34c_*.py`. Lane S code imported read-only: `SimulationSession(certified=True,
+recertify=True)` from P34R (`context`, `certification`, `decide`, `certificates`, `recert_log`, `ledger.inputs`),
+`replay_certificate`, `CertificateInputs`.
 
 **10.1 API.** `POST /api/sessions` gains `certified: bool = false` and `params_id: str | null`. `certified: true` needs
 `regime` in {`v4-low-dt2-v1`, `v4-medium-dt2-v1`, `v4-high-dt2-v1`} and `params_id` = `v4-cert-test-v1` (the fast demo
 set; omitted → that value); anything else → 422. It builds `SimulationSession(seed, regime, graph=graph, certified=True,
-params_id=params_id)`; the `SessionDTO` adds `certified` and `params_id`. Without `certified` nothing changes (P30 parity).
+params_id=params_id, recertify=True)` — groups already on the road are re-checked every step (Phase 26, user request 2026-10-17); the `SessionDTO` adds `certified` and `params_id`. Without `certified` nothing changes (P30 parity).
 - `GET /sessions/{id}/context` (certified) = the Wave A `ContextDTO` plus `certified` (`live_context.schema.json`):
   `params_id`, `timestep`, `threshold` = `1 − eps_dispatch`, `futures_used`, `looks`; `recommendation` (the certifier's
   choice: action key, label, verdict, lower, upper, successes, n, outcome counts; `WAIT` → `HOLD`, verdict `ALWAYS_ALLOWED`,
@@ -166,14 +167,16 @@ params_id=params_id)`; the `SessionDTO` adds `certified` and `params_id`. Withou
   (by `mean_utility`, highest first), then up to 3 others by `lower`, each with `certified` (= FEASIBLE) and `comparison`:
   FEASIBLE `"Chosen over {alt}: both cleared the bar; the choice has the higher mean utility over the same {n} futures ({u_c:.2f} vs {u_a:.2f})."`;
   not FEASIBLE `"{alt} is not certified ({verdict}, lower bound {l:.3f} < {thr:.2f}), so the gate will not dispatch it."`;
-  for a HOLD choice every alternative uses the second form. `note` = `"Live sessions certify each new dispatch. Re-checks of
-  groups already on the road are shown in the recorded demo."` The pending result comes from one adapter,
-  `live_session.certification_of(session)`: `session.certification()` when that public method exists (Lane S adds it in
-  P34B.8), else `session._gate_cache[1:]`; no other private Lane S attribute is read, and nothing is re-certified.
+  for a HOLD choice every alternative uses the second form. `rechecks` = this step's rows of `session.recert_log`
+  (`timestep == current`) with the group's route label and, for MIGRATE, the new certificate id; `note` = `"Every step,
+  groups already on the road are re-checked; a group whose route loses its certificate is re-routed to a certified
+  alternative or escalated."` The pending result comes only from `session.certification()`; no private Lane S attribute
+  is read, and nothing is re-certified by the API.
 - `POST /sessions/{id}/decisions` (certified): ACCEPT; OVERRIDE with `selected_action` = a key from `allowed_override_actions`
   (certified alternatives and HOLD) and a non-empty `reason`; REJECT with a reason (committed as a HOLD certificate). It calls
   `session.decide` exactly like the Wave A path (so the audit row equals a direct call) and the session advances one step.
-  Response adds `certificates` = the certificates this decision committed. **Uncertified override** (a key that is a
+  Response adds `certificates` = every certificate committed during the call (the decision's own, then any MIGRATION from
+  the re-check at the next observation, in ledger order) and `rechecks` = the re-check rows written during the call. **Uncertified override** (a key that is a
   certificate candidate but not FEASIBLE, or any key outside the mask): nothing is committed and the step does not advance;
   422 with `{"detail": ..., "flag": "UNCERTIFIED_OVERRIDE_REFUSED", "action_key", "verdict"}`, and a refusal row
   `{timestep, decision: "OVERRIDE", action_key, verdict, reason, flag, utc}` is appended to a per-session `refusals` list
@@ -181,7 +184,7 @@ params_id=params_id)`; the `SessionDTO` adds `certified` and `params_id`. Withou
 - `GET /sessions/{id}/audit` adds `refusals`; `GET /sessions/{id}/certificates` → `{certificates}` (session ledger, oldest first);
   `POST /sessions/{id}/certificates/{cert_id}/replay` → real replay from `session.ledger.inputs(cert_id)`.
 - WebSocket (`live_ws_message.schema.json`): after a decision `decision`, then one `certificate` per committed certificate,
-  then the timeline `event`s, then `state`; a refusal pushes one `refusal`. `seq` strictly increasing per session.
+  then one `recheck` per re-check row, then the timeline `event`s, then `state`; a refusal pushes one `refusal`. `seq` strictly increasing per session.
 - `context` and `decisions` are plain `def` endpoints (threadpool) holding the session lock, so certification (≈ 2–3 s) never
   blocks the event loop. Certified sessions count toward the 8-session LRU limit like any other.
 
@@ -193,15 +196,18 @@ button `Confirm override`) / Reject (reason required),
 a `role="status"` indicator `Certifying…` while context or decision requests run, the newly committed certificate id linking
 to `/decisions?cert=…` (the Decisions page lists live-session certificates when `?session=` is set), the latest audit row,
 and a `Step on` button that fetches the next context. Uncertified alternatives are listed (so the operator sees why they are
-blocked) with `Override` disabled and the text `Not certified — the gate will not dispatch this`; a refused attempt (422)
+blocked) with `Override` disabled and the text `Not certified — the gate will not dispatch this`; the In transit tab shows each
+re-check (KEEP / re-routed / escalated, with its lower bound) and a re-route shows `Re-routed automatically as CERT-… (operator notified)`; a refused attempt (422)
 shows `Refused: not certified` and the refusal row. Banner: `Live session · simulated hazards · demo parameters
 v4-cert-test-v1 (not the evaluated configuration)`. No number appears unless the API sent it; no banned wording.
 
 **10.3 Acceptance.** `tests/test_p34c_live_session.py` (milestone `P34C`): validation of the new request fields; certified
 context parity with a direct `SimulationSession(certified=True)` twin (recommendation, schema, why from the pending result,
-comparisons); ACCEPT, OVERRIDE and REJECT audit rows and certificates equal the twin's after the same decisions; uncertified
+comparisons); ACCEPT, OVERRIDE and REJECT audit rows and certificates equal the twin's after the same decisions; a run of
+ACCEPTs shows the step-4 re-route (MIGRATION certificate, re-check row, WebSocket `recheck`) exactly as the twin; uncertified
 override refused, flagged, recorded, nothing committed; session certificates replay MATCH; WebSocket order; no banned wording.
-Web: `p34c_live_session.spec.ts` in the `live` project. Out of scope: in-transit re-certification in live sessions,
-persistence across restarts, multi-user sessions.
+Web: `p34c_live_session.spec.ts` in the `live` project. Out of scope: persistence across restarts, multi-user sessions.
 
 ## Amendments
+- 2026-10-17 (Lead, user request): live sessions re-check groups already on the road every step (`recertify=True`, Lane S
+  milestone P34R, merged before 34C starts); the cache fallback for `certification()` is removed.

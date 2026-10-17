@@ -118,23 +118,6 @@ def test_policy_count_is_absent_without_rules_and_fixture_hashes_hold():
         assert certificate_hash(fixture) == fixture["cert_hash"]
 
 
-def test_certification_accessor_exposes_the_pending_result():
-    from src.geospatial import load_road_graph
-    from src.human_decision import action_key
-    from src.simulation_session import SimulationSession
-
-    graph = load_road_graph()
-    assert SimulationSession(620003, "v3-medium-v1", graph=graph).certification() is None
-    session = SimulationSession(620003, "v4-medium-dt2-v1", graph=graph, certified=True, params_id="v4-cert-test-v1")
-    first = session.certification()
-    assert first is not None
-    result, _inputs = first
-    assert session.certification()[0] is result  # repeated calls do not re-certify
-    assert result.chosen_key == action_key(session.context().recommendation.action)
-    assert session.certification()[0] is result  # context() reused the same evaluation
-    assert session.certificates() == []  # reading it commits nothing
-
-
 # ---- deploy_check against a stub server -----------------------------------------------------------------------
 
 def _load_deploy_check():

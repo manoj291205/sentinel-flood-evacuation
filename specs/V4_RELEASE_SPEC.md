@@ -12,7 +12,7 @@ confirms in chat that P0 is filed (recorded in the STATUS decision log). **D-27:
 New: `scripts/dev.ps1`, `scripts/dev.sh`, `scripts/deploy_check.py`, `Dockerfile`, `.dockerignore`, `requirements-runtime.txt`,
 `docs/HOSTING.md`, `DEMO_SCRIPT_V4.md`, `tests/test_s_p34b_*.py`. Modified: `.github/workflows/ci.yml`, `README.md`
 (new section only), `simulation_demo.py` and `review_dashboard.py` (legacy label only), `src/certify/certificate.py`
-(POLICY, §2), `src/simulation_session.py` (`certification()`, §2a), `tests/test_s_p15p_gate.py` (its POLICY assertion, §2). Do not touch `src/api/**`, `web/**`, `docs/course/**`.
+(POLICY, §2), `tests/test_s_p15p_gate.py` (its POLICY assertion, §2). Do not touch `src/api/**`, `web/**`, `docs/course/**`.
 
 ## 2. POLICY count in certificates (Wave B audit follow-up)
 `build_certificate` drops `POLICY` from each candidate's `outcome_counts` (`if k != "POLICY"`), so `n` minus the sum is the
@@ -28,12 +28,31 @@ The HOLD row keeps `{}`. `replay_certificate` rebuilds through `build_certificat
 last assertion of `tests/test_s_p15p_gate.py::test_tampered_chunk_blocks_dispatch_and_is_audited` (your own test) to the
 new rule: every non-HOLD candidate has `POLICY` and its counts sum to `n`.
 
-## 2a. `SimulationSession.certification()` (for Phase 34C, Lane X)
-Add a public read-only method to `src/simulation_session.py`: `certification() -> tuple[CertificationResult, CertificateInputs] | None`
-— `None` when not certified or the episode is terminal; otherwise the pending result for the current step from the same
-cache `context()` uses (compute it through the same path if the cache is empty or stale). Calling it never commits, never
-re-certifies a step already evaluated, and returns the identical objects on repeated calls. 34C reads it through its own
-adapter (falling back to the cache until this lands), so 34C does not wait for 34B.
+## 2a. Milestone P34R — `SimulationSession` for live certified sessions (separate branch, merged early)
+Branch `m34r-session-recert` (from `main`), **built first** in Wave C because Lane X 34C needs it on `main`; acceptance
+`tests/test_p34r_session_recert.py` (milestone `P34R`). Files: `src/simulation_session.py`, `tests/test_s_p34r_*.py`.
+Lead merges it as soon as it is in REVIEW (`prompts/WC_LEAD_merge_p34r.md`), before the Wave C review.
+- `SimulationSession(..., certified=False, params_id="v4-cert-v1", recertify=False)`. `recertify=True` without
+  `certified=True` → `ValueError`. With `recertify=False` every behaviour is unchanged (P25/P30 tests, certificates).
+- With `recertify=True`, at every new observation of a non-terminal episode (after `reset` and after each committed
+  decision, before the next `context()`), run the Phase 26 re-check exactly once per timestep, in the order of
+  `scripts/phase27_run.py::run_episode`:
+  ```text
+  sim.observe(); state = sim.prepared_state_for_debug()
+  decisions = recertify_in_transit(self.gate, state, self.overlay.road_state, self.simulator.transit_plans(),
+                                   self._recert_histories, RecertPolicy())
+  self._gate_cache = None            # the ledger may have changed; context() evaluates afterwards
+  ```
+  append one row per decision to `self.recert_log`: `{timestep, group_id (event_id), action (KEEP|MIGRATE|KEEP_ESCALATE|COOLDOWN),
+  verdict (keep verdict value or null), lower, upper, new_shelter_id, cert_id (the MIGRATION certificate id or null)}`;
+  capture the new simulator audit events into `timeline` (`GROUP_MIGRATED` gets category `MIGRATION`). MIGRATION
+  certificates land in the same ledger, so `certificates()` lists them in commit order.
+- `certification() -> tuple[CertificationResult, CertificateInputs] | None`: `None` when not certified or terminal; else the
+  pending result for the current step from the cache `context()` uses (evaluated through the same path when the cache is
+  empty or stale). Repeated calls return the identical objects; reading it never commits.
+- Parity (the acceptance test's reference): for the same seed, world and params, a session with `recertify=True` driven by
+  ACCEPT at every step commits exactly the certificates of the reference loop `observe → recertify_in_transit → evaluate →
+  commit` with operator `{"decision": "ACCEPT", "actor": "session-operator", "reason": ""}`.
 
 ## 3. CI (`.github/workflows/ci.yml`)
 Keep the `test` job unchanged. Add:
@@ -103,4 +122,4 @@ Runner may: write the stub-server fixture data, README/HOSTING tables, run tests
 any public link, any change to the API or console.
 
 ## Amendments
-- 2026-10-17 (Lead): Phase 34C added — §2a `SimulationSession.certification()` and a Live session segment in `DEMO_SCRIPT_V4.md`.
+- 2026-10-17 (Lead): Phase 34C added — a Live session segment in `DEMO_SCRIPT_V4.md`; the session work it needs is milestone P34R (§2a), at the user's request including in-transit re-checks in live sessions.

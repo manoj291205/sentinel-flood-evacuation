@@ -2,60 +2,270 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "sentinel-live-context-v1",
   "title": "GET /api/sessions/{session_id}/context for a certified live session (contract v1, Phase 34C)",
-  "description": "Wave A ContextDTO plus the pending certification. Every number comes from the CertificationResult the session already computed for this step (V4_WIRING_SPEC section 10.1); nothing is re-certified or invented.",
+  "description": "Wave A ContextDTO plus the pending certification. Every number comes from the CertificationResult the session already computed for this step (V4_WIRING_SPEC section 10.1); nothing is re-certified or invented. rechecks = this step's Phase 26 re-check rows from SimulationSession(recertify=True).recert_log (P34R).",
   "type": "object",
-  "required": ["recommendation", "snapshot", "allowed_override_actions", "simulated", "honesty", "source", "certified"],
+  "required": [
+    "recommendation",
+    "snapshot",
+    "allowed_override_actions",
+    "simulated",
+    "honesty",
+    "source",
+    "certified"
+  ],
   "properties": {
-    "simulated": {"const": true},
-    "source": {"const": "LIVE"},
+    "simulated": {
+      "const": true
+    },
+    "source": {
+      "const": "LIVE"
+    },
     "certified": {
       "type": "object",
-      "required": ["params_id", "timestep", "threshold", "futures_used", "looks", "recommendation", "why", "candidates", "alternatives", "note"],
+      "required": [
+        "params_id",
+        "timestep",
+        "threshold",
+        "futures_used",
+        "looks",
+        "recommendation",
+        "why",
+        "candidates",
+        "alternatives",
+        "rechecks",
+        "note"
+      ],
       "additionalProperties": false,
       "properties": {
-        "params_id": {"const": "v4-cert-test-v1"},
-        "timestep": {"type": "integer", "minimum": 0},
-        "threshold": {"type": "number", "minimum": 0, "maximum": 1},
-        "futures_used": {"type": "integer", "minimum": 0},
-        "looks": {"type": "integer", "minimum": 0},
-        "recommendation": {"$ref": "#/$defs/candidate"},
-        "why": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "string", "minLength": 1, "maxLength": 160}},
-        "candidates": {"type": "array", "items": {"$ref": "#/$defs/candidate"}},
+        "params_id": {
+          "const": "v4-cert-test-v1"
+        },
+        "timestep": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "futures_used": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "looks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "recommendation": {
+          "$ref": "#/$defs/candidate"
+        },
+        "why": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/candidate"
+          }
+        },
         "alternatives": {
-          "type": "array", "maxItems": 6,
+          "type": "array",
+          "maxItems": 6,
           "items": {
             "type": "object",
-            "required": ["action_key", "label", "verdict", "lower", "upper", "certified", "comparison"],
+            "required": [
+              "action_key",
+              "label",
+              "verdict",
+              "lower",
+              "upper",
+              "certified",
+              "comparison"
+            ],
             "additionalProperties": false,
             "properties": {
-              "action_key": {"type": "string"},
-              "label": {"type": "string"},
-              "verdict": {"enum": ["FEASIBLE", "INFEASIBLE", "UNDECIDED"]},
-              "lower": {"type": ["number", "null"]},
-              "upper": {"type": ["number", "null"]},
-              "certified": {"type": "boolean"},
-              "comparison": {"type": "string", "minLength": 1, "maxLength": 200}
+              "action_key": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "verdict": {
+                "enum": [
+                  "FEASIBLE",
+                  "INFEASIBLE",
+                  "UNDECIDED"
+                ]
+              },
+              "lower": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "upper": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "certified": {
+                "type": "boolean"
+              },
+              "comparison": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
             }
           }
         },
-        "note": {"type": "string", "minLength": 1}
+        "note": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rechecks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "timestep",
+              "group_id",
+              "route",
+              "action",
+              "verdict",
+              "lower",
+              "upper",
+              "new_shelter_id",
+              "cert_id"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "timestep": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "group_id": {
+                "type": "string"
+              },
+              "route": {
+                "type": "string"
+              },
+              "action": {
+                "enum": [
+                  "KEEP",
+                  "MIGRATE",
+                  "KEEP_ESCALATE",
+                  "COOLDOWN"
+                ]
+              },
+              "verdict": {
+                "enum": [
+                  "FEASIBLE",
+                  "INFEASIBLE",
+                  "UNDECIDED",
+                  null
+                ]
+              },
+              "lower": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "upper": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "new_shelter_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "cert_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^CERT-[0-9]{6}$"
+              }
+            }
+          }
+        }
       }
     }
   },
   "$defs": {
     "candidate": {
       "type": "object",
-      "required": ["action_key", "label", "verdict", "lower", "upper", "successes", "n", "outcome_counts"],
+      "required": [
+        "action_key",
+        "label",
+        "verdict",
+        "lower",
+        "upper",
+        "successes",
+        "n",
+        "outcome_counts"
+      ],
       "additionalProperties": false,
       "properties": {
-        "action_key": {"type": "string"},
-        "label": {"type": "string"},
-        "verdict": {"enum": ["FEASIBLE", "INFEASIBLE", "UNDECIDED", "ALWAYS_ALLOWED"]},
-        "lower": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-        "upper": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-        "successes": {"type": "integer", "minimum": 0},
-        "n": {"type": "integer", "minimum": 0},
-        "outcome_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}}
+        "action_key": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "verdict": {
+          "enum": [
+            "FEASIBLE",
+            "INFEASIBLE",
+            "UNDECIDED",
+            "ALWAYS_ALLOWED"
+          ]
+        },
+        "lower": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "upper": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "successes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "outcome_counts": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
       }
     }
   }

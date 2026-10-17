@@ -29,6 +29,18 @@ test('live session: hold, uncertified alternatives, accept, step on to a certifi
   await expect(alternatives).toBeVisible();
 });
 
+test('groups already on the road are re-checked and re-routed live', async ({ page }) => {
+  await start(page);
+  for (let step = 0; step < 5; step++) {
+    await page.getByRole('button', { name: 'Accept' }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Certifying…' })).toHaveCount(0, { timeout: 60_000 });
+    await page.getByRole('button', { name: 'Step on' }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Certifying…' })).toHaveCount(0, { timeout: 60_000 });
+  }
+  // Lead pilot of this seed: with ACCEPT at every step a group is re-routed at step 4
+  await expect(page.getByText(/Re-routed automatically as CERT-\d{6}/).first()).toBeVisible();
+});
+
 test('override needs a reason and commits a certificate with an audit row', async ({ page }) => {
   await start(page);
   await page.getByRole('button', { name: 'Accept' }).click();

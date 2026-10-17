@@ -2,7 +2,8 @@
 
 Spec: specs/V4_WIRING_SPEC.md section 10. One scripted run (module fixture) drives an API session and a direct
 SimulationSession(certified=True) twin through the same decisions and records both; the tests compare them.
-World v4-medium-dt2-v1, seed 620003, params v4-cert-test-v1 (Lead pilot: step 0 is a HOLD with every option UNDECIDED).
+World v4-medium-dt2-v1, seed 620003, params v4-cert-test-v1 (Lead pilot: step 0 is a HOLD with every option UNDECIDED,
+and with ACCEPT at every step a group is re-routed at step 4). Live sessions re-check groups on the road (P34R).
 """
 
 from __future__ import annotations
@@ -32,10 +33,8 @@ def _stable(row):
 
 
 def _pending(session):
-    """The twin's pending CertificationResult for the current step (public accessor once P34B lands)."""
-    session.context()
-    accessor = getattr(session, "certification", None)
-    return accessor()[0] if accessor else session._gate_cache[1]
+    """The twin's pending CertificationResult for the current step (P34R accessor)."""
+    return session.certification()[0]
 
 
 @pytest.fixture(scope="module")
@@ -50,7 +49,8 @@ def run():
     mp = pytest.MonkeyPatch()
     mp.setenv("SENTINEL_DEMO_SOURCE", "FIXTURE")
     mp.delenv("SENTINEL_DEMO_PASSWORD", raising=False)
-    twin = SimulationSession(SEED, WORLD, graph=load_road_graph(), certified=True, params_id=PARAMS)
+    graph = load_road_graph()
+    twin = SimulationSession(SEED, WORLD, graph=graph, certified=True, params_id=PARAMS, recertify=True)
     evidence = EvidenceReference(**EVIDENCE)
     out = {"contexts": [], "twin_pending": [], "api_records": [], "twin_records": [], "responses": []}
     with TestClient(create_app()) as client:
@@ -110,6 +110,20 @@ def run():
         out["certificates"] = client.get(f"/api/sessions/{sid}/certificates").json()["certificates"]
         out["replays"] = [client.post(f"/api/sessions/{sid}/certificates/{c['cert_id']}/replay", json={}).json()
                           for c in out["certificates"]]
+        # a second session: ACCEPT at every step until the step-4 re-route
+        second = client.post("/api/sessions", json={"seed": SEED, "regime": WORLD, "certified": True}).json()
+        twin2 = SimulationSession(SEED, WORLD, graph=graph, certified=True, params_id=PARAMS, recertify=True)
+        out["accept_run"] = []
+        for _ in range(5):
+            client.get(f"/api/sessions/{second['session_id']}/context")
+            response = client.post(f"/api/sessions/{second['session_id']}/decisions",
+                                   json={"decision": "ACCEPT", "reason": "", "evidence": EVIDENCE})
+            assert response.status_code == 200, response.text
+            out["accept_run"].append(response.json())
+            twin2.decide("ACCEPT", evidence)
+        out["accept_certificates"] = client.get(f"/api/sessions/{second['session_id']}/certificates").json()["certificates"]
+        out["accept_context"] = client.get(f"/api/sessions/{second['session_id']}/context").json()
+        out["twin2"] = twin2
         out["bad_regime"] = client.post("/api/sessions", json={"seed": SEED, "regime": "v3-medium-v1",
                                                                "certified": True}).status_code
         out["bad_params"] = client.post("/api/sessions", json={"seed": SEED, "regime": WORLD, "certified": True,
@@ -207,6 +221,22 @@ def test_websocket_pushes_decision_certificate_events_state(run):
     for cert in certs:
         jsonschema.validate(cert, cert_schema)
     assert types.index("certificate") < min([i for i, t in enumerate(types) if t == "event"] or [len(types)])
+    assert types.count("recheck") == len(run["responses"][-1]["rechecks"])
+
+
+def test_live_session_re_checks_groups_on_the_road(run):
+    twin2 = run["twin2"]
+    assert run["accept_certificates"] == twin2.certificates()
+    assert "MIGRATION" in [c["kind"] for c in twin2.certificates()]  # Lead pilot: re-route at step 4
+    rows = [row for response in run["accept_run"] for row in response["rechecks"]]
+    keys = ("timestep", "group_id", "action", "verdict", "cert_id")
+    assert [{k: r[k] for k in keys} for r in rows] == [{k: r[k] for k in keys} for r in twin2.recert_log]
+    migrate = next(r for r in rows if r["action"] == "MIGRATE")
+    committed = [c for response in run["accept_run"] for c in response["certificates"]]
+    assert migrate["cert_id"] in [c["cert_id"] for c in committed if c["kind"] == "MIGRATION"]
+    ctx = run["accept_context"]["certified"]
+    jsonschema.validate(run["accept_context"], _schema("live_context.schema.json"))
+    assert all(r["timestep"] == ctx["timestep"] for r in ctx["rechecks"])
 
 
 def test_live_text_makes_no_outcome_claim(run):
@@ -215,7 +245,8 @@ def test_live_text_makes_no_outcome_claim(run):
     exempt = [re.compile(re.escape(p), re.I) for p in policy["negation_exemptions"]]
     for ctx in run["contexts"]:
         cert = ctx["certified"]
-        for text in [*cert["why"], cert["note"], *(a["comparison"] for a in cert["alternatives"])]:
+        for text in [*cert["why"], cert["note"], *(a["comparison"] for a in cert["alternatives"]),
+                     *(r["route"] for r in cert["rechecks"])]:
             if any(e.search(text) for e in exempt):
                 continue
             assert not any(b.search(text) for b in banned), text
