@@ -72,3 +72,4 @@ Out of scope: the PDF export, recording the video, submitting anything, any code
 test after each file.
 
 ## Amendments
+- 2026-10-17 (Lead): the patent is ON HOLD (user; P0 optional). This changes nothing in §2: the pack stays at RESTRICTED until the user records `Disclosure level FULL approved by the user` in STATUS.md.
