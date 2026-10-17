@@ -36,13 +36,13 @@ PRIMARY = ("v4-medium-dt2-v1", "v4-high-dt2-v1")
 STRESS = "v4-stress-dt2-v1"
 SYSTEMS = ("HOLD", "A", "A2", "B", "P", "P-noFC", "P-noHyst")
 SYSTEM_LABEL = {
-    "HOLD": "HOLD (always wait)",
-    "A": "A: greedy + decision-time mask",
-    "A2": "A2: lookahead-2 + mask",
-    "B": "B: deterministic + independent MC",
-    "P": "P: certified gate (ours)",
-    "P-noFC": "P-noFC: no fail-closed",
-    "P-noHyst": "P-noHyst: no hysteresis",
+    "HOLD": "HOLD",
+    "A": "A (greedy + mask)",
+    "A2": "A2 (lookahead + mask)",
+    "B": "B (known techniques)",
+    "P": "P (certified gate)",
+    "P-noFC": "P-noFC",
+    "P-noHyst": "P-noHyst",
 }
 
 _cache: dict[str, object] = {}
@@ -297,7 +297,7 @@ def tab_bars() -> str:
 
 def tab_systems() -> str:
     out = [HEADER, "\\begin{tabular}{@{}lrrr@{}}\n\\toprule\n",
-           "System & Groups / ep. & Safe arrivals / ep. & Group failure rate\\\\\n\\midrule\n"]
+           "System & Groups/ep. & Safe arr./ep. & Fail. rate\\\\\n\\midrule\n"]
     for s in SYSTEMS:
         m = SYS_MACRO[s]
         label = SYSTEM_LABEL[s]
