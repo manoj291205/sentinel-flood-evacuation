@@ -63,3 +63,38 @@ export interface MapGeometry {
 export interface DemoRoutes {
   [key: string]: { label: string; svg_path: string };
 }
+
+export interface CertificateCandidate {
+  action_key: string;
+  people: number;
+  verdict: string;
+  successes: number;
+  n: number;
+  lower: number | null;
+  upper: number | null;
+  outcome_counts: Record<string, number>;
+}
+
+export interface Certificate {
+  cert_id: string;
+  kind: string;
+  timestep: number;
+  futures_used: number;
+  looks: number;
+  params: { eps_dispatch: number; delta: number; a_max: number };
+  chosen: { action_key: string; people: number; group_id: string | null };
+  operator: { decision: string; actor: string; reason: string };
+  commands: { target: string; command: string }[];
+  candidates: CertificateCandidate[];
+  prev_cert_hash: string | null;
+  cert_hash: string;
+}
+
+export interface DecisionWhy {
+  decision_id: string;
+  title: string;
+  reasons: string[];
+  certified_lower: number;
+  threshold: number;
+  futures_used: number;
+}
