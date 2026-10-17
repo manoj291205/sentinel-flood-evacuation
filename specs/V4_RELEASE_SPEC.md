@@ -101,7 +101,9 @@ only the console with `VITE_API_MOCK=1`. They never set `SENTINEL_DEMO_PASSWORD`
   covering all five pages (Overview, Live Operations, Decisions & Certificates, Evidence & Results, System & Hardware)
   and a **Live session** segment (start seed 620003 on `v4-medium-dt2-v1`, show the HOLD with uncertified alternatives,
   Accept, Step on, Override with a reason, the new certificate and audit row; say an override to an uncertified action is
-  refused and recorded), the last ending at or before `5:00`; what to click and what to say. It must say the demo is a recorded run of the real
+  refused and recorded) and a **90-second network-outage segment** headed `## m:ss–m:ss Network outage (exploratory)` (Phase
+  35-lite: cut the network with escrow, show per-team seats and a held dispatch, restore and the rebalance; say it is
+  exploratory, not pre-registered, and counts conflicts — no outcome claim), the last ending at or before `5:00`; what to click and what to say. It must say the demo is a recorded run of the real
   engine with the fast parameter set (not the evaluated configuration), that the hazards are simulated, and that the
   pre-registered evaluation makes **no outcome-effect claim** (Bar 1 failed; R = 21.4 % is the number to quote with any
   failure rate). A first line `Confidential until P0 is filed — do not show outside the project.` Every number must come
@@ -123,3 +125,5 @@ any public link, any change to the API or console.
 
 ## Amendments
 - 2026-10-17 (Lead): Phase 34C added — a Live session segment in `DEMO_SCRIPT_V4.md`; the session work it needs is milestone P34R (§2a), at the user's request including in-transit re-checks in live sessions.
+- 2026-10-17 (lead-advisor): P34R §2a — the in-transit re-check is lazy: it runs exactly once per timestep, on the first gate-consulting call of that timestep (context(), certification() or decide()), before the gate evaluates, and never for an observation that no decision consults (e.g. the one after the last decide). This is the phase27_run.py::run_episode order (observe -> recertify -> evaluate -> commit) exactly. recert_log, timeline and MIGRATION certificates for a timestep therefore appear only once that timestep is first consulted; plain reads (certificates(), recert_log, timeline) never trigger it. recertify=False is unchanged.
+- 2026-10-17 (Lead): Phase 35-lite added — a 90-second `Network outage (exploratory)` segment in `DEMO_SCRIPT_V4.md`.

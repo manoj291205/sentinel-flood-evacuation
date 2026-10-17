@@ -131,8 +131,8 @@ source/page/chunk references; it does not imply semantic support for every claim
 
 **REAL ROAD TOPOLOGY + SIMULATED DISASTER CONDITIONS. NOT OPERATIONALLY VALIDATED.**
 No Gemini, network requests, PPO training, or policy/retrieval evaluations run in the
-demo. Phase 14B remains paused and incomplete at 21/135 official dispositions;
-no partial performance metrics are presented. Later closures affect future dispatches;
+demo. Phase 14B was superseded (its provider was unusable; it was never scored); the
+claim-support evaluation of record is Phase 14D. Later closures affect future dispatches;
 the simulator retains existing transit/arrival semantics without rerouting groups.
 
 Focused offline verification:
@@ -164,8 +164,8 @@ conditions remain simulated; only the road topology is real.
 The research tabs read frozen Phase 9/10/13/14 artifacts without rerunning experiments.
 They retain the negative Phase 10 result (`RL usefulness = NO`), the Phase 13 result
 (`HYBRID_SUPPORTED` versus Dense), and the secondary finding that BM25 had the highest
-DirectHit@5. Phase 14B is shown only as paused at 21/135 official dispositions; the
-incomplete run is not scored. Decision records remain in the browser session and can be
+DirectHit@5. Phase 14B was superseded and is not scored; Phases 14C and 14D are
+reported in the V4 console. Decision records remain in the browser session and can be
 downloaded as CSV, with the summary available as JSON. Authoritative evidence text is
 not copied into the audit log. This is a presentation layer, not a new scientific
 experiment or an operationally validated emergency system.
@@ -174,16 +174,65 @@ experiment or an operationally validated emergency system.
 
 ## Development Status
 
-The current V3 development branch is:
+<!-- MILESTONE-TABLE:START — refreshed by the reviewer at every merge into main from docs/patent-roadmap/STATUS.md -->
+Last refreshed: 2026-10-17 · base branch `main` · live ledger: `docs/patent-roadmap/STATUS.md`
 
-```text
-v3-dynamic-stochastic
-```
+V3 (phases 0–19) is complete. V4 extends it with a certified dispatch layer; V4 internals are confidential
+and described only in the private roadmap. Work is built on milestone branches and appears here only after
+it has been reviewed and merged into `main`.
 
-### Completed Phases
+### V3 — complete
 
-| Phase | Component                                              | Status      |
-| ----- | ------------------------------------------------------ | ----------- |
+| Phase | Component                                              | Status        |
+| ----- | ------------------------------------------------------ | ------------- |
+| 0     | V1 baseline freeze and repository audit                | ✅ Complete   |
+| 1     | Pre-registered evaluation framework                    | ✅ Complete   |
+| 2     | Versioned V3 scenario/data contract                    | ✅ Complete   |
+| 3     | Deterministic multi-timestep evacuation simulator      | ✅ Complete   |
+| 4     | Stochastic flood, travel, closure and shelter dynamics | ✅ Complete   |
+| 5     | Deterministic hard-safety engine and action masks      | ✅ Complete   |
+| 6     | Strong planning baselines and pre-PPO headroom gate    | ✅ Complete   |
+| 7     | Fixed-dimension Gymnasium environment                  | ✅ Complete   |
+| 8     | Pre-registered RL reward and integration               | ✅ Complete   |
+| 9     | Five-seed MaskablePPO training                         | ✅ Complete   |
+| 10    | Frozen held-out planner-vs-PPO evaluation              | ✅ Complete   |
+| 11    | Authoritative RAG corpus expansion                     | ✅ Complete   |
+| 12    | Dense + BM25 + hybrid retrieval                        | ✅ Complete   |
+| 13    | AI-assisted retrieval benchmark                        | ✅ Complete   |
+| 14A   | Construction-labeled claim-support challenge           | ✅ Complete   |
+| 16    | Cached geospatial road graph and routing engine        | ✅ Complete   |
+| 17    | Dynamic hazard-aware graph routing integration         | ✅ Complete   |
+| 18    | Human-in-the-loop override and session audit trail     | ✅ Complete   |
+| 19    | Streamlit review dashboard (legacy)                    | ✅ Complete   |
+
+### V4 — in progress
+
+| Phase  | Component                                                   | Status                                   |
+| ------ | ----------------------------------------------------------- | ---------------------------------------- |
+| 20     | Verified baseline (frozen-artifact guard, UTF-8, CI)        | ✅ Complete                              |
+| 14B    | Semantic claim-support evaluation (first provider)          | ⛔ Superseded (provider unusable; not scored) |
+| 14C    | Semantic claim-support evaluation (second provider)         | ✅ Complete — verdict NOT_YET_RELIABLE   |
+| 14D    | Semantic claim-support evaluation (evaluation of record)    | ✅ Complete — verdict USEFUL             |
+| 15′    | Tier-verified NDMA constraints (incl. T2 wiring)            | ✅ Complete — rules R01, R02 at T1       |
+| 21     | V4 simulated world (multi-step transit, failures)           | ✅ Complete                              |
+| 22–24  | Certification engine (confidential)                         | ✅ Complete                              |
+| 25–26  | Dispatch gate, certificates, replay, re-routing (confidential) | ✅ Complete                           |
+| 27     | Pre-registered evaluation and decision D-27                 | ✅ Complete — no outcome-effect claim    |
+| 28     | Hardware-in-the-loop rig (simulated publisher until parts)  | ✅ Complete                              |
+| 30–31  | FastAPI service and React console with guided demo          | ✅ Complete                              |
+| 32–33  | Decisions & Certificates, Overview, Evidence, System pages  | ✅ Complete                              |
+| 34A    | Console wired to the real engine (recorded run)             | 🔄 Built — awaiting review               |
+| 34C    | Live session: accept / override while the simulation runs   | 🔄 Built — awaiting review               |
+| 34B    | Release: dev scripts, CI web jobs, demo script, Docker      | 🔄 In progress                           |
+| 36     | Course submission pack                                      | 🔄 In progress                           |
+| 35-lite| Network-outage capacity shares (exploratory)                | ⏳ Requested, not yet planned            |
+| 37     | Conference paper                                            | ⏳ Planned (after Wave C)                |
+| 38     | Journal extension                                           | ⏳ Optional                              |
+| P0, 29 | Patent filing                                               | ⏸ On hold                                |
+| 35     | Full escrow embodiment                                      | ✖ Dropped (D-27)                         |
+<!-- MILESTONE-TABLE:END -->
+
+----- | ------------------------------------------------------ | ----------- |
 | 0     | V1 baseline freeze and repository audit                | ✅ Complete |
 | 1     | Pre-registered evaluation framework                    | ✅ Complete |
 | 2     | Versioned V3 scenario/data contract                    | ✅ Complete |
@@ -532,11 +581,11 @@ The full offline regression suite was verified on Windows without `PYTHONUTF8` w
 `python -m pytest tests/ -ra`:
 
 ```text
-841 passed, 46 xfailed
+1056 passed, 41 xfailed, 2 xpassed   (main, 2026-10-17)
 ```
 
-The 46 xfailed tests are V4 acceptance tests for milestones not yet built. Phase 14B
-(paused) runtime/test changes are not part of this count.
+The xfailed tests are acceptance tests for Wave C milestones not yet merged; they become
+active when each milestone is reviewed and merged.
 
 Coverage includes:
 
@@ -588,18 +637,12 @@ A negative result is considered a valid research outcome.
 
 ## Next Development Stages
 
-The decision-policy and retrieval studies are frozen. Phase 14B is paused because of
-the Gemini daily quota; partial semantic performance is not reported.
-
-The remaining V3 research work is intentionally separate from the completed review
-dashboard:
+The decision-policy and retrieval studies are frozen. Remaining work (see the table above):
 
 ```text
-Phase 14B
-Resume the frozen semantic claim-support evaluation only after API quota is available
-
-Phase 15
-Integrate deterministic safety with evidence-grounded policy constraints
+Wave C   34A/34C review, 34B release, 36 course pack, 35-lite network-outage demo
+After C  37 conference paper, 38 journal extension (optional)
+On hold  patent filing
 ```
 
 ---
