@@ -4,7 +4,7 @@ import type { EvidenceItem } from '../types';
 import styles from './Pages.module.css';
 
 function EvidenceTable({ group, items }: { group: string; items: EvidenceItem[] }) {
-  return <section className={styles.panel}><h2>{group}</h2><div className={styles.tableScroll} role="region" tabIndex={0} aria-label={`${group} evidence table`}><table className={styles.table}>
+  return <section className={styles.panel}><h2>{group}</h2>{group === 'Exploratory: network outage (not pre-registered)' && <p>Exploratory — not pre-registered</p>}<div className={styles.tableScroll} role="region" tabIndex={0} aria-label={`${group} evidence table`}><table className={styles.table}>
     <thead><tr><th scope="col">Measure</th><th scope="col">Value</th><th scope="col">Unit</th><th scope="col">Source</th></tr></thead>
     <tbody>{items.map(item => <tr key={item.id}><th scope="row">{item.label}</th><td><strong className="mono">{item.display}</strong>{item.note && <small className={styles.note}>{item.note}</small>}</td><td>{item.unit}</td><td><span className={styles.source}>{item.source_path}</span></td></tr>)}</tbody>
   </table></div></section>;

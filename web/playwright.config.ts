@@ -6,8 +6,8 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   use: { ...devices['Desktop Chrome'], channel: 'chrome', baseURL: 'http://127.0.0.1:5173' },
   projects: [
-    { name: 'mock', testIgnore: /p34[ac]_.*\.spec\.ts/ },
-    { name: 'live', testMatch: /p34[ac]_.*\.spec\.ts/ },
+    { name: 'mock', testIgnore: /p(?:34[ac]|35l)_.*\.spec\.ts/ },
+    { name: 'live', testMatch: /p(?:34[ac]|35l)_.*\.spec\.ts/ },
   ],
   webServer: process.env.SENTINEL_E2E_LIVE ? [
     {
