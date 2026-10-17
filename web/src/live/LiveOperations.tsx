@@ -83,14 +83,14 @@ export default function LiveOperations() {
     <div className={styles.pageHeading}><div><p className={styles.eyebrow}>OPERATIONS / LIVE</p><h1>Live Operations</h1></div><span className={styles.liveBadge}>● {demo.data.source === 'FIXTURE' ? 'SCRIPTED PREVIEW' : 'LIVE SIMULATION'}</span></div>
     {stale && <p className={styles.stale}>STALE {Math.round((now - demo.dataUpdatedAt) / 1000)} s · last successful update</p>}
     {actionError && <div className={styles.error} role="alert">{actionError} <button type="button" onClick={() => void demo.refetch()}>Retry</button></div>}
-    <div className={styles.timeline}><span className="mono">t = {current.timestep} / 16</span><span>MEDIUM UNCERTAINTY</span><span>{playing ? 'AUTO PLAY' : 'PAUSED'}</span></div>
+    <div className={styles.timeline}><span className="mono">t = {current.timestep}</span><span>SIMULATED CONDITIONS</span><span>{playing ? 'AUTO PLAY' : 'PAUSED'}</span></div>
     <GuidedDemoBar step={current} count={demo.data.step_count} playing={playing} completed={completed} onPrevious={() => void action('prev')} onNext={() => void action('next')} onReset={() => void action('reset')} onTogglePlay={() => void togglePlay()} />
     <PipelineStrip current={current.pipeline_stage} />
     <KpiTiles kpis={current.kpis} />
     <div className={styles.operationsGrid}>
       <section className={styles.mapColumn} aria-label="Operations map">
         <OperationsMap geometry={geometry.data} step={current} selectedCandidate={chosen} />
-        <p className={styles.mapSummary}>4 zones · 5 shelters · {current.groups.length} groups in transit · simulated road closures</p>
+        <p className={styles.mapSummary}>{Object.keys(geometry.data.zones).length} zones · {current.shelters.length} shelters · {current.groups.length} groups in transit · simulated road closures</p>
         <Legend />
         <EventFeed events={current.events} />
       </section>

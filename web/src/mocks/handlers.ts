@@ -3,6 +3,8 @@ import demoFixture from '../../../specs/contracts/demo_steps.json';
 import mapFixture from '../../../docs/design/sentinel-console/fort_kochi_map_geometry.json';
 import certificateFixture from '../../../specs/contracts/certificates_fixture.json';
 import whyFixture from '../../../specs/contracts/decision_why_fixture.json';
+import evidenceManifest from '../../../specs/contracts/evidence_manifest.json';
+import systemFixture from '../../../specs/contracts/system_status_fixture.json';
 import type { DemoState, DemoStep } from '../types';
 
 let current = 0;
@@ -46,4 +48,12 @@ export const handlers = [
     const why = whyFixture.items.find(item => item.decision_id === params.id);
     return why ? HttpResponse.json(why) : new HttpResponse(null, { status: 404 });
   }),
+  http.get('/api/evidence', () => HttpResponse.json({
+    source: 'ARTIFACT', simulated: true, honesty,
+    items: evidenceManifest.items.map(item => ({ id: item.id, group: item.group, label: item.label,
+      value: null, display: '-', unit: item.unit, source_path: item.path,
+      source_sha256: null, note: 'not produced yet in mock mode' })),
+  })),
+  http.get('/api/system/status', () => HttpResponse.json(systemFixture)),
+  http.get('/api/system/acks', () => HttpResponse.json({ items: [], source: 'FIXTURE', simulated: true, honesty })),
 ];

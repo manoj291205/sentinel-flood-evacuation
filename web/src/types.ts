@@ -98,3 +98,34 @@ export interface DecisionWhy {
   threshold: number;
   futures_used: number;
 }
+
+export interface EvidenceItem {
+  id: string;
+  group: string;
+  label: string;
+  value: unknown;
+  display: string;
+  unit: string;
+  source_path: string;
+  source_sha256: string | null;
+  note: string | null;
+}
+
+export interface EvidenceResponse { source: 'ARTIFACT'; items: EvidenceItem[] }
+
+export interface SystemStatus {
+  source: 'FIXTURE' | 'SIMULATED' | 'LIVE';
+  broker: { connected: boolean; host: string | null };
+  devices: { device_id: string; kind: string; last_seen_utc: string | null; age_s: number | null; online: boolean; firmware: string | null }[];
+  topics: string[];
+  latency: { p50_ms: number | null; p95_ms: number | null; source_path: string | null };
+}
+
+export interface Ack {
+  schema: 'ack-v1';
+  device_id: string;
+  cert_id: string;
+  accepted: boolean;
+  reason: string;
+  ts_utc: string;
+}
