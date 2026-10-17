@@ -123,3 +123,4 @@ any public link, any change to the API or console.
 
 ## Amendments
 - 2026-10-17 (Lead): Phase 34C added — a Live session segment in `DEMO_SCRIPT_V4.md`; the session work it needs is milestone P34R (§2a), at the user's request including in-transit re-checks in live sessions.
+- 2026-10-17 (lead-advisor): P34R §2a — the in-transit re-check is lazy: it runs exactly once per timestep, on the first gate-consulting call of that timestep (context(), certification() or decide()), before the gate evaluates, and never for an observation that no decision consults (e.g. the one after the last decide). This is the phase27_run.py::run_episode order (observe -> recertify -> evaluate -> commit) exactly. recert_log, timeline and MIGRATION certificates for a timestep therefore appear only once that timestep is first consulted; plain reads (certificates(), recert_log, timeline) never trigger it. recertify=False is unchanged.

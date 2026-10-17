@@ -113,9 +113,9 @@ def run():
         # a second session: ACCEPT at every step until the step-4 re-route
         second = client.post("/api/sessions", json={"seed": SEED, "regime": WORLD, "certified": True}).json()
         twin2 = SimulationSession(SEED, WORLD, graph=graph, certified=True, params_id=PARAMS, recertify=True)
-        out["accept_run"] = []
+        out["accept_run"], out["accept_contexts"] = [], []
         for _ in range(5):
-            client.get(f"/api/sessions/{second['session_id']}/context")
+            out["accept_contexts"].append(client.get(f"/api/sessions/{second['session_id']}/context").json())
             response = client.post(f"/api/sessions/{second['session_id']}/decisions",
                                    json={"decision": "ACCEPT", "reason": "", "evidence": EVIDENCE})
             assert response.status_code == 200, response.text
@@ -228,12 +228,17 @@ def test_live_session_re_checks_groups_on_the_road(run):
     twin2 = run["twin2"]
     assert run["accept_certificates"] == twin2.certificates()
     assert "MIGRATION" in [c["kind"] for c in twin2.certificates()]  # Lead pilot: re-route at step 4
-    rows = [row for response in run["accept_run"] for row in response["rechecks"]]
+    # The re-check is lazy (V4_RELEASE_SPEC Amendment 2026-10-17): it runs on the first call that consults a step, so here
+    # (context fetched before each decision) a step's rows arrive with its context; a decision response carries only the
+    # rows written during that call. Context rows then decision rows, step by step, equal the twin's log.
+    rows = [row for ctx_body, response in zip(run["accept_contexts"], run["accept_run"])
+            for row in [*ctx_body["certified"]["rechecks"], *response["rechecks"]]]
     keys = ("timestep", "group_id", "action", "verdict", "cert_id")
     assert [{k: r[k] for k in keys} for r in rows] == [{k: r[k] for k in keys} for r in twin2.recert_log]
+    for ctx_body in run["accept_contexts"]:
+        assert all(r["timestep"] == ctx_body["certified"]["timestep"] for r in ctx_body["certified"]["rechecks"])
     migrate = next(r for r in rows if r["action"] == "MIGRATE")
-    committed = [c for response in run["accept_run"] for c in response["certificates"]]
-    assert migrate["cert_id"] in [c["cert_id"] for c in committed if c["kind"] == "MIGRATION"]
+    assert migrate["cert_id"] in [c["cert_id"] for c in run["accept_certificates"] if c["kind"] == "MIGRATION"]
     ctx = run["accept_context"]["certified"]
     jsonschema.validate(run["accept_context"], _schema("live_context.schema.json"))
     assert all(r["timestep"] == ctx["timestep"] for r in ctx["rechecks"])
