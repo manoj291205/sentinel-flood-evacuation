@@ -33,7 +33,7 @@ test('overview sections and links to certificates', async ({ page }) => {
 
 test('evidence shows a dash with a reason when an artifact is absent', async ({ page }) => {
   await page.goto('/evidence');
-  await expect(page.getByRole('heading', { name: 'Patent experiments (Phase 27 · pre-registered)' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Pre-registered evaluation (Phase 27)' })).toBeVisible();
   const row = page.getByRole('row', { name: /Pre-registered evaluation \(D-27\)/ });
   await expect(row).toContainText('-');
   await expect(row).toContainText('data/eval_results/phase27/analysis.json');

@@ -32,7 +32,7 @@ export default function Evidence() {
       <EvidenceTable group="Phase 10 planners" items={history('p10-')} />
       <EvidenceTable group="Phase 13 retrieval" items={history('p13-')} />
     </section>
-    <section className={styles.panel}><h2>Patent experiments (Phase 27 · pre-registered)</h2>
+    <section className={styles.panel}><h2>Pre-registered evaluation (Phase 27)</h2>
       {analysis?.value == null ? <p>- Not run yet. {analysis?.note ?? 'No analysis artifact is available.'}</p> : <p>{analysis.display}</p>}
       <p>Bar 1 guard R: {r?.display ?? '—'}{r?.note && ` · ${r.note}`}</p>
     </section>

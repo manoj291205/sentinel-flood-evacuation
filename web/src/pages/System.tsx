@@ -4,9 +4,9 @@ import styles from './Pages.module.css';
 
 const pipeline = [
   ['SENSE', 'Sensors and simulator state'],
-  ['FORECAST', 'Keyed hazard futures'],
+  ['FORECAST', 'Sampled hazard futures'],
   ['SUGGEST', 'Planner ranks dispatch options'],
-  ['CERTIFY', 'Joint arrival-time check'],
+  ['CERTIFY', 'Statistical lower-bound check'],
   ['DECIDE', 'Operator accepts, overrides, or rejects'],
   ['COMMIT', 'Ledger, certificate, then commands'],
 ];

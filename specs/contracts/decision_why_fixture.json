@@ -22,7 +22,7 @@
       "reasons": [
         "S-03 is no longer safe at G-0009's arrival time.",
         "S-04 is certified at 0.963 and 40 seats are reserved before the group is re-routed.",
-        "Hysteresis (keep 0.90 vs dispatch 0.95) stops groups being bounced between shelters."
+        "A group already on the road is re-routed only when its route loses its certificate."
       ],
       "certified_lower": 0.963,
       "threshold": 0.95,

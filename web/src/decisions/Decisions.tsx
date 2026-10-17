@@ -30,7 +30,7 @@ function CandidateTable({ cert }: { cert: Certificate }) {
   const threshold = 1 - cert.params.eps_dispatch;
   const scale = (value: number) => Math.max(0, Math.min(100, (value - 0.8) * 500));
   return <div className={styles.tableScroll} tabIndex={0} role="region" aria-label="Scrollable gate candidates"><table className={styles.table}>
-    <caption>Gate candidates and joint future outcomes</caption>
+    <caption>Gate candidates and outcomes across sampled futures</caption>
     <thead><tr><th scope="col">Option</th><th scope="col">Verdict</th><th scope="col">Futures OK</th><th scope="col">Certified interval</th><th scope="col">OK / Stranded / Unsafe / Overflow / Policy</th></tr></thead>
     <tbody>{cert.candidates.map((candidate: CertificateCandidate) => <tr key={candidate.action_key}>
       <td>{actionLabel(candidate.action_key)}{candidate.people ? ` · ${candidate.people} people` : ''}</td>
@@ -113,7 +113,7 @@ export default function Decisions() {
               <p className="mono">Certified lower {why.data.certified_lower === null ? '— (HOLD)' : why.data.certified_lower.toFixed(3)} · threshold {why.data.threshold.toFixed(2)} · {why.data.futures_used} futures</p></>}
           </section>
           <section className={styles.panel}><h3>Certificate &amp; bit-exact replay</h3>
-            <dl className={styles.meta}><div><dt>Futures used</dt><dd>{detail.data.futures_used}</dd></div><div><dt>Looks</dt><dd>{detail.data.looks}</dd></div><div><dt>ε / δ / A_MAX</dt><dd>{detail.data.params.eps_dispatch} / {detail.data.params.delta} / {detail.data.params.a_max}</dd></div></dl>
+            <dl className={styles.meta}><div><dt>Futures used</dt><dd>{detail.data.futures_used}</dd></div><div><dt>Looks</dt><dd>{detail.data.looks}</dd></div><div><dt>Dispatch threshold</dt><dd>{(1 - detail.data.params.eps_dispatch).toFixed(2)}</dd></div></dl>
             <div className={styles.chain}><span>Previous</span><HashCell hash={detail.data.prev_cert_hash} /><span aria-hidden="true">→</span><span>Current</span><HashCell hash={detail.data.cert_hash} /></div>
             <p className={styles.muted}>Replay checks stored inputs and verdicts. The tamper control changes the forecast hash only in this demo request.</p>
             <div className={styles.replayControls}><label><input type="checkbox" checked={tamper} onChange={event => { setTamper(event.target.checked); setReplay(null); }} />Tamper with forecast (demo)</label>
@@ -122,7 +122,7 @@ export default function Decisions() {
             {replayError && <p role="alert" className={styles.error}>{replayError}</p>}
           </section>
           <section className={styles.panel}><h3>Audit trail</h3><ol>
-            <li>Gate evaluated {detail.data.candidates.length} options across {detail.data.futures_used} keyed futures.</li>
+            <li>Gate evaluated {detail.data.candidates.length} options across {detail.data.futures_used} sampled futures.</li>
             <li>{detail.data.operator.actor}: {detail.data.operator.decision}{detail.data.operator.reason ? ` · ${detail.data.operator.reason}` : ''}</li>
             <li>Record {detail.data.cert_id} links to its previous certificate hash.</li>
             <li>{detail.data.commands.length ? detail.data.commands.map(item => `${item.target}: ${item.command}`).join('; ') : 'No commands issued.'}</li>
