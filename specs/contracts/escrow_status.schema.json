@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sentinel-escrow-status-v1",
+  "title": "Escrow session status (contract v1, Phase 35-lite, exploratory)",
+  "description": "Response of POST /api/escrow/sessions, /{id}/step, /{id}/cut, /{id}/restore and GET /{id} (V4_ESCROW_LITE_SPEC section 5). Simulated network outage; not part of the pre-registered evaluation.",
+  "type": "object",
+  "required": ["session_id", "network", "label", "mode", "timestep", "teams", "blocked", "last_reconciliation",
+               "certificates", "note", "simulated", "honesty"],
+  "additionalProperties": false,
+  "properties": {
+    "session_id": {"type": "string"},
+    "network": {"enum": ["ONLINE", "OFFLINE"]},
+    "label": {"enum": ["Simulated network outage", null]},
+    "mode": {"enum": ["escrow", "last_known"]},
+    "timestep": {"type": "integer", "minimum": 0},
+    "teams": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["team", "zones", "seats_total", "seats_left"],
+        "additionalProperties": false,
+        "properties": {
+          "team": {"enum": ["TEAM-A", "TEAM-B"]},
+          "zones": {"type": "array", "items": {"type": "string"}},
+          "seats_total": {"type": "integer", "minimum": 0},
+          "seats_left": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "blocked": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["team", "round", "action_key", "people", "seats_left", "reason", "suggested"],
+        "additionalProperties": false,
+        "properties": {
+          "team": {"enum": ["TEAM-A", "TEAM-B"]},
+          "round": {"type": "integer", "minimum": 0},
+          "action_key": {"type": "string"},
+          "people": {"type": "integer", "minimum": 1},
+          "seats_left": {"type": "integer", "minimum": 0},
+          "reason": {"type": "string", "minLength": 1},
+          "suggested": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "last_reconciliation": {
+      "type": ["object", "null"],
+      "required": ["overbooked_seats", "returned_to_pool", "executed"],
+      "additionalProperties": false,
+      "properties": {
+        "overbooked_seats": {"type": "integer", "minimum": 0},
+        "returned_to_pool": {"type": "integer", "minimum": 0},
+        "executed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["cert_id", "action_key", "certified_people", "executed_people"],
+            "additionalProperties": false,
+            "properties": {
+              "cert_id": {"type": "string", "pattern": "^CERT-[0-9]{6}$"},
+              "action_key": {"type": "string"},
+              "certified_people": {"type": "integer", "minimum": 0},
+              "executed_people": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
+      }
+    },
+    "certificates": {"type": "array", "items": {"type": "string", "pattern": "^CERT-[0-9]{6}$"}},
+    "note": {"const": "Exploratory: not part of the pre-registered evaluation."},
+    "simulated": {"const": true},
+    "honesty": {"type": "string"}
+  }
+}

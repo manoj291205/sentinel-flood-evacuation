@@ -366,6 +366,9 @@ def test_demo_script_v4_is_five_minutes_honest_and_traceable():
     assert text.splitlines()[0] == "Confidential until P0 is filed — do not show outside the project."
     spans = [(int(a) * 60 + int(b), int(c) * 60 + int(d))
              for a, b, c, d in re.findall(r"^## (\d+):(\d\d)–(\d+):(\d\d) \S", text, re.M)]
+    outage = [(int(a) * 60 + int(b), int(c) * 60 + int(d))
+              for a, b, c, d in re.findall(r"^## (\d+):(\d\d)–(\d+):(\d\d) Network outage \(exploratory\)", text, re.M)]
+    assert len(outage) == 1 and outage[0][1] - outage[0][0] == 90
     assert len(spans) >= 5 and spans[0][0] == 0
     assert all(s < e for s, e in spans) and all(spans[i][1] == spans[i + 1][0] for i in range(len(spans) - 1))
     assert spans[-1][1] <= 300

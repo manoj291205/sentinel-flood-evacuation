@@ -1,4 +1,4 @@
 {
   "note": "Owned by Lead. Milestones whose acceptance tests are expected to fail until merged.",
-  "pending": ["P34A", "P34B", "P34C", "P36"]
+  "pending": ["P34A", "P34B", "P34C", "P35L", "P36"]
 }

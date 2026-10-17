@@ -93,6 +93,9 @@ def test_video_is_at_most_three_minutes_and_poster_is_a1():
     assert spans and spans[0][0] == 0 and spans[-1][1] <= 180
     assert all(spans[i][1] == spans[i + 1][0] for i in range(len(spans) - 1))
     assert "Run demo" in text and "Live session" in text
+    outage = sum(int(c) * 60 + int(d) - int(a) * 60 - int(b)
+                 for a, b, c, d in re.findall(r"^\|\s*(\d+):(\d\d)–(\d+):(\d\d)\s*\|[^|\n]*Network outage", text, re.M))
+    assert outage == 90, f"Network outage rows cover {outage} s, not 90 s"
     poster = _read("POSTER.md")
     assert "A1" in poster and "594" in poster and "841" in poster
 
