@@ -50,20 +50,24 @@ function CandidateTable({ cert }: { cert: Certificate }) {
 
 export default function Decisions() {
   const [search, setSearch] = useSearchParams();
+  const sessionId = search.get('session');
   const [kind, setKind] = useState<(typeof kinds)[number]>('All');
   const [tamper, setTamper] = useState(false);
   const [replay, setReplay] = useState<{ result: string; mismatched_fields: string[] } | null>(null);
   const [replayError, setReplayError] = useState<string | null>(null);
   const [replaying, setReplaying] = useState(false);
-  const list = useQuery({ queryKey: ['certificates'], queryFn: api.certificates });
+  const list = useQuery({ queryKey: ['certificates', sessionId], queryFn: sessionId ?
+    () => api.sessionCertificates(sessionId) : api.certificates });
   const ordered = orderedCertificates(list.data?.certificates ?? []);
   const selectedId = search.get('cert') ?? ordered[0]?.cert_id ?? '';
-  const detail = useQuery({ queryKey: ['certificate', selectedId], queryFn: () => api.certificate(selectedId), enabled: !!selectedId });
-  const why = useQuery({ queryKey: ['why', selectedId], queryFn: () => api.why(selectedId), enabled: !!selectedId, retry: false });
+  const detail = useQuery({ queryKey: ['certificate', sessionId, selectedId], queryFn: sessionId ?
+    async () => (await api.sessionCertificates(sessionId)).certificates.find(item => item.cert_id === selectedId) as Certificate :
+    () => api.certificate(selectedId), enabled: !!selectedId });
+  const why = useQuery({ queryKey: ['why', selectedId], queryFn: () => api.why(selectedId), enabled: !!selectedId && !sessionId, retry: false });
   const visible = ordered.filter(cert => kind === 'All' || cert.kind.toLowerCase() === kind.toLowerCase());
 
   const select = (id: string) => {
-    setSearch({ cert: id });
+    setSearch(sessionId ? { session: sessionId, cert: id } : { cert: id });
     setTamper(false);
     setReplay(null);
     setReplayError(null);
@@ -71,7 +75,7 @@ export default function Decisions() {
   const runReplay = async () => {
     setReplaying(true);
     setReplayError(null);
-    try { setReplay(await api.replay(selectedId, tamper)); }
+    try { setReplay(await (sessionId ? api.sessionReplay(sessionId, selectedId, tamper) : api.replay(selectedId, tamper))); }
     catch (error) { setReplayError(error instanceof Error ? error.message : 'Replay failed'); }
     finally { setReplaying(false); }
   };

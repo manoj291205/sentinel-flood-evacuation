@@ -10,6 +10,8 @@ from pydantic import BaseModel, Field
 class SessionRequest(BaseModel):
     seed: int = Field(default=620000, ge=0)
     regime: str = "v3-medium-v1"
+    certified: bool = False
+    params_id: str | None = None
 
 
 class EvidenceDTO(BaseModel):

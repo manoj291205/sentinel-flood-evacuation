@@ -6,8 +6,10 @@ import { GuidedDemoBar, KpiTiles, PipelineStrip } from './GuidedDemoBar';
 import { Legend, OperationsMap } from './OperationsMap';
 import { DecisionConsole, EventFeed, GatePanel, ShelterLedger, SideTabs, SuggestionCard, TransitList, type SideTab } from './Panels';
 import styles from './Live.module.css';
+import LiveSession from './LiveSession';
 
 export default function LiveOperations() {
+  const [mode, setMode] = useState<'guided' | 'session'>('guided');
   const queryClient = useQueryClient();
   const demo = useQuery({ queryKey: ['demo'], queryFn: api.demoState, refetchInterval: import.meta.env.VITE_API_MOCK === '1' ? false : 3000 });
   const geometry = useQuery({ queryKey: ['geometry'], queryFn: api.geometry, staleTime: Infinity });
@@ -73,6 +75,8 @@ export default function LiveOperations() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playing, step?.step_index]);
 
+  const modeSwitch = <div role="radiogroup" aria-label="Mode"><label><input type="radio" name="mode" checked={mode === 'guided'} onChange={() => setMode('guided')} />Guided demo</label><label><input type="radio" name="mode" checked={mode === 'session'} onChange={() => setMode('session')} />Live session</label></div>;
+  if (mode === 'session') return <div className={styles.page}>{modeSwitch}<LiveSession geometry={geometry.data} /></div>;
   if (demo.isPending || geometry.isPending) return <section className={styles.loading} aria-label="Loading operations"><h1>Live Operations</h1><div /><div /><div /></section>;
   if (demo.isError || geometry.isError) return <section className={styles.error} role="alert"><h1>Live Operations</h1><p>API unavailable. {String(demo.error ?? geometry.error)}</p><button type="button" onClick={() => { void demo.refetch(); void geometry.refetch(); }}>Retry</button></section>;
 
@@ -80,6 +84,7 @@ export default function LiveOperations() {
   const chosen = selectedCandidate || current.default_selection;
   const stale = import.meta.env.VITE_API_MOCK !== '1' && now - demo.dataUpdatedAt > 5000;
   return <div className={styles.page}>
+    {modeSwitch}
     <div className={styles.pageHeading}><div><p className={styles.eyebrow}>OPERATIONS / LIVE</p><h1>Live Operations</h1></div><span className={styles.liveBadge}>● {demo.data.source === 'FIXTURE' ? 'SCRIPTED PREVIEW' : 'RECORDED RUN'}</span></div>
     {demo.data.source === 'RECORDED' && <p>Recorded run of the real engine · demo parameters v4-cert-test-v1 (not the evaluated configuration)</p>}
     {stale && <p className={styles.stale}>STALE {Math.round((now - demo.dataUpdatedAt) / 1000)} s · last successful update</p>}
