@@ -82,3 +82,10 @@ never computes a statistic and reads nothing outside the manifest. New items onl
 Acceptance `tests/test_p33_api.py`: schema validity; every non-null `value` equals the pointer value in
 the file; `source_sha256` matches; a manifest entry pointing at a missing file renders `-`; status and
 acks validate.
+
+## Wave C additions (Phase 34A, Lane X, 2026-10-17)
+Specified in `specs/V4_WIRING_SPEC.md` §5–§6: `SENTINEL_DEMO_SOURCE` (`RECORDED` default, `FIXTURE`); demo, certificate,
+replay and why endpoints served from the recorded real-engine trace `data/demo_v4/demo_trace.json` (source `RECORDED`,
+real `replay_certificate`); `GET /api/constraints/tiers` (`rule_tiers.schema.json`, read-through of the P15T2 result);
+evidence format `fixed3`; static console from `SENTINEL_WEB_DIST`; basic auth from `SENTINEL_DEMO_PASSWORD`
+(`/api/health` open). The Phase 30 acceptance tests pin `SENTINEL_DEMO_SOURCE=FIXTURE` (amendment 2026-10-17).

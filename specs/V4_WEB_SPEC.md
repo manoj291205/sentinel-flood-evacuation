@@ -109,3 +109,11 @@ New API (Lane X, `src/api/`, `src/presentation/`): see `V4_API_SPEC.md` "Wave B 
 and your own axe spec for the three new pages. Mock mode serves the new contract fixtures
 (`evidence` from a mock built **only** from `specs/contracts/evidence_manifest.json` with every value null,
 `system_status_fixture.json`).
+
+---
+
+# Wave C — Phase 34A (added 2026-10-17, Lead)
+Web changes are specified in `specs/V4_WIRING_SPEC.md` §7 (RECORDED banner and seed note, `SAMPLE FUTURES` pipeline label,
+RECORDED decision-console note, `POLICY` count, Evidence order 14D → 14C failed → 14B superseded, Phase 10/13 tables, R beside
+the Phase 27 bars, `Document rules` tiers table) with the live acceptance spec `specs/acceptance/web/p34a_live_demo.spec.ts`
+run by `npm run test:e2e:live`. The p31/p32/p33 specs keep running in mock mode (`npm run test:e2e`).
