@@ -21,9 +21,12 @@ class SimulationSession:
     """Caller-owned live state; never put an instance in a shared Streamlit cache."""
 
     def __init__(self, seed=620000, regime="v3-medium-v1", *, graph=None,
-                 certified=False, params_id="v4-cert-v1"):
+                 certified=False, params_id="v4-cert-v1", recertify=False):
+        if recertify and not certified:
+            raise ValueError("recertify requires a certified session")
         self.certified = certified
         self.params_id = params_id
+        self.recertify = recertify
         self.reset(seed, regime, graph=graph)
 
     def reset(self, seed=620000, regime="v3-medium-v1", *, graph=None):
@@ -31,6 +34,9 @@ class SimulationSession:
             raise ValueError("scenario generator seed must be a non-negative integer")
         self.seed = seed
         self._gate_cache = None
+        self.recert_log = []
+        self._recert_histories = {}
+        self._rechecked_timestep = None
         if self.certified:
             from src.actuation.commands import InMemorySink
             from src.certify.gate import CertifiedGate
@@ -67,9 +73,8 @@ class SimulationSession:
     def certificates(self):
         return self.ledger.certificates() if self.certified else []
 
-    def _certified_context(self):
-        from src.human_decision import DecisionContext, _evaluation_for
-        from src.planners import CertifiedPlanner, build_planner_input
+    def _pending(self):
+        """The current step's gate evaluation: (state, result, inputs), cached per timestep."""
         from src.safety import evaluate_actions
 
         self.simulator.observe()
@@ -79,7 +84,22 @@ class SimulationSession:
             base = evaluate_actions(self.scenario, state)
             result, inputs = self.gate.evaluate(state, self.overlay.road_state, base)
             self._gate_cache = cached = (state.current_timestep, result, inputs)
-        _, result, inputs = cached
+        return state, cached[1], cached[2]
+
+    def certification(self):
+        """Pending (CertificationResult, CertificateInputs), or None if uncertified or terminal. Never commits."""
+        if not self.certified or self.simulator.state.terminal:
+            return None
+        self._ensure_rechecked()
+        _, result, inputs = self._pending()
+        return result, inputs
+
+    def _certified_context(self):
+        from src.human_decision import DecisionContext, _evaluation_for
+        from src.planners import CertifiedPlanner, build_planner_input
+        from src.safety import evaluate_actions
+
+        state, result, inputs = self._pending()
         snapshot = evaluate_actions(
             self.scenario, state, certifier=lambda sc, st, cands: self.gate.certificate_map(result)
         )
@@ -92,6 +112,7 @@ class SimulationSession:
         if self.simulator.state.terminal:
             return None
         if self.certified:
+            self._ensure_rechecked()
             return self._certified_context()
         return current_decision_context(self.scenario, self.simulator)
 
@@ -105,6 +126,7 @@ class SimulationSession:
                 "DISPATCH" if kind in {"DISPATCH_CREATED", "TRAVEL_TIME_REALIZED"} else
                 "HAZARD" if kind == "FLOOD_STATE_UPDATED" else
                 "ROUTE" if kind == "ROUTE_CLOSED" else
+                "MIGRATION" if kind == "GROUP_MIGRATED" else
                 "SHELTER" if kind.startswith("SHELTER_") else "SYSTEM"
             )
             self.timeline.append({
@@ -121,6 +143,35 @@ class SimulationSession:
         ):
             return
         self.population_history.append({**snapshot, "sample": len(self.population_history)})
+
+    def _ensure_rechecked(self):
+        """Phase 26 re-check of groups on the road: lazily, once per timestep, before the gate evaluates.
+
+        Phase 27 order (observe -> recertify -> evaluate -> commit); see spec Amendment 2026-10-17.
+        """
+        if not (self.recertify and self.certified) or self.simulator.state.terminal:
+            return
+        from src.certify.recertify import RecertPolicy, recertify_in_transit
+
+        self.simulator.observe()
+        state = self.simulator.prepared_state_for_debug()
+        if state.current_timestep == self._rechecked_timestep:
+            return
+        decisions = recertify_in_transit(
+            self.gate, state, self.overlay.road_state, self.simulator.transit_plans(),
+            self._recert_histories, RecertPolicy(),
+        )
+        self._gate_cache = None  # the ledger may have changed; the gate evaluates afterwards
+        self._rechecked_timestep = state.current_timestep
+        for d in decisions:
+            verdict = getattr(d.keep_verdict, "value", d.keep_verdict)
+            self.recert_log.append({
+                "timestep": state.current_timestep, "group_id": d.event_id, "action": d.action,
+                "verdict": verdict, "lower": d.keep_lower, "upper": d.keep_upper,
+                "new_shelter_id": d.new_shelter_id,
+                "cert_id": (d.certificate or {}).get("cert_id"),
+            })
+        self._capture_events(self.state)
 
     def _observe(self):
         if not self.simulator.state.terminal:

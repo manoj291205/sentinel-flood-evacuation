@@ -175,8 +175,9 @@ params_id=params_id, recertify=True)` — groups already on the road are re-chec
 - `POST /sessions/{id}/decisions` (certified): ACCEPT; OVERRIDE with `selected_action` = a key from `allowed_override_actions`
   (certified alternatives and HOLD) and a non-empty `reason`; REJECT with a reason (committed as a HOLD certificate). It calls
   `session.decide` exactly like the Wave A path (so the audit row equals a direct call) and the session advances one step.
-  Response adds `certificates` = every certificate committed during the call (the decision's own, then any MIGRATION from
-  the re-check at the next observation, in ledger order) and `rechecks` = the re-check rows written during the call. **Uncertified override** (a key that is a
+  Response adds `certificates` = every certificate committed during the call (in ledger order: any MIGRATION from this
+  step's re-check if no earlier call consulted the step, then the decision's own) and `rechecks` = the re-check rows written
+  during the call (empty when the step's `context` was fetched first; those rows came with that context). **Uncertified override** (a key that is a
   certificate candidate but not FEASIBLE, or any key outside the mask): nothing is committed and the step does not advance;
   422 with `{"detail": ..., "flag": "UNCERTIFIED_OVERRIDE_REFUSED", "action_key", "verdict"}`, and a refusal row
   `{timestep, decision: "OVERRIDE", action_key, verdict, reason, flag, utc}` is appended to a per-session `refusals` list
@@ -204,10 +205,15 @@ v4-cert-test-v1 (not the evaluated configuration)`. No number appears unless the
 **10.3 Acceptance.** `tests/test_p34c_live_session.py` (milestone `P34C`): validation of the new request fields; certified
 context parity with a direct `SimulationSession(certified=True)` twin (recommendation, schema, why from the pending result,
 comparisons); ACCEPT, OVERRIDE and REJECT audit rows and certificates equal the twin's after the same decisions; a run of
-ACCEPTs shows the step-4 re-route (MIGRATION certificate, re-check row, WebSocket `recheck`) exactly as the twin; uncertified
+ACCEPTs shows the step-4 re-route (MIGRATION certificate, re-check row in the step's context) exactly as the twin; uncertified
 override refused, flagged, recorded, nothing committed; session certificates replay MATCH; WebSocket order; no banned wording.
 Web: `p34c_live_session.spec.ts` in the `live` project. Out of scope: persistence across restarts, multi-user sessions.
 
 ## Amendments
 - 2026-10-17 (Lead, user request): live sessions re-check groups already on the road every step (`recertify=True`, Lane S
   milestone P34R, merged before 34C starts); the cache fallback for `certification()` is removed.
+- 2026-10-17 (Lead, P34R merge audit): P34R's re-check is lazy (V4_RELEASE_SPEC Amendment 2026-10-17, forced by the P34R
+  parity test): a step is re-checked on the first `context()` / `certification()` / `decide()` that consults it, never right
+  after a decision. So a step's re-check rows and MIGRATION certificates arrive with whichever call consults the step first,
+  normally its `context`; the decisions bullet above is reworded and `test_p34c_live_session.py` compares context rows plus
+  decision rows, step by step, with the twin's `recert_log`. The API still re-checks nothing itself.
