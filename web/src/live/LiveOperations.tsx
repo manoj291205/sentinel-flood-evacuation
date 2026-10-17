@@ -80,11 +80,13 @@ export default function LiveOperations() {
   const chosen = selectedCandidate || current.default_selection;
   const stale = import.meta.env.VITE_API_MOCK !== '1' && now - demo.dataUpdatedAt > 5000;
   return <div className={styles.page}>
-    <div className={styles.pageHeading}><div><p className={styles.eyebrow}>OPERATIONS / LIVE</p><h1>Live Operations</h1></div><span className={styles.liveBadge}>● {demo.data.source === 'FIXTURE' ? 'SCRIPTED PREVIEW' : 'LIVE SIMULATION'}</span></div>
+    <div className={styles.pageHeading}><div><p className={styles.eyebrow}>OPERATIONS / LIVE</p><h1>Live Operations</h1></div><span className={styles.liveBadge}>● {demo.data.source === 'FIXTURE' ? 'SCRIPTED PREVIEW' : 'RECORDED RUN'}</span></div>
+    {demo.data.source === 'RECORDED' && <p>Recorded run of the real engine · demo parameters v4-cert-test-v1 (not the evaluated configuration)</p>}
     {stale && <p className={styles.stale}>STALE {Math.round((now - demo.dataUpdatedAt) / 1000)} s · last successful update</p>}
     {actionError && <div className={styles.error} role="alert">{actionError} <button type="button" onClick={() => void demo.refetch()}>Retry</button></div>}
     <div className={styles.timeline}><span className="mono">t = {current.timestep}</span><span>SIMULATED CONDITIONS</span><span>{playing ? 'AUTO PLAY' : 'PAUSED'}</span></div>
     <GuidedDemoBar step={current} count={demo.data.step_count} playing={playing} completed={completed} onPrevious={() => void action('prev')} onNext={() => void action('next')} onReset={() => void action('reset')} onTogglePlay={() => void togglePlay()} />
+    {demo.data.seed_note && <p>{demo.data.seed_note}</p>}
     <PipelineStrip current={current.pipeline_stage} />
     <KpiTiles kpis={current.kpis} />
     <div className={styles.operationsGrid}>
@@ -97,9 +99,9 @@ export default function LiveOperations() {
       <aside className={styles.sidePanel} aria-label="Operational details">
         <SideTabs active={tab} onChange={setTab} />
         {tab === 'Suggestion' && <>
-          <SuggestionCard step={current} />
+          <SuggestionCard step={current} recorded={demo.data.source === 'RECORDED'} />
           <GatePanel step={current} selected={chosen} onSelect={setSelectedCandidate} />
-          <DecisionConsole key={current.step_index} step={current} accepted={accepted} onAccept={() => setAccepted(true)} />
+          <DecisionConsole key={current.step_index} step={current} accepted={accepted} onAccept={() => setAccepted(true)} recorded={demo.data.source === 'RECORDED'} />
         </>}
         {tab === 'In transit' && <TransitList groups={current.groups} />}
         {tab === 'Shelters' && <ShelterLedger shelters={current.shelters} />}

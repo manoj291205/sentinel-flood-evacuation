@@ -24,6 +24,10 @@ def _pointer(document: object, pointer: str) -> object:
 
 
 def _display(value: object, fmt: str) -> str:
+    if fmt == "fixed3":
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError("fixed3 requires a number")
+        return f"{value:.3f}"
     if fmt == "percent1":
         return f"{float(value) * 100:.1f} %"
     if fmt == "percent2":

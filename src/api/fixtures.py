@@ -14,8 +14,9 @@ def fixture(name: str) -> dict:
 
 
 class DemoPlayback:
-    def __init__(self) -> None:
-        self.steps = fixture("demo_steps.json")["steps"]
+    def __init__(self, steps: list[dict] | None = None, source: str = "FIXTURE") -> None:
+        self.steps = steps if steps is not None else fixture("demo_steps.json")["steps"]
+        self.source = source
         self.index = 0
         self.lock = Lock()
 
@@ -25,7 +26,7 @@ class DemoPlayback:
 
     def _state(self) -> dict:
         return {
-            "source": "FIXTURE",
+            "source": self.source,
             "step_index": self.index,
             "step_count": len(self.steps),
             "step": self.steps[self.index],

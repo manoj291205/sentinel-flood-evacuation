@@ -7,7 +7,9 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "playwright test --project=mock",
+    "test:e2e:live": "node scripts/live-e2e.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.0",
