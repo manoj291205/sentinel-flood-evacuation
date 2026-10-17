@@ -1,0 +1,19 @@
+{
+  "evaluation_id": "v4-claim-support-eval-14d-v1",
+  "provider_id": "groq-claim-support-14d-v1",
+  "model_id": "openai/gpt-oss-120b",
+  "prompt_version": "14d-prompt-r0",
+  "prompt_sha256": "a81671a5e35cad1ef56f01f4c82f6e6af278306713e3b86313215a7f888eedbe",
+  "request_settings": {
+    "temperature": 0.0,
+    "seed": 14,
+    "reasoning_effort": "medium",
+    "include_reasoning": false,
+    "max_completion_tokens": 4096
+  },
+  "score_path": "data/eval_results/phase14d/test/score.json",
+  "score_sha256": "d056383c479abc805d986de8e2160c3fcb5ac753ee860738340b60d21b19f720",
+  "verdict": "T2_VERIFIER_USEFUL",
+  "approved_by_user_utc": "2026-10-17T06:15:52Z",
+  "approved_by_opus_utc": "2026-10-17T06:15:52Z"
+}
