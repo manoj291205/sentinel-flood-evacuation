@@ -14,12 +14,12 @@ certify it is safe across many sampled hazard futures. Otherwise it holds, and s
 ## 0:20–1:20 Live Operations — Run demo
 Click **Run demo**, then **Next** through the six steps. At each step read the caption aloud and point at the
 suggestion, the gate result and the map.
-- Step 0: no option clears the bar, so the suggestion is HOLD and the gate escalates. "It does not guess: undecided means blocked."
-- Steps 1–3: new dispatches, each with a certificate. The caption says how many options cleared the bar and how many
-  stayed undecided. From step 2 the groups already on the road are re-checked and kept.
-- Step 4: a group on the road loses its certificate and is re-routed automatically; the note names the re-route
+- Step 1: no option clears the bar, so the suggestion is HOLD and the gate escalates. "It does not guess: undecided means blocked."
+- Steps 2–4: new dispatches, each with a certificate. The caption says how many options cleared the bar and how many
+  stayed undecided. From step 3 the groups already on the road are re-checked and kept.
+- Step 5: a group on the road loses its certificate and is re-routed automatically; the note names the re-route
   certificate. "The operator is notified; the re-route is certified like any dispatch."
-- Step 5: another dispatch, with the re-checks still running. Every decision so far has a certificate that can be replayed.
+- Step 6: another dispatch, with the re-checks still running. Every decision so far has a certificate that can be replayed.
 
 ## 1:20–2:10 Live session
 Switch to the live session. Start seed 620003 on `v4-medium-dt2-v1`. The first step is a HOLD: show the alternatives
@@ -29,13 +29,14 @@ the new certificate and the new audit row. "An override to an uncertified action
 
 ## 2:10–3:40 Network outage (exploratory)
 Say first: "This part is exploratory. It was added after the pre-registered evaluation and is not part of it."
-In Live Operations tick **Two-team network demo**, choose **With escrow** and **Start** (seed 620003). Step on once while
-ONLINE: both field teams share one certified decision. Then **Cut network**: the banner reads `Simulated network
+In Live Operations tick **Two-team network demo**, choose **With escrow** and set the seed to 1070004 (one of the
+exploratory study's outages) and **Start**. **Step on** six times while ONLINE: both field teams share one certified
+decision per step. Then **Cut network**: the banner reads `Simulated network
 outage`. Point at the per-team lines: each team can now only use its own share of each shelter's free seats, and the
-shares never add up to more than the seats free at the cut. Step on offline: each team's gate certifies against its
+shares never add up to more than the seats free at the cut. **Step on** twice offline: each team's gate certifies against its
 share only. Show a dispatch that needs more than the team's share: it is held, with the reason and a suggestion.
 Then **Restore network**: unused shares go back to the pool and the rebalance shows the conserved seat totals.
-Switch to **Without escrow** and repeat: both teams believe all the free seats are theirs, and the overbooked-seats
+Switch to **Without escrow** and repeat (same seed, six steps, cut, two steps, restore): both teams believe all the free seats are theirs, and the overbooked-seats
 counter shows the collision. "This phase counts conflicts and held dispatches. It makes no outcome-effect claim." The
 counts of outages, conflicts and held dispatches are on Evidence & Results under the exploratory group; read them
 there and quote nothing from memory.

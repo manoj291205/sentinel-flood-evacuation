@@ -31,7 +31,7 @@ function gateWord(status: GateCandidate['status']) {
 
 export function GatePanel({ step, selected, onSelect }: { step: DemoStep; selected: string; onSelect: (id: string) => void }) {
   return <section className={styles.card} aria-label="Dispatch Gate">
-    <div className={styles.cardEyebrow}>DISPATCH GATE · 1 − ε = 0.95</div>
+    <div className={styles.cardEyebrow}>DISPATCH GATE</div>
     <h2>Candidate certification</h2>
     <p className={styles.muted}>{step.gate.meta}</p>
     <div className={styles.gateRows}>

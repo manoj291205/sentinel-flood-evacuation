@@ -175,7 +175,7 @@ experiment or an operationally validated emergency system.
 ## Development Status
 
 <!-- MILESTONE-TABLE:START — refreshed by the reviewer at every merge into main from docs/patent-roadmap/STATUS.md -->
-Last refreshed: 2026-10-17 · base branch `main` · live ledger: `docs/patent-roadmap/STATUS.md`
+Last refreshed: 2026-10-17 (Wave C merged, `v4.0`) · base branch `main` · 1112 tests pass on `main` · live ledger: `docs/patent-roadmap/STATUS.md`
 
 V3 (phases 0–19) is complete. V4 extends it with a certified dispatch layer; V4 internals are confidential
 and described only in the private roadmap. Work is built on milestone branches and appears here only after
@@ -205,7 +205,7 @@ it has been reviewed and merged into `main`.
 | 18    | Human-in-the-loop override and session audit trail     | ✅ Complete   |
 | 19    | Streamlit review dashboard (legacy)                    | ✅ Complete   |
 
-### V4 — in progress
+### V4 — Wave C complete (`v4.0`)
 
 | Phase  | Component                                                   | Status                                   |
 | ------ | ----------------------------------------------------------- | ---------------------------------------- |
@@ -221,11 +221,11 @@ it has been reviewed and merged into `main`.
 | 28     | Hardware-in-the-loop rig (simulated publisher until parts)  | ✅ Complete                              |
 | 30–31  | FastAPI service and React console with guided demo          | ✅ Complete                              |
 | 32–33  | Decisions & Certificates, Overview, Evidence, System pages  | ✅ Complete                              |
-| 34A    | Console wired to the real engine (recorded run)             | 🔄 Built — awaiting review               |
-| 34C    | Live session: accept / override while the simulation runs   | 🔄 Built — awaiting review               |
-| 34B    | Release: dev scripts, CI web jobs, demo script, Docker      | 🔄 In progress                           |
-| 36     | Course submission pack                                      | 🔄 In progress                           |
-| 35-lite| Network-outage capacity shares (exploratory)                | ⏳ Requested, not yet planned            |
+| 34A    | Console wired to the real engine (recorded run)             | ✅ Complete                              |
+| 34C    | Live session: accept / override while the simulation runs   | ✅ Complete                              |
+| 34B    | Release: dev scripts, CI web jobs, demo script, Docker      | ✅ Complete                              |
+| 36     | Course submission pack                                      | ✅ Drafts complete — awaiting user approval |
+| 35-lite| Network-outage capacity shares (exploratory)                | ✅ Complete — exploratory, no outcome claim |
 | 37     | Conference paper                                            | ⏳ Planned (after Wave C)                |
 | 38     | Journal extension                                           | ⏳ Optional                              |
 | P0, 29 | Patent filing                                               | ⏸ On hold                                |

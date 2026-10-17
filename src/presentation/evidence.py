@@ -46,7 +46,13 @@ def _display(value: object, fmt: str) -> str:
         return str(value)
     if fmt == "bars":
         if isinstance(value, dict):
-            return ", ".join(f"{name}: {row.get('verdict', row.get('status', '—')) if isinstance(row, dict) else row}" for name, row in value.items()) or "—"
+            def word(row):
+                if not isinstance(row, dict):
+                    return row
+                if isinstance(row.get("pass"), bool):  # Phase 27 analysis records pass/fail per bar
+                    return "pass" if row["pass"] else "fail"
+                return row.get("verdict", row.get("status", "—"))
+            return ", ".join(f"{name}: {word(row)}" for name, row in value.items()) or "—"
         if isinstance(value, list):
             return ", ".join(str(row.get("name", row.get("id", "—"))) if isinstance(row, dict) else str(row) for row in value) or "—"
     raise ValueError(f"unsupported evidence format: {fmt}")

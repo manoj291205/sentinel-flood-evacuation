@@ -27,7 +27,6 @@ export function OperationsMap({ geometry, step, selectedCandidate }: { geometry:
       <path d={geometry.major} fill="none" stroke="var(--road)" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
       <path d={geometry.major} fill="none" stroke="var(--roadc)" strokeWidth="1" strokeDasharray="6 6" />
       <path d={geometry.closed} fill="none" stroke="var(--ink)" strokeWidth="3" strokeDasharray="5 4" />
-      <text x="680" y="610" className={styles.mapLabel}>CLOSED t+3</text>
       {activeRoute && <><path d={activeRoute} fill="none" stroke="var(--surface)" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" /><path d={activeRoute} fill="none" stroke="var(--route)" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" /></>}
       {Object.entries(geometry.zones).map(([id, point]) => {
         const [x, y] = point;
