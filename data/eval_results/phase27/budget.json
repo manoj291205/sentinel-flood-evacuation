@@ -1,0 +1,26 @@
+{
+  "timing_regime": "v4-medium-dt2-v1",
+  "timing_seeds": [
+    1050000,
+    1050001
+  ],
+  "timing_workers": 14,
+  "mean_episode_seconds": {
+    "A": 8.1975,
+    "A2": 7.653,
+    "HOLD": 10.439,
+    "B": 3129.522,
+    "P": 2251.3095,
+    "P-noFC": 2128.7295,
+    "P-noHyst": 2256.57
+  },
+  "systems_without_timing": [],
+  "projection_full_hours_on_16_workers": 30.6,
+  "rule": "if the projection exceeds 48 h use seeds 1050000-1050029 for every system",
+  "chosen_seed_range": [
+    1050000,
+    1050059
+  ],
+  "seeds_per_regime": 60,
+  "timing_wall_seconds": 4610.0
+}
