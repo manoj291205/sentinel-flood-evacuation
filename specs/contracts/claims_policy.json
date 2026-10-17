@@ -1,0 +1,49 @@
+{
+  "contract": "sentinel-claims-policy-v1",
+  "note": "Wave C text checks (Lead, 2026-10-17). D-27: Bar 1 failed, so no demo, script, report, poster, video or answer may claim an outcome effect (better evacuation outcomes, more people delivered, fewer failed trips, lives saved). Failure-rate numbers from Phase 27 may appear only next to R. Restricted terms describe the confidential mechanism and may not appear in outward-facing text while docs/course/DISCLOSURE.md says RESTRICTED. Matching is case-insensitive; a line is exempt from banned_outcome_patterns only if it also matches one of negation_exemptions.",
+  "banned_outcome_patterns": [
+    "better (evacuation )?outcomes?",
+    "better evacuation",
+    "improv\\w* (the )?(evacuation|outcomes?|throughput|delivery|delivered)",
+    "(more|fewer) (people|evacuees) (are |were |get |got )?(evacuated|delivered|saved|rescued)",
+    "saves? (more )?lives",
+    "lives saved",
+    "fewer failed (trips|dispatches|groups)",
+    "outperform\\w*",
+    "safer evacuation",
+    "faster evacuation",
+    "reduc\\w* (the )?(group )?(failure rate|failed trips|casualties|deaths)",
+    "cuts? (the )?(group )?failure rate"
+  ],
+  "negation_exemptions": [
+    "no outcome-effect claim",
+    "does not claim",
+    "do not claim",
+    "not claim",
+    "cannot claim",
+    "makes no claim"
+  ],
+  "restricted_terms_until_disclosure": [
+    "first-hitting",
+    "first hitting",
+    "joint indicator",
+    "joint within-future",
+    "within-future",
+    "keyed future",
+    "keyed futures",
+    "common random numbers",
+    "CRN",
+    "Clopper",
+    "look schedule",
+    "A_MAX",
+    "a_max",
+    "eps_keep",
+    "hysteresis",
+    "root_key",
+    "root key",
+    "product of marginals",
+    "Philox",
+    "ledger transaction",
+    "atomic commit"
+  ]
+}

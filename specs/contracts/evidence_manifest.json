@@ -203,7 +203,7 @@
     {
       "id": "p25-replay-match",
       "group": "Gate",
-      "label": "Replay match rate (1,000 replays)",
+      "label": "Replay match rate (batch of certified decisions)",
       "path": "data/eval_results/phase25/replay_batch.json",
       "json_pointer": "/match_rate",
       "unit": "fraction",
@@ -226,6 +226,123 @@
       "json_pointer": "/p95_ms",
       "unit": "ms",
       "format": "ms0"
+    },
+    {
+      "id": "p25-replay-count",
+      "group": "Gate",
+      "label": "Certified decisions replayed in the batch",
+      "path": "data/eval_results/phase25/replay_batch.json",
+      "json_pointer": "/n",
+      "unit": "count",
+      "format": "integer"
+    },
+    {
+      "id": "p27-bar1-r",
+      "group": "Evaluation",
+      "label": "Bar 1 guard: delivered-people ratio R = P / A2 (needs at least 95 %; failed)",
+      "path": "data/eval_results/phase27/analysis.json",
+      "json_pointer": "/bars/bar1/numbers/R_P_over_A2",
+      "unit": "fraction",
+      "format": "percent1"
+    },
+    {
+      "id": "p10-nsu-lookahead-k3",
+      "group": "Planners (V3 Phase 10, frozen)",
+      "label": "Lookahead k = 3: practical normalised safety utility",
+      "path": "data/eval_v3/phase10/planner_summary.json",
+      "json_pointer": "/policies/lookahead_k3/nsu_practical",
+      "unit": "NSU",
+      "format": "fixed3"
+    },
+    {
+      "id": "p10-nsu-lookahead-k2",
+      "group": "Planners (V3 Phase 10, frozen)",
+      "label": "Lookahead k = 2: practical normalised safety utility",
+      "path": "data/eval_v3/phase10/planner_summary.json",
+      "json_pointer": "/policies/lookahead_k2/nsu_practical",
+      "unit": "NSU",
+      "format": "fixed3"
+    },
+    {
+      "id": "p10-nsu-sampled-mpc",
+      "group": "Planners (V3 Phase 10, frozen)",
+      "label": "Sampled MPC: practical normalised safety utility",
+      "path": "data/eval_v3/phase10/planner_summary.json",
+      "json_pointer": "/policies/sampled_mpc/nsu_practical",
+      "unit": "NSU",
+      "format": "fixed3"
+    },
+    {
+      "id": "p10-nsu-risk-greedy",
+      "group": "Planners (V3 Phase 10, frozen)",
+      "label": "Risk-Greedy (reference = 1): practical normalised safety utility",
+      "path": "data/eval_v3/phase10/planner_summary.json",
+      "json_pointer": "/policies/risk_greedy/nsu_practical",
+      "unit": "NSU",
+      "format": "fixed3"
+    },
+    {
+      "id": "p10-nsu-nearest-safe",
+      "group": "Planners (V3 Phase 10, frozen)",
+      "label": "Nearest-safe: practical normalised safety utility",
+      "path": "data/eval_v3/phase10/planner_summary.json",
+      "json_pointer": "/policies/nearest_safe/nsu_practical",
+      "unit": "NSU",
+      "format": "fixed3"
+    },
+    {
+      "id": "p10-nsu-random-valid",
+      "group": "Planners (V3 Phase 10, frozen)",
+      "label": "Random valid (reference = 0): practical normalised safety utility",
+      "path": "data/eval_v3/phase10/planner_summary.json",
+      "json_pointer": "/policies/random_valid/nsu_practical",
+      "unit": "NSU",
+      "format": "fixed3"
+    },
+    {
+      "id": "p10-nsu-ppo-mean",
+      "group": "Planners (V3 Phase 10, frozen)",
+      "label": "PPO across seeds: practical NSU, mean",
+      "path": "data/eval_v3/phase10/ppo_seed_summary.json",
+      "json_pointer": "/across_seed/nsu_practical/mean",
+      "unit": "NSU",
+      "format": "fixed3"
+    },
+    {
+      "id": "p10-nsu-ppo-std",
+      "group": "Planners (V3 Phase 10, frozen)",
+      "label": "PPO across seeds: practical NSU, standard deviation",
+      "path": "data/eval_v3/phase10/ppo_seed_summary.json",
+      "json_pointer": "/across_seed/nsu_practical/std",
+      "unit": "NSU",
+      "format": "fixed3"
+    },
+    {
+      "id": "p13-bm25-direct-hit-at-5",
+      "group": "Retrieval (V3 Phase 13, frozen)",
+      "label": "BM25: direct hit at 5",
+      "path": "data/eval_v3/phase13/phase13b_retrieval_results_v2.json",
+      "json_pointer": "/overall/bm25/direct_hit_at_5",
+      "unit": "fraction",
+      "format": "percent1"
+    },
+    {
+      "id": "p13-hybrid-direct-hit-at-5",
+      "group": "Retrieval (V3 Phase 13, frozen)",
+      "label": "Hybrid: direct hit at 5",
+      "path": "data/eval_v3/phase13/phase13b_retrieval_results_v2.json",
+      "json_pointer": "/overall/hybrid/direct_hit_at_5",
+      "unit": "fraction",
+      "format": "percent1"
+    },
+    {
+      "id": "p13-dense-direct-hit-at-5",
+      "group": "Retrieval (V3 Phase 13, frozen)",
+      "label": "Dense: direct hit at 5",
+      "path": "data/eval_v3/phase13/phase13b_retrieval_results_v2.json",
+      "json_pointer": "/overall/dense/direct_hit_at_5",
+      "unit": "fraction",
+      "format": "percent1"
     }
   ]
 }

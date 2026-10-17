@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sentinel-rule-tiers-v1",
+  "title": "GET /api/constraints/tiers response (contract v1, Phase 34A)",
+  "description": "Rule tiers read verbatim from the P15T2 loader's result file data/constraints_v4/p15t2/tier_results.json, checked against the current 14D approval record (src/constraints/t2_wiring.load_t2_approval, offline) and rules file hash. The API never computes or infers a tier; STALE or MISSING gives tier null for every rule.",
+  "type": "object",
+  "required": ["simulated", "honesty", "source", "status", "status_reason", "results_path", "results_sha256",
+               "run_utc", "t2_enabled", "t2_reason", "approval_record_sha256", "evaluation_id", "rules"],
+  "additionalProperties": false,
+  "properties": {
+    "simulated": {"const": true},
+    "honesty": {"type": "string"},
+    "source": {"const": "ARTIFACT"},
+    "status": {"enum": ["CURRENT", "STALE", "MISSING"]},
+    "status_reason": {"type": ["string", "null"]},
+    "results_path": {"const": "data/constraints_v4/p15t2/tier_results.json"},
+    "results_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "run_utc": {"type": ["string", "null"]},
+    "t2_enabled": {"type": ["boolean", "null"]},
+    "t2_reason": {"type": ["string", "null"]},
+    "approval_record_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "evaluation_id": {"type": ["string", "null"]},
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule_id", "predicate", "tier", "active_params", "semantic_outcome", "source_integrity_pass", "note"],
+        "additionalProperties": false,
+        "properties": {
+          "rule_id": {"type": "string"},
+          "predicate": {"type": ["string", "null"]},
+          "tier": {"enum": ["T0", "T1", "T2", null]},
+          "active_params": {"type": "object"},
+          "semantic_outcome": {"enum": ["SUPPORTED", "PARTIALLY_SUPPORTED", "UNSUPPORTED", null]},
+          "source_integrity_pass": {"type": ["boolean", "null"]},
+          "note": {"type": ["string", "null"]}
+        }
+      }
+    }
+  }
+}

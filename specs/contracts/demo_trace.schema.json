@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sentinel-demo-trace-v1",
+  "title": "Recorded guided-demo trace (contract v1, Phase 34A)",
+  "description": "Written by `python -m src.api.demo_live --write` to data/demo_v4/demo_trace.json from a real run of the Phase 25/26 engine (config v4-demo-trace-v1). Deterministic: no wall-clock times, no machine names. Each steps[] item must also validate demo_step.schema.json; each certificates[] item must validate certificate.schema.json and replay MATCH from inputs[cert_id].",
+  "type": "object",
+  "required": ["contract", "config", "graph_fingerprint", "steps", "step_certificates", "certificates", "inputs", "recert"],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {"const": "sentinel-demo-trace-v1"},
+    "config": {
+      "type": "object",
+      "required": ["config_id", "world_id", "seed", "params_id", "epochs", "operator", "seed_note"],
+      "additionalProperties": false,
+      "properties": {
+        "config_id": {"const": "v4-demo-trace-v1"},
+        "world_id": {"const": "v4-medium-dt2-v1"},
+        "seed": {"const": 620003},
+        "params_id": {"const": "v4-cert-test-v1"},
+        "epochs": {"const": 6},
+        "operator": {
+          "type": "object",
+          "required": ["decision", "actor", "reason"],
+          "additionalProperties": false,
+          "properties": {
+            "decision": {"const": "ACCEPT"},
+            "actor": {"const": "demo-operator"},
+            "reason": {"const": ""}
+          }
+        },
+        "seed_note": {"type": "string", "minLength": 1}
+      }
+    },
+    "graph_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "steps": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"type": "object"}},
+    "step_certificates": {
+      "type": "array", "minItems": 6, "maxItems": 6,
+      "items": {"type": "array", "items": {"type": "string", "pattern": "^CERT-[0-9]{6}$"}}
+    },
+    "certificates": {"type": "array", "minItems": 6, "items": {"type": "object"}},
+    "inputs": {"type": "object", "additionalProperties": {"type": "object"}},
+    "recert": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["timestep", "group_id", "action", "verdict", "lower", "upper", "cert_id"],
+        "additionalProperties": false,
+        "properties": {
+          "timestep": {"type": "integer", "minimum": 0},
+          "group_id": {"type": "string"},
+          "action": {"enum": ["KEEP", "MIGRATE", "KEEP_ESCALATE", "COOLDOWN"]},
+          "verdict": {"enum": ["FEASIBLE", "INFEASIBLE", "UNDECIDED", null]},
+          "lower": {"type": ["number", "null"]},
+          "upper": {"type": ["number", "null"]},
+          "cert_id": {"type": ["string", "null"], "pattern": "^CERT-[0-9]{6}$"}
+        }
+      }
+    }
+  }
+}

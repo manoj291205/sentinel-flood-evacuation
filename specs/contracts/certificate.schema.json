@@ -63,7 +63,8 @@
               "OK": {"type": "integer", "minimum": 0},
               "STRANDED": {"type": "integer", "minimum": 0},
               "UNSAFE": {"type": "integer", "minimum": 0},
-              "OVERFLOW": {"type": "integer", "minimum": 0}
+              "OVERFLOW": {"type": "integer", "minimum": 0},
+              "POLICY": {"type": "integer", "minimum": 0, "description": "futures failing a tiered document rule (Phase 15'); written whenever params_id carries '+rules-' (Wave C, P34B), absent otherwise"}
             }
           }
         }

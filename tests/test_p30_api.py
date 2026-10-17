@@ -19,11 +19,15 @@ def _schema(name):
 
 
 @pytest.fixture()
-def client():
+def client(monkeypatch):
     from fastapi.testclient import TestClient
 
     from src.api.app import create_app
 
+    # Amendment 2026-10-17 (Lead, Wave C): Phase 34A makes RECORDED the default demo source; these Wave A
+    # checks run against the contract fixtures, which stay available behind SENTINEL_DEMO_SOURCE=FIXTURE.
+    monkeypatch.setenv("SENTINEL_DEMO_SOURCE", "FIXTURE")
+    monkeypatch.delenv("SENTINEL_DEMO_PASSWORD", raising=False)
     with TestClient(create_app()) as test_client:
         yield test_client
 

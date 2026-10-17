@@ -1,0 +1,26 @@
+{
+  "contract": "sentinel-deploy-check-v1",
+  "note": "Checks scripts/deploy_check.py (Lane S, P34B) runs, in this order, against a base URL; the API side (Lane X, P34A) must satisfy every one. 'auth' = HTTP basic auth with user 'sentinel' and the password from --password or SENTINEL_DEMO_PASSWORD; it is sent only when a password is given. The password is never printed or written.",
+  "basic_auth_user": "sentinel",
+  "checks": [
+    {"id": "health", "method": "GET", "path": "/api/health", "auth": false,
+     "expect": "200; JSON status == 'ok' and simulated == true; no auth needed even when a password is set"},
+    {"id": "auth-required", "method": "GET", "path": "/", "auth": false, "only_with_password": true,
+     "expect": "401 with a WWW-Authenticate header starting with 'Basic'"},
+    {"id": "index", "method": "GET", "path": "/", "auth": true,
+     "expect": "200; Content-Type text/html; body contains '<div id=\"root\">'"},
+    {"id": "demo-start", "method": "POST", "path": "/api/demo/start", "auth": true,
+     "expect": "200; step_index 0, step_count 6, source in {RECORDED, FIXTURE}; step validates demo_step.schema.json"},
+    {"id": "demo-walk", "method": "POST", "path": "/api/demo/step", "body": {"action": "next"}, "repeat": 5, "auth": true,
+     "expect": "every response 200 and validates; final step_index 5"},
+    {"id": "certificates", "method": "GET", "path": "/api/certificates", "auth": true,
+     "expect": "200; at least one certificate; the first one fetched by GET /api/certificates/{cert_id} validates certificate.schema.json"},
+    {"id": "replay-match", "method": "POST", "path": "/api/certificates/{cert_id}/replay", "body": {}, "auth": true,
+     "expect": "200; result == 'MATCH' for the first certificate"},
+    {"id": "replay-tamper", "method": "POST", "path": "/api/certificates/{cert_id}/replay", "body": {"tamper": true}, "auth": true,
+     "expect": "200; result == 'MISMATCH' and 'forecast_hash' in mismatched_fields"},
+    {"id": "evidence", "method": "GET", "path": "/api/evidence", "auth": true,
+     "expect": "200; validates evidence.schema.json"}
+  ],
+  "output": "one line per check: 'PASS <id>' or 'FAIL <id>: <reason>'; then 'deploy_check: <passed>/<total> passed'; exit code 0 only if every check passed (auth-required is skipped, not failed, without a password)"
+}
