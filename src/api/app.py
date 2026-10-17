@@ -20,6 +20,7 @@ from fastapi.responses import FileResponse, PlainTextResponse, JSONResponse
 
 from src.api.demo_live import load_demo_trace
 from src.api.dto import DecisionRequest, DemoStepRequest, ReplayRequest, SessionRequest
+from src.api.escrow_api import install_escrow_routes
 from src.api.fixtures import DemoPlayback
 from src.api.live_session import certified_context, recheck_rows
 from src.api.sessions import SessionEntry, SessionRegistry
@@ -127,6 +128,7 @@ def create_app() -> FastAPI:
         allow_methods=["GET", "POST"],
         allow_headers=["Content-Type", "Authorization"],
     )
+    install_escrow_routes(app, graph, HONESTY)
 
     password = os.getenv("SENTINEL_DEMO_PASSWORD", "")
 

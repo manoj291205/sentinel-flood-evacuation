@@ -9,6 +9,13 @@ type Certificate = { cert_id: string; kind: string };
 type Decision = { audit_record: { decision: string }; certificates: Certificate[]; rechecks: Recheck[] };
 type State = { kpis: { waiting: number; in_transit: number; safe: number; certificates_issued: number } };
 type Refusal = { timestep: number; action_key: string; verdict: string | null; reason: string; flag: string };
+type EscrowStatus = {
+  session_id: string; network: 'ONLINE' | 'OFFLINE'; label: string | null; mode: 'escrow' | 'last_known'; timestep: number;
+  teams: { team: string; seats_left: number; seats_total: number; zones: string[] }[];
+  blocked: { team: string; action_key: string; people: number; reason: string; suggested: string }[];
+  last_reconciliation: { returned_to_pool: number; overbooked_seats: number; executed: { cert_id: string }[] } | null;
+  certificates: string[]; note: string; honesty: string;
+};
 
 const evidence = { source_id: 'ndma-flood-guidelines-2008', page: 64, chunk_id: 'ndma-flood-guidelines-2008-p64-c0' };
 
@@ -38,6 +45,9 @@ export default function LiveSession({ geometry }: { geometry?: MapGeometry }) {
   const [error, setError] = useState('');
   const [refusal, setRefusal] = useState<Refusal | null>(null);
   const [tab, setTab] = useState<'Suggestion' | 'In transit'>('Suggestion');
+  const [networkDemo, setNetworkDemo] = useState(false);
+  const [escrowMode, setEscrowMode] = useState<'escrow' | 'last_known'>('escrow');
+  const [escrowStatus, setEscrowStatus] = useState<EscrowStatus | null>(null);
 
   const fetchContext = async (id: string) => {
     const next = await request<Context>(`/api/sessions/${id}/context`);
@@ -49,12 +59,26 @@ export default function LiveSession({ geometry }: { geometry?: MapGeometry }) {
     setAction('ACCEPT');
     setReason('');
   };
-  const start = async () => {
+  const start = async (mode = escrowMode) => {
     setBusy(true); setError(''); setRefusal(null);
     try {
+      if (networkDemo) {
+        const created = await request<EscrowStatus>('/api/escrow/sessions', { seed, regime: world, mode });
+        setEscrowStatus(created); setSession(''); setContext(null);
+        return;
+      }
+      setEscrowStatus(null);
       const created = await request<{ session_id: string }>('/api/sessions', { seed, regime: world, certified: true, params_id: 'v4-cert-test-v1' });
       setSession(created.session_id); setRechecks([]);
       await fetchContext(created.session_id);
+    } catch (cause) { setError(String(cause)); }
+    finally { setBusy(false); }
+  };
+  const networkAction = async (action: 'step' | 'cut' | 'restore') => {
+    if (!escrowStatus) return;
+    setBusy(true); setError('');
+    try {
+      setEscrowStatus(await request<EscrowStatus>(`/api/escrow/sessions/${escrowStatus.session_id}/${action}`, {}));
     } catch (cause) { setError(String(cause)); }
     finally { setBusy(false); }
   };
@@ -78,12 +102,29 @@ export default function LiveSession({ geometry }: { geometry?: MapGeometry }) {
     <h1>Live Operations</h1>
     <p>Live session · simulated hazards · demo parameters v4-cert-test-v1 (not the evaluated configuration)</p>
     <p>REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED</p>
+    <label><input type="checkbox" checked={networkDemo} onChange={event => { setNetworkDemo(event.target.checked); setEscrowStatus(null); setSession(''); setContext(null); }} />Two-team network demo</label>
+    {networkDemo && <fieldset aria-label="Escrow"><legend>Escrow</legend>
+      <label><input type="radio" name="escrow-mode" checked={escrowMode === 'escrow'} onChange={() => { setEscrowMode('escrow'); if (escrowStatus) void start('escrow'); }} />With escrow</label>
+      <label><input type="radio" name="escrow-mode" checked={escrowMode === 'last_known'} onChange={() => { setEscrowMode('last_known'); if (escrowStatus) void start('last_known'); }} />Without escrow</label>
+    </fieldset>}
     <div><label>Seed <input type="number" value={seed} onChange={event => setSeed(Number(event.target.value))} /></label>
       <label>World <select value={world} onChange={event => setWorld(event.target.value)}>
         {['v4-low-dt2-v1', 'v4-medium-dt2-v1', 'v4-high-dt2-v1'].map(item => <option key={item}>{item}</option>)}
       </select></label> <button type="button" onClick={() => void start()} disabled={busy}>Start</button></div>
     {busy && <p role="status">Certifying…</p>}
     {error && <p role="alert">{error}</p>}
+    {networkDemo && escrowStatus && <section className={styles.networkPanel} aria-label="Network">
+      <h2>Network · <span aria-hidden="true">{escrowStatus.network === 'ONLINE' ? '●' : '◆'}</span> {escrowStatus.network}</h2>
+      {escrowStatus.label && <p className={styles.networkOutage}>{escrowStatus.label}</p>}
+      <p>{escrowStatus.note}</p>
+      <p>Step {escrowStatus.timestep} · {escrowStatus.mode === 'escrow' ? 'With escrow' : 'Without escrow'}</p>
+      {escrowStatus.teams.map(team => <p key={team.team}>{team.team}: {team.seats_left} of {team.seats_total} seats left · {team.zones.join(', ')}</p>)}
+      {escrowStatus.blocked.map((row, index) => <p key={`${row.team}-${row.action_key}-${index}`}>Held dispatch · {row.team} · {row.action_key} · {row.people} people · {row.reason} · {row.suggested}</p>)}
+      {escrowStatus.last_reconciliation && <p>Rebalanced: {escrowStatus.last_reconciliation.returned_to_pool} seats back to the pool · overbooked seats: {escrowStatus.last_reconciliation.overbooked_seats}</p>}
+      {escrowStatus.network === 'ONLINE' ? <button type="button" disabled={busy} onClick={() => void networkAction('cut')}>Cut network</button>
+        : <button type="button" disabled={busy} onClick={() => void networkAction('restore')}>Restore network</button>}
+      <button type="button" disabled={busy} onClick={() => void networkAction('step')}>Step on</button>
+    </section>}
     {refusal && <p>Refusal row: step {refusal.timestep} · {refusal.action_key} · {refusal.verdict ?? 'unknown verdict'} · {refusal.reason}</p>}
     {session && context && <>
       <p>Step {context.certified.timestep} · {geometry ? `${Object.keys(geometry.zones).length} zones on the map` : 'Map unavailable'}</p>
