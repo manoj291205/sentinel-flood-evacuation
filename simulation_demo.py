@@ -22,6 +22,8 @@ from src.sim.configs import get_uncertainty_config
 from src.simulation_session import SimulationSession
 from src.simulation_views import road_graph_chart
 
+LEGACY_NOTE = "Legacy V3 dashboard — the V4 web console (web/) replaces it."
+
 ROOT = Path(__file__).resolve().parent
 PRESETS = {"Standard Medium Scenario": (620000, "MEDIUM"),
            "High-Uncertainty Scenario": (620000, "HIGH")}
@@ -93,6 +95,7 @@ def shelter_chart(state):
 
 def main():
     st.set_page_config(page_title="Sentinel-Agent V3 · Live Simulation", page_icon="◈", layout="wide")
+    st.warning(LEGACY_NOTE)
     st.markdown("""<style>
     .block-container {max-width:1450px; padding-top:1.6rem;}
     .hero {padding:1.4rem 1.7rem; border-radius:16px; color:white;

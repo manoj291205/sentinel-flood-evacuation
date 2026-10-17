@@ -103,4 +103,7 @@ def test_tampered_chunk_blocks_dispatch_and_is_audited(graph):
                for r in sim.prepared_state_for_debug().audit_log)
     cert = gate.commit(result, inputs, operator={"decision": "ACCEPT", "actor": "t", "reason": ""}).certificate
     validate_certificate(cert)
-    assert cert["kind"] == "HOLD" and "POLICY" not in str(cert["candidates"])
+    assert cert["kind"] == "HOLD"
+    for row in cert["candidates"]:
+        if row["action_key"] != "WAIT":
+            assert "POLICY" in row["outcome_counts"] and sum(row["outcome_counts"].values()) == row["n"]

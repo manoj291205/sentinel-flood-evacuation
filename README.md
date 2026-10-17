@@ -77,7 +77,30 @@ Authoritative Disaster Guidance
 
 ---
 
-## Live Simulation Demo
+## V4 web console
+
+The V4 console (`web/`, React + Vite) is served by the FastAPI app in `src/api/`. The two Streamlit apps below are legacy.
+Everything it shows is simulated; the demo is a recorded run of the real engine and calls no model and no API key.
+
+```powershell
+scripts/dev.ps1            # API on :8000 + console on :5173
+scripts/dev.ps1 -Mock      # console only, answered by the in-browser mock (VITE_API_MOCK=1)
+```
+
+On bash use `scripts/dev.sh` and `scripts/dev.sh --mock`. Needs Node 20+ and the `.venv` from the Testing section.
+
+Docker (one container serving the console and the API; set a password, see `docs/HOSTING.md`):
+
+```bash
+docker build -t sentinel-demo .
+docker run -p 8000:8000 -e SENTINEL_DEMO_PASSWORD=choose-one sentinel-demo
+python scripts/deploy_check.py http://127.0.0.1:8000 --password choose-one
+```
+
+Hosting: `docs/HOSTING.md`. Five-minute walkthrough for judges: `DEMO_SCRIPT_V4.md`.
+The repository is confidential until the Indian provisional (P0) is filed; keep any deployment password-protected.
+
+## Live Simulation Demo (legacy)
 
 ```bash
 streamlit run simulation_demo.py
@@ -121,7 +144,7 @@ python -m pytest tests/test_simulation_demo.py tests/test_v3_geospatial_integrat
 
 ---
 
-## Project Review Dashboard
+## Project Review Dashboard (legacy)
 
 Launch the standalone, artifact-backed review UI locally:
 

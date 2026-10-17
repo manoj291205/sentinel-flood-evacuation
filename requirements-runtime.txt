@@ -1,0 +1,7 @@
+# Runtime-only pins for the hosted demo (Docker). Used together with requirements-api.txt.
+# Copied from requirements.txt; numpy is only transitive there, so it is pinned to the version in the dev venv.
+# No torch, sentence-transformers, streamlit, google-genai, chromadb, gymnasium or stable-baselines3.
+numpy==2.5.4
+scipy==1.18.1
+networkx==3.6.1
+jsonschema==4.26.0
