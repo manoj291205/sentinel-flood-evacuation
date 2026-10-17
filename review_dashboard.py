@@ -82,6 +82,9 @@ SOURCE_TITLES = {
 GRADE_LABELS = {2: "DIRECT", 1: "PARTIAL", 0: "NOT RELEVANT"}
 GRADE_COLORS = {2: "#0f9d76", 1: "#d98e04", 0: "#718096"}
 
+LEGACY_NOTE = "Legacy V3 dashboard — the V4 web console (web/) replaces it."
+
+
 
 st.set_page_config(
     page_title="Sentinel-Agent V3 · Project Review",
@@ -89,6 +92,8 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+
+st.warning(LEGACY_NOTE)
 
 st.markdown(
     """

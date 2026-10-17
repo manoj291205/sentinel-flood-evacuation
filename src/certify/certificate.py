@@ -47,16 +47,20 @@ def build_certificate(
     commands: Sequence[Mapping[str, str]], prev_cert_hash: str | None, edge_set_digest: str,
 ) -> dict:
     by_key = {c.action_key: c for c in candidates}
+    rules_active = "+rules-" in params.params_id  # document rules were active: keep the POLICY count (also 0)
     entries = []
     if result is not None and result.candidates:
         for cc in result.candidates:
             cand = by_key[cc.action_key]
+            counts = {k: int(v) for k, v in cc.outcome_counts.items() if k != "POLICY"}
+            if rules_active:
+                counts["POLICY"] = int(cc.outcome_counts.get("POLICY", 0))
             entries.append({
                 "action_key": cc.action_key, "zone_id": cand.zone_id, "shelter_id": cand.shelter_id,
                 "people": cand.people, "verdict": cc.verdict.value, "successes": cc.successes,
                 "n": cc.n, "lower": round(cc.lower, 12), "upper": round(cc.upper, 12),
                 "mean_utility": round(cc.mean_utility, 9),
-                "outcome_counts": {k: int(v) for k, v in cc.outcome_counts.items() if k != "POLICY"},
+                "outcome_counts": counts,
             })
         entries.append({
             "action_key": HOLD_KEY, "zone_id": None, "shelter_id": None, "people": 0,

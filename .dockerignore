@@ -1,0 +1,12 @@
+.git
+.gitattributes
+.venv
+.env
+.env.*
+models/
+src/rag/chroma_db/
+web/node_modules
+web/dist
+**/__pycache__
+**/*.pyc
+.pytest_cache
