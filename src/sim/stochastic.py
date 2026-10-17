@@ -12,6 +12,7 @@ from .events import (
     AuditRecord,
     DispatchAction,
     DispatchEvent,
+    DispatchStatus,
     SimulationAction,
 )
 from .hazard import evolve_flood_state, update_observable_forecasts
@@ -20,7 +21,14 @@ from .randomness import EpisodeRandomStreams, RandomStream
 from .routes import realize_dispatch_travel, update_route_state
 from .schemas import ScenarioV3, ShelterStatus
 from .state import EpisodeState
-from .transit import TransitPlan, apply_walk_ins, build_transit_plan, process_v4_transit
+from .transit import (
+    TransitPlan,
+    apply_walk_ins,
+    build_transit_plan,
+    group_position,
+    process_v4_transit,
+    reroute_plan,
+)
 from .world import V4WorldConfig, get_world_config, scaled_uncertainty
 from .transition import (
     TransitionResult,
@@ -306,6 +314,85 @@ class StochasticSimulator:
     def transit_plans(self) -> Mapping[str, TransitPlan]:
         """Read-only view of v4 transit plans by event id (``{}`` for v3 worlds)."""
         return MappingProxyType({p.event_id: p for p in self._context.plans})
+
+    def _append_audit(self, record: AuditRecord, state: EpisodeState | None = None) -> None:
+        prepared, ctx, arrivals, records = self._ensure_prepared()
+        base = prepared if state is None else state
+        base = replace(base, audit_log=base.audit_log + (record,))
+        assert_episode_invariants(self._scenario, base)
+        self._prepared = (base, ctx, arrivals, records + (record,))
+        self.state = base if self.state is prepared else self.state
+
+    def record_no_alternative(self, event_id: str) -> None:
+        """Audit a certified failure with no certified alternative (v4 re-certification)."""
+        prepared, _, _, _ = self._ensure_prepared()
+        event = next(e for e in prepared.dispatch_events if e.event_id == event_id)
+        self._append_audit(AuditRecord(
+            event_type=AuditEventType.MIGRATION_NO_CERTIFIED_ALTERNATIVE,
+            timestep=prepared.current_timestep, event_id=event_id, zone_id=event.source_zone_id,
+            shelter_id=event.destination_shelter_id, people=event.people,
+            reason_code="NO_CERTIFIED_ALTERNATIVE",
+            message="remaining trip is certified infeasible and no alternative is certified; group kept",
+        ))
+
+    def migrate(self, event_id: str, new_shelter_id: str, new_edge_ids: tuple[str, ...]) -> None:
+        """Re-route an in-transit group (v4 only; called by the certified gate inside its transaction)."""
+        prepared, ctx, arrivals, records = self._ensure_prepared()
+        if ctx.world is None:
+            raise ValueError("migration exists only in v4 worlds")
+        overlay = self._intervention
+        t = prepared.current_timestep
+        dt = ctx.world.timestep_minutes
+        event = next((e for e in prepared.dispatch_events
+                      if e.event_id == event_id and e.status is DispatchStatus.IN_TRANSIT), None)
+        plan = next((p for p in ctx.plans if p.event_id == event_id), None)
+        if event is None or plan is None:
+            raise ValueError(f"{event_id} is not an in-transit group")
+        new_shelter = prepared.shelter(new_shelter_id)
+        if new_shelter is None or new_shelter_id == event.destination_shelter_id:
+            raise ValueError("migration needs a different, known shelter")
+        if new_shelter.status_current is ShelterStatus.CLOSED:
+            raise ValueError("cannot migrate to a closed shelter")
+        if new_shelter.capacity_available < event.people:
+            raise ValueError("cannot migrate: the new shelter lacks seats")
+        route = next((r for r in prepared.routes if r.source_zone_id == event.source_zone_id
+                      and r.destination_shelter_id == new_shelter_id), None)
+        if route is None:
+            raise ValueError("no route record for the migration target")
+        position = group_position(plan, overlay.graph, t * dt)
+        new_plan = reroute_plan(plan, position, new_shelter_id, tuple(new_edge_ids),
+                                overlay.road_state, overlay.graph, ctx.world, ctx.config,
+                                ctx.streams, t)
+        arrival = new_plan.arrival_timestep
+        lag = arrival - event.departure_timestep
+        realized = max(new_plan.arrival_minutes - event.departure_timestep * dt, (lag - 1) * dt + 1e-6)
+        updated = replace(
+            event, destination_shelter_id=new_shelter_id, arrival_timestep=arrival,
+            travel_lag_steps=lag, realized_travel_time_minutes=realized, route_id=route.route_id,
+        )
+        shelters = tuple(
+            replace(s, capacity_reserved=s.capacity_reserved - event.people)
+            if s.shelter_id == event.destination_shelter_id
+            else replace(s, capacity_reserved=s.capacity_reserved + event.people)
+            if s.shelter_id == new_shelter_id else s
+            for s in prepared.shelters
+        )
+        record = AuditRecord(
+            event_type=AuditEventType.GROUP_MIGRATED, timestep=t, event_id=event_id,
+            zone_id=event.source_zone_id, shelter_id=new_shelter_id, people=event.people,
+            reason_code="CERTIFIED_MIGRATION",
+            message=f"re-routed from {event.destination_shelter_id} to {new_shelter_id}",
+        )
+        working = replace(
+            prepared,
+            dispatch_events=tuple(updated if e.event_id == event_id else e for e in prepared.dispatch_events),
+            shelters=shelters, audit_log=prepared.audit_log + (record,),
+        )
+        assert_episode_invariants(self._scenario, working)
+        new_ctx = replace(ctx, plans=tuple(new_plan if p.event_id == event_id else p for p in ctx.plans))
+        self._prepared = (working, new_ctx, arrivals, records + (record,))
+        if self.state is prepared:
+            self.state = working
 
     def internal_debug_snapshot(self) -> dict[str, Any]:
         """Current latent metadata only; it contains no pre-generated future schedule."""

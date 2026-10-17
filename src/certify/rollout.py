@@ -83,7 +83,10 @@ def _walk_path(c: Candidate, f, world: V4WorldConfig, graph: RoadGraph):
     """Return (path_ok, arrival_timestep or None)."""
     dt = world.timestep_minutes
     config = _config(world)
-    t_min = c.departure_timestep * dt + world.boarding_minutes
+    if c.start_minutes is not None:  # in-transit group (Phase 26): already past boarding
+        t_min = c.start_minutes
+    else:
+        t_min = c.departure_timestep * dt + world.boarding_minutes
     for edge_id in c.edge_ids:
         step = _at(f, math.ceil(t_min / dt))
         if not f.edge_open(edge_id, step):

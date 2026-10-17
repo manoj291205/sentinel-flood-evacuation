@@ -26,7 +26,16 @@ class AdmissionCommand:
     group_id: str | None
 
 
-Command = Union[VehicleCommand, AdmissionCommand]
+@dataclass(frozen=True)
+class RerouteCommand:
+    cert_id: str
+    cert_hash: str
+    group_id: str
+    shelter_id: str
+    edge_ids: tuple[str, ...]
+
+
+Command = Union[VehicleCommand, AdmissionCommand, RerouteCommand]
 
 
 class CommandSink(Protocol):
@@ -58,6 +67,9 @@ def authorize(command: Command, ledger) -> bool:
     if cert["kind"] not in _ACTUATING_KINDS or cert["cert_hash"] != command.cert_hash:
         return False
     chosen = cert["chosen"]
+    if isinstance(command, RerouteCommand):
+        return (cert["kind"] == "MIGRATION" and chosen["group_id"] == command.group_id
+                and chosen["action_key"].endswith("->" + command.shelter_id))
     if chosen["people"] != command.people or "->" not in chosen["action_key"]:
         return False
     zone, shelter = chosen["action_key"].split("->", 1)

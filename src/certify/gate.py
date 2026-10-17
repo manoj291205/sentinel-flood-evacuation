@@ -13,7 +13,14 @@ import time
 from dataclasses import dataclass
 from typing import Any, Callable, Mapping
 
-from src.actuation.commands import AdmissionCommand, Command, CommandSink, InMemorySink, VehicleCommand
+from src.actuation.commands import (
+    AdmissionCommand,
+    Command,
+    CommandSink,
+    InMemorySink,
+    RerouteCommand,
+    VehicleCommand,
+)
 from src.geospatial import shortest_valid_path
 from src.sim.events import DispatchAction
 from src.sim.transit import edge_travel_minutes
@@ -29,7 +36,7 @@ from .certificate import (
 from .certifier import CertificationResult, Verdict, certify
 from .forecast import forecast_from_state
 from .futures import FutureSet, root_key
-from .ledger import Ledger
+from .ledger import Ledger, LedgerConflict
 from .ledger_view import LedgerView
 from .params import CertParams
 from .rollout import HOLD_KEY, Candidate, rollout_joint
@@ -190,6 +197,110 @@ class CertifiedGate:
         escalate = key == HOLD_KEY and not (result.allowed_keys() - {HOLD_KEY})
         action = self._action(key)
         return GateDecision(action, cert, tuple(out), escalate)
+
+    # ---- Phase 26: in-transit re-certification ------------------------------------------------
+    def _view_without(self, event_id: str, shelter_id: str, people: int) -> LedgerView:
+        view = self.ledger.view()
+        return dataclasses.replace(
+            view,
+            pending=tuple(p for p in view.pending if p[0] != event_id),
+            reserved={**view.reserved, shelter_id: view.reserved.get(shelter_id, 0) - people},
+        )
+
+    def recertify(self, state, road_state, plan, history, policy=None):
+        """Re-certify one in-transit group; a certified failure with a certified alternative migrates.
+
+        Each group gets its own FutureSet: the root hashes the ledger view without the group's own
+        reservation, so every MIGRATION certificate replays from its stored inputs alone.
+        """
+        from src.sim.transit import group_position
+
+        from .recertify import (
+            RecertPolicy,
+            keep_candidate,
+            migration_candidates,
+            recertify_group,
+            would_cool_down,
+        )
+
+        policy = policy or RecertPolicy()
+        t = state.current_timestep
+        dt = self.world.timestep_minutes
+        if would_cool_down(history, t, policy):
+            return recertify_group(plan.event_id, None, (), None, None, None, self.params, None,
+                                   timestep=t, history=history, policy=policy)
+        position = group_position(plan, self.graph, t * dt)
+        keep = keep_candidate(plan, position, self.graph, timestep=t)
+        alts = migration_candidates(plan, position, self.graph, road_state, self.scenario,
+                                    timestep=t, left_shelters=history.left_shelters)
+        view = self._view_without(plan.event_id, plan.shelter_id, plan.people)
+        fc = forecast_from_state(state, road_state, self.scenario)
+        paths = canonical_paths(self.graph, road_state, self.scenario)
+        edges = tuple(sorted(
+            {e for p in paths.values() for e in p} | set(keep.edge_ids)
+            | {e for a in alts for e in a.edge_ids}
+        ))
+        worst = max(
+            [sum(edge_travel_minutes(self.graph.edges_by_id[e].length_m,
+                                     self.graph.edges_by_id[e].assumed_speed_kph, 0.0, self.world)
+                 for e in c.edge_ids) for c in (keep, *alts)] or [0.0]
+        )
+        need = math.ceil((max(position.at_minutes - t * dt, 0.0) + 1.5 * worst) / dt) + 1
+        remaining = self.world.horizon_steps - t
+        horizon = max(1, min(remaining, max(_horizon(paths, self.graph, self.world, remaining), need)))
+        root = root_key(
+            incident_id=fc.incident_id, forecast_hash=fc.forecast_hash(),
+            graph_fingerprint=self.graph.graph_fingerprint, ledger_hash=ledger_view_hash(view),
+            params_id=self.params.params_id, backend=self.params.backend,
+        )
+        fs = self.futures_factory(fc, self.graph, self.world, root, horizon, edge_ids=edges)
+        decision = recertify_group(plan.event_id, keep, alts, fs, view, self.world, self.params,
+                                   self.graph, timestep=t, history=history, policy=policy,
+                                   rollout=self.rollout)
+        if decision.action == "KEEP_ESCALATE" and hasattr(self.ledger, "simulator"):
+            self.ledger.simulator.record_no_alternative(plan.event_id)
+        if decision.action != "MIGRATE":
+            return decision
+        chosen = next(c for c in decision.alternatives if c.action_key == decision.chosen_key)
+        inputs = CertificateInputs(
+            cert_id="", world_id=self.world_id, params_id=self.params.params_id, horizon_steps=horizon,
+            forecast=fc, ledger=view, candidates=tuple(decision.alternatives), edge_ids=edges,
+        )
+        operator = {
+            "decision": "AUTO", "actor": "recertifier",
+            "reason": (f"keep {decision.keep_verdict.value} lower={decision.keep_lower:.4f} "
+                       f"upper={decision.keep_upper:.4f}"),
+        }
+        try:
+            with self.ledger.transaction() as tx:
+                cert_id = self.ledger.next_cert_id()
+                tx.release(plan.shelter_id, plan.people, cert_id)
+                tx.reserve(chosen.shelter_id, chosen.people, cert_id)
+                certs = self.ledger.certificates()
+                cert = build_certificate(
+                    cert_id=cert_id, kind="MIGRATION", incident_id=fc.incident_id,
+                    scenario_id=self.scenario.scenario_id, timestep=fc.timestep,
+                    root=decision.alt_result.root, forecast_hash=fc.forecast_hash(),
+                    graph_fingerprint=self.graph.graph_fingerprint,
+                    ledger_hash=ledger_view_hash(view), params=self.params,
+                    a_max=decision.alt_result.a_max, result=decision.alt_result,
+                    candidates=inputs.candidates, chosen_key=chosen.action_key,
+                    chosen_people=chosen.people, group_id=plan.event_id, operator=operator,
+                    commands=[
+                        {"target": "vehicle-terminal",
+                         "command": f"reroute {plan.event_id} {chosen.action_key}"},
+                        {"target": f"shelter-{chosen.shelter_id}", "command": f"reserve {chosen.people}"},
+                        {"target": f"shelter-{plan.shelter_id}", "command": f"release {plan.people}"},
+                    ],
+                    prev_cert_hash=certs[-1]["cert_hash"] if certs else None,
+                    edge_set_digest=edge_set_digest(edges),
+                )
+                tx.append_certificate(cert, dataclasses.replace(inputs, cert_id=cert_id))
+        except LedgerConflict:
+            return dataclasses.replace(decision, action="KEEP_ESCALATE", new_shelter_id=None)
+        self.sink.send(RerouteCommand(cert_id, cert["cert_hash"], plan.event_id, chosen.shelter_id,
+                                      chosen.edge_ids))
+        return dataclasses.replace(decision, certificate=cert)
 
     @staticmethod
     def _action(key: str):
