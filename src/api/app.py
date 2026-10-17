@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 import secrets
+from datetime import datetime, timezone
 from collections import defaultdict
 from pathlib import Path
 
@@ -20,6 +21,7 @@ from fastapi.responses import FileResponse, PlainTextResponse, JSONResponse
 from src.api.demo_live import load_demo_trace
 from src.api.dto import DecisionRequest, DemoStepRequest, ReplayRequest, SessionRequest
 from src.api.fixtures import DemoPlayback
+from src.api.live_session import certified_context, recheck_rows
 from src.api.sessions import SessionEntry, SessionRegistry
 from src.api.why import explanation
 from src.certify.certificate import CertificateInputs
@@ -44,7 +46,7 @@ def _public(payload: dict, source: str = "LIVE") -> dict:
 
 def _session_dto(session_id: str, entry: SessionEntry) -> dict:
     session = entry.session
-    return _public({
+    dto = {
         "session_id": session_id,
         "scenario_id": session.scenario.scenario_id,
         "seed": session.seed,
@@ -54,7 +56,10 @@ def _session_dto(session_id: str, entry: SessionEntry) -> dict:
         "timestep_minutes": session.scenario.time.timestep_minutes,
         "graph_version": session.graph.graph_version,
         "graph_fingerprint": session.graph.graph_fingerprint,
-    })
+    }
+    if session.certified:
+        dto.update(certified=True, params_id=session.params_id)
+    return _public(dto)
 
 
 def _state_dto(entry: SessionEntry) -> dict:
@@ -68,7 +73,7 @@ def _state_dto(entry: SessionEntry) -> dict:
             "waiting": state.population_remaining,
             "in_transit": state.people_in_transit,
             "safe": state.people_safely_arrived,
-            "certificates_issued": 0,
+            "certificates_issued": len(session.certificates()),
         },
     })
 
@@ -78,7 +83,7 @@ def _context_dto(entry: SessionEntry) -> dict:
     if context is None:
         raise HTTPException(409, "episode is complete")
     action = context.recommendation.action
-    return _public({
+    dto = {
         "recommendation": {
             "action_key": action_key(action),
             "label": action_label(action),
@@ -89,7 +94,10 @@ def _context_dto(entry: SessionEntry) -> dict:
             {"action_key": action_key(item), "label": action_label(item), "action": item.to_dict()}
             for item in allowed_override_actions(context)
         ],
-    })
+    }
+    if entry.session.certified:
+        dto["certified"] = certified_context(entry.session)
+    return _public(dto)
 
 
 def create_app() -> FastAPI:
@@ -110,7 +118,7 @@ def create_app() -> FastAPI:
     explanations = load_contract_fixture("decision_why_fixture.json")["items"]
     why_by_id = {item["decision_id"]: item for item in explanations}
     system_fixture = load_contract_fixture("system_status_fixture.json")
-    subscribers: dict[str, set[asyncio.Queue]] = defaultdict(set)
+    subscribers: dict[str, set[tuple[asyncio.Queue, asyncio.AbstractEventLoop]]] = defaultdict(set)
     app = FastAPI(title="Sentinel local API", version=VERSION)
     app.add_middleware(
         CORSMiddleware,
@@ -161,7 +169,8 @@ def create_app() -> FastAPI:
     @app.post("/api/sessions")
     def create_session(body: SessionRequest):
         try:
-            session_id, entry = registry.create(body.seed, body.regime)
+            session_id, entry = registry.create(body.seed, body.regime, certified=body.certified,
+                                                params_id=body.params_id)
         except ValueError as exc:
             raise HTTPException(422, str(exc)) from exc
         return _session_dto(session_id, entry)
@@ -179,11 +188,14 @@ def create_app() -> FastAPI:
             return _context_dto(entry)
 
     @app.post("/api/sessions/{session_id}/decisions")
-    async def decide(session_id: str, body: DecisionRequest):
+    def decide(session_id: str, body: DecisionRequest):
         entry = entry_or_404(session_id)
+        refusal_message = None
         with entry.lock:
             session = entry.session
             old_timeline_length = len(session.timeline)
+            old_certs = len(session.certificates())
+            old_rechecks = len(session.recert_log)
             try:
                 selected_action = None
                 if body.selected_action is not None:
@@ -194,36 +206,87 @@ def create_app() -> FastAPI:
                         (action for action in context.snapshot.canonical_actions
                          if action_key(action) == body.selected_action), None
                     )
-                    if selected_action is None:
+                    if session.certified and body.decision == "OVERRIDE" and (
+                        selected_action is None or
+                        body.selected_action not in {action_key(a) for a in allowed_override_actions(context)}
+                    ):
+                        pending = session.certification()
+                        candidate = next((c for c in pending[0].candidates
+                                          if c.action_key == body.selected_action), None) if pending else None
+                        verdict = candidate.verdict.value if candidate else None
+                        refusal = {"timestep": session.state.current_timestep, "decision": "OVERRIDE",
+                                   "action_key": body.selected_action, "verdict": verdict,
+                                   "reason": body.reason, "flag": "UNCERTIFIED_OVERRIDE_REFUSED",
+                                   "utc": datetime.now(timezone.utc).isoformat()}
+                        entry.refusals.append(refusal)
+                        refusal_message = {"seq": entry.next_sequence(), "type": "refusal", "payload": refusal}
+                    elif selected_action is None:
                         raise HumanDecisionError("selected action is unknown")
-                record, _ = session.decide(
-                    body.decision,
-                    EvidenceReference(**body.evidence.model_dump()),
-                    selected_action=selected_action,
-                    reason=body.reason,
-                )
+                if refusal_message is not None:
+                    pass
+                else:
+                    record, _ = session.decide(
+                        body.decision,
+                        EvidenceReference(**body.evidence.model_dump()),
+                        selected_action=selected_action,
+                        reason=body.reason,
+                    )
             except (HumanDecisionError, ValueError) as exc:
                 raise HTTPException(422, str(exc)) from exc
-            state = _state_dto(entry)
-            new_events = session.timeline[old_timeline_length:]
-            messages = [
-                {"seq": entry.next_sequence(), "type": "decision", "payload": record},
-                *(
-                    {"seq": entry.next_sequence(), "type": "event", "payload": event}
-                    for event in new_events
-                ),
-                {"seq": entry.next_sequence(), "type": "state", "payload": state},
-            ]
-        for subscriber in tuple(subscribers[session_id]):
+            if refusal_message is not None:
+                messages = [refusal_message]
+            else:
+                state = _state_dto(entry)
+                new_events = session.timeline[old_timeline_length:]
+                new_certs = session.certificates()[old_certs:]
+                new_rechecks = recheck_rows(session, session.recert_log[old_rechecks:])
+                messages = [{"seq": entry.next_sequence(), "type": "decision", "payload": record}]
+                if session.certified:
+                    messages.extend({"seq": entry.next_sequence(), "type": "certificate", "payload": item}
+                                    for item in new_certs)
+                    messages.extend({"seq": entry.next_sequence(), "type": "recheck", "payload": item}
+                                    for item in new_rechecks)
+                messages.extend({"seq": entry.next_sequence(), "type": "event", "payload": item}
+                                for item in new_events)
+                messages.append({"seq": entry.next_sequence(), "type": "state", "payload": state})
+        for queue, loop in tuple(subscribers[session_id]):
             for message in messages:
-                subscriber.put_nowait(message)
-        return _public({"audit_record": record, "state": state})
+                loop.call_soon_threadsafe(queue.put_nowait, message)
+        if refusal_message is not None:
+            return JSONResponse({**refusal_message["payload"], "detail": "Override is not certified"},
+                                status_code=422)
+        response = {"audit_record": record, "state": state}
+        if session.certified:
+            response.update(certificates=new_certs, rechecks=new_rechecks)
+        return _public(response)
 
     @app.get("/api/sessions/{session_id}/audit")
     def audit(session_id: str):
         entry = entry_or_404(session_id)
         with entry.lock:
-            return _public({"audit": list(entry.session.audit)})
+            dto = {"audit": list(entry.session.audit)}
+            if entry.session.certified:
+                dto["refusals"] = list(entry.refusals)
+            return _public(dto)
+
+    @app.get("/api/sessions/{session_id}/certificates")
+    def session_certificates(session_id: str):
+        entry = entry_or_404(session_id)
+        with entry.lock:
+            return _public({"certificates": entry.session.certificates()})
+
+    @app.post("/api/sessions/{session_id}/certificates/{cert_id}/replay")
+    def session_replay(session_id: str, cert_id: str, body: ReplayRequest):
+        entry = entry_or_404(session_id)
+        with entry.lock:
+            session = entry.session
+            original = next((item for item in session.certificates() if item["cert_id"] == cert_id), None)
+            if original is None:
+                raise HTTPException(404, "certificate not found")
+            candidate = ({**original, "forecast_hash": hashlib.sha256(b"tampered").hexdigest()}
+                         if body.tamper else original)
+            report = replay_certificate(candidate, session.ledger.inputs(cert_id), graph=graph)
+            return _public({"result": report.result, "mismatched_fields": list(report.mismatched_fields)})
 
     @app.get("/api/sessions/{session_id}/audit.csv")
     def audit_csv(session_id: str):
@@ -337,7 +400,8 @@ def create_app() -> FastAPI:
             return
         await websocket.accept()
         queue: asyncio.Queue = asyncio.Queue()
-        subscribers[session_id].add(queue)
+        subscription = (queue, asyncio.get_running_loop())
+        subscribers[session_id].add(subscription)
         try:
             with entry.lock:
                 first = {"seq": entry.next_sequence(), "type": "state", "payload": _state_dto(entry)}
@@ -357,7 +421,7 @@ def create_app() -> FastAPI:
         except WebSocketDisconnect:
             pass
         finally:
-            subscribers[session_id].discard(queue)
+            subscribers[session_id].discard(subscription)
 
     dist = Path(os.getenv("SENTINEL_WEB_DIST", "web/dist"))
     if (dist / "index.html").is_file():
