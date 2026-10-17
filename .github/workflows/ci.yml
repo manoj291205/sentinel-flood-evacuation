@@ -70,8 +70,8 @@ jobs:
       - run: npm run test:e2e
 
   web-live:
-    # Skipped until the live-demo end-to-end spec (Phase 34A) exists.
-    if: hashFiles('web/e2e/p34a_live_demo.spec.ts') != ''
+    # Every step after checkout is skipped until the live-demo end-to-end spec (Phase 34A) exists
+    # (hashFiles is only available in step conditions).
     needs: web
     runs-on: ubuntu-latest
     env:
@@ -80,6 +80,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
+        if: hashFiles('web/e2e/p34a_live_demo.spec.ts') != ''
         with:
           python-version: "3.12"
           cache: pip
@@ -88,21 +89,25 @@ jobs:
             requirements-api.txt
 
       - name: Install CPU-only torch
+        if: hashFiles('web/e2e/p34a_live_demo.spec.ts') != ''
         run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
 
       - name: Install project dependencies
+        if: hashFiles('web/e2e/p34a_live_demo.spec.ts') != ''
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
           python -m pip install -r requirements-api.txt
 
       - uses: actions/setup-node@v4
+        if: hashFiles('web/e2e/p34a_live_demo.spec.ts') != ''
         with:
           node-version: "20"
           cache: npm
           cache-dependency-path: web/package-lock.json
 
       - name: Live end-to-end
+        if: hashFiles('web/e2e/p34a_live_demo.spec.ts') != ''
         working-directory: web
         run: |
           npm ci
@@ -110,26 +115,31 @@ jobs:
           npm run test:e2e:live
 
   docker:
-    # Skipped until the recorded demo trace (Phase 34A) exists.
-    if: hashFiles('data/demo_v4/demo_trace.json') != ''
+    # Every step after checkout is skipped until the recorded demo trace (Phase 34A) exists
+    # (hashFiles is only available in step conditions).
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
+        if: hashFiles('data/demo_v4/demo_trace.json') != ''
         with:
           python-version: "3.12"
 
       - name: Install the checker's only dependency
+        if: hashFiles('data/demo_v4/demo_trace.json') != ''
         run: python -m pip install jsonschema==4.26.0
 
       - name: Build image
+        if: hashFiles('data/demo_v4/demo_trace.json') != ''
         run: docker build -t sentinel-demo .
 
       - name: Run container
+        if: hashFiles('data/demo_v4/demo_trace.json') != ''
         run: docker run -d --name sentinel-demo -p 8000:8000 -e SENTINEL_DEMO_PASSWORD=ci-only-password sentinel-demo
 
       - name: Wait for health
+        if: hashFiles('data/demo_v4/demo_trace.json') != ''
         run: |
           for i in $(seq 1 30); do
             if curl -fsS http://127.0.0.1:8000/api/health > /dev/null; then exit 0; fi
@@ -139,4 +149,5 @@ jobs:
           exit 1
 
       - name: Deploy check
+        if: hashFiles('data/demo_v4/demo_trace.json') != ''
         run: python scripts/deploy_check.py http://127.0.0.1:8000 --password ci-only-password
