@@ -130,3 +130,78 @@ read every "14B" there as historical. Evidence & Results keeps the `p14b-*` rows
   `source_integrity_pass`. Call rules, ZDR precondition and "T2 changes no parameters" are unchanged.
 - Evidence & Results shows 14D as the evaluation of record, 14C as failed with its reasons (`p14c-*`), and 14B
   as superseded. "T2" never appears while the approval record is absent.
+
+## Amendment 2026-10-17 (user + Lead) — P15T2: wiring the 14D approval record (T2 live)
+The user approved the 14D verdict for T2 (2026-10-17) and `specs/approvals/t2_semantic_verifier.json` is on `main`.
+P15T2 wires it. **Every T2 reference is 14D**; 14B (superseded) and 14C (failed) can never enable T2. `assign_tier`,
+`tests/test_p15p_constraints.py` and the 14D files are unchanged. One-off lane exception (user, 2026-10-17): Lead
+builds this Lane S code itself. Branch `m15t2-wiring`; acceptance tests `tests/test_p15t2_wiring.py` (milestone `P15T2`).
+
+**Files (Lane S):** `src/constraints/t2_wiring.py` (new), `scripts/phase15t2_tier_rules.py` (new),
+`data/constraints_v4/p15t2/` (new: live run output), `tests/test_s_p15t2_*.py`. The 14D module
+`src/constraints/claim_support_p14d.py` (Lane X) is imported read-only, never edited.
+
+**1. `load_t2_approval(path=APPROVAL_PATH, *, root=REPO_ROOT) -> T2Approval`** (frozen dataclass: `enabled: bool`,
+`reason: str`, `record_sha256: str | None` = SHA-256 of the record file's bytes, and the record's `evaluation_id`,
+`provider_id`, `model_id`, `prompt_version`, `prompt_sha256` or `None`). Never raises for a bad record. Checks in this
+order; the first failure gives `enabled=False` and that reason:
+`APPROVAL_MISSING` (no file) · `APPROVAL_UNREADABLE` (not UTF-8 JSON object) · `APPROVAL_FIELDS` (any of the 15′ fields
+or `prompt_sha256` absent) · `VERDICT_NOT_T2_USEFUL` (`verdict != "T2_VERIFIER_USEFUL"`; a 14C/14B-style
+`CLAIM_SUPPORT_VERIFIER_USEFUL` record fails here or earlier) · `EVALUATION_MISMATCH` / `PROVIDER_MISMATCH` /
+`MODEL_MISMATCH` (≠ `claim_support_p14d.EVALUATION_ID` / `PROVIDER_ID` / `MODEL_ID`) · `PROMPT_VERSION_MISMATCH`
+(≠ `"14d-prompt-r0"`, the frozen prompt) · `PROMPT_HASH_MISMATCH` (≠ the record's own `prompt_sha256` **and**
+`claim_support_p14d.prompt_sha256("14d-prompt-r0")`, i.e. the prompt file on disk must still hash to the record) ·
+`SETTINGS_MISMATCH` (`request_settings` key set or any value ≠ `claim_support_p14d.REQUEST_SETTINGS`) ·
+`SCORE_PATH_INVALID` (absolute, or resolves outside `root`) · `SCORE_MISSING` · `SCORE_HASH_MISMATCH` (SHA-256 of the
+score file's stored bytes ≠ `score_sha256`) · `SCORE_VERDICT_MISMATCH` (the score's `t2_verdict` or `evaluation_id`
+disagrees with the record). All pass → `enabled=True`, `reason="ACCEPTED"`.
+
+**2. `P14dSemantic(transport, *, sleep=time.sleep, clock=time.time)`** — the 14D semantic callable,
+`__call__(claim, chunk) -> ClaimSupportResult` = `verify_claim_support_p14d(claim, chunk,
+prompt_version="14d-prompt-r0", transport=transport, sleep=sleep).result`. It appends one metadata dict per call to
+`self.calls` (`utc`, `latency_ms`, `outcome` = the verdict, `"PARSE_FAILURE"` or `"PROVIDER_STOP"`,
+`source_integrity_pass`, `confidence`, `supporting_sentence_ids`, `attempts`, `response_model`,
+`system_fingerprint`, `finish_reason`, `usage`, `stop_reason`, `http_status`). A `ProviderStop` is recorded and
+re-raised. Never stored: the prompt, the claim/chunk payload, the raw response, the model's `reason` text, reasoning
+text or any key value. T2 still needs `SUPPORTED` **with** `source_integrity_pass` (decided by `assign_tier`).
+
+**3. `load_tiered_rules(rules_path, chunk_lookup, *, approval_path=APPROVAL_PATH, attest_zdr=False, transport=None,
+env=os.environ, sleep=time.sleep, clock=time.time) -> TierLoad`** (frozen: `tiered: tuple[TieredRule, ...]`,
+`approval: T2Approval`, `t2_enabled: bool`, `t2_reason: str`, `records: tuple[dict, ...]`). Loads approved rules
+(`load_rules`), then decides T2 once for the whole load: disabled with `t2_reason` = the approval's reason if the
+record is not accepted; else `ZDR_NOT_ATTESTED` if `attest_zdr` is not `True`; else `API_KEY_MISSING` if
+`env.get("GROQ_API_KEY")` is empty (the key is only tested for presence here; it is read from the environment by
+`http_transport` at call time and never stored, logged or returned); else enabled (`t2_reason="ENABLED"`),
+`transport` defaulting to `claim_support_p14d`'s `http_transport`. Per rule:
+- T2 enabled → `assign_tier(rule, chunk_lookup, semantic=<P14dSemantic>, semantic_verdict=USEFUL)` (USEFUL =
+  `"CLAIM_SUPPORT_VERIFIER_USEFUL"`, the internal token). `assign_tier` calls the verifier only for rules whose
+  provenance verifies, so a T0 rule makes no call. On `ProviderStop` the rule is re-tiered without `semantic`
+  (T1 when provenance verifies — never T0 for that reason, never T2) and the stop is recorded.
+- T2 disabled → `assign_tier(rule, chunk_lookup)`: no provider object is built and no call is made.
+At most one semantic call per rule per load; nothing is called per dispatch decision: `TieredRule` holds no callable,
+and the gate, masks, rollout and replay only read the returned tiers. **T2 changes no parameters:** T1 and T2 rules
+have identical `active_params` and predicates; only the recorded tier (and so the `+rules-<sha8>` digest) differs.
+`records` holds one JSON-ready dict per loaded rule: `rule_id`, `tier`, `reasons` (T0 codes), `active_params`,
+`t2_enabled`, `t2_reason`, `approval_record_sha256`, `evaluation_id`, `provider_id`, `model_id`, `prompt_version`,
+`prompt_sha256`, `semantic` (the call metadata above, or `null` when no call was made) and `semantic_status`
+(`NOT_CALLED_T2_DISABLED`, `NOT_CALLED_T0`, `CALLED`, `PROVIDER_STOP`).
+
+**4. Script `scripts/phase15t2_tier_rules.py`.** No flag: offline dry run (T2 disabled, no network), prints the tiers.
+`--preflight`: one `GET /openai/v1/models/openai/gpt-oss-120b` with the key from the environment; prints the HTTP status only.
+`--live --attest-zdr`: `load_tiered_rules` on `data/constraints_v4/ndma_constraints.json` with the local corpus
+(`prepare_corpus` + `corpus_chunk_lookup`) and `http_transport`; refuses to overwrite an existing result; writes
+`data/constraints_v4/p15t2/tier_results.json` (`schema "p15t2-tier-results-v1"`, `utc`, `rules_file_sha256`,
+`approval_record_sha256`, `t2_enabled`, `t2_reason`, `calls_total`, `records`). Rule R03 (unapproved) is never loaded.
+Before any live call the user re-confirms Zero Data Retention in chat (payload = the rule text, a modelling paraphrase
+of public NDMA guidance, plus the public NDMA chunk; no gate work), and Lead audits the file before it is cited.
+
+**5. Acceptance (`tests/test_p15t2_wiring.py`, fake transports, never the network).** The real record on `main` is
+accepted. Accepted record + SUPPORTED / integrity-pass fake → T2 with the same `active_params` as T1. A PARTIALLY_SUPPORTED
+fake, or SUPPORTED citing nothing → T1. Disabled with the stated reason and **zero** transport calls: tampered score hash,
+wrong verdict string, wrong prompt hash, wrong settings, missing file, a 14C-style record, a 14B-style record, no ZDR
+attest, no key. Provider stop (`ProviderStop`, e.g. HTTP 503) → T1, `semantic_status == "PROVIDER_STOP"`. A T0 rule is
+not sent. Exactly one call per eligible rule at load and none afterwards (predicates evaluated, digest, audit records;
+no `TieredRule` field is callable). Records carry the approval-record SHA-256 and call metadata, and no prompt, payload, model reason text or key.
+
+**UI:** Evidence & Results shows 14D (`p14d-*`) as the evaluation of record, 14C as failed, 14B as superseded; a rule's tier
+column shows T2 only when the API reports a T2 tier from this loader (part of 34A).
