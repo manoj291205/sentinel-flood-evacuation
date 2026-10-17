@@ -343,6 +343,33 @@
       "json_pointer": "/overall/dense/direct_hit_at_5",
       "unit": "fraction",
       "format": "percent1"
+    },
+    {
+      "id": "p35lite-outages",
+      "group": "Exploratory: network outage (not pre-registered)",
+      "label": "Simulated outages (each run with and without escrow)",
+      "path": "data/eval_results/phase35lite/outages.json",
+      "json_pointer": "/totals/outages",
+      "unit": "count",
+      "format": "integer"
+    },
+    {
+      "id": "p35lite-overbooked-escrow",
+      "group": "Exploratory: network outage (not pre-registered)",
+      "label": "Outages with overbooked seats, with escrow",
+      "path": "data/eval_results/phase35lite/outages.json",
+      "json_pointer": "/totals/overbooked_outages_escrow",
+      "unit": "count",
+      "format": "integer"
+    },
+    {
+      "id": "p35lite-overbooked-last-known",
+      "group": "Exploratory: network outage (not pre-registered)",
+      "label": "Outages with overbooked seats, without escrow (last known count)",
+      "path": "data/eval_results/phase35lite/outages.json",
+      "json_pointer": "/totals/overbooked_outages_last_known",
+      "unit": "count",
+      "format": "integer"
     }
   ]
 }
