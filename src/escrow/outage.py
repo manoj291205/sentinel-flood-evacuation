@@ -67,6 +67,7 @@ class OutageEngine:
         self.blocked: list[dict] = []
         self.certificates: list[dict] = []
         self.last_reconciliation = None
+        self._outage_start = 0
 
     def online_step(self) -> None:
         if self.sim.state.terminal:
@@ -89,8 +90,15 @@ class OutageEngine:
         self.seats = (split_shares(self.free_at_cut, forecast_weights(
             self.scenario, self.state_at_cut, self.overlay.road_state)) if self.mode == "escrow"
                       else {team: dict(self.free_at_cut) for team in TEAMS})
+        # Offline ids sit above every id issued so far (online or offline) with room for the online steps
+        # that follow a restore, so repeated outages in one console session never reuse an id.
+        self._outage_start = len(self.certificates)
+        issued = [*self.base.certificates(), *(item["certificate"] for item in self.certificates)]
+        floor = max((int(cert["cert_id"].split("-")[1]) for cert in issued), default=0)
+        first = {TEAMS[0]: floor + 1001, TEAMS[1]: floor + 1501}
         self.adapters = {team: EscrowLedgerAdapter(self.base, team, cut_view=self.cut_view,
-                                                  seats=self.seats[team]) for team in TEAMS}
+                                                  seats=self.seats[team], first_number=first[team])
+                         for team in TEAMS}
         self.gates = {team: CertifiedGate(self.scenario, self.graph, self.world, self.params,
                                          self.adapters[team], **self.gate_options) for team in TEAMS}
         if self.mode == "escrow":
@@ -147,7 +155,7 @@ class OutageEngine:
         self.returned_to_pool = (sum(sum(seats.values()) for seats in self.seats.values())
                                  - sum(self.reserved_offline.values()) if self.mode == "escrow" else 0)
         self.executed = []
-        for item in self.certificates:
+        for item in self.certificates[self._outage_start:]:
             cert = item["certificate"]
             key = cert["chosen"]["action_key"]
             if key == "WAIT":

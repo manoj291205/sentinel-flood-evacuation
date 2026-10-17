@@ -40,7 +40,7 @@ class _LocalTransaction:
 
 class EscrowLedgerAdapter:
     def __init__(self, base: SimLedgerAdapter, team: str, *, cut_view: LedgerView,
-                 seats: Mapping[str, int]) -> None:
+                 seats: Mapping[str, int], first_number: int | None = None) -> None:
         self.base, self.team, self.cut_view = base, team, cut_view
         self.seats = dict(seats)
         self.reservations: list[tuple[str, int, str, str]] = []
@@ -50,7 +50,8 @@ class EscrowLedgerAdapter:
         self._current_group = ""
         prior = base.certificates()
         last = int(prior[-1]["cert_id"].split("-")[1]) if prior else 0
-        self._first_cert_number = last + (1 if team == "TEAM-A" else 501)
+        self._first_cert_number = (first_number if first_number is not None
+                                   else last + (1 if team == "TEAM-A" else 501))
 
     @property
     def left(self) -> dict[str, int]:
