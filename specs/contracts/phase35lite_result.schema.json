@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sentinel-phase35lite-result-v1",
+  "title": "data/eval_results/phase35lite/outages.json (contract v1, Phase 35-lite, exploratory)",
+  "description": "Written once by scripts/phase35lite_outages.py (V4_ESCROW_LITE_SPEC section 4). Counts only; never an outcome claim; not pre-registered.",
+  "type": "object",
+  "required": ["schema", "exploratory", "not_preregistered", "config", "rows", "totals"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "phase35lite-outages-v1"},
+    "exploratory": {"const": true},
+    "not_preregistered": {"const": true},
+    "config": {
+      "type": "object",
+      "required": ["world_id", "params_id", "first_seed", "seeds", "rounds", "cut_step_rule", "modes"],
+      "additionalProperties": false,
+      "properties": {
+        "world_id": {"const": "v4-medium-dt2-v1"},
+        "params_id": {"const": "v4-cert-test-v1"},
+        "first_seed": {"const": 1070000},
+        "seeds": {"const": 40},
+        "rounds": {"const": 2},
+        "cut_step_rule": {"const": "2 + (seed % 5)"},
+        "modes": {"const": ["escrow", "last_known"]}
+      }
+    },
+    "rows": {
+      "type": "array", "minItems": 80, "maxItems": 80,
+      "items": {
+        "type": "object",
+        "required": ["seed", "mode", "cut_step", "free_at_cut", "reserved_offline", "overbooked_seats", "overbooked",
+                     "blocked", "returned_to_pool", "dispatches_offline"],
+        "additionalProperties": false,
+        "properties": {
+          "seed": {"type": "integer"},
+          "mode": {"enum": ["escrow", "last_known"]},
+          "cut_step": {"type": "integer", "minimum": 0},
+          "free_at_cut": {"type": "integer", "minimum": 0},
+          "reserved_offline": {"type": "integer", "minimum": 0},
+          "overbooked_seats": {"type": "integer", "minimum": 0},
+          "overbooked": {"type": "boolean"},
+          "blocked": {"type": "integer", "minimum": 0},
+          "returned_to_pool": {"type": "integer", "minimum": 0},
+          "dispatches_offline": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "totals": {
+      "type": "object",
+      "required": ["outages", "overbooked_outages_escrow", "overbooked_outages_last_known", "overbooked_seats_escrow",
+                   "overbooked_seats_last_known", "blocked_escrow"],
+      "additionalProperties": false,
+      "properties": {
+        "outages": {"type": "integer", "minimum": 0},
+        "overbooked_outages_escrow": {"type": "integer", "minimum": 0},
+        "overbooked_outages_last_known": {"type": "integer", "minimum": 0},
+        "overbooked_seats_escrow": {"type": "integer", "minimum": 0},
+        "overbooked_seats_last_known": {"type": "integer", "minimum": 0},
+        "blocked_escrow": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}
