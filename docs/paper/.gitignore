@@ -1,0 +1,12 @@
+# LaTeX build outputs and the AAAI author kit (download it from https://aaai.org/authorkit27/)
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.pdf
+aaai2027.sty
+aaai2027.bst
