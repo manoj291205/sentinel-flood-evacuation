@@ -56,7 +56,7 @@ def build_certificate(
                 "people": cand.people, "verdict": cc.verdict.value, "successes": cc.successes,
                 "n": cc.n, "lower": round(cc.lower, 12), "upper": round(cc.upper, 12),
                 "mean_utility": round(cc.mean_utility, 9),
-                "outcome_counts": {k: int(v) for k, v in cc.outcome_counts.items()},
+                "outcome_counts": {k: int(v) for k, v in cc.outcome_counts.items() if k != "POLICY"},
             })
         entries.append({
             "action_key": HOLD_KEY, "zone_id": None, "shelter_id": None, "people": 0,

@@ -7,11 +7,12 @@ and the hash-chained certificate in one ledger transaction and only then emits c
 from __future__ import annotations
 
 import dataclasses
+import functools
 import hashlib
 import math
 import time
 from dataclasses import dataclass
-from typing import Any, Callable, Mapping
+from typing import Any, Callable, Mapping, Sequence
 
 from src.actuation.commands import (
     AdmissionCommand,
@@ -49,10 +50,11 @@ class GateError(ValueError):
 class CertificateMap(dict):
     """``{action_key: CandidateCertificate}`` that also carries the threshold / params id for masks."""
 
-    def __init__(self, items, *, threshold: float, params_id: str) -> None:
+    def __init__(self, items, *, threshold: float, params_id: str, rules=()) -> None:
         super().__init__(items)
         self.threshold = threshold
         self.params_id = params_id
+        self.rules = tuple(rules)  # tiered document rules active for this decision
 
 
 def ledger_view_hash(view: LedgerView) -> str:
@@ -100,8 +102,15 @@ class CertifiedGate:
         self, scenario, graph, world, params: CertParams, ledger: Ledger, *,
         sink: CommandSink | None = None, clock=time.perf_counter,
         futures_factory: Callable[..., Any] | None = None, rollout: Callable = rollout_joint,
-        world_id: str | None = None,
+        world_id: str | None = None, rules: Sequence[Any] = (),
     ) -> None:
+        self.rules = tuple(rules)
+        if self.rules:  # Phase 15': document rules enter the joint indicator as extra terms
+            from src.constraints.tiering import predicates_for, rules_digest
+
+            params = dataclasses.replace(
+                params, params_id=f"{params.params_id}+rules-{rules_digest(self.rules)}")
+            rollout = functools.partial(rollout, extra_terms=predicates_for(self.rules))
         self.scenario, self.graph, self.world, self.params = scenario, graph, world, params
         self.ledger = ledger
         self.sink = sink if sink is not None else InMemorySink()
@@ -135,6 +144,7 @@ class CertifiedGate:
         candidates.sort(key=lambda c: (c.zone_id, c.shelter_id))
         fs = self.futures_factory(fc, self.graph, self.world, root, horizon, edge_ids=edges)
         self.last_futureset = fs  # evaluation scripts read executed-dispatch rollouts from it
+        self._audit_rule_fallbacks(t)
         result = certify(candidates, fs, view, self.world, self.params, self.graph,
                          clock=self.clock, rollout=self.rollout)
         inputs = CertificateInputs(
@@ -143,10 +153,23 @@ class CertifiedGate:
         )
         return result, inputs
 
+    def _audit_rule_fallbacks(self, timestep: int) -> None:
+        """Write RULE_STRICT_FALLBACK once per decision epoch for every T0 rule (simulator ledgers)."""
+        if not self.rules or getattr(self, "_audited_step", None) == timestep:
+            return
+        self._audited_step = timestep
+        from src.constraints.tiering import tier_audit_records
+
+        simulator = getattr(self.ledger, "simulator", None)
+        if simulator is not None:
+            for record in tier_audit_records(self.rules, timestep):
+                simulator._append_audit(record)
+
     def certificate_map(self, result: CertificationResult) -> CertificateMap:
         return CertificateMap(
             {c.action_key: c for c in result.candidates},
             threshold=1.0 - self.params.eps_dispatch, params_id=self.params.params_id,
+            rules=self.rules,
         )
 
     def commit(self, result: CertificationResult, inputs: CertificateInputs, *,
