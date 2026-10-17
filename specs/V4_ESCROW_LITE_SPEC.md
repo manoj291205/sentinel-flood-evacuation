@@ -100,3 +100,8 @@ consistent; honest labels. Out of scope: more than two teams, partial partitions
 change to Lane S code, any claim about evacuation outcomes.
 
 ## Amendments
+- 2026-10-17 (Lead, Wave C review): repeated outages in one console session. `restore()` reconciles and executes only the
+  offline dispatches of the outage being restored (it re-ran earlier outages' dispatches). Offline ids now start above every id
+  issued so far in the engine, online or offline: TEAM-A at that maximum + 1001, TEAM-B at + 1501 (the old + 1 / + 501 reused ids
+  after a restore, because the online ledger continues at its own last id + 1). `EscrowLedgerAdapter` gains an optional
+  `first_number`. Ids do not enter the futures root or any count, so the committed study file is unaffected.

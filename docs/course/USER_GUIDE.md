@@ -4,7 +4,7 @@ Disclosure level: RESTRICTED. The console shows real Fort Kochi road topology wi
 
 ## Start the console
 
-From the repository root on Windows, run `scripts/dev.ps1`. The release script checks the local Python environment and Node installation, installs web packages if needed, and starts the API and browser console. It prints the local URLs. Use Ctrl+C to stop both processes. For a browser-only preview with contract mock data, run `scripts/dev.ps1 -Mock`; that mode does not start the API. The release script is supplied by the release milestone, so confirm it is present on the merged branch before using this guide.
+From the repository root on Windows, run `scripts/dev.ps1`. The release script checks the local Python environment and Node installation, installs web packages if needed, and starts the API and browser console. It prints the local URLs. Use Ctrl+C to stop both processes. For a browser-only preview with contract mock data, run `scripts/dev.ps1 -Mock`; that mode does not start the API.
 
 Do not enter real incident data, API keys or passwords into the course screenshots. The optional demo password is for local access control and is not an operational authentication system. The mock mode is useful for page layout and keyboard checks; it must be labeled as a scripted preview, not as a recorded engine result.
 

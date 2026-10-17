@@ -14,11 +14,12 @@ certify it is safe across many sampled hazard futures. Otherwise it holds, and s
 ## 0:20–1:20 Live Operations — Run demo
 Click **Run demo**, then **Next** through the six steps. At each step read the caption aloud and point at the
 suggestion, the gate result and the map.
-- Step 0: a new dispatch is certified. "Each suggestion carries a certificate."
-- Step 1: a shelter closes while a group is on the road; the gate re-checks it and acts automatically.
-- Step 3: an option stays blocked because the evidence is too thin. "Undecided means blocked."
-- Step 4: no option clears the bar, so the suggestion is HOLD and escalate. "It does not guess."
-- Step 5: monitoring. Every decision so far has a certificate that can be replayed.
+- Step 0: no option clears the bar, so the suggestion is HOLD and the gate escalates. "It does not guess: undecided means blocked."
+- Steps 1–3: new dispatches, each with a certificate. The caption says how many options cleared the bar and how many
+  stayed undecided. From step 2 the groups already on the road are re-checked and kept.
+- Step 4: a group on the road loses its certificate and is re-routed automatically; the note names the re-route
+  certificate. "The operator is notified; the re-route is certified like any dispatch."
+- Step 5: another dispatch, with the re-checks still running. Every decision so far has a certificate that can be replayed.
 
 ## 1:20–2:10 Live session
 Switch to the live session. Start seed 620003 on `v4-medium-dt2-v1`. The first step is a HOLD: show the alternatives
@@ -40,8 +41,8 @@ counts of outages, conflicts and held dispatches are on Evidence & Results under
 there and quote nothing from memory.
 
 ## 3:40–4:10 Decisions & Certificates
-Open a certificate. Show its kind, the verdict bounds and the stored inputs. Click **Replay**: the result is MATCH.
-Click **Replay with tampered input**: the result is MISMATCH on the forecast hash. "Any certificate can be
+Open a certificate. Show its kind, the verdict bounds and the stored inputs. Click **Replay certificate**: the result is MATCH.
+Tick **Tamper with forecast (demo)** and click **Replay certificate** again: the result is MISMATCH on the forecast hash. "Any certificate can be
 re-derived from its stored inputs; changing an input is detected."
 
 ## 4:10–4:40 Evidence & Results

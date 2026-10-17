@@ -17,3 +17,17 @@
 [8] Sentinel project, `data/constraints_v4/p15t2/tier_results.json`, approved-rule tiering result.
 
 [9] Sentinel project, `data/eval_results/phase25/replay_batch.json` and `data/eval_results/phase26/`, certificate replay and in-transit re-check results.
+
+## Methods and libraries used
+
+[10] J. Schulman, F. Wolski, P. Dhariwal, A. Radford, O. Klimov, "Proximal Policy Optimization Algorithms," arXiv:1707.06347, 2017; trained through Stable-Baselines3 and sb3-contrib `MaskablePPO` (A. Raffin et al., "Stable-Baselines3: Reliable Reinforcement Learning Implementations," JMLR 22(268), 2021) on a Gymnasium environment.
+
+[11] S. Robertson, H. Zaragoza, "The Probabilistic Relevance Framework: BM25 and Beyond," Foundations and Trends in Information Retrieval 3(4), 2009 (the BM25 retriever).
+
+[12] G. V. Cormack, C. L. A. Clarke, S. Büttcher, reciprocal rank fusion, Proc. SIGIR 2009, pp. 758–759 (the hybrid retriever's rank fusion).
+
+[13] N. Reimers, I. Gurevych, "Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks," EMNLP 2019; the dense retriever uses the sentence-transformers library with the `all-MiniLM-L6-v2` model, run locally.
+
+[14] A. Hagberg, D. Schult, P. Swart, "Exploring Network Structure, Dynamics, and Function using NetworkX," Proc. SciPy 2008 (road-graph routing).
+
+[15] Software for the console and checks: FastAPI and Uvicorn (API), React with Vite and TypeScript (console), Playwright with axe-core (browser and accessibility tests), pytest and Hypothesis (Python tests), jsonschema (contract validation). Versions are pinned in `requirements*.txt` and `web/package-lock.json`.
