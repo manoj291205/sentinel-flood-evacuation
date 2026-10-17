@@ -1,0 +1,90 @@
+{
+  "schema": "p15t2-tier-results-v1",
+  "utc": "2026-10-17T07:04:34Z",
+  "rules_file": "data/constraints_v4/ndma_constraints.json",
+  "rules_file_sha256": "364e4117004a6a7ab53013e454fe4e25cff1ed41e737d85873bfc5f1bfaa054c",
+  "approval_record_sha256": "1a34e35afdddab53ba4dbbb9ac525db4dd63fce0e81c1e0b6e676366c4558e8f",
+  "approval_reason": "ACCEPTED",
+  "t2_enabled": true,
+  "t2_reason": "ENABLED",
+  "calls_total": 2,
+  "records": [
+    {
+      "rule_id": "NDMA-R01",
+      "tier": "T1",
+      "reasons": [],
+      "active_params": {
+        "severity": 0.6
+      },
+      "t2_enabled": true,
+      "t2_reason": "ENABLED",
+      "approval_record_sha256": "1a34e35afdddab53ba4dbbb9ac525db4dd63fce0e81c1e0b6e676366c4558e8f",
+      "evaluation_id": "v4-claim-support-eval-14d-v1",
+      "provider_id": "groq-claim-support-14d-v1",
+      "model_id": "openai/gpt-oss-120b",
+      "prompt_version": "14d-prompt-r0",
+      "prompt_sha256": "a81671a5e35cad1ef56f01f4c82f6e6af278306713e3b86313215a7f888eedbe",
+      "semantic_status": "CALLED",
+      "semantic": {
+        "utc": "2026-10-17T07:05:03Z",
+        "latency_ms": 1516,
+        "outcome": "PARTIALLY_SUPPORTED",
+        "source_integrity_pass": true,
+        "confidence": 0.8,
+        "supporting_sentence_ids": [
+          4,
+          5
+        ],
+        "attempts": 1,
+        "response_model": "openai/gpt-oss-120b",
+        "system_fingerprint": "fp_1d982b31b2",
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 1013,
+          "completion_tokens": 429,
+          "total_tokens": 1442
+        },
+        "stop_reason": null,
+        "http_status": 200
+      }
+    },
+    {
+      "rule_id": "NDMA-R02",
+      "tier": "T1",
+      "reasons": [],
+      "active_params": {
+        "fraction": 0.9
+      },
+      "t2_enabled": true,
+      "t2_reason": "ENABLED",
+      "approval_record_sha256": "1a34e35afdddab53ba4dbbb9ac525db4dd63fce0e81c1e0b6e676366c4558e8f",
+      "evaluation_id": "v4-claim-support-eval-14d-v1",
+      "provider_id": "groq-claim-support-14d-v1",
+      "model_id": "openai/gpt-oss-120b",
+      "prompt_version": "14d-prompt-r0",
+      "prompt_sha256": "a81671a5e35cad1ef56f01f4c82f6e6af278306713e3b86313215a7f888eedbe",
+      "semantic_status": "CALLED",
+      "semantic": {
+        "utc": "2026-10-17T07:05:05Z",
+        "latency_ms": 1015,
+        "outcome": "PARTIALLY_SUPPORTED",
+        "source_integrity_pass": true,
+        "confidence": 0.92,
+        "supporting_sentence_ids": [
+          3
+        ],
+        "attempts": 1,
+        "response_model": "openai/gpt-oss-120b",
+        "system_fingerprint": "fp_69334c0be3",
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 993,
+          "completion_tokens": 287,
+          "total_tokens": 1280
+        },
+        "stop_reason": null,
+        "http_status": 200
+      }
+    }
+  ]
+}
