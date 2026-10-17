@@ -447,15 +447,15 @@ for.
 \appendix
 \section{Per-Regime Results}
 
-\begin{table}[h]
+\noindent\begin{minipage}{\columnwidth}
 \centering\small
 \setlength{\tabcolsep}{3pt}
 \resizebox{\columnwidth}{!}{\input{generated/tab_regimes.tex}}
-\caption{All systems and regimes, 60 episodes each. Groups: dispatched groups in total; Safe arr./ep.:
+\captionof{table}{All systems and regimes, 60 episodes each. Groups: dispatched groups in total; Safe arr./ep.:
 mean people safely arrived per episode; Fail. rate: mean per-episode group failure rate; Migr.: migrations
 in total. The stress regime is secondary and was not used for any bar.}
 \label{tab:regimes}
-\end{table}
+\end{minipage}
 
 \section{Reproducibility}
 Every number in this paper is generated from frozen result files by one script, which also writes the
