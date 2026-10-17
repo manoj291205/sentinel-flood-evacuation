@@ -1,0 +1,601 @@
+{
+  "E1_P_vs_A": {
+    "available": true,
+    "ci95": [
+      -0.26402966095395053,
+      -0.19654621657010204
+    ],
+    "mean_diff": -0.2296067590502407,
+    "mean_rate_baseline": 0.23691856761204924,
+    "n_pairs": 120,
+    "relative_reduction": 0.9691378829633077
+  },
+  "E2_ratio_P_over_A2": 0.21389199255121044,
+  "NSU": {
+    "P": 47.858333333333334,
+    "lower_HOLD": 0.0,
+    "upper_A2": 223.75
+  },
+  "bars": {
+    "bar1": {
+      "numbers": {
+        "E1": {
+          "available": true,
+          "ci95": [
+            -0.26402966095395053,
+            -0.19654621657010204
+          ],
+          "mean_diff": -0.2296067590502407,
+          "mean_rate_baseline": 0.23691856761204924,
+          "n_pairs": 120,
+          "relative_reduction": 0.9691378829633077
+        },
+        "R_P_over_A2": 0.21389199255121044
+      },
+      "pass": false
+    },
+    "bar2": {
+      "numbers": {
+        "borderline_excluded": 227,
+        "candidates": 4798,
+        "false_accepts": {
+          "joint": 0,
+          "product_of_marginals": 0,
+          "separate_checks": 0
+        },
+        "false_block_reduction_vs_product": 0.26337448559670784,
+        "false_blocks": {
+          "joint": 179,
+          "product_of_marginals": 243,
+          "separate_checks": 243
+        },
+        "graded": 4571,
+        "mcnemar": {
+          "product_of_marginals": {
+            "joint_only_right": 64,
+            "other_only_right": 0,
+            "p": 1.0842021724855044e-19
+          },
+          "separate_checks": {
+            "joint_only_right": 64,
+            "other_only_right": 0,
+            "p": 1.0842021724855044e-19
+          }
+        },
+        "total_errors": {
+          "joint": 179,
+          "product_of_marginals": 243,
+          "separate_checks": 243
+        }
+      },
+      "pass": true
+    },
+    "bar3": {
+      "numbers": {
+        "futures_to_decide_with_and_without_crn": "not computed (secondary)",
+        "median_var_ratio": 1.0712332582321058,
+        "states": 50
+      },
+      "pass": false
+    },
+    "bar4": {
+      "numbers": {
+        "cp95_upper": 0.007461355528799601,
+        "share": 0.0,
+        "states": 400,
+        "states_with_false_accept": 0
+      },
+      "pass": true
+    }
+  },
+  "budget": {
+    "chosen_seed_range": [
+      1050000,
+      1050059
+    ],
+    "mean_episode_seconds": {
+      "A": 8.1975,
+      "A2": 7.653,
+      "B": 3129.522,
+      "HOLD": 10.439,
+      "P": 2251.3095,
+      "P-noFC": 2128.7295,
+      "P-noHyst": 2256.57
+    },
+    "projection_full_hours_on_16_workers": 30.6,
+    "rule": "if the projection exceeds 48 h use seeds 1050000-1050029 for every system",
+    "seeds_per_regime": 60,
+    "systems_without_timing": [],
+    "timing_regime": "v4-medium-dt2-v1",
+    "timing_seeds": [
+      1050000,
+      1050001
+    ],
+    "timing_wall_seconds": 4610.0,
+    "timing_workers": 14
+  },
+  "decision_level": {
+    "available": true,
+    "bars": {
+      "bar2": {
+        "pass": true
+      },
+      "bar3": {
+        "pass": false
+      },
+      "bar4": {
+        "pass": true
+      }
+    },
+    "q2": {
+      "borderline_excluded": 227,
+      "candidates": 4798,
+      "false_accepts": {
+        "joint": 0,
+        "product_of_marginals": 0,
+        "separate_checks": 0
+      },
+      "false_block_reduction_vs_product": 0.26337448559670784,
+      "false_blocks": {
+        "joint": 179,
+        "product_of_marginals": 243,
+        "separate_checks": 243
+      },
+      "graded": 4571,
+      "mcnemar": {
+        "product_of_marginals": {
+          "joint_only_right": 64,
+          "other_only_right": 0,
+          "p": 1.0842021724855044e-19
+        },
+        "separate_checks": {
+          "joint_only_right": 64,
+          "other_only_right": 0,
+          "p": 1.0842021724855044e-19
+        }
+      },
+      "total_errors": {
+        "joint": 179,
+        "product_of_marginals": 243,
+        "separate_checks": 243
+      }
+    },
+    "q3": {
+      "futures_to_decide_with_and_without_crn": "not computed (secondary)",
+      "median_var_ratio": 1.0712332582321058,
+      "states": 50
+    },
+    "q4": {
+      "cp95_upper": 0.007461355528799601,
+      "share": 0.0,
+      "states": 400,
+      "states_with_false_accept": 0
+    }
+  },
+  "episodes": {
+    "missing": {},
+    "systems": {
+      "A": {
+        "v4-high-dt2-v1": {
+          "cvar10_safe_arrivals": 73.83333333333333,
+          "dispatched_groups": 946,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.2937493308062194,
+          "mean_safe_arrivals": 203.6,
+          "mean_wall_seconds": 10.067416666666666,
+          "median_arrival_abs_error_steps": NaN,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.0010570824524312897,
+          "stranded_rate": 0.27801268498942916,
+          "unsafe_rate": 0.006342494714587738
+        },
+        "v4-medium-dt2-v1": {
+          "cvar10_safe_arrivals": 154.66666666666666,
+          "dispatched_groups": 1045,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.18008780441787914,
+          "mean_safe_arrivals": 252.61666666666667,
+          "mean_wall_seconds": 4.350700000000001,
+          "median_arrival_abs_error_steps": NaN,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.0028708133971291866,
+          "stranded_rate": 0.18086124401913875,
+          "unsafe_rate": 0.0
+        },
+        "v4-stress-dt2-v1": {
+          "cvar10_safe_arrivals": 91.83333333333333,
+          "dispatched_groups": 944,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.2614951528090073,
+          "mean_safe_arrivals": 213.66666666666666,
+          "mean_wall_seconds": 8.523283333333334,
+          "median_arrival_abs_error_steps": NaN,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.013771186440677966,
+          "stranded_rate": 0.2330508474576271,
+          "unsafe_rate": 0.00211864406779661
+        }
+      },
+      "A2": {
+        "v4-high-dt2-v1": {
+          "cvar10_safe_arrivals": 66.16666666666667,
+          "dispatched_groups": 960,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.3351403609433795,
+          "mean_safe_arrivals": 195.51666666666668,
+          "mean_wall_seconds": 11.959750000000001,
+          "median_arrival_abs_error_steps": NaN,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.0,
+          "stranded_rate": 0.303125,
+          "unsafe_rate": 0.020833333333333332
+        },
+        "v4-medium-dt2-v1": {
+          "cvar10_safe_arrivals": 155.66666666666666,
+          "dispatched_groups": 1031,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.18452279545932798,
+          "mean_safe_arrivals": 251.98333333333332,
+          "mean_wall_seconds": 4.417983333333334,
+          "median_arrival_abs_error_steps": NaN,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.0,
+          "stranded_rate": 0.18234723569350145,
+          "unsafe_rate": 0.0009699321047526673
+        },
+        "v4-stress-dt2-v1": {
+          "cvar10_safe_arrivals": 65.5,
+          "dispatched_groups": 962,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.2928949584270792,
+          "mean_safe_arrivals": 208.18333333333334,
+          "mean_wall_seconds": 10.870666666666667,
+          "median_arrival_abs_error_steps": NaN,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.005197505197505198,
+          "stranded_rate": 0.2588357588357588,
+          "unsafe_rate": 0.009355509355509356
+        }
+      },
+      "B": {
+        "v4-high-dt2-v1": {
+          "cvar10_safe_arrivals": 0.0,
+          "dispatched_groups": 362,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.03390716374269006,
+          "mean_safe_arrivals": 98.41666666666667,
+          "mean_wall_seconds": 3028.2912,
+          "median_arrival_abs_error_steps": NaN,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.0,
+          "stranded_rate": 0.055248618784530384,
+          "unsafe_rate": 0.0
+        },
+        "v4-medium-dt2-v1": {
+          "cvar10_safe_arrivals": 10.0,
+          "dispatched_groups": 620,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.048086325439266615,
+          "mean_safe_arrivals": 167.31666666666666,
+          "mean_wall_seconds": 3699.8757833333334,
+          "median_arrival_abs_error_steps": NaN,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.0,
+          "stranded_rate": 0.05,
+          "unsafe_rate": 0.0
+        },
+        "v4-stress-dt2-v1": {
+          "cvar10_safe_arrivals": 0.0,
+          "dispatched_groups": 504,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.03593545751633987,
+          "mean_safe_arrivals": 138.58333333333334,
+          "mean_wall_seconds": 2661.707316666667,
+          "median_arrival_abs_error_steps": NaN,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.0,
+          "stranded_rate": 0.03968253968253968,
+          "unsafe_rate": 0.001984126984126984
+        }
+      },
+      "HOLD": {
+        "v4-high-dt2-v1": {
+          "cvar10_safe_arrivals": 0.0,
+          "dispatched_groups": 0,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.0,
+          "mean_safe_arrivals": 0.0,
+          "mean_wall_seconds": 10.083,
+          "median_arrival_abs_error_steps": NaN,
+          "migrations": 0,
+          "migrations_per_group_hour": null,
+          "missing": 0,
+          "overflow_rate": null,
+          "stranded_rate": null,
+          "unsafe_rate": null
+        },
+        "v4-medium-dt2-v1": {
+          "cvar10_safe_arrivals": 0.0,
+          "dispatched_groups": 0,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.0,
+          "mean_safe_arrivals": 0.0,
+          "mean_wall_seconds": 6.340016666666667,
+          "median_arrival_abs_error_steps": NaN,
+          "migrations": 0,
+          "migrations_per_group_hour": null,
+          "missing": 0,
+          "overflow_rate": null,
+          "stranded_rate": null,
+          "unsafe_rate": null
+        },
+        "v4-stress-dt2-v1": {
+          "cvar10_safe_arrivals": 0.0,
+          "dispatched_groups": 0,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.0,
+          "mean_safe_arrivals": 0.0,
+          "mean_wall_seconds": 20.502183333333335,
+          "median_arrival_abs_error_steps": NaN,
+          "migrations": 0,
+          "migrations_per_group_hour": null,
+          "missing": 0,
+          "overflow_rate": null,
+          "stranded_rate": null,
+          "unsafe_rate": null
+        }
+      },
+      "P": {
+        "v4-high-dt2-v1": {
+          "cvar10_safe_arrivals": 0.0,
+          "dispatched_groups": 168,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.003896103896103896,
+          "mean_safe_arrivals": 43.233333333333334,
+          "mean_wall_seconds": 1861.525033333333,
+          "median_arrival_abs_error_steps": 0.0,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.0,
+          "stranded_rate": 0.011904761904761904,
+          "unsafe_rate": 0.0
+        },
+        "v4-medium-dt2-v1": {
+          "cvar10_safe_arrivals": 0.0,
+          "dispatched_groups": 231,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.010727513227513226,
+          "mean_safe_arrivals": 52.483333333333334,
+          "mean_wall_seconds": 3717.1234333333337,
+          "median_arrival_abs_error_steps": 0.0,
+          "migrations": 2,
+          "migrations_per_group_hour": 0.08426966292134831,
+          "missing": 0,
+          "overflow_rate": 0.0,
+          "stranded_rate": 0.021645021645021644,
+          "unsafe_rate": 0.0
+        },
+        "v4-stress-dt2-v1": {
+          "cvar10_safe_arrivals": 0.0,
+          "dispatched_groups": 259,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.006361416361416361,
+          "mean_safe_arrivals": 68.26666666666667,
+          "mean_wall_seconds": 2524.2038333333335,
+          "median_arrival_abs_error_steps": 0.0,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.0,
+          "stranded_rate": 0.019305019305019305,
+          "unsafe_rate": 0.0
+        }
+      },
+      "P-noFC": {
+        "v4-high-dt2-v1": {
+          "cvar10_safe_arrivals": 0.0,
+          "dispatched_groups": 275,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.024501262626262624,
+          "mean_safe_arrivals": 74.48333333333333,
+          "mean_wall_seconds": 1940.5449333333333,
+          "median_arrival_abs_error_steps": 0.0,
+          "migrations": 1,
+          "migrations_per_group_hour": 0.03558718861209964,
+          "missing": 0,
+          "overflow_rate": 0.0,
+          "stranded_rate": 0.025454545454545455,
+          "unsafe_rate": 0.0
+        },
+        "v4-medium-dt2-v1": {
+          "cvar10_safe_arrivals": 0.0,
+          "dispatched_groups": 516,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.04129492239786357,
+          "mean_safe_arrivals": 134.36666666666667,
+          "mean_wall_seconds": 3240.1515999999997,
+          "median_arrival_abs_error_steps": 0.0,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.0,
+          "stranded_rate": 0.029069767441860465,
+          "unsafe_rate": 0.003875968992248062
+        },
+        "v4-stress-dt2-v1": {
+          "cvar10_safe_arrivals": 0.0,
+          "dispatched_groups": 428,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.01597222222222222,
+          "mean_safe_arrivals": 117.6,
+          "mean_wall_seconds": 2577.91455,
+          "median_arrival_abs_error_steps": 0.0,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.0,
+          "stranded_rate": 0.014018691588785047,
+          "unsafe_rate": 0.0
+        }
+      },
+      "P-noHyst": {
+        "v4-high-dt2-v1": {
+          "cvar10_safe_arrivals": 0.0,
+          "dispatched_groups": 168,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.003896103896103896,
+          "mean_safe_arrivals": 43.233333333333334,
+          "mean_wall_seconds": 2825.332316666667,
+          "median_arrival_abs_error_steps": 0.0,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.0,
+          "stranded_rate": 0.011904761904761904,
+          "unsafe_rate": 0.0
+        },
+        "v4-medium-dt2-v1": {
+          "cvar10_safe_arrivals": 0.0,
+          "dispatched_groups": 231,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.010727513227513226,
+          "mean_safe_arrivals": 52.483333333333334,
+          "mean_wall_seconds": 4181.272116666666,
+          "median_arrival_abs_error_steps": 0.0,
+          "migrations": 2,
+          "migrations_per_group_hour": 0.08426966292134831,
+          "missing": 0,
+          "overflow_rate": 0.0,
+          "stranded_rate": 0.021645021645021644,
+          "unsafe_rate": 0.0
+        },
+        "v4-stress-dt2-v1": {
+          "cvar10_safe_arrivals": 0.0,
+          "dispatched_groups": 259,
+          "episodes": 60,
+          "mean_group_failure_rate": 0.006361416361416361,
+          "mean_safe_arrivals": 68.26666666666667,
+          "mean_wall_seconds": 3307.039566666667,
+          "median_arrival_abs_error_steps": 0.0,
+          "migrations": 0,
+          "migrations_per_group_hour": 0.0,
+          "missing": 0,
+          "overflow_rate": 0.0,
+          "stranded_rate": 0.019305019305019305,
+          "unsafe_rate": 0.0
+        }
+      }
+    }
+  },
+  "latency_q5": [
+    {
+      "certify_only_ms": {
+        "p50": 288.3669500006363,
+        "p95": 1058.9184000273235
+      },
+      "end_to_end_ms": {
+        "p50": 6639.287199999671,
+        "p95": 13914.708100026473
+      },
+      "energy": "not measured (no USB power meter)",
+      "label": "laptop",
+      "machine": "Windows-11-10.0.26200-SP0",
+      "n": 256,
+      "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+      "states": 20,
+      "targets_ms": {
+        "certify_only_p95": 100,
+        "end_to_end_p95": 10000
+      }
+    }
+  ],
+  "secondary": {
+    "P_noFC_vs_A": {
+      "available": true,
+      "ci95": [
+        -0.24415518872318767,
+        -0.1619213051775939
+      ],
+      "mean_diff": -0.20402047509998614,
+      "mean_rate_baseline": 0.23691856761204924,
+      "n_pairs": 120,
+      "relative_reduction": 0.8611417718600543
+    },
+    "P_noHyst_vs_A": {
+      "available": true,
+      "ci95": [
+        -0.26402966095395053,
+        -0.19654621657010204
+      ],
+      "mean_diff": -0.2296067590502407,
+      "mean_rate_baseline": 0.23691856761204924,
+      "n_pairs": 120,
+      "relative_reduction": 0.9691378829633077
+    },
+    "P_vs_A_per_regime": {
+      "v4-high-dt2-v1": {
+        "available": true,
+        "ci95": [
+          -0.3475201991367336,
+          -0.23479264276458547
+        ],
+        "mean_diff": -0.28985322691011545,
+        "mean_rate_baseline": 0.2937493308062194,
+        "n_pairs": 60,
+        "relative_reduction": 0.9867366373723788
+      },
+      "v4-medium-dt2-v1": {
+        "available": true,
+        "ci95": [
+          -0.20802339594861513,
+          -0.13394383674675864
+        ],
+        "mean_diff": -0.16936029119036589,
+        "mean_rate_baseline": 0.18008780441787914,
+        "n_pairs": 60,
+        "relative_reduction": 0.9404317618164697
+      }
+    },
+    "P_vs_A_stress": {
+      "available": true,
+      "ci95": [
+        -0.3007509494611854,
+        -0.2103729788103337
+      ],
+      "mean_diff": -0.2551337364475909,
+      "mean_rate_baseline": 0.2614951528090073,
+      "n_pairs": 60,
+      "relative_reduction": 0.9756729090651148
+    },
+    "P_vs_B": {
+      "available": true,
+      "ci95": [
+        -0.04884288563245606,
+        -0.0194837855580164
+      ],
+      "mean_diff": -0.033684936029169776,
+      "mean_rate_baseline": 0.04099674459097834,
+      "n_pairs": 120,
+      "relative_reduction": 0.8216490447044524
+    }
+  }
+}

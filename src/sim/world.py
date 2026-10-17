@@ -40,6 +40,8 @@ def _world(level: str) -> V4WorldConfig:
 V4_WORLDS: dict[str, V4WorldConfig] = {
     w.world_id: w for w in (_world("low"), _world("medium"), _world("high"))
 }
+# Phase 27 secondary stress regime (pre-registered): HIGH hazards with heavy walk-ins.
+V4_WORLDS["v4-stress-dt2-v1"] = replace(_world("high"), world_id="v4-stress-dt2-v1", walk_in_rate=2.0)
 
 
 def get_world_config(world_id: str | V4WorldConfig) -> V4WorldConfig:

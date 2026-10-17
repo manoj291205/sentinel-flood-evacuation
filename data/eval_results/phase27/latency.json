@@ -1,0 +1,22 @@
+[
+  {
+    "label": "laptop",
+    "machine": "Windows-11-10.0.26200-SP0",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "states": 20,
+    "n": 256,
+    "certify_only_ms": {
+      "p50": 288.3669500006363,
+      "p95": 1058.9184000273235
+    },
+    "end_to_end_ms": {
+      "p50": 6639.287199999671,
+      "p95": 13914.708100026473
+    },
+    "targets_ms": {
+      "certify_only_p95": 100,
+      "end_to_end_p95": 10000
+    },
+    "energy": "not measured (no USB power meter)"
+  }
+]

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sys
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -70,7 +71,7 @@ def build_certificate(
         "params": {
             "params_id": params.params_id, "eps_dispatch": params.eps_dispatch,
             "eps_keep": params.eps_keep, "delta": params.delta, "k0": params.k0,
-            "max_looks": params.max_looks, "a_max": a_max, "deadline_ms": params.deadline_ms,
+            "max_looks": params.max_looks, "a_max": a_max, "deadline_ms": min(params.deadline_ms, sys.float_info.max),
             "backend": params.backend,
         },
         "edge_set_digest": edge_set_digest,

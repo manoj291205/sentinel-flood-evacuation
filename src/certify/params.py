@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 
@@ -25,6 +26,8 @@ class CertParams:
 
 _REGISTRY = {
     "v4-cert-v1": CertParams(),
+    # Phase 27 evaluation: three looks (256 / 512 / 1024), no wall-clock deadline (deterministic).
+    "v4-cert-eval-v1": CertParams(params_id="v4-cert-eval-v1", max_looks=3, deadline_ms=math.inf),
     # CI speed only; never used for results.
     "v4-cert-test-v1": CertParams(
         params_id="v4-cert-test-v1", eps_dispatch=0.30, eps_keep=0.40, k0=32, max_looks=2,
