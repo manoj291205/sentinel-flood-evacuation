@@ -228,6 +228,7 @@ it has been reviewed and merged into `main`.
 | 35-lite| Network-outage capacity shares (exploratory)                | ✅ Complete — exploratory, no outcome claim |
 | 37     | Conference paper                                            | ⏳ Planned (after Wave C)                |
 | 38     | Journal extension                                           | ⏳ Optional                              |
+| 39     | Console showcase: simulation library, replay, live decision pop-up | ⏳ Planned (Lane X)              |
 | P0, 29 | Patent filing                                               | ⏸ On hold                                |
 | 35     | Full escrow embodiment                                      | ✖ Dropped (D-27)                         |
 <!-- MILESTONE-TABLE:END -->
