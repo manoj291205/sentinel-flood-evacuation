@@ -43,14 +43,17 @@ attribution; commit messages have no co-author trailers. The course pack remains
 
 ## Verification
 
-- Targeted Python API and new library tests: 12 passed after preserving the original KPI object shape.
+- Targeted Python API and new library tests: 13 passed after preserving the original KPI object shape;
+  the certified live-session acceptance module also passed 8 tests after the additive state field.
 - TypeScript: `npx tsc --noEmit` passed.
 - Production web build: `npm run build` passed.
 - Vitest: 21 passed.
-- Mock Playwright including seven page-level axe checks: 36 passed, one conditional screenshot case skipped.
+- Mock Playwright including seven page-level axe checks: 36 passed, two conditional live-artifact
+  cases skipped. The recorded replay case passed separately against the local API at all five speeds.
 - Live Playwright against the local API: 10 passed.
-- Full Python suite: pending final rerun after the KPI compatibility fix. The earlier run found that one
-  extra KPI key broke `test_p30_api.py`; the targeted 12 tests now pass. Update this line before REVIEW.
+- Full Python suite after the KPI compatibility fix: 1,116 passed, no failures, one dependency
+  deprecation warning (16:41). The new additive-field test was added after that run started and
+  passed in the targeted 13-test run.
 
 The Playwright capture case was run separately against the local API after the library index loaded.
 Screenshots: `LX39_shots/overview.png`, `live.png`, `live-modal.png`, `simulations.png`,
