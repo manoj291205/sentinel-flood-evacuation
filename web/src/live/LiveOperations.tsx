@@ -1,15 +1,33 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import type { DemoState } from '../types';
-import { GuidedDemoBar, KpiTiles, PipelineStrip } from './GuidedDemoBar';
-import { Legend, OperationsMap } from './OperationsMap';
-import { DecisionConsole, EventFeed, GatePanel, ShelterLedger, SideTabs, SuggestionCard, TransitList, type SideTab } from './Panels';
+import { GuidedDemoBar, PipelineStrip } from './GuidedDemoBar';
+import { Legend, SimulationMap, type SimulationMapStep } from './OperationsMap';
+import { EventFeed, GatePanel, ShelterLedger, SideTabs, SuggestionCard, TransitList, type SideTab } from './Panels';
 import styles from './Live.module.css';
+import { CommandCentre, KpiStrip, OperatorBar, DecisionsLog } from './CommandCentre';
+import { useSessionStore, type Subject } from './sessionStore';
 import LiveSession from './LiveSession';
+import DecisionModal, { type Candidate, type Context } from './DecisionModal';
+import demoFixture from '../../../specs/contracts/demo_steps.json';
+
+function recordedSubject(key: string, label: string): Subject {
+  if (key === 'WAIT') return { action_key: key, kind: 'HOLD', people: null, zone_id: null, shelter_id: null };
+  const route = /\b(Z-\d+)\s*→\s*(S-\d+)\b/.exec(label);
+  const count = /(?:·|\s)(\d+)\s*(?:people)?\b/.exec(label);
+  return { action_key: key, kind: 'DISPATCH', people: count ? Number(count[1]) : null,
+    zone_id: route?.[1] ?? null, zone_name: route?.[1] ?? null,
+    shelter_id: route?.[2] ?? null, shelter_name: route?.[2] ?? null };
+}
 
 export default function LiveOperations() {
-  const [mode, setMode] = useState<'guided' | 'session'>('guided');
+  const [mode, setMode] = useState<'guided' | 'session'>('session');
+  const [legacyDialog, setLegacyDialog] = useState(false);
+  const [networkMode, setNetworkMode] = useState(false);
+  const live = useSessionStore();
+  const [practiceChoice, setPracticeChoice] = useState<'OVERRIDE' | 'DECLINE' | null>(null);
+  const [practiceLogOpen, setPracticeLogOpen] = useState(false);
   const queryClient = useQueryClient();
   const demo = useQuery({ queryKey: ['demo'], queryFn: api.demoState, refetchInterval: import.meta.env.VITE_API_MOCK === '1' ? false : 3000 });
   const geometry = useQuery({ queryKey: ['geometry'], queryFn: api.geometry, staleTime: Infinity });
@@ -60,6 +78,20 @@ export default function LiveOperations() {
   };
 
   const step = demo.data?.step;
+  const practiceContext = useMemo<Context | null>(() => {
+    if (!step) return null;
+    const candidate = (row: typeof step.gate.candidates[number]): Candidate => {
+      return { action_key: row.id, label: row.label, verdict: row.status, lower: row.lower,
+        certified: row.status === 'FEASIBLE' || row.status === 'ALWAYS ALLOWED', comparison: row.meta,
+        subject: recordedSubject(row.id, row.label) };
+    };
+    const candidates = step.gate.candidates.map(candidate);
+    const recommendation = candidates.find(row => row.action_key === step.default_selection) ??
+      { action_key: 'WAIT', label: 'HOLD', verdict: 'ALWAYS ALLOWED', lower: null, certified: true,
+        comparison: '', subject: { action_key: 'WAIT', kind: 'HOLD' as const, people: null, zone_id: null, shelter_id: null } };
+    return { certified: { timestep: step.timestep, recommendation, why: step.suggestion.why,
+      alternatives: candidates.filter(row => row.action_key !== recommendation.action_key), rechecks: [], note: step.caption } };
+  }, [step]);
   useEffect(() => {
     if (!playing || !step) return;
     if (step.step_index === (demo.data?.step_count ?? 6) - 1) {
@@ -75,13 +107,22 @@ export default function LiveOperations() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playing, step?.step_index]);
 
-  const modeSwitch = <div role="radiogroup" aria-label="Mode"><label><input type="radio" name="mode" checked={mode === 'guided'} onChange={() => setMode('guided')} />Guided demo</label><label><input type="radio" name="mode" checked={mode === 'session'} onChange={() => setMode('session')} />Live session</label></div>;
-  if (mode === 'session') return <div className={styles.page}>{modeSwitch}<LiveSession geometry={geometry.data} /></div>;
+  const modeSwitch = <div role="radiogroup" aria-label="Mode" className={styles.modeSwitch}><label className={mode === 'session' ? styles.modeActive : ''}><input type="radio" name="mode" checked={mode === 'session' && legacyDialog} onChange={() => { setMode('session'); setLegacyDialog(true); }} aria-label="Live session" />LIVE ENGINE</label><label className={mode === 'guided' ? styles.modeActive : ''}><input type="radio" name="mode" checked={mode === 'guided'} onChange={() => setMode('guided')} aria-label="Guided demo" />RECORDED WALKTHROUGH</label></div>;
+  if (mode === 'session') return <div className={styles.page}>{modeSwitch}{!live.sessionId && !networkMode && <button type="button" onClick={() => { setMode('guided'); void action('reset'); }}>Reset</button>}{!networkMode && !live.sessionId && demo.data?.source === 'RECORDED' && <section className={styles.card}><h2>Recorded walkthrough ready</h2><p>Recorded run of the real engine · {demo.data.seed_note}</p><button type="button" onClick={() => { setMode('guided'); void togglePlay(); }}>Run demo</button></section>}{!networkMode && <label><input type="checkbox" checked={false} onChange={() => setNetworkMode(true)} />Two-team network demo</label>}{networkMode ? <LiveSession geometry={geometry.data} initialNetworkDemo /> : <CommandCentre geometry={geometry.data} legacyDialog={legacyDialog} />}</div>;
   if (demo.isPending || geometry.isPending) return <section className={styles.loading} aria-label="Loading operations"><h1>Live Operations</h1><div /><div /><div /></section>;
   if (demo.isError || geometry.isError) return <section className={styles.error} role="alert"><h1>Live Operations</h1><p>API unavailable. {String(demo.error ?? geometry.error)}</p><button type="button" onClick={() => { void demo.refetch(); void geometry.refetch(); }}>Retry</button></section>;
 
   const current = demo.data.step;
+  const practiceSubject: Subject = recordedSubject(current.default_selection, current.gate.candidates.find(row => row.id === current.default_selection)?.label ?? current.suggestion.title);
+  const practiceResult = live.log.find(row => row.source === 'PRACTICE' && row.step === current.timestep);
   const chosen = selectedCandidate || current.default_selection;
+  const recordedRoutes = demoFixture.routes as Record<string, { svg_path: string }>;
+  const recordedMap: SimulationMapStep = {
+    chosen_key: chosen,
+    candidates: current.gate.candidates.filter(item => recordedRoutes[item.id]).map(item => { const subject = recordedSubject(item.id, item.label); return { action_key: item.id, label: subject.zone_name && subject.shelter_name ? `${subject.zone_name} → ${subject.shelter_name}` : item.label, people: subject.people, verdict: item.status, svg_path: recordedRoutes[item.id].svg_path }; }),
+    zone_severity: {}, shelter_severity: {}, edge_closed_path: geometry.data.closed,
+    shelters: current.shelters.map(item => ({ id: item.shelter_id.replace('-', ''), capacity: item.capacity_total, occupied: item.occupied, reserved: item.reserved })),
+  };
   const stale = import.meta.env.VITE_API_MOCK !== '1' && now - demo.dataUpdatedAt > 5000;
   return <div className={styles.page}>
     {modeSwitch}
@@ -93,10 +134,12 @@ export default function LiveOperations() {
     <GuidedDemoBar step={current} count={demo.data.step_count} playing={playing} completed={completed} onPrevious={() => void action('prev')} onNext={() => void action('next')} onReset={() => void action('reset')} onTogglePlay={() => void togglePlay()} />
     {demo.data.seed_note && <p>{demo.data.seed_note}</p>}
     <PipelineStrip current={current.pipeline_stage} />
-    <KpiTiles kpis={current.kpis} />
+    <OperatorBar step={current.timestep} subject={current.suggestion.title.replace(/^HOLD (Zone \d+)/, '$1 · HOLD')} verdict={current.kind} phase={practiceResult ? 'RESULT' : 'AWAIT_DECISION'} result={practiceResult} busy={false} onAccept={() => { live.practice('ACCEPT', practiceSubject, current.timestep, current.certificate_id ?? undefined); setAccepted(true); }} onOverride={() => setPracticeChoice('OVERRIDE')} onDecline={() => setPracticeChoice('DECLINE')} onStep={() => void action('next')} />
+    {practiceChoice && practiceContext && <><p className={styles.notice}>PRACTICE — not sent to the engine; the recording continues with the original ACCEPT</p><button type="button" onClick={() => { setPracticeChoice(null); setMode('session'); }}>Try this step in the live engine</button><DecisionModal context={practiceContext} result={null} refusal={null} busy={false} session="" safeDelta={null} initialChoice={practiceChoice === 'DECLINE' ? 'REJECT' : 'OVERRIDE'} onClose={() => setPracticeChoice(null)} onNext={() => void action('next')} onSubmit={(choice, selected, reason) => { const chosen = practiceContext.certified.alternatives.find(item => item.action_key === selected)?.subject ?? practiceSubject; live.practice(choice === 'REJECT' ? 'DECLINE' : choice, choice === 'OVERRIDE' ? chosen : practiceSubject, current.timestep, undefined, reason); setAccepted(true); setPracticeChoice(null); }} /></>}
+    <KpiStrip values={{ waiting: current.kpis.waiting, in_transit: current.kpis.on_road, safe: current.kpis.safe, certificates_issued: current.kpis.certificates_issued, decisions: live.log.filter(row => row.source === 'PRACTICE').length }} history={[{ waiting: current.kpis.waiting, in_transit: current.kpis.on_road, safe: current.kpis.safe, certificates_issued: current.kpis.certificates_issued }]} />
     <div className={styles.operationsGrid}>
       <section className={styles.mapColumn} aria-label="Operations map">
-        <OperationsMap geometry={geometry.data} step={current} selectedCandidate={chosen} />
+        <SimulationMap geometry={geometry.data} step={recordedMap} label="Recorded walkthrough" marks={live.log.filter(row => row.source === 'PRACTICE' && row.step === current.timestep).map(row => ({ id: row.id, action_key: row.subject.action_key, decision: row.decision }))} />
         <p className={styles.mapSummary}>{Object.keys(geometry.data.zones).length} zones · {current.shelters.length} shelters · {current.groups.length} groups in transit · simulated road closures</p>
         <Legend />
         <EventFeed events={current.events} />
@@ -106,7 +149,7 @@ export default function LiveOperations() {
         {tab === 'Suggestion' && <>
           <SuggestionCard step={current} recorded={demo.data.source === 'RECORDED'} />
           <GatePanel step={current} selected={chosen} onSelect={setSelectedCandidate} />
-          <DecisionConsole key={current.step_index} step={current} accepted={accepted} onAccept={() => setAccepted(true)} recorded={demo.data.source === 'RECORDED'} />
+          {live.log.some(row => row.source === 'PRACTICE') && <><button type="button" onClick={() => setPracticeLogOpen(value => !value)}>Decisions log</button>{practiceLogOpen && <DecisionsLog entries={live.log.filter(row => row.source === 'PRACTICE')} sessionId={live.sessionId} />}</>}
         </>}
         {tab === 'In transit' && <TransitList groups={current.groups} />}
         {tab === 'Shelters' && <ShelterLedger shelters={current.shelters} />}

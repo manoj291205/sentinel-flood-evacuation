@@ -20,3 +20,9 @@
 .placeholder p{color:var(--ink2)}
 @media(max-width:800px){.body{display:block}.nav{border-right:0;border-bottom:1px solid var(--rule);display:flex;flex-direction:row;overflow-x:auto;white-space:nowrap;padding:6px 12px;gap:4px}.navGroup{display:none}.nav a{flex:none}.content{padding:16px}.header{padding:10px 16px}.honesty{padding:8px 16px}.headerRight{margin-left:0}}
 @media(max-width:480px){.headerRight{width:100%;justify-content:space-between}.operator{display:none}.regime{display:none}.incident{font-size:11px}.content{padding:12px}.honesty{font-size:10px;letter-spacing:.02em}}
+.pendingBadge { display:inline-grid; place-items:center; min-width:1.3rem; height:1.3rem; margin-left:.5rem; border-radius:50%; background:var(--bad); color:var(--surface); font-weight:700; }
+.toast { position:fixed; right:1.5rem; bottom:1.5rem; z-index:100; max-width:min(26rem,calc(100vw - 3rem)); padding:.85rem 1rem; background:var(--surface); border:2px solid var(--info); box-shadow:0 8px 24px #0003; display:flex; gap:1rem; align-items:center; }
+.toast[data-tone="ok"] { border-color:var(--ok); }
+.toast[data-tone="danger"] { border-color:var(--bad); }
+.toast[data-tone="warn"] { border-color:var(--warn); }
+.toast button { font-size:1.4rem; background:transparent; border:0; color:var(--ink); cursor:pointer; }

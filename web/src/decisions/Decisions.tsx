@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import type { Certificate, CertificateCandidate } from '../types';
 import styles from './Decisions.module.css';
+import { useSessionStore } from '../live/sessionStore';
 
 const kinds = ['All', 'Dispatch', 'Migration', 'Hold', 'Override'] as const;
 
@@ -49,6 +50,7 @@ function CandidateTable({ cert }: { cert: Certificate }) {
 }
 
 export default function Decisions() {
+  const live = useSessionStore();
   const [search, setSearch] = useSearchParams();
   const sessionId = search.get('session');
   const [kind, setKind] = useState<(typeof kinds)[number]>('All');
@@ -58,9 +60,10 @@ export default function Decisions() {
   const [replaying, setReplaying] = useState(false);
   const list = useQuery({ queryKey: ['certificates', sessionId], queryFn: sessionId ?
     () => api.sessionCertificates(sessionId) : api.certificates });
-  const ordered = orderedCertificates(list.data?.certificates ?? []);
+  const liveCertificates = sessionId && sessionId === live.sessionId ? live.certificates as unknown as Certificate[] : [];
+  const ordered = orderedCertificates(liveCertificates.length ? liveCertificates : list.data?.certificates ?? []);
   const selectedId = search.get('cert') ?? ordered[0]?.cert_id ?? '';
-  const detail = useQuery({ queryKey: ['certificate', sessionId, selectedId], queryFn: sessionId ?
+  const detail = useQuery({ queryKey: ['certificate', sessionId, selectedId, live.certificates.length], queryFn: sessionId ?
     async () => (await api.sessionCertificates(sessionId)).certificates.find(item => item.cert_id === selectedId) as Certificate :
     () => api.certificate(selectedId), enabled: !!selectedId });
   const why = useQuery({ queryKey: ['why', selectedId], queryFn: () => api.why(selectedId), enabled: !!selectedId && !sessionId, retry: false });
@@ -83,6 +86,7 @@ export default function Decisions() {
   return <div className={styles.page}>
     <header className={styles.heading}><p className={styles.eyebrow}>VERIFY / DECISIONS</p><h1>Decisions &amp; Certificates</h1>
       <p>Every recorded suggestion, gate verdict, operator action, and replayable certificate in this simulated incident.</p></header>
+    {live.sessionId && <label className={styles.filters}><input type="checkbox" checked={sessionId === live.sessionId} onChange={event => setSearch(event.target.checked ? { session: live.sessionId } : {})} />Show this live session</label>}
     {list.isPending && <p role="status">Loading certificates…</p>}
     {list.isError && <div role="alert" className={styles.error}>Certificates unavailable. <button type="button" onClick={() => void list.refetch()}>Retry</button></div>}
     {!list.isPending && !list.isError && <div className={styles.layout}>
@@ -90,7 +94,7 @@ export default function Decisions() {
         <div className={styles.sectionHead}><h2>This session</h2><span className="mono">{ordered.length} records</span></div>
         <fieldset className={styles.filters}><legend>Kind</legend><div role="radiogroup" aria-label="Kind">{kinds.map(item => <label key={item}><input type="radio" name="kind" checked={kind === item} onChange={() => setKind(item)} />{item}</label>)}</div></fieldset>
         {visible.length === 0 && <p className={styles.empty}>No certificates yet</p>}
-        {visible.map(cert => <button type="button" className={styles.row} key={cert.cert_id} aria-pressed={selectedId === cert.cert_id} onClick={() => select(cert.cert_id)}>
+        {visible.map(cert => <button type="button" className={styles.row} key={cert.cert_id} aria-pressed={selectedId === cert.cert_id} data-new={liveCertificates.some(item => item.cert_id === cert.cert_id)} onClick={() => select(cert.cert_id)}>
           <span className={styles.rowTop}><strong className="mono">{cert.cert_id}</strong><Verdict verdict={cert.kind} /></span>
           <span>{cert.kind} · {actionLabel(cert.chosen.action_key)} · {cert.chosen.people}</span>
           <small className="mono">t {cert.timestep} · {cert.operator.actor}</small>

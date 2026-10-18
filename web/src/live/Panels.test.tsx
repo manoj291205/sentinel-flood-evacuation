@@ -1,10 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import fixture from '../../../specs/contracts/demo_steps.json';
 import type { DemoStep } from '../types';
-import { DecisionConsole, EventFeed, GatePanel, ShelterLedger, SideTabs, SuggestionCard, TransitList } from './Panels';
+import { EventFeed, GatePanel, ShelterLedger, SideTabs, SuggestionCard, TransitList } from './Panels';
 
 const step = fixture.steps[2] as DemoStep;
 
@@ -28,17 +27,6 @@ describe('operations side panels', () => {
     const candidate = step.gate.candidates[0];
     await userEvent.click(screen.getByRole('button', { name: `${candidate.label} ${candidate.status}` }));
     expect(select).toHaveBeenCalledWith(candidate.id);
-  });
-
-  it('requires a reason for an override and displays acceptance certificate', async () => {
-    const accept = vi.fn();
-    const view = render(<MemoryRouter><DecisionConsole step={step} accepted={false} onAccept={accept} /></MemoryRouter>);
-    await userEvent.click(screen.getByRole('button', { name: 'Override' }));
-    expect(screen.getByLabelText(/REASON/)).toBeRequired();
-    await userEvent.click(screen.getByRole('button', { name: 'Accept' }));
-    expect(accept).toHaveBeenCalledOnce();
-    view.rerender(<MemoryRouter><DecisionConsole step={step} accepted onAccept={accept} /></MemoryRouter>);
-    expect(screen.getByText(step.certificate_id!)).toBeVisible();
   });
 
   it('renders transit, shelter and event fixture records', () => {

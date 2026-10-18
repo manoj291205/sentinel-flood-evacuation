@@ -10,6 +10,7 @@ import System from './pages/System';
 import Simulations from './sims/Simulations';
 import Journey from './pages/Journey';
 import styles from './App.module.css';
+import { useSessionStore } from './live/sessionStore';
 
 const HONESTY = 'REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED';
 
@@ -21,6 +22,7 @@ function initialTheme(): Theme {
 }
 
 export default function App() {
+  const live = useSessionStore();
   const demo = useQuery({ queryKey: ['demo'], queryFn: api.demoState });
   const [theme, setTheme] = useState<Theme>(initialTheme);
   const [clock, setClock] = useState(() => new Date());
@@ -40,7 +42,7 @@ export default function App() {
         <svg viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="1" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M5 15L11 6L17 15" fill="none" stroke="currentColor" strokeWidth="2" /></svg>
         SENTINEL
       </div>
-      <div className={styles.incident}>{demo.data ? `GUIDED DEMO · t = ${demo.data.step.timestep}` : `INCIDENT — · ${demo.isError ? 'API unavailable' : 'loading demo state'}`}</div>
+      <div className={styles.incident}>{live.sessionId ? `LIVE SESSION · ${live.world} · step ${live.context?.certified.timestep ?? live.state?.current_timestep ?? '—'}/${live.horizonSteps ?? '—'} · ${live.log.filter(row => row.source === 'LIVE').length} decisions · ${live.phase === 'AWAIT_DECISION' ? 1 : 0} pending` : demo.data ? `GUIDED DEMO · t = ${demo.data.step.timestep}` : `INCIDENT — · ${demo.isError ? 'API unavailable' : 'loading demo state'}`}</div>
       <div className={styles.headerRight}>
         <span className={styles.regime}>SIMULATED CONDITIONS</span>
         <time className={styles.incident} dateTime={clock.toISOString()}>{clock.toLocaleTimeString('en-IN', { hour12: false })}</time>
@@ -53,7 +55,7 @@ export default function App() {
       <aside className={styles.nav} aria-label="Console navigation">
       <nav aria-label="Main" className={styles.navCore}>
         <span className={styles.navGroup}>OPERATE</span>
-        {nav('/', 'Overview')}{nav('/live', 'Live Operations')}
+        {nav('/', 'Overview')}<NavLink to="/live">Live Operations {live.phase === 'AWAIT_DECISION' && <span aria-hidden="true" className={styles.pendingBadge}>1</span>}</NavLink>
         <span className={styles.navGroup}>VERIFY</span>
         {nav('/decisions', 'Decisions & Certificates')}
         <span className={styles.navGroup}>EVIDENCE</span>
@@ -79,5 +81,6 @@ export default function App() {
         </Routes>
       </main>
     </div>
+    {live.toast && <div className={styles.toast} data-tone={live.toast.tone} role="status"><span>{live.toast.text}</span><button type="button" aria-label="Dismiss notification" onClick={live.clearToast}>×</button></div>}
   </div>;
 }

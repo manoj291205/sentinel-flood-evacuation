@@ -39,7 +39,7 @@ async function request<T>(path: string, body?: object): Promise<T> {
   return data as T;
 }
 
-export default function LiveSession({ geometry }: { geometry?: MapGeometry }) {
+export default function LiveSession({ geometry, initialNetworkDemo = false }: { geometry?: MapGeometry; initialNetworkDemo?: boolean }) {
   const [phase, transition] = useReducer(livePhase, 'IDLE');
   const [seed, setSeed] = useState(620003);
   const [world, setWorld] = useState('v4-medium-dt2-v1');
@@ -54,7 +54,7 @@ export default function LiveSession({ geometry }: { geometry?: MapGeometry }) {
   const [error, setError] = useState('');
   const [refusal, setRefusal] = useState<Refusal | null>(null);
   const [tab, setTab] = useState<'Suggestion' | 'In transit' | 'Shelters' | 'Audit log'>('Suggestion');
-  const [networkDemo, setNetworkDemo] = useState(false);
+  const [networkDemo, setNetworkDemo] = useState(initialNetworkDemo);
   const [escrowMode, setEscrowMode] = useState<'escrow' | 'last_known'>('escrow');
   const [escrowStatus, setEscrowStatus] = useState<EscrowStatus | null>(null);
   const [escrowComparison, setEscrowComparison] = useState<EscrowComparison | null>(null);
