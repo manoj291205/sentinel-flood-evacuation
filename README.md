@@ -229,6 +229,7 @@ it has been reviewed and merged into `main`.
 | 37     | Conference paper                                            | 📝 Draft complete — not submitted        |
 | 38     | Journal extension                                           | ⏳ Optional                              |
 | 39     | Console showcase: simulation library, replay, live decision pop-up | ✅ Complete                     |
+| 40     | Live Operations rebuild: every operator action shown everywhere | ⏳ Planned (Lane X)           |
 | P0, 29 | Patent filing                                               | ⏸ On hold                                |
 | 35     | Full escrow embodiment                                      | ✖ Dropped (D-27)                         |
 <!-- MILESTONE-TABLE:END -->
