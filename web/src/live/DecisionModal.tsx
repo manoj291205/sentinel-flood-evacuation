@@ -1,0 +1,57 @@
+import { useEffect, useRef, useState } from 'react';
+import styles from './DecisionModal.module.css';
+
+export type Candidate = { action_key: string; label: string; verdict: string; lower: number | null; certified: boolean; comparison: string };
+export type Recheck = { group_id: string; route: string; action: string; lower: number | null; cert_id: string | null };
+export type Context = { certified: { timestep: number; recommendation: Candidate; why: string[]; alternatives: Candidate[]; rechecks: Recheck[]; note: string; threshold?: number; futures_used?: number; looks?: number } };
+export type Decision = { audit_record: { decision: string }; certificates: { cert_id: string; kind: string }[]; rechecks: Recheck[] };
+export type Refusal = { timestep: number; action_key: string; verdict: string | null; reason: string; flag: string };
+type Choice = 'ACCEPT' | 'OVERRIDE' | 'REJECT';
+const CODES = ['Local knowledge', 'Road report', 'Shelter report', 'Resource constraint', 'Other'];
+
+export default function DecisionModal({ context, result, refusal, busy, session, onSubmit, onNext }: {
+  context: Context; result: Decision | null; refusal: Refusal | null; busy: boolean; session: string;
+  onSubmit: (choice: Choice, selected: string, reason: string) => void; onNext: () => void;
+}) {
+  const [minimised, setMinimised] = useState(false);
+  const [choice, setChoice] = useState<Choice>('ACCEPT');
+  const [selected, setSelected] = useState('WAIT');
+  const [code, setCode] = useState(CODES[0]);
+  const [reason, setReason] = useState('');
+  const dialog = useRef<HTMLDivElement>(null);
+  useEffect(() => { setMinimised(false); setChoice('ACCEPT'); setSelected(context.certified.alternatives.find(row => row.certified)?.action_key ?? 'WAIT'); setReason(''); }, [context]);
+  useEffect(() => {
+    if (minimised) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const node = dialog.current;
+    node?.focus();
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { event.preventDefault(); setMinimised(true); return; }
+      if (event.key === 'Tab' && node) {
+        const all = [...node.querySelectorAll<HTMLElement>('button:not(:disabled),select:not(:disabled),input:not(:disabled),a[href]')];
+        const first = all[0], last = all.at(-1);
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
+      if (result || busy || event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
+      const key = event.key.toLowerCase();
+      if (key === 'a') { event.preventDefault(); onSubmit('ACCEPT', '', ''); }
+      else if (key === 'o') { event.preventDefault(); setChoice('OVERRIDE'); }
+      else if (key === 'd') { event.preventDefault(); setChoice('REJECT'); }
+    };
+    document.addEventListener('keydown', keydown);
+    return () => { document.removeEventListener('keydown', keydown); previous?.focus(); };
+  }, [minimised, result, busy, onSubmit]);
+  if (minimised) return <button type="button" className={styles.restore} onClick={() => setMinimised(false)}>Decision pending · open</button>;
+  const pending = context.certified;
+  const hold = pending.recommendation.action_key === 'WAIT';
+  return <div className={styles.backdrop}><div ref={dialog} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="decision-title" className={styles.dialog}>
+    <header className={styles.header}><div><small>OPERATOR DECISION · STEP {pending.timestep}</small><h2 id="decision-title">Suggested: {pending.recommendation.label}</h2></div><span className={hold ? styles.hold : styles.certified}>{hold ? 'HOLD' : 'CERTIFIED'}</span><button type="button" onClick={() => setMinimised(true)} aria-label="Minimise decision">−</button></header>
+    {refusal && <div className={styles.refusal} role="alert">Gate refused: not certified (verdict {refusal.verdict ?? 'unavailable'}). {refusal.flag}. The proposed route was not committed.</div>}
+    {result ? <section className={styles.result}><h3>Decision recorded · {result.audit_record.decision}</h3>{result.certificates.map(cert => <p key={cert.cert_id}><a href={`/decisions?session=${session}&cert=${cert.cert_id}`}>{cert.cert_id}</a> · {cert.kind}</p>)}{result.rechecks.filter(row => row.action === 'MIGRATE' && row.cert_id).map(row => <p key={row.cert_id}>Re-routed automatically as {row.cert_id} (operator notified)</p>)}<button type="button" onClick={onNext} disabled={busy}>Step on</button></section> : <>
+      <div className={styles.columns}><section><h3>Why</h3><ol>{pending.why.map(item => <li key={item}>{item}</li>)}</ol><p>{pending.note}</p></section><section><h3>Safety bound</h3><p>Certified lower bound {pending.recommendation.lower?.toFixed(3) ?? '—'} · threshold {pending.threshold?.toFixed(3) ?? '—'}</p><progress value={pending.recommendation.lower ?? 0} max={1} aria-label="Lower bound" /><p>{pending.futures_used ?? '—'} futures · {pending.looks ?? '—'} looks</p><h3>Evidence</h3><p>NDMA Flood Guidelines (2008), page 64, chunk ndma-flood-guidelines-2008-p64-c0.</p></section><section><h3>Alternatives</h3><ul aria-label="Alternatives">{pending.alternatives.slice(0, 3).map(item => <li key={item.action_key}><b>{item.label}</b> · {item.verdict} · lower {item.lower?.toFixed(3) ?? '—'}<p>{item.comparison}</p>{!item.certified && <p>Not certified — the gate will not dispatch this</p>}<button type="button" aria-label={`Choose ${item.label}`} disabled={!item.certified || busy} onClick={() => { setChoice('OVERRIDE'); setSelected(item.action_key); }}>Choose</button></li>)}</ul></section></div>
+      {choice !== 'ACCEPT' && <form id="decision-reason" className={styles.reason} onSubmit={event => { event.preventDefault(); onSubmit(choice, selected, `${code}: ${reason}`); }}><h3>{choice === 'OVERRIDE' ? 'Override' : 'Decline'} details</h3>{choice === 'OVERRIDE' && <label>Certified alternative <select value={selected} onChange={event => setSelected(event.target.value)}>{pending.alternatives.filter(item => item.certified).map(item => <option key={item.action_key} value={item.action_key}>{item.label}</option>)}<option value="WAIT">HOLD</option></select></label>}<label>Reason code <select value={code} onChange={event => setCode(event.target.value)}>{CODES.map(item => <option key={item}>{item}</option>)}</select></label><label>REASON <input required value={reason} onChange={event => setReason(event.target.value)} /></label><button type="submit" disabled={busy}>{choice === 'OVERRIDE' ? 'Confirm override' : 'Confirm reject'}</button></form>}
+      <footer className={styles.actions}><button type="button" className={styles.accept} disabled={busy} onClick={() => onSubmit('ACCEPT', '', '')}>Accept</button><button type="button" className={styles.override} disabled={busy} onClick={() => setChoice('OVERRIDE')}>Override</button><button type="button" className={styles.decline} disabled={busy} onClick={() => setChoice('REJECT')}>Decline</button></footer>
+    </>}
+  </div></div>;
+}

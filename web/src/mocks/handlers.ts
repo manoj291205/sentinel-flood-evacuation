@@ -21,6 +21,8 @@ const state = (): DemoState => ({
 });
 
 export const handlers = [
+  http.get('/api/library/index', () => HttpResponse.json({ source: 'FIXTURE', runs: [], analysis: { bars: { bar1: { pass: false }, bar2: { pass: true }, bar3: { pass: false }, bar4: { pass: true } }, E2_ratio_P_over_A2: null }, analysis_source: 'Mock mode: no frozen run summaries loaded' })),
+  http.get('/api/library/trace/:regime/:seed', () => HttpResponse.json({ detail: 'Recorded trace unavailable in mock mode' }, { status: 503 })),
   http.get('/api/demo/state', () => HttpResponse.json(state())),
   http.post('/api/demo/start', () => {
     current = 0;

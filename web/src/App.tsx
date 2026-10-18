@@ -7,6 +7,7 @@ import Decisions from './decisions/Decisions';
 import Overview from './pages/Overview';
 import Evidence from './pages/Evidence';
 import System from './pages/System';
+import Simulations from './sims/Simulations';
 import styles from './App.module.css';
 
 const HONESTY = 'REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED';
@@ -50,7 +51,7 @@ export default function App() {
     <div className={styles.body}>
       <nav aria-label="Main" className={styles.nav}>
         <span className={styles.navGroup}>OPERATE</span>
-        {nav('/', 'Overview')}{nav('/live', 'Live Operations')}
+        {nav('/', 'Overview')}{nav('/live', 'Live Operations')}{nav('/simulations', 'Simulations')}
         <span className={styles.navGroup}>VERIFY</span>
         {nav('/decisions', 'Decisions & Certificates')}
         <span className={styles.navGroup}>EVIDENCE</span>
@@ -65,6 +66,7 @@ export default function App() {
           <Route path="/" element={<Overview />} />
           <Route path="/evidence" element={<Evidence />} />
           <Route path="/system" element={<System />} />
+          <Route path="/simulations" element={<Simulations />} />
         </Routes>
       </main>
     </div>
