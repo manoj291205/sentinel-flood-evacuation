@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: './e2e',
   timeout: 45_000,
   expect: { timeout: 10_000 },
-  use: { ...devices['Desktop Chrome'], channel: 'chrome', baseURL: 'http://127.0.0.1:5173' },
+  use: { ...devices['Desktop Chrome'], channel: 'chrome', baseURL: 'http://127.0.0.1:5174' },
   projects: [
     { name: 'mock', testIgnore: /p(?:34[ac]|35l)_.*\.spec\.ts/ },
     { name: 'live', testMatch: /p(?:34[ac]|35l)_.*\.spec\.ts/ },
@@ -18,11 +18,11 @@ export default defineConfig({
       env: { SENTINEL_DEMO_SOURCE: 'RECORDED', HF_HUB_OFFLINE: '1' },
       timeout: 60_000,
     },
-    { command: 'npm run dev', url: 'http://127.0.0.1:5173', reuseExistingServer: false,
+    { command: 'npm run dev -- --port 5174', url: 'http://127.0.0.1:5174', reuseExistingServer: false,
       env: { VITE_API_MOCK: '' }, timeout: 60_000 },
   ] : {
-    command: 'npm run dev',
-    url: 'http://127.0.0.1:5173',
+    command: 'npm run dev -- --port 5174',
+    url: 'http://127.0.0.1:5174',
     reuseExistingServer: !process.env.CI,
     env: { VITE_API_MOCK: '1' },
     timeout: 60_000,

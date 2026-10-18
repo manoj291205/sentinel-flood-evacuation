@@ -89,7 +89,7 @@ def _state_dto(entry: SessionEntry) -> dict:
     })
 
 
-def _context_dto(entry: SessionEntry) -> dict:
+def _context_dto(entry: SessionEntry, *, include_subject: bool = False) -> dict:
     context = entry.session.context()
     if context is None:
         raise HTTPException(409, "episode is complete")
@@ -107,7 +107,7 @@ def _context_dto(entry: SessionEntry) -> dict:
         ],
     }
     if entry.session.certified:
-        dto["certified"] = certified_context(entry.session)
+        dto["certified"] = certified_context(entry.session, include_subject=include_subject)
     return _public(dto)
 
 
@@ -194,10 +194,10 @@ def create_app() -> FastAPI:
             return _state_dto(entry)
 
     @app.get("/api/sessions/{session_id}/context")
-    def session_context(session_id: str):
+    def session_context(session_id: str, include_subject: bool = False):
         entry = entry_or_404(session_id)
         with entry.lock:
-            return _context_dto(entry)
+            return _context_dto(entry, include_subject=include_subject)
 
     @app.post("/api/sessions/{session_id}/decisions")
     def decide(session_id: str, body: DecisionRequest):

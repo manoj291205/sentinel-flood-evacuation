@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { actionLabel, orderedCertificates } from '../decisions/Decisions';
 import styles from './Pages.module.css';
+import { subjectSentence, useSessionStore } from '../live/sessionStore';
 
 export default function Overview() {
+  const live = useSessionStore();
   const demo = useQuery({ queryKey: ['demo'], queryFn: api.demoState });
   const certs = useQuery({ queryKey: ['certificates'], queryFn: api.certificates });
   const system = useQuery({ queryKey: ['system-status'], queryFn: api.systemStatus });
@@ -15,8 +17,14 @@ export default function Overview() {
   return <div className={styles.page}>
     <header className={styles.heading}><div><p className={styles.eyebrow}>OPERATE / OVERVIEW</p><h1>Incident overview</h1><p>Simulated flood incident · Fort Kochi, Ernakulam district</p></div><Link className={styles.primaryLink} to="/live">Run the live demo</Link></header>
     {(demo.isError || certs.isError || system.isError) && <p role="alert" className={styles.error}>Some data is unavailable. <button type="button" onClick={() => { void demo.refetch(); void certs.refetch(); void system.refetch(); }}>Retry</button></p>}
+    {live.sessionId && <section className={styles.panel}><h2>Live session · {live.world}</h2><p>Step {live.context?.certified.timestep ?? live.state?.current_timestep ?? '—'} · {live.phase} · <Link to="/live">Return to Live Operations</Link></p><h3>Last five decisions</h3>{live.log.length ? <ul className={styles.rows}>{live.log.slice(0, 5).map(row => <li key={row.id}><b>t={row.step} · {row.decision} · {row.source}</b><span>{subjectSentence(row.subject)}</span><span>{row.cert_ids.join(', ') || '—'}</span></li>)}</ul> : <p>No operator decisions yet.</p>}</section>}
     <section className={styles.panel}><h2>Population ledger</h2>
-      {!step ? <p role="status">Loading incident state…</p> : <div className={styles.kpis}>
+      {live.sessionId && live.state ? <div className={styles.kpis}>
+        <div><span>WAITING · LIVE</span><strong>{live.state.kpis.waiting.toLocaleString('en-IN')}</strong></div>
+        <div><span>IN TRANSIT · LIVE</span><strong>{live.state.kpis.in_transit.toLocaleString('en-IN')}</strong></div>
+        <div><span>SAFE IN SHELTER · LIVE</span><strong>{live.state.kpis.safe.toLocaleString('en-IN')}</strong></div>
+        <div><span>STRANDED EN ROUTE · LIVE</span><strong>{live.state.people_stranded ?? '—'}</strong></div>
+      </div> : !step ? <p role="status">Loading incident state…</p> : <div className={styles.kpis}>
         <div><span>WAITING</span><strong>{step.kpis.waiting.toLocaleString('en-IN')}</strong></div>
         <div><span>IN TRANSIT</span><strong>{step.kpis.on_road.toLocaleString('en-IN')}</strong></div>
         <div><span>SAFE IN SHELTER</span><strong>{step.kpis.safe.toLocaleString('en-IN')}</strong></div>

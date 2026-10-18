@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import type { DemoStep, GateCandidate } from '../types';
 import styles from './Live.module.css';
 
@@ -42,28 +40,6 @@ export function GatePanel({ step, selected, onSelect }: { step: DemoStep; select
       </button>)}
     </div>
     {step.kind === 'HOLD' && <p className={styles.warning}>No certified dispatch — HOLD and escalate.</p>}
-  </section>;
-}
-
-export function DecisionConsole({ step, accepted, onAccept, recorded = false }: { step: DemoStep; accepted: boolean; onAccept: () => void; recorded?: boolean }) {
-  const [mode, setMode] = useState<'none' | 'override' | 'reject'>('none');
-  const [reason, setReason] = useState('');
-  if (!step.decision_required) return null;
-  return <section className={styles.card} aria-label="Operator decision">
-    <div className={styles.cardEyebrow}>OPERATOR DECIDES</div>
-    {accepted ? <p className={styles.success}>● ACCEPTED · Certificate <Link to={step.certificate_id ? `/decisions?cert=${encodeURIComponent(step.certificate_id)}` : '/decisions'}>{step.certificate_id ?? 'recorded'}</Link></p> : <>
-      <div className={styles.decisionButtons}>
-        <button type="button" className={styles.primaryButton} onClick={onAccept}>Accept</button>
-        <button type="button" className={styles.secondaryButton} onClick={() => setMode('override')}>Override</button>
-        <button type="button" className={styles.secondaryButton} onClick={() => setMode('reject')}>Reject</button>
-      </div>
-      {mode !== 'none' && <div className={styles.reasonBlock}>
-        {mode === 'override' && <label>Certified alternative<select aria-label="Certified alternative">{step.override_alternatives.map(option => <option key={option}>{option}</option>)}</select></label>}
-        <label>REASON {mode === 'override' ? 'FOR OVERRIDE' : 'FOR REJECTION'}<input required value={reason} onChange={event => setReason(event.target.value)} /></label>
-        <button type="button" className={styles.primaryButton} disabled={!reason.trim()} onClick={() => setMode('none')}>Record {mode}</button>
-        {recorded && <p>Not committed: the recorded demo replays the operator's ACCEPT. Use a live session to override.</p>}
-      </div>}
-    </>}
   </section>;
 }
 

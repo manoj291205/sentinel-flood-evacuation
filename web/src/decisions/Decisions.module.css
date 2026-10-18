@@ -26,3 +26,4 @@
 .replayControls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.replayControls label{display:inline-flex;align-items:center;gap:5px}.replayControls button,.error button{min-height:40px;padding:0 14px;background:var(--primary);color:var(--onprimary);border:0;border-radius:6px;font-weight:600}
 .match,.mismatch{padding:10px;border:2px solid var(--ok);font-weight:600}.mismatch{border-color:var(--bad)}.error{padding:12px;border:2px solid var(--bad)}.muted,.empty{color:var(--ink2)}.empty{padding:14px}
 @media(max-width:900px){.layout{grid-template-columns:1fr}.list{max-width:none}}
+.row[data-new="true"] { border-left:4px solid var(--ok); }
