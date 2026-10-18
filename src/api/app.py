@@ -23,6 +23,8 @@ from src.api.dto import DecisionRequest, DemoStepRequest, ReplayRequest, Session
 from src.api.escrow_api import install_escrow_routes
 from src.api.fixtures import DemoPlayback
 from src.api.live_session import certified_context, recheck_rows
+from src.api.library import library_index, library_trace, library_v3
+from src.api.project_facts import escrow_comparison, project_facts
 from src.api.sessions import SessionEntry, SessionRegistry
 from src.api.why import explanation
 from src.certify.certificate import CertificateInputs
@@ -69,7 +71,15 @@ def _state_dto(entry: SessionEntry) -> dict:
     return _public({
         **state.to_policy_observation(),
         "summary": session.summary(),
+        "people_stranded": state.people_stranded if state.is_v4 else None,
         "route_rows": session.route_rows(),
+        "transit_positions": [{"group_id": event.event_id,
+                               "source_zone_id": event.source_zone_id,
+                               "destination_shelter_id": event.destination_shelter_id,
+                               "people": event.people,
+                               "progress": max(0.0, min(1.0, (state.current_timestep - event.departure_timestep) /
+                                                         max(1, event.travel_lag_steps)))}
+                              for event in state.pending_dispatches],
         "kpis": {
             "waiting": state.population_remaining,
             "in_transit": state.people_in_transit,
@@ -311,6 +321,26 @@ def create_app() -> FastAPI:
     @app.get("/api/map/geometry")
     def map_geometry():
         return _public(project_graph(graph))
+
+    @app.get("/api/library/index")
+    def recorded_library_index():
+        return _public(library_index(), "ARTIFACT")
+
+    @app.get("/api/library/trace/{regime}/{seed}")
+    def recorded_library_trace(regime: str, seed: int):
+        return _public(library_trace(regime, seed, graph), "ARTIFACT")
+
+    @app.get("/api/library/v3")
+    def recorded_library_v3():
+        return _public(library_v3(), "ARTIFACT")
+
+    @app.get("/api/project/facts")
+    def recorded_project_facts():
+        return _public(project_facts(), "ARTIFACT")
+
+    @app.get("/api/escrow/comparison")
+    def recorded_escrow_comparison():
+        return _public(escrow_comparison(), "ARTIFACT")
 
     @app.post("/api/demo/start")
     def demo_start(response: Response):

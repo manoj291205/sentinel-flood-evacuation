@@ -11,7 +11,7 @@ export default defineConfig({
   ],
   webServer: process.env.SENTINEL_E2E_LIVE ? [
     {
-      command: `${process.env.SENTINEL_PYTHON || 'python'} -m uvicorn src.api.app:create_app --factory --host 127.0.0.1 --port 8000`,
+      command: `"${process.env.SENTINEL_PYTHON || 'python'}" -m uvicorn src.api.app:create_app --factory --host 127.0.0.1 --port 8000`,
       url: 'http://127.0.0.1:8000/api/health',
       cwd: '..',
       reuseExistingServer: false,

@@ -10,3 +10,6 @@ a{color:inherit}
 .app[data-theme="Night"]{--ground:#080B0E;--surface:#0F141A;--sunk:#18202A;--ink:#D9E1E8;--ink2:#A7B4BF;--ink3:#8D9BA7;--rule:#26313C;--primary:#7FB3D9;--onprimary:#06121C;--ok:#45C08A;--warn:#E0A84A;--bad:#F27566;--info:#8CC0E6;--w1:#0F2436;--w2:#163A57;--w3:#1F5F8E;--w4:#3E86BF;--road:#2B3643;--roadc:#0F141A;--route:#8CC0E6}
 .mono{font-family:'IBM Plex Mono',Consolas,monospace;font-variant-numeric:tabular-nums}
 .decal{font-family:'IBM Plex Sans Condensed','Arial Narrow',sans-serif;font-weight:700;letter-spacing:.08em}
+.app{--status-ok:var(--ok);--status-warn:var(--warn);--status-danger:var(--bad);--status-info:var(--info);--elevation:0 6px 24px #10141822;--radius:6px;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px;--type-sm:14px;--type-body:16px;--type-card:20px;--type-section:28px;--type-display:40px}
+.app[data-theme="Night"]{--elevation:0 6px 24px #0008}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}

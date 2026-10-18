@@ -74,8 +74,8 @@ def project_graph(graph: RoadGraph, width: int = 880, height: int = 789) -> dict
         "graph_version": graph.graph_version,
         "graph_fingerprint": graph.graph_fingerprint,
     }
-    for zone, shelter in (("Z3", "S4"), ("Z1", "S2"), ("Z2", "S5"), ("Z4", "S1")):
-        if zone in graph.zone_node_map and shelter in graph.shelter_node_map:
+    for zone in graph.zone_node_map:
+        for shelter in graph.shelter_node_map:
             value = route(zone, shelter)
             if value is not None:
                 output[f"route_{zone}_{shelter}"] = value

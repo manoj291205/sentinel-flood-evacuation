@@ -12,9 +12,10 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterAll(() => server.close());
 
 describe('console shell', () => {
-  it('keeps five routes and the honesty banner visible while toggling theme', async () => {
+  it('keeps five established navigation links and the honesty banner visible while toggling theme', async () => {
     render(<QueryClientProvider client={new QueryClient()}><MemoryRouter initialEntries={['/']}><App /></MemoryRouter></QueryClientProvider>);
     expect(screen.getByRole('navigation', { name: 'Main' }).querySelectorAll('a')).toHaveLength(5);
+    expect(screen.getByRole('navigation', { name: 'Showcase' }).querySelectorAll('a')).toHaveLength(2);
     expect(screen.getByRole('note')).toHaveTextContent('NOT OPERATIONALLY VALIDATED');
     const app = screen.getByRole('note').closest('[data-theme]');
     const before = app?.getAttribute('data-theme');
