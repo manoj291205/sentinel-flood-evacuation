@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 
-test('live command dialog records acceptance and decline after a gate refusal', async ({ page }) => {
+test('live command dialog records accept, override, refusal and decline', async ({ page }) => {
   await page.goto('/live');
   await page.getByRole('radiogroup', { name: 'Mode' }).getByRole('radio', { name: 'Live session' }).check();
   await page.getByRole('button', { name: 'Start' }).click();
@@ -16,13 +16,18 @@ test('live command dialog records acceptance and decline after a gate refusal', 
   await dialog.getByRole('button', { name: 'Override' }).click();
   await dialog.getByLabel('REASON').fill('Road report from team');
   await dialog.getByRole('button', { name: 'Confirm override' }).click();
+  await expect(dialog.getByRole('link', { name: 'CERT-000002' })).toBeVisible();
+  await dialog.getByRole('button', { name: 'Step on' }).click();
+  await dialog.getByRole('button', { name: 'Test gate refusal (demo)' }).click();
   await expect(dialog.getByRole('alert')).toContainText('Gate refused: not certified');
   await dialog.getByRole('button', { name: 'Decline' }).click();
   await dialog.getByLabel('REASON').fill('Decline after road report');
   await dialog.getByRole('button', { name: 'Confirm reject' }).click();
-  await expect(dialog.getByRole('link', { name: 'CERT-000002' })).toBeVisible();
+  await expect(dialog.getByRole('link', { name: 'CERT-000003' })).toBeVisible();
   await dialog.getByRole('button', { name: 'Step on' }).click();
   await expect(page.getByRole('heading', { name: 'Episode complete' })).toBeVisible();
+  await expect(page.getByText('Overrides 1 · declines 1 · gate refusals 1')).toBeVisible();
+  await expect(page.getByText(/Certificates by kind:/)).toBeVisible();
 });
 
 for (const path of ['/', '/live', '/simulations', '/decisions', '/evidence', '/system', '/journey']) {
@@ -33,6 +38,21 @@ for (const path of ['/', '/live', '/simulations', '/decisions', '/evidence', '/s
     expect(results.violations).toEqual([]);
   });
 }
+
+test('recorded replay offers all speeds, compare summary, and advances the showcase', async ({ page }) => {
+  test.skip(process.env.SENTINEL_E2E_LIVE !== '1', 'Requires the frozen local Phase 27 artifacts');
+  await page.goto('/simulations');
+  await expect(page.getByText('1260', { exact: true })).toBeVisible({ timeout: 60_000 });
+  for (const speed of ['1×', '2×', '3×', '5×', '10×']) {
+    await page.getByRole('button', { name: speed }).click();
+    await expect(page.getByRole('button', { name: speed })).toHaveAttribute('aria-pressed', 'true');
+  }
+  await expect(page.getByRole('heading', { name: 'A2', exact: true })).toBeVisible();
+  await expect(page.getByText('222', { exact: true }).first()).toBeVisible();
+  await page.getByRole('button', { name: /Run-all showcase/ }).click();
+  await expect(page.getByText(/SHOWCASE · v4-medium-dt2-v1/)).toBeVisible();
+  await expect(page.getByText(/t=1 ·/)).toBeVisible({ timeout: 10_000 });
+});
 
 test('capture Phase 39 review pages', async ({ page }) => {
   test.skip(process.env.SENTINEL_CAPTURE_LX39 !== '1', 'One-time self-audit capture');

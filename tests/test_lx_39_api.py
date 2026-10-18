@@ -43,3 +43,13 @@ def test_facts_and_v3_views_have_sources():
     comparison = client.get("/api/escrow/comparison").json()
     assert comparison["totals"]["overbooked_seats_escrow"] == 0
     assert comparison["source_path"] == "data/eval_results/phase35lite/outages.json"
+
+
+def test_live_stranded_is_additive_to_the_original_kpi_shape():
+    client = TestClient(create_app())
+    created = client.post("/api/sessions", json={"seed": 620003, "regime": "v4-medium-dt2-v1",
+                                                 "certified": True, "params_id": "v4-cert-test-v1"})
+    assert created.status_code == 200
+    state = client.get(f"/api/sessions/{created.json()['session_id']}/state").json()
+    assert state["people_stranded"] >= 0
+    assert set(state["kpis"]) == {"waiting", "in_transit", "safe", "certificates_issued"}

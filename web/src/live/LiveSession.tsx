@@ -5,7 +5,7 @@ import DecisionModal, { type Context, type Decision, type Refusal, type Recheck 
 import SpeedControl, { type Speed } from '../sims/SpeedControl';
 import styles from './Live.module.css';
 
-type State = { kpis: { waiting: number; in_transit: number; safe: number; stranded?: number; certificates_issued: number }; zones?: { zone_id: string; population_remaining: number; flood_severity_current: number }[]; shelters?: { shelter_id: string; capacity_total: number; occupancy_current: number; capacity_reserved: number; flood_severity_current: number }[]; route_rows?: { Source: string; Destination: string; Status: string }[]; transit_positions?: { group_id: string; source_zone_id: string; destination_shelter_id: string; progress: number }[] };
+type State = { people_stranded?: number; kpis: { waiting: number; in_transit: number; safe: number; stranded?: number; certificates_issued: number }; zones?: { zone_id: string; population_remaining: number; flood_severity_current: number }[]; shelters?: { shelter_id: string; capacity_total: number; occupancy_current: number; capacity_reserved: number; flood_severity_current: number }[]; route_rows?: { Source: string; Destination: string; Status: string }[]; transit_positions?: { group_id: string; source_zone_id: string; destination_shelter_id: string; progress: number }[] };
 type Phase = 'IDLE' | 'STARTING' | 'AWAIT_DECISION' | 'SUBMITTING' | 'RESULT' | 'DONE';
 export function livePhase(phase: Phase, event: 'START' | 'CONTEXT' | 'SUBMIT' | 'COMMIT' | 'NEXT' | 'END'): Phase {
   if (event === 'START') return 'STARTING';
@@ -98,7 +98,7 @@ export default function LiveSession({ geometry }: { geometry?: MapGeometry }) {
     catch (cause) { if ((cause as Error & { status?: number }).status === 409) { transition('END'); setContext(null); setAutoRun(false); return; } throw cause; }
     setContext(next);
     const snapshot = await request<State>(`/api/sessions/${id}/state`);
-    setState(snapshot); setHistory(previous => [...previous, snapshot.kpis]);
+    setState(snapshot); setHistory(previous => [...previous, { ...snapshot.kpis, stranded: snapshot.people_stranded ?? snapshot.kpis.stranded }]);
     setRechecks(previous => [...previous, ...next.certified.rechecks]);
     setSelected(next.certified.alternatives.find(item => item.certified)?.action_key ?? 'WAIT');
     setDecision(null);
@@ -141,7 +141,7 @@ export default function LiveSession({ geometry }: { geometry?: MapGeometry }) {
       setDecision(result); setDecisionLog(previous => [...previous, result]); setRechecks(previous => [...previous, ...result.rechecks]);
       const snapshot = await request<State>(`/api/sessions/${session}/state`);
       setSafeDelta(state == null ? null : snapshot.kpis.safe - state.kpis.safe);
-      setState(snapshot); setHistory(previous => [...previous, snapshot.kpis]);
+      setState(snapshot); setHistory(previous => [...previous, { ...snapshot.kpis, stranded: snapshot.people_stranded ?? snapshot.kpis.stranded }]);
       setFeed(previous => [...previous, { type: 'decision', text: `${choice} · ${result.certificates.map(cert => cert.cert_id).join(', ')}` }]);
       transition('COMMIT');
     } catch (cause) {
@@ -163,7 +163,7 @@ export default function LiveSession({ geometry }: { geometry?: MapGeometry }) {
         setDecision(result); setDecisionLog(previous => [...previous, result]); setFastForwarded(previous => previous + 1);
         setFeed(previous => [...previous, { type: 'demo fast-forward', text: `ACCEPT · ${result.certificates.map(cert => cert.cert_id).join(', ')}` }]);
         const snapshot = await request<State>(`/api/sessions/${session}/state`);
-        setState(snapshot); setHistory(previous => [...previous, snapshot.kpis]);
+        setState(snapshot); setHistory(previous => [...previous, { ...snapshot.kpis, stranded: snapshot.people_stranded ?? snapshot.kpis.stranded }]);
         try { current = await request<Context>(`/api/sessions/${session}/context`); }
         catch (cause) { if ((cause as Error & { status?: number }).status === 409) { transition('END'); setContext(null); return; } throw cause; }
         setContext(current); setRechecks(previous => [...previous, ...current.certified.rechecks]);
@@ -207,7 +207,7 @@ export default function LiveSession({ geometry }: { geometry?: MapGeometry }) {
       <div className={styles.commandHead}><p>Step {context.certified.timestep} · {geometry ? `${Object.keys(geometry.zones).length} zones on the map` : 'Map unavailable'} · {phase}</p><div><label><input type="checkbox" checked={autoRun} onChange={event => setAutoRun(event.target.checked)} />Auto-run (pauses for each decision)</label><SpeedControl speed={speed} onChange={setSpeed} /><button type="button" disabled={busy} onClick={() => void fastForward(3)}>Demo fast-forward · 3 steps</button><small>With accepts (demo)</small></div></div>
       {fastForwarded > 0 && <p>Demo fast-forward: {fastForwarded} accepts recorded in this session</p>}
       {state && <div className={styles.kpis} aria-label="Simulated population and certificate counts">
-        {([['WAITING', state.kpis.waiting], ['ON THE ROAD', state.kpis.in_transit], ['SAFE', state.kpis.safe], ['STRANDED', state.kpis.stranded], ['CERTIFICATES', state.kpis.certificates_issued], ['STEP', context.certified.timestep]] as const).map(([label, value]) =>
+        {([['WAITING', state.kpis.waiting], ['ON THE ROAD', state.kpis.in_transit], ['SAFE', state.kpis.safe], ['STRANDED', state.people_stranded ?? state.kpis.stranded], ['CERTIFICATES', state.kpis.certificates_issued], ['STEP', context.certified.timestep]] as const).map(([label, value]) =>
           <div className={styles.kpi} key={label}><span className={styles.kpiLabel}>{label}</span><strong className="mono">{value == null ? '—' : value.toLocaleString('en-IN')}</strong><svg viewBox="0 0 100 24" role="img" aria-label={`${label} history`}><polyline fill="none" stroke="var(--info)" strokeWidth="2" points={history.map((row, index) => `${history.length < 2 ? 0 : index * 100 / (history.length - 1)},${24 - 22 * ((Number(label === 'WAITING' ? row.waiting : label === 'ON THE ROAD' ? row.in_transit : label === 'SAFE' ? row.safe : label === 'STRANDED' ? row.stranded : row.certificates_issued) || 0) / Math.max(1, ...history.map(item => Number(label === 'WAITING' ? item.waiting : label === 'ON THE ROAD' ? item.in_transit : label === 'SAFE' ? item.safe : label === 'STRANDED' ? item.stranded : item.certificates_issued) || 0)))}`).join(' ')} /></svg></div>)}
       </div>}
       <div className={styles.operationsGrid}>
@@ -216,10 +216,11 @@ export default function LiveSession({ geometry }: { geometry?: MapGeometry }) {
             chosen_key: context.certified.recommendation.action_key,
             candidates: [context.certified.recommendation, ...context.certified.alternatives].filter(item => item.action_key !== 'WAIT').map(item => { const [from, to] = item.action_key.split('->'); const raw = geometry[`route_${from}_${to}`] as [string, number] | undefined; return { action_key: item.action_key, people: null, verdict: item.verdict, svg_path: raw?.[0] ?? '' }; }),
             zone_severity: Object.fromEntries((state?.zones ?? []).map(item => [item.zone_id, item.flood_severity_current])),
+            zone_waiting: Object.fromEntries((state?.zones ?? []).map(item => [item.zone_id, item.population_remaining])),
             shelter_severity: Object.fromEntries((state?.shelters ?? []).map(item => [item.shelter_id, item.flood_severity_current])),
             edge_closed_path: (state?.route_rows ?? []).filter(item => item.Status !== 'OPEN').map(item => (geometry[`route_${item.Source}_${item.Destination}`] as [string, number] | undefined)?.[0] ?? '').join(''),
             shelters: (state?.shelters ?? []).map(item => ({ id: item.shelter_id, capacity: item.capacity_total, occupied: item.occupancy_current, reserved: item.capacity_reserved })),
-          } satisfies SimulationMapStep} label="Live certified session" moving={(state?.transit_positions ?? []).map(item => ({ group_id: item.group_id, action_key: `${item.source_zone_id}->${item.destination_shelter_id}`, progress: item.progress }))} />}
+          } satisfies SimulationMapStep} label="Live certified session" speed={speed} moving={(state?.transit_positions ?? []).map(item => ({ group_id: item.group_id, action_key: `${item.source_zone_id}->${item.destination_shelter_id}`, progress: item.progress }))} />}
           <p>Suggestion: {context.certified.recommendation.label}</p><p>{context.certified.note}</p>
           {rechecks.filter(row => row.action === 'MIGRATE' && row.cert_id).map(row => <p key={row.cert_id}>Re-routed automatically as {row.cert_id} (operator notified)</p>)}
           <div className={styles.events}><h2>Timeline and event feed</h2><input type="range" aria-label="Session timeline" min={0} max={Math.max(0, history.length - 1)} value={Math.max(0, history.length - 1)} readOnly /><ul>{feed.map((item, index) => <li key={index}><span>●</span><b>{item.type}</b><span>{item.text}</span></li>)}</ul></div>
@@ -233,6 +234,6 @@ export default function LiveSession({ geometry }: { geometry?: MapGeometry }) {
       </div>
       <DecisionModal context={context} result={decision} refusal={refusal} busy={busy} session={session} safeDelta={safeDelta} onSubmit={(choice, alternative, explanation) => void submit(choice, alternative, explanation)} onNext={() => { setBusy(true); void fetchContext(session).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }} />
     </>}
-    {session && phase === 'DONE' && <section className={styles.card}><h2>Episode complete</h2><p>Safe {state?.kpis.safe ?? '—'} · stranded {state?.kpis.stranded ?? '—'} · certificates {state?.kpis.certificates_issued ?? '—'}</p><p>Overrides {decisionLog.filter(row => row.audit_record.decision === 'OVERRIDE').length} · gate refusals {refusalCount}</p><p>Certificates by kind: {Object.entries(decisionLog.flatMap(row => row.certificates).reduce<Record<string, number>>((counts, cert) => ({ ...counts, [cert.kind]: (counts[cert.kind] ?? 0) + 1 }), {})).map(([kind, count]) => `${kind} ${count}`).join(' · ') || '—'}</p><a href={`/api/sessions/${session}/audit.csv`} download>Download audit.csv</a> · <a href={`/api/sessions/${session}/audit.json`} download>Download audit.json</a></section>}
+    {session && phase === 'DONE' && <section className={styles.card}><h2>Episode complete</h2><p>Safe {state?.kpis.safe ?? '—'} · stranded {state?.people_stranded ?? state?.kpis.stranded ?? '—'} · certificates {state?.kpis.certificates_issued ?? '—'}</p><p>Overrides {decisionLog.filter(row => row.audit_record.decision === 'OVERRIDE').length} · declines {decisionLog.filter(row => row.audit_record.decision === 'REJECT').length} · gate refusals {refusalCount}</p><p>Certificates by kind: {Object.entries(decisionLog.flatMap(row => row.certificates).reduce<Record<string, number>>((counts, cert) => ({ ...counts, [cert.kind]: (counts[cert.kind] ?? 0) + 1 }), {})).map(([kind, count]) => `${kind} ${count}`).join(' · ') || '—'}</p><a href={`/api/sessions/${session}/audit.csv`} download>Download audit.csv</a> · <a href={`/api/sessions/${session}/audit.json`} download>Download audit.json</a></section>}
   </div>;
 }

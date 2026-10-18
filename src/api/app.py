@@ -71,6 +71,7 @@ def _state_dto(entry: SessionEntry) -> dict:
     return _public({
         **state.to_policy_observation(),
         "summary": session.summary(),
+        "people_stranded": state.people_stranded if state.is_v4 else None,
         "route_rows": session.route_rows(),
         "transit_positions": [{"group_id": event.event_id,
                                "source_zone_id": event.source_zone_id,
@@ -83,7 +84,6 @@ def _state_dto(entry: SessionEntry) -> dict:
             "waiting": state.population_remaining,
             "in_transit": state.people_in_transit,
             "safe": state.people_safely_arrived,
-            "stranded": state.people_stranded if state.is_v4 else None,
             "certificates_issued": len(session.certificates()),
         },
     })
