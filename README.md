@@ -175,7 +175,7 @@ experiment or an operationally validated emergency system.
 ## Development Status
 
 <!-- MILESTONE-TABLE:START — refreshed by the reviewer at every merge into main from docs/patent-roadmap/STATUS.md -->
-Last refreshed: 2026-10-17 (Wave C merged, `v4.0`) · base branch `main` · 1112 tests pass on `main` · live ledger: `docs/patent-roadmap/STATUS.md`
+Last refreshed: 2026-10-18 (Phase 39 merged) · base branch `main` · 1117 tests pass on `main` · live ledger: `docs/patent-roadmap/STATUS.md`
 
 V3 (phases 0–19) is complete. V4 extends it with a certified dispatch layer; V4 internals are confidential
 and described only in the private roadmap. Work is built on milestone branches and appears here only after
@@ -205,7 +205,7 @@ it has been reviewed and merged into `main`.
 | 18    | Human-in-the-loop override and session audit trail     | ✅ Complete   |
 | 19    | Streamlit review dashboard (legacy)                    | ✅ Complete   |
 
-### V4 — Wave C complete (`v4.0`)
+### V4 — Wave C complete (`v4.0`), console showcase merged
 
 | Phase  | Component                                                   | Status                                   |
 | ------ | ----------------------------------------------------------- | ---------------------------------------- |
@@ -226,9 +226,9 @@ it has been reviewed and merged into `main`.
 | 34B    | Release: dev scripts, CI web jobs, demo script, Docker      | ✅ Complete                              |
 | 36     | Course submission pack                                      | ✅ Drafts complete — awaiting user approval |
 | 35-lite| Network-outage capacity shares (exploratory)                | ✅ Complete — exploratory, no outcome claim |
-| 37     | Conference paper                                            | ⏳ Planned (after Wave C)                |
+| 37     | Conference paper                                            | 📝 Draft complete — not submitted        |
 | 38     | Journal extension                                           | ⏳ Optional                              |
-| 39     | Console showcase: simulation library, replay, live decision pop-up | ⏳ Planned (Lane X)              |
+| 39     | Console showcase: simulation library, replay, live decision pop-up | ✅ Complete                     |
 | P0, 29 | Patent filing                                               | ⏸ On hold                                |
 | 35     | Full escrow embodiment                                      | ✖ Dropped (D-27)                         |
 <!-- MILESTONE-TABLE:END -->
