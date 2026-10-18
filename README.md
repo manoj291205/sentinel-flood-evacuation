@@ -175,7 +175,7 @@ experiment or an operationally validated emergency system.
 ## Development Status
 
 <!-- MILESTONE-TABLE:START — refreshed by the reviewer at every merge into main from docs/patent-roadmap/STATUS.md -->
-Last refreshed: 2026-10-18 (Phase 39 merged) · base branch `main` · 1117 tests pass on `main` · live ledger: `docs/patent-roadmap/STATUS.md`
+Last refreshed: 2026-10-19 (Phase 40 merged) · base branch `main` · 1118 tests pass on `main` · live ledger: `docs/patent-roadmap/STATUS.md`
 
 V3 (phases 0–19) is complete. V4 extends it with a certified dispatch layer; V4 internals are confidential
 and described only in the private roadmap. Work is built on milestone branches and appears here only after
@@ -205,7 +205,7 @@ it has been reviewed and merged into `main`.
 | 18    | Human-in-the-loop override and session audit trail     | ✅ Complete   |
 | 19    | Streamlit review dashboard (legacy)                    | ✅ Complete   |
 
-### V4 — Wave C complete (`v4.0`), console showcase merged
+### V4 — Wave C complete (`v4.0`), console showcase and Live Operations rebuild merged
 
 | Phase  | Component                                                   | Status                                   |
 | ------ | ----------------------------------------------------------- | ---------------------------------------- |
@@ -229,7 +229,7 @@ it has been reviewed and merged into `main`.
 | 37     | Conference paper                                            | 📝 Draft complete — not submitted        |
 | 38     | Journal extension                                           | ⏳ Optional                              |
 | 39     | Console showcase: simulation library, replay, live decision pop-up | ✅ Complete                     |
-| 40     | Live Operations rebuild: every operator action shown everywhere | ⏳ Planned (Lane X)           |
+| 40     | Live Operations rebuild: every operator action shown everywhere | ✅ Complete (small follow-up open) |
 | P0, 29 | Patent filing                                               | ⏸ On hold                                |
 | 35     | Full escrow embodiment                                      | ✖ Dropped (D-27)                         |
 <!-- MILESTONE-TABLE:END -->
