@@ -24,7 +24,7 @@ from src.api.escrow_api import install_escrow_routes
 from src.api.fixtures import DemoPlayback
 from src.api.live_session import certified_context, recheck_rows
 from src.api.library import library_index, library_trace, library_v3
-from src.api.project_facts import project_facts
+from src.api.project_facts import escrow_comparison, project_facts
 from src.api.sessions import SessionEntry, SessionRegistry
 from src.api.why import explanation
 from src.certify.certificate import CertificateInputs
@@ -337,6 +337,10 @@ def create_app() -> FastAPI:
     @app.get("/api/project/facts")
     def recorded_project_facts():
         return _public(project_facts(), "ARTIFACT")
+
+    @app.get("/api/escrow/comparison")
+    def recorded_escrow_comparison():
+        return _public(escrow_comparison(), "ARTIFACT")
 
     @app.post("/api/demo/start")
     def demo_start(response: Response):

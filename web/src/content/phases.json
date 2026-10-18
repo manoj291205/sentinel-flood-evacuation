@@ -1,0 +1,324 @@
+[
+  {
+    "phase": "0",
+    "title": "V1 baseline freeze and repository audit",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "1",
+    "title": "Pre-registered evaluation framework",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "2",
+    "title": "Versioned V3 scenario/data contract",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "3",
+    "title": "Deterministic multi-timestep evacuation simulator",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "4",
+    "title": "Stochastic flood, travel, closure and shelter dynamics",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "5",
+    "title": "Deterministic hard-safety engine and action masks",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "6",
+    "title": "Strong planning baselines and pre-PPO headroom gate",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "7",
+    "title": "Fixed-dimension Gymnasium environment",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "8",
+    "title": "Pre-registered RL reward and integration",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "9",
+    "title": "Five-seed MaskablePPO training",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "10",
+    "title": "Frozen held-out planner-vs-PPO evaluation",
+    "status": "✅ Complete",
+    "artifact_path": "data/eval_v3/phase10/heldout_summary.json",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "11",
+    "title": "Authoritative RAG corpus expansion",
+    "status": "✅ Complete",
+    "artifact_path": "data/eval_v3/phase11_corpus_summary.json",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "12",
+    "title": "Dense + BM25 + hybrid retrieval",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "13",
+    "title": "AI-assisted retrieval benchmark",
+    "status": "✅ Complete",
+    "artifact_path": "data/eval_v3/phase13/phase13b_retrieval_results_v2.json",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "14A",
+    "title": "Construction-labeled claim-support challenge",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "16",
+    "title": "Cached geospatial road graph and routing engine",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "17",
+    "title": "Dynamic hazard-aware graph routing integration",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "18",
+    "title": "Human-in-the-loop override and session audit trail",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "19",
+    "title": "Streamlit review dashboard (legacy)",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "20",
+    "title": "Verified baseline (frozen-artifact guard, UTF-8, CI)",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "14B",
+    "title": "Semantic claim-support evaluation (first provider)",
+    "status": "⛔ Superseded (provider unusable; not scored)",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "14C",
+    "title": "Semantic claim-support evaluation (second provider)",
+    "status": "✅ Complete — verdict NOT_YET_RELIABLE",
+    "artifact_path": "data/eval_results/phase14c/score.json",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "14D",
+    "title": "Semantic claim-support evaluation (evaluation of record)",
+    "status": "✅ Complete — verdict USEFUL",
+    "artifact_path": "data/eval_results/phase14d/test/score.json",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "15′",
+    "title": "Tier-verified NDMA constraints (incl. T2 wiring)",
+    "status": "✅ Complete — rules R01, R02 at T1",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "21",
+    "title": "V4 simulated world (multi-step transit, failures)",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "22",
+    "title": "Certification engine (confidential)",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "23",
+    "title": "Certification engine (confidential)",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "24",
+    "title": "Certification engine (confidential)",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "25",
+    "title": "Dispatch gate, certificates, replay, re-routing (confidential)",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "26",
+    "title": "Dispatch gate, certificates, replay, re-routing (confidential)",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "27",
+    "title": "Pre-registered evaluation and decision D-27",
+    "status": "✅ Complete — no outcome-effect claim",
+    "artifact_path": "data/eval_results/phase27/analysis.json",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "28",
+    "title": "Hardware-in-the-loop rig (simulated publisher until parts)",
+    "status": "✅ Complete",
+    "artifact_path": "hil/",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "30",
+    "title": "FastAPI service and React console with guided demo",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "31",
+    "title": "FastAPI service and React console with guided demo",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "32",
+    "title": "Decisions & Certificates, Overview, Evidence, System pages",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "33",
+    "title": "Decisions & Certificates, Overview, Evidence, System pages",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "34A",
+    "title": "Console wired to the real engine (recorded run)",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "34C",
+    "title": "Live session: accept / override while the simulation runs",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "34B",
+    "title": "Release: dev scripts, CI web jobs, demo script, Docker",
+    "status": "✅ Complete",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "36",
+    "title": "Course submission pack",
+    "status": "✅ Drafts complete — awaiting user approval",
+    "artifact_path": "docs/course/",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "35-lite",
+    "title": "Network-outage capacity shares (exploratory)",
+    "status": "✅ Complete — exploratory, no outcome claim",
+    "artifact_path": "data/eval_results/phase35lite/outages.json",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "37",
+    "title": "Conference paper",
+    "status": "⏳ Planned (after Wave C)",
+    "artifact_path": "docs/paper/",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "38",
+    "title": "Journal extension",
+    "status": "⏳ Optional",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "39",
+    "title": "Console showcase: simulation library, replay, live decision pop-up",
+    "status": "⏳ Planned (Lane X)",
+    "artifact_path": "docs/patent-roadmap/prompts/LX_39_console_showcase.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "29",
+    "title": "Patent filing",
+    "status": "⏸ On hold",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  },
+  {
+    "phase": "35",
+    "title": "Full escrow embodiment",
+    "status": "✖ Dropped (D-27)",
+    "artifact_path": "docs/patent-roadmap/STATUS.md",
+    "source_path": "README.md"
+  }
+]

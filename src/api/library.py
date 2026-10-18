@@ -23,6 +23,16 @@ def _read_json(path: Path) -> dict:
         return json.load(stream)
 
 
+def _json_safe(value):
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    if isinstance(value, dict):
+        return {key: _json_safe(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_json_safe(item) for item in value]
+    return value
+
+
 @lru_cache(maxsize=1)
 def library_index() -> dict:
     runs: dict[tuple[str, str, int], dict] = {}
@@ -32,14 +42,14 @@ def library_index() -> dict:
                 row = json.loads(line)
                 key = (row["system"], row["regime"], row["seed"])
                 runs.setdefault(key, {
-                    **row,
+                    **_json_safe(row),
                     "has_trace": row["system"] == "P" and
                     (P27 / "states" / f"{row['regime']}_{row['seed']}.jsonl.gz").is_file(),
                     "source_path": path.relative_to(ROOT).as_posix(),
                 })
     return {
         "runs": list(runs.values()),
-        "analysis": _read_json(P27 / "analysis.json"),
+        "analysis": _json_safe(_read_json(P27 / "analysis.json")),
         "analysis_source": "data/eval_results/phase27/analysis.json",
         "source": "RECORDED SIMULATION",
     }

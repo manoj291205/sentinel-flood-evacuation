@@ -8,6 +8,7 @@ import Overview from './pages/Overview';
 import Evidence from './pages/Evidence';
 import System from './pages/System';
 import Simulations from './sims/Simulations';
+import Journey from './pages/Journey';
 import styles from './App.module.css';
 
 const HONESTY = 'REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED';
@@ -47,11 +48,12 @@ export default function App() {
         <span className={styles.operator}>Operator · local preview</span>
       </div>
     </header>
-    <div className={styles.honesty} role="note">{HONESTY}</div>
+    <section aria-label="Simulation honesty"><div className={styles.honesty} role="note">{HONESTY}</div></section>
     <div className={styles.body}>
-      <nav aria-label="Main" className={styles.nav}>
+      <aside className={styles.nav} aria-label="Console navigation">
+      <nav aria-label="Main" className={styles.navCore}>
         <span className={styles.navGroup}>OPERATE</span>
-        {nav('/', 'Overview')}{nav('/live', 'Live Operations')}{nav('/simulations', 'Simulations')}
+        {nav('/', 'Overview')}{nav('/live', 'Live Operations')}
         <span className={styles.navGroup}>VERIFY</span>
         {nav('/decisions', 'Decisions & Certificates')}
         <span className={styles.navGroup}>EVIDENCE</span>
@@ -59,6 +61,12 @@ export default function App() {
         <span className={styles.navGroup}>SYSTEM</span>
         {nav('/system', 'System & Hardware')}
       </nav>
+      <nav aria-label="Showcase" className={styles.navCore}>
+        <span className={styles.navGroup}>OPERATE / REPLAY</span>
+        {nav('/simulations', 'Simulations')}
+        <span className={styles.navGroup}>ABOUT</span>
+        {nav('/journey', 'How it was built')}
+      </nav></aside>
       <main className={styles.content}>
         <Routes>
           <Route path="/live" element={<LiveOperations />} />
@@ -67,6 +75,7 @@ export default function App() {
           <Route path="/evidence" element={<Evidence />} />
           <Route path="/system" element={<System />} />
           <Route path="/simulations" element={<Simulations />} />
+          <Route path="/journey" element={<Journey />} />
         </Routes>
       </main>
     </div>

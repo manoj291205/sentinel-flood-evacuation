@@ -29,4 +29,5 @@ export const api = {
   ruleTiers: () => json<RuleTiersResponse>('/api/constraints/tiers'),
   systemStatus: () => json<SystemStatus>('/api/system/status'),
   systemAcks: () => json<{ items: Ack[] }>('/api/system/acks'),
+  projectFacts: () => json<{ facts: Record<string, { value: number | null; source_path: string; as_of?: string | null; reason?: string | null }> }>('/api/project/facts'),
 };

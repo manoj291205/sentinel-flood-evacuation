@@ -73,7 +73,7 @@ export function Legend() {
 
 export type SimulationMapStep = {
   chosen_key: string;
-  candidates: { action_key: string; people: number; verdict: string; svg_path: string }[];
+  candidates: { action_key: string; people: number | null; verdict: string; svg_path: string }[];
   zone_severity: Record<string, number>;
   shelter_severity: Record<string, number>;
   edge_closed_path: string;
@@ -98,13 +98,13 @@ export function SimulationMap({ geometry, step, label, moving = [] }: { geometry
       <path d={geometry.major} fill="none" stroke="var(--road)" strokeWidth="8" />
       <path d={step.edge_closed_path} fill="none" stroke="var(--bad)" strokeWidth="4" strokeDasharray="5 5" />
       {Object.entries(geometry.zones).map(([id, [x, y]]) => <g key={id}><circle cx={x} cy={y} r={18 + (step.zone_severity[id] ?? 0) * 32} fill="var(--w3)" opacity={.12 + (step.zone_severity[id] ?? 0) * .3} className={styles.hazardRing} /><circle cx={x} cy={y} r="9" fill="var(--w4)" /><text x={x + 12} y={y - 12} className={styles.mapLabel}>{id}</text></g>)}
-      {step.candidates.map(item => <path key={item.action_key} d={item.svg_path} fill="none" stroke={item.action_key === (chosen ?? step.chosen_key) ? 'var(--route)' : 'var(--info)'} strokeOpacity={item.action_key === (chosen ?? step.chosen_key) ? 1 : .24} strokeWidth={item.action_key === (chosen ?? step.chosen_key) ? 5 : 2} onClick={() => setChosen(item.action_key)}><title>{item.action_key} · {item.people} people · {item.verdict}</title></path>)}
+      {step.candidates.map(item => <path key={item.action_key} d={item.svg_path} fill="none" stroke={item.action_key === (chosen ?? step.chosen_key) ? 'var(--route)' : 'var(--info)'} strokeOpacity={item.action_key === (chosen ?? step.chosen_key) ? 1 : .24} strokeWidth={item.action_key === (chosen ?? step.chosen_key) ? 5 : 2} onClick={() => setChosen(item.action_key)}><title>{item.action_key} · {item.people ?? '—'} people · {item.verdict}</title></path>)}
       {active && <circle r="7" fill="var(--primary)" stroke="var(--onprimary)" strokeWidth="2"><animateMotion dur="2s" repeatCount="indefinite" path={active.svg_path} /></circle>}
       {moving.map(group => { const path = step.candidates.find(item => item.action_key === group.action_key)?.svg_path; return path ? <circle key={group.group_id} r="8" fill="var(--warn)" stroke="var(--ink)" strokeWidth="2"><title>{group.group_id} · {group.action_key} · {Math.round(group.progress * 100)}% along route</title><animateMotion path={path} keyPoints={`${group.progress};${Math.min(1, group.progress + .05)}`} keyTimes="0;1" calcMode="linear" dur=".8s" fill="freeze" /></circle> : null; })}
       {Object.entries(geometry.shelters).map(([id, [x, y]]) => { const row = step.shelters.find(item => item.id === id); const fraction = row && row.capacity ? Math.min(1, (row.occupied + row.reserved) / row.capacity) : 0; return <g key={id}><rect x={x - 12} y={y - 16} width="24" height="32" fill="var(--surface)" stroke="var(--ink)" /><rect x={x - 10} y={y + 14 - fraction * 28} width="20" height={fraction * 28} fill="var(--ok)" /><text x={x + 15} y={y} className={styles.mapLabel}>{id}</text><title>{id}: {row ? `${row.occupied} occupied, ${row.reserved} reserved, ${row.capacity} capacity` : 'ledger unavailable'}</title></g>; })}
     </svg>
     <div className={styles.mapLegend}>● Simulated zone severity · ▣ Occupied + reserved shelter seats · ┄ Closed road · Bold: {active?.action_key ?? 'HOLD'}</div>
     <div className={styles.routePicker} aria-label="Route details">{step.candidates.map(item => <button type="button" key={item.action_key} onClick={() => setChosen(item.action_key)} aria-pressed={item.action_key === (chosen ?? step.chosen_key)}>{item.action_key} <small>{item.verdict}</small></button>)}</div>
-    {active && <div className={styles.routeDrawer} role="status">Route {active.action_key} · {active.people} people · {active.verdict}</div>}
+    {active && <div className={styles.routeDrawer} role="status">Route {active.action_key} · {active.people ?? '—'} people{active.people == null && ' (not in context)'} · {active.verdict}</div>}
   </div>;
 }

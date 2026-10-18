@@ -31,3 +31,11 @@ def project_facts() -> dict:
                    "source_path": "README.md (reviewed milestone table)",
                    "reason": "Milestone rows; ranges count as one row and planned phases are included"},
     }, "source": "LOCAL ARTIFACTS"}
+
+
+@lru_cache(maxsize=1)
+def escrow_comparison() -> dict:
+    path = "data/eval_results/phase35lite/outages.json"
+    result = _read_json(ROOT / path)
+    return {"totals": result["totals"], "source_path": path,
+            "note": "Exploratory offline capacity study; not pre-registered and no outcome-effect claim."}
