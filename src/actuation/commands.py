@@ -55,7 +55,10 @@ _ACTUATING_KINDS = {"DISPATCH", "MIGRATION", "OVERRIDE"}
 
 def authorize(command: Command, ledger) -> bool:
     """True iff a valid, actuating certificate in the ledger matches the command exactly."""
-    from src.certify.certificate import CertificateError, edge_set_digest, validate_certificate
+    from src.certify.certificate import (
+        BOUND_CERT_VERSION, CertificateError, certificate_inputs_digest,
+        edge_set_digest, validate_certificate,
+    )
     from src.certify.gate import ledger_view_hash
 
     if not isinstance(command, (VehicleCommand, AdmissionCommand, RerouteCommand)):
@@ -67,7 +70,8 @@ def authorize(command: Command, ledger) -> bool:
         validate_certificate(cert)
     except (CertificateError, TypeError, ValueError):
         return False
-    if cert["kind"] not in _ACTUATING_KINDS or cert["cert_hash"] != command.cert_hash:
+    if (cert["cert_version"] != BOUND_CERT_VERSION
+            or cert["kind"] not in _ACTUATING_KINDS or cert["cert_hash"] != command.cert_hash):
         return False
     chosen = cert["chosen"]
     if command.group_id != chosen["group_id"]:
@@ -77,6 +81,7 @@ def authorize(command: Command, ledger) -> bool:
         candidate = next(c for c in inputs.candidates if c.action_key == chosen["action_key"])
         certified = [c for c in cert["candidates"] if c["action_key"] == chosen["action_key"]]
         if (inputs.cert_id != cert["cert_id"]
+                or certificate_inputs_digest(inputs) != cert["inputs_digest"]
                 or inputs.params_id != cert["params"]["params_id"]
                 or inputs.forecast.forecast_hash() != cert["forecast_hash"]
                 or inputs.forecast.graph_fingerprint != cert["graph_fingerprint"]

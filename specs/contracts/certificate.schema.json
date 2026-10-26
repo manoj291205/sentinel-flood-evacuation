@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "sentinel-certificate-v1",
-  "title": "Sentinel dispatch certificate (contract v1)",
-  "description": "Produced by Lane S Phase 25 (src/certify/certificate.py); consumed by Lane X API/web. Fixture: certificates_fixture.json.",
+  "$id": "sentinel-certificate-v2",
+  "title": "Sentinel dispatch certificate (v2 schema; v1 and v2 documents)",
+  "description": "Historical v1 remains readable. Prospective v2 binds complete ordered inputs through inputs_digest; API/web consume both versions.",
   "type": "object",
   "required": ["cert_id", "cert_version", "kind", "incident_id", "scenario_id", "timestep", "root_key",
                "forecast_hash", "graph_fingerprint", "ledger_hash", "params", "futures_used", "looks",
@@ -10,7 +10,8 @@
   "additionalProperties": false,
   "properties": {
     "cert_id": {"type": "string", "pattern": "^(CERT|AUD)-[0-9]{6}$"},
-    "cert_version": {"const": "sentinel-cert-v1"},
+    "cert_version": {"enum": ["sentinel-cert-v1", "sentinel-cert-v2"]},
+    "inputs_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$", "description": "v2: sha256 of canonical full CertificateInputs.to_dict(), including ordered paths and timing"},
     "kind": {"enum": ["DISPATCH", "MIGRATION", "HOLD", "OVERRIDE"]},
     "incident_id": {"type": "string"},
     "scenario_id": {"type": "string"},
@@ -101,5 +102,12 @@
     },
     "prev_cert_hash": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
     "cert_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
-  }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"cert_version": {"const": "sentinel-cert-v2"}}},
+      "then": {"required": ["inputs_digest"]},
+      "else": {"not": {"required": ["inputs_digest"]}}
+    }
+  ]
 }

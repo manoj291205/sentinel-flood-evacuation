@@ -66,6 +66,7 @@ class SimulationSession:
             self.gate = CertifiedGate(
                 self.scenario, self.graph, self.world, get_cert_params(self.params_id),
                 self.ledger, sink=self.sink, world_id=regime, rules=self.runtime_rules.rules,
+                bind_inputs=True,
             )
         else:
             self.scenario, self.simulator, self.graph, self.overlay = build_geospatial_demo_runtime(
@@ -311,7 +312,7 @@ class SimulationSession:
                             "dependencies": dependencies},
                 "configuration": configuration,
                 "configuration_sha256": hashlib.sha256(json.dumps(configuration, sort_keys=True).encode()).hexdigest(),
-                "planner": "certified-gate" if self.certified else "risk-greedy",
+                "planner": "certified_v4" if self.certified else "risk_greedy",
                 "active_rules": self.runtime_rules.metadata if self.certified else {"enforced_count": 0},
                 "evidence_references": [{k: row[k] for k in row if "evidence" in k or "source" in k or "chunk" in k}
                                         for row in self.audit]}

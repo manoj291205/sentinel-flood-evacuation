@@ -1,5 +1,15 @@
 # V4_GATE_SPEC — Phase 25: gate, atomic commit, certificate, replay (element E)
 
+2026-10-26 authorized prospective integrity amendment: `CertifiedGate(..., bind_inputs=True)`
+emits `sentinel-cert-v2` for dispatch, hold, override and migration. Its `inputs_digest` is SHA-256
+of canonical JSON of the complete stored `CertificateInputs.to_dict()`, with the final certificate
+id, ordered candidate edges, departure/start times, world and horizon. The certificate hash covers
+this digest. Replay checks it before constructing futures and rebuilds the same v2 document.
+Actuator authorization requires v2 and matching inputs. The default `bind_inputs=False` retains
+v1 bytes and simulation/replay behavior for frozen historical generators; v1 documents remain
+readable and replayable but cannot authorize future actuation. Parameters, sampling and root keys
+are unchanged. This digest detects input corruption; it is not an external digital signature.
+
 Lane S (Builder S) · branch `m25-gate` · depends on 21–24 (merged) · tests `tests/test_p25_gate.py`
 Confidential: core patent element. Contract: `specs/contracts/certificate.schema.json` (v1, unchanged
 except the optional `edge_set_digest`, added 2026-10-15).

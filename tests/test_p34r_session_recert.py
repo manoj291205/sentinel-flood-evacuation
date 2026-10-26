@@ -40,7 +40,9 @@ def reference(graph):
 
     scenario, sim, g, overlay, world = build_v4_runtime(WORLD, generator_seed=SEED, graph=graph)
     ledger = SimLedgerAdapter(sim)
-    gate = CertifiedGate(scenario, g, world, get_cert_params(PARAMS), ledger, world_id=WORLD)
+    # Prospective live sessions bind ordered inputs; historical default-v1 replay is tested separately.
+    gate = CertifiedGate(scenario, g, world, get_cert_params(PARAMS), ledger,
+                         world_id=WORLD, bind_inputs=True)
     histories, rows = {}, []
     for _ in range(STEPS):
         sim.observe()

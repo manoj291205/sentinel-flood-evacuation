@@ -201,9 +201,18 @@ def test_v4_audit_exposes_causes_before_transit_effects():
 
 @pytest.fixture
 def recorded_ledger():
-    from src.certify.certificate import CertificateInputs
+    from src.certify.certificate import (
+        BOUND_CERT_VERSION, CertificateInputs, certificate_hash, certificate_inputs_digest,
+    )
 
     trace = json.loads((ROOT / "data/demo_v4/demo_trace.json").read_text(encoding="utf-8"))
+    # Prospective authorization fixture; the frozen v1 trace itself is never rewritten.
+    for index, cert in enumerate(trace["certificates"]):
+        cert["cert_version"] = BOUND_CERT_VERSION
+        cert["inputs_digest"] = certificate_inputs_digest(
+            CertificateInputs.from_dict(trace["inputs"][cert["cert_id"]]))
+        cert["prev_cert_hash"] = trace["certificates"][index-1]["cert_hash"] if index else None
+        cert["cert_hash"] = certificate_hash(cert)
     return SimpleNamespace(certificates=lambda: copy.deepcopy(trace["certificates"]),
         inputs=lambda cert_id: CertificateInputs.from_dict(copy.deepcopy(trace["inputs"][cert_id])))
 

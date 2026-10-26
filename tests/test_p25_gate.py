@@ -90,7 +90,7 @@ def _gate(graph, rollout=fake_rollout, factory=FakeFutureSet, seed=620000):
     ledger = SimLedgerAdapter(simulator)
     sink = InMemorySink()
     gate = CertifiedGate(scenario, graph, world, get_cert_params("v4-cert-test-v1"), ledger,
-                         sink=sink, futures_factory=factory, rollout=rollout)
+                         sink=sink, futures_factory=factory, rollout=rollout, bind_inputs=True)
     return gate, ledger, sink, scenario, simulator, overlay
 
 

@@ -102,7 +102,7 @@ class CertifiedGate:
         self, scenario, graph, world, params: CertParams, ledger: Ledger, *,
         sink: CommandSink | None = None, clock=time.perf_counter,
         futures_factory: Callable[..., Any] | None = None, rollout: Callable = rollout_joint,
-        world_id: str | None = None, rules: Sequence[Any] = (),
+        world_id: str | None = None, rules: Sequence[Any] = (), bind_inputs: bool = False,
     ) -> None:
         self.rules = tuple(rules)
         if self.rules:  # Phase 15': document rules enter the joint indicator as extra terms
@@ -118,6 +118,7 @@ class CertifiedGate:
         self.futures_factory = futures_factory or FutureSet
         self.rollout = rollout
         self.world_id = world_id or getattr(world, "world_id", "")
+        self.bind_inputs = bind_inputs
 
     def evaluate(self, state, road_state, snapshot) -> tuple[CertificationResult, CertificateInputs]:
         view = self.ledger.view()
@@ -198,6 +199,7 @@ class CertifiedGate:
                 if kind != "HOLD" else []
             )
             certs = self.ledger.certificates()
+            stored_inputs = dataclasses.replace(inputs, cert_id=cert_id)
             cert = build_certificate(
                 cert_id=cert_id, kind=kind, incident_id=fc.incident_id,
                 scenario_id=self.scenario.scenario_id, timestep=fc.timestep, root=result.root,
@@ -207,8 +209,9 @@ class CertifiedGate:
                 group_id=gid, operator=operator, commands=commands,
                 prev_cert_hash=certs[-1]["cert_hash"] if certs else None,
                 edge_set_digest=edge_set_digest(inputs.edge_ids),
+                bound_inputs=stored_inputs if self.bind_inputs else None,
             )
-            tx.append_certificate(cert, dataclasses.replace(inputs, cert_id=cert_id))
+            tx.append_certificate(cert, stored_inputs)
         out: list[Command] = []
         if kind != "HOLD":
             out = [
@@ -301,6 +304,7 @@ class CertifiedGate:
                 tx.release(plan.shelter_id, plan.people, cert_id)
                 tx.reserve(chosen.shelter_id, chosen.people, cert_id)
                 certs = self.ledger.certificates()
+                stored_inputs = dataclasses.replace(inputs, cert_id=cert_id)
                 cert = build_certificate(
                     cert_id=cert_id, kind="MIGRATION", incident_id=fc.incident_id,
                     scenario_id=self.scenario.scenario_id, timestep=fc.timestep,
@@ -318,8 +322,9 @@ class CertifiedGate:
                     ],
                     prev_cert_hash=certs[-1]["cert_hash"] if certs else None,
                     edge_set_digest=edge_set_digest(edges),
+                    bound_inputs=stored_inputs if self.bind_inputs else None,
                 )
-                tx.append_certificate(cert, dataclasses.replace(inputs, cert_id=cert_id))
+                tx.append_certificate(cert, stored_inputs)
         except LedgerConflict:
             return dataclasses.replace(decision, action="KEEP_ESCALATE", new_shelter_id=None)
         self.sink.send(RerouteCommand(cert_id, cert["cert_hash"], plan.event_id, chosen.shelter_id,

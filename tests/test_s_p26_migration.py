@@ -51,7 +51,8 @@ def test_forced_failure_migrates_atomically_and_replays(graph):
     ledger = SimLedgerAdapter(sim)
     sink = InMemorySink()
     gate = CertifiedGate(scenario, graph, world, get_cert_params("v4-cert-test-v1"), ledger, sink=sink,
-                         futures_factory=FakeFutureSet, rollout=rollout, world_id="v4-medium-dt2-v1")
+                         futures_factory=FakeFutureSet, rollout=rollout, world_id="v4-medium-dt2-v1",
+                         bind_inputs=True)  # Prospective actuator permission requires bound inputs.
     sim.observe()
     state = sim.prepared_state_for_debug()
     result, inputs = gate.evaluate(state, overlay.road_state, evaluate_actions(scenario, state))
@@ -72,6 +73,7 @@ def test_forced_failure_migrates_atomically_and_replays(graph):
         pytest.skip("no migration possible for this seed/step")
     d = migrated[0]
     assert d.certificate["kind"] == "MIGRATION" and d.new_shelter_id != old_shelter
+    assert d.certificate["cert_version"] == "sentinel-cert-v2"
     after = {s.shelter_id: s.capacity_reserved for s in sim.prepared_state_for_debug().shelters}
     people = d.certificate["chosen"]["people"]
     assert after[old_shelter] == reserved_before[old_shelter] - people

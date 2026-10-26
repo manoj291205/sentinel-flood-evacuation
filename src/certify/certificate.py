@@ -17,6 +17,7 @@ from .params import CertParams
 from .rollout import HOLD_KEY, Candidate
 
 CERT_VERSION = "sentinel-cert-v1"
+BOUND_CERT_VERSION = "sentinel-cert-v2"
 _SCHEMA_PATH = Path(__file__).resolve().parents[2] / "specs" / "contracts" / "certificate.schema.json"
 
 
@@ -39,12 +40,18 @@ def edge_set_digest(edge_ids: Sequence[str]) -> str:
     return hashlib.sha256("\n".join(sorted(set(edge_ids))).encode("utf-8")).hexdigest()
 
 
+def certificate_inputs_digest(inputs: CertificateInputs) -> str:
+    """Bind ordered candidate paths, timing, and every stored replay input."""
+    return hashlib.sha256(canonical_json(inputs.to_dict())).hexdigest()
+
+
 def build_certificate(
     *, cert_id: str, kind: str, incident_id: str, scenario_id: str, timestep: int, root: str,
     forecast_hash: str, graph_fingerprint: str, ledger_hash: str, params: CertParams, a_max: int,
     result: CertificationResult | None, candidates: Sequence[Candidate], chosen_key: str,
     chosen_people: int, group_id: str | None, operator: Mapping[str, str],
     commands: Sequence[Mapping[str, str]], prev_cert_hash: str | None, edge_set_digest: str,
+    bound_inputs: CertificateInputs | None = None,
 ) -> dict:
     by_key = {c.action_key: c for c in candidates}
     rules_active = "+rules-" in params.params_id  # document rules were active: keep the POLICY count (also 0)
@@ -88,6 +95,11 @@ def build_certificate(
         "commands": [dict(c) for c in commands],
         "prev_cert_hash": prev_cert_hash,
     }
+    if bound_inputs is not None:
+        if bound_inputs.cert_id != cert_id:
+            raise CertificateError("bound inputs must carry the committed certificate id")
+        cert["cert_version"] = BOUND_CERT_VERSION
+        cert["inputs_digest"] = certificate_inputs_digest(bound_inputs)
     cert["cert_hash"] = certificate_hash(cert)
     return cert
 

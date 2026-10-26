@@ -9,7 +9,10 @@ from typing import Any, Callable, Mapping, Sequence
 
 from src.sim.world import get_world_config
 
-from .certificate import CertificateInputs, build_certificate, certificate_hash, edge_set_digest
+from .certificate import (
+    BOUND_CERT_VERSION, CertificateInputs, build_certificate, certificate_hash,
+    certificate_inputs_digest, edge_set_digest,
+)
 from .certifier import certify
 from .futures import FutureSet, root_key
 from .gate import ledger_view_hash
@@ -50,6 +53,13 @@ def replay_certificate(
     futures_factory: Callable[..., Any] | None = None, rollout: Callable = rollout_joint,
     rules: Sequence[Any] = (),
 ) -> ReplayReport:
+    bound = cert.get("cert_version") == BOUND_CERT_VERSION
+    if bound:
+        try:
+            if certificate_inputs_digest(inputs) != cert.get("inputs_digest"):
+                return ReplayReport("MISMATCH", ("inputs_digest",))
+        except (AttributeError, TypeError, ValueError):
+            return ReplayReport("MISMATCH", ("inputs_digest",))
     if graph.graph_fingerprint != cert.get("graph_fingerprint"):
         return ReplayReport("MISMATCH", ("graph_fingerprint",))
     factory = futures_factory or FutureSet
@@ -92,6 +102,7 @@ def replay_certificate(
             group_id=cert["chosen"].get("group_id"), operator=cert["operator"],
             commands=cert.get("commands", []), prev_cert_hash=cert.get("prev_cert_hash"),
             edge_set_digest=edge_set_digest(inputs.edge_ids),
+            bound_inputs=inputs if bound else None,
         )
     except (ValueError, KeyError) as exc:
         return ReplayReport("MISMATCH", (f"replay_error:{type(exc).__name__}",))

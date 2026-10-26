@@ -338,7 +338,8 @@ def apply_human_decision(
         "uncertainty_regime": simulator.config.level.value,
         "uncertainty_config_id": simulator.config.config_id,
         "timestep": context.state.current_timestep,
-        "planner": DEMO_PLANNER_LABEL,
+        "planner": (DEMO_PLANNER_LABEL if context.recommendation.planner_name == "risk_greedy"
+                    else context.recommendation.planner_name),
         "recommended_action": action_key(context.recommendation.action),
         "decision": choice.value,
         "executed_action": action_key(executed_action) if executed_action else "NONE",

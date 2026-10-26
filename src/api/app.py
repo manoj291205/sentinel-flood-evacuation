@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 import secrets
+import copy
 from datetime import datetime, timezone
 from collections import defaultdict
 from contextlib import contextmanager
@@ -305,7 +306,7 @@ def create_app() -> FastAPI:
                         "recommendation_id": body.recommendation_id,
                     }
                     record["evidence_provenance"] = evidence_provenance
-            except (HumanDecisionError, ValueError) as exc:
+            except HumanDecisionError as exc:
                 raise HTTPException(422, str(exc)) from exc
             if refusal_message is not None:
                 messages = [refusal_message]
@@ -357,12 +358,30 @@ def create_app() -> FastAPI:
                 raise HTTPException(409, "recommendation identity does not match this session and state")
             try:
                 evidence_provenance = authenticate_evidence_reference(**body.evidence.model_dump())
-                response, messages = execute_decision(session_id, body, entry, request_id,
-                                                      evidence_provenance)
-            except HTTPException as exc:
-                response = JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
             except (OSError, ValueError) as exc:
                 response = JSONResponse({"detail": str(exc)}, status_code=422)
+            else:
+                # This server supports only reversible in-memory actuation. Keep the
+                # world, audit, ledger and sink atomic with the serialized receipt.
+                from src.actuation.commands import InMemorySink
+                if entry.session.certified and type(entry.session.gate.sink) is not InMemorySink:
+                    raise HTTPException(503, "Live API requires an in-memory command sink")
+                before = copy.deepcopy(entry.session, {id(entry.session.graph): entry.session.graph})
+                version, sequence, refusals = entry.state_version, entry.sequence, list(entry.refusals)
+                try:
+                    response, messages = execute_decision(session_id, body, entry, request_id,
+                                                          evidence_provenance)
+                    if not isinstance(response, JSONResponse):
+                        response = JSONResponse(response)  # Serialization is part of the commit boundary.
+                except Exception as exc:
+                    entry.session, entry.state_version = before, version
+                    entry.sequence, entry.refusals = sequence, refusals
+                    messages = []
+                    if isinstance(exc, HTTPException):
+                        response = JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
+                    else:
+                        # No receipt is cached: retrying the same intent is safe after rollback.
+                        raise HTTPException(503, "Decision rolled back; retry the original request") from exc
             if isinstance(response, JSONResponse):
                 status, payload = response.status_code, json.loads(response.body)
             else:
@@ -534,13 +553,16 @@ def create_app() -> FastAPI:
         await websocket.accept()
         queue: asyncio.Queue = asyncio.Queue(maxsize=256)
         subscription = (queue, asyncio.get_running_loop())
-        subscribers[session_id].add(subscription)
         try:
             def initial_snapshot():
                 with entry.lock:
                     if entry.closed:
                         return None
-                    return {"seq": entry.next_sequence(), "type": "state", "payload": _state_dto(entry)}
+                    first = {"seq": entry.next_sequence(), "type": "state", "payload": _state_dto(entry)}
+                    # Register at the same cut as the initial state: queued events
+                    # must never precede the sequence already sent as the snapshot.
+                    subscribers[session_id].add(subscription)
+                    return first
             first = await asyncio.to_thread(initial_snapshot)
             if first is None:
                 await websocket.close(code=1001)
