@@ -215,6 +215,7 @@ def _prepare_v4_timestep(
     if intervention is not None:
         state, intervention_records = intervention(scenario, state)
         exogenous_records += intervention_records
+    state = replace(state, audit_log=state.audit_log + exogenous_records)
     road_state = getattr(intervention, "road_state", None)
     arrivals: tuple[DispatchEvent, ...] = ()
     transit_records: tuple[AuditRecord, ...] = ()
@@ -230,13 +231,12 @@ def _prepare_v4_timestep(
         state,
         uncertainty_config_id=context.config.config_id,
         dispatches_used_this_timestep=0,
-        audit_log=state.audit_log + exogenous_records,
     )
     return (
         state,
         next_context,
         arrivals,
-        transit_records + walk_records + exogenous_records,
+        exogenous_records + transit_records + walk_records,
     )
 
 

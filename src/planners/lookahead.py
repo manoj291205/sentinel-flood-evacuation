@@ -14,7 +14,7 @@ class LookaheadPlanner:
             raise ValueError("Gate 6 lookahead depth must be 2 or 3")
         self.depth = depth
         self.name = f"lookahead_k{depth}"
-        self.version = f"lookahead-k{depth}-v1"
+        self.version = f"lookahead-k{depth}-v2"
 
     def choose_action(self, planner_input: PlannerInput) -> PlannerDecision:
         started = time.perf_counter_ns()

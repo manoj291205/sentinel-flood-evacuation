@@ -12,6 +12,8 @@ from .schemas import ShelterStatus
 
 class TerminalReason(str, Enum):
     ALL_EVACUATED = "ALL_EVACUATED"
+    ALL_FAILED = "ALL_FAILED"
+    MIXED_OUTCOME = "MIXED_OUTCOME"
     HORIZON_REACHED = "HORIZON_REACHED"
 
 

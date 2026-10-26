@@ -58,7 +58,7 @@ def _continuation_action(state: ModelState):
 
 class SampledMPCPlanner:
     name = "sampled_mpc"
-    version = "sampled-mpc-n16-h3-v1"
+    version = "sampled-mpc-n16-h3-v2"
 
     def __init__(self, planner_seed: int = MPC_MASTER_SEED) -> None:
         self.planner_seed = planner_seed

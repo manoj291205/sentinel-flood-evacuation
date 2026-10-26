@@ -450,7 +450,12 @@ def _finalize_accepted_transition(
     )
     terminal_reason = None
     if state.population_remaining == 0 and state.people_in_transit == 0:
-        terminal_reason = TerminalReason.ALL_EVACUATED
+        failures = state.people_stranded + state.people_unsafe_arrival + state.people_overflow
+        if state.is_v4 and failures:
+            terminal_reason = (TerminalReason.MIXED_OUTCOME if state.people_safely_arrived
+                               else TerminalReason.ALL_FAILED)
+        else:
+            terminal_reason = TerminalReason.ALL_EVACUATED
     elif state.current_timestep >= scenario.time.horizon_steps:
         terminal_reason = TerminalReason.HORIZON_REACHED
 
@@ -462,11 +467,12 @@ def _finalize_accepted_transition(
                 timestep=state.current_timestep,
                 uncertainty_config_id=state.uncertainty_config_id,
                 reason_code=terminal_reason.value,
-                message=(
-                    "all evacuees arrived safely"
-                    if terminal_reason is TerminalReason.ALL_EVACUATED
-                    else "configured timestep horizon reached"
-                ),
+                message={
+                    TerminalReason.ALL_EVACUATED: "all evacuees arrived safely",
+                    TerminalReason.ALL_FAILED: "all groups resolved without safe arrivals",
+                    TerminalReason.MIXED_OUTCOME: "all groups resolved with mixed safe and failed outcomes",
+                    TerminalReason.HORIZON_REACHED: "configured timestep horizon reached",
+                }[terminal_reason],
             ),
         )
         state = replace(

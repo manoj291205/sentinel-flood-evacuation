@@ -85,6 +85,10 @@ class ModelState:
     travel_noise_fraction: float
     next_event: int
     max_destination_hazard: float = 0.70
+    hard_safety_enabled: bool = True
+    dispatch_enabled: bool = True
+    root_timestep: int | None = None
+    root_allowed_actions: tuple[SimulationAction, ...] | None = None
 
     @classmethod
     def from_input(cls, value: PlannerInput) -> "ModelState":
@@ -163,6 +167,10 @@ class ModelState:
             travel_noise_fraction=config.travel_noise_fraction,
             next_event=len(pending) + observation["people_safely_arrived"] + 1,
             max_destination_hazard=value.max_destination_hazard,
+            hard_safety_enabled=value.safety_snapshot.hard_safety_enabled,
+            dispatch_enabled=observation.get("dispatch_limit_per_timestep", 0) > 0,
+            root_timestep=value.current_timestep,
+            root_allowed_actions=value.safety_snapshot.allowed_actions,
         )
 
     @cached_property
@@ -193,8 +201,12 @@ class ModelState:
     def allowed_actions(self) -> tuple[SimulationAction, ...]:
         if self.timestep >= self.horizon:
             return ()
+        root_allowed = self.root_allowed_actions if self.timestep == self.root_timestep else None
         allowed: list[SimulationAction] = []
         for action in self.actions:
+            # A mask can exclude extra constraints; it cannot grant modeled infeasibility.
+            if root_allowed is not None and action not in root_allowed:
+                continue
             if action == WAIT:
                 allowed.append(action)
                 continue
@@ -203,12 +215,13 @@ class ModelState:
             shelter = self.shelter(action.shelter_id)
             route = self.route(action)
             if (
-                zone is not None
+                self.dispatch_enabled
+                and zone is not None
                 and zone.population > 0
                 and shelter is not None
                 and shelter.status != "CLOSED"
                 and shelter.available > 0
-                and shelter.severity < self.max_destination_hazard
+                and (not self.hard_safety_enabled or shelter.severity < self.max_destination_hazard)
                 and route is not None
                 and route.reachable
                 and route.expected_travel is not None
@@ -238,6 +251,8 @@ class ModelState:
         shelter_shocks: dict[str, float] | None = None,
         shelter_status_updates: dict[str, str] | None = None,
     ) -> "ModelState":
+        if action not in self.allowed_actions():
+            raise ValueError("modeled action is not allowed in the current projected state")
         zones = self.zones
         shelters = self.shelters
         pending = self.pending
@@ -394,6 +409,8 @@ def _finish_waiting(
     transit_sum: float,
 ) -> float:
     """Allocation-free equivalent of advancing WAIT to the horizon."""
+    if state.initial_population == 0:
+        return 0.0
     zone_index = {item.zone_id: index for index, item in enumerate(state.zones)}
     shelter_index = {item.shelter_id: index for index, item in enumerate(state.shelters)}
     route_entities = tuple(

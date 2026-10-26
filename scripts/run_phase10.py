@@ -315,7 +315,12 @@ def run_index_policy_episode(
     model=None,
     observation_matched: ObservationMatchedGreedy | None = None,
     stress_type: str | None = None,
+    action_accounting_version: str = "phase10-requested-v1",
 ) -> dict[str, Any]:
+    """Keep the frozen v1 study; future studies explicitly opt into executed-action v2."""
+    if action_accounting_version not in {"phase10-requested-v1", "executed-actions-v2"}:
+        raise ValueError("unknown action accounting version")
+    prospective = action_accounting_version == "executed-actions-v2"
     if (model is None) == (observation_matched is None):
         raise ValueError("provide exactly one index policy")
     env = EvacuationEnvV3(
@@ -331,6 +336,8 @@ def run_index_policy_episode(
     dispatches = unsafe = capacity = failures = invalid = closed = decisions = 0
     latencies: list[int] = []
     actions: list[dict[str, Any]] = []
+    requested_actions: list[dict[str, Any]] = []
+    requested_dispatches = blocked_dispatches = 0
     terminated = truncated = False
     while not (terminated or truncated):
         state = env.current_state
@@ -350,26 +357,30 @@ def run_index_policy_episode(
         requested = env.action_mapping.decode_action(action_index)
         permitted = bool(mask[action_index])
         invalid += int(not permitted)
-        if isinstance(requested.semantic, DispatchAction):
+        requested_dispatches += int(isinstance(requested.semantic, DispatchAction))
+        blocked_dispatches += int(isinstance(requested.semantic, DispatchAction) and not permitted)
+        observation, reward, terminated, truncated, info = env.step(action_index)
+        accounted = env.action_mapping.decode_action(info["executed_action"]) if prospective else requested
+        if isinstance(accounted.semantic, DispatchAction):
             dispatches += 1
-            unsafe += int(not permitted)
+            unsafe += int(not mask[accounted.index])
             route = next(
                 item for item in state.routes
-                if item.source_zone_id == requested.zone_id
-                and item.destination_shelter_id == requested.shelter_id
+                if item.source_zone_id == accounted.zone_id
+                and item.destination_shelter_id == accounted.shelter_id
             )
             closed += int(not route.reachable_current)
-        observation, reward, terminated, truncated, info = env.step(action_index)
         episode_return += float(reward)
         capacity += int(any(item.capacity_available < 0 for item in env.current_state.shelters))
         latencies.append(latency)
-        action = requested.to_dict()
-        if requested.zone_id is not None and requested.shelter_id is not None:
-            action["physical_zone"] = next(item.location.node_id for item in scenario.zones if item.zone_id == requested.zone_id)
-            action["physical_shelter"] = next(item.location.node_id for item in scenario.shelters if item.shelter_id == requested.shelter_id)
+        action = accounted.to_dict()
+        if accounted.zone_id is not None and accounted.shelter_id is not None:
+            action["physical_zone"] = next(item.location.node_id for item in scenario.zones if item.zone_id == accounted.zone_id)
+            action["physical_shelter"] = next(item.location.node_id for item in scenario.shelters if item.shelter_id == accounted.shelter_id)
         actions.append(action)
+        requested_actions.append(requested.to_dict())
         decisions += 1
-    return _final_metrics(
+    metrics = _final_metrics(
         scenario,
         env.current_state,
         ledger,
@@ -384,6 +395,11 @@ def run_index_policy_episode(
         latencies_ns=latencies,
         actions=actions,
     )
+    if prospective:
+        metrics.update(action_accounting_version=action_accounting_version,
+                       requested_dispatches=requested_dispatches, blocked_dispatches=blocked_dispatches,
+                       executed_dispatches=dispatches, requested_actions=requested_actions)
+    return metrics
 
 
 def _average_random_runs(runs: list[dict[str, Any]]) -> dict[str, Any]:

@@ -263,6 +263,17 @@ def assert_episode_invariants(scenario: ScenarioV3, state: EpisodeState) -> None
         if state.terminal_reason is TerminalReason.ALL_EVACUATED:
             _require(state.population_remaining == 0, "completion has remaining population")
             _require(state.people_in_transit == 0, "completion has people in transit")
+            _require(state.people_safely_arrived == state.initial_evacuation_population,
+                     "safe completion includes failed outcomes")
+        elif state.terminal_reason in (TerminalReason.ALL_FAILED, TerminalReason.MIXED_OUTCOME):
+            _require(v4, "failure terminal outcomes require a v4 state")
+            _require(state.population_remaining == state.people_in_transit == 0,
+                     "resolved outcome has unresolved people")
+            failures = state.people_stranded + state.people_unsafe_arrival + state.people_overflow
+            _require(failures > 0, "failure terminal outcome has no failed people")
+            _require((state.people_safely_arrived > 0)
+                     == (state.terminal_reason is TerminalReason.MIXED_OUTCOME),
+                     "mixed/all-failed terminal outcome disagrees with safe arrivals")
         elif state.terminal_reason is TerminalReason.HORIZON_REACHED:
             _require(
                 state.current_timestep >= scenario.time.horizon_steps,
