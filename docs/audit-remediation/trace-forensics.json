@@ -1,0 +1,201 @@
+{
+  "kind": "diagnostic evidence, not scientific evaluation output",
+  "starting_head": "498fcc5",
+  "baseline": "52f2451846cefc320afdde2b9a1b48173118ae31",
+  "python311": {
+    "contract": "sentinel-trace-portability-v1",
+    "python": "3.11.3 (main, Apr 19 2023, 18:49:55) [Clang 14.0.6 ]",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "source_root": "/Users/aksharsinha/worktrees/sentinel-integration/sentinel-sprint",
+    "artifact_sha256": "1079954ae8e81cf5bf6fccf12e500a506512a0d2a65be90d47ebf0ebc420e8df",
+    "default": {
+      "contract_version": "sentinel-trace-portability-v1",
+      "strict_equal": false,
+      "hash_equivalent": true,
+      "raw_difference_paths": [
+        "/inputs/CERT-000007/forecast/shelter_severity/0/1",
+        "/inputs/CERT-000007/forecast/shelter_severity/1/1",
+        "/inputs/CERT-000007/forecast/shelter_severity/3/1",
+        "/inputs/CERT-000007/forecast/shelter_severity/4/1",
+        "/inputs/CERT-000007/forecast/zone_severity/1/1"
+      ],
+      "incompatible_paths": []
+    },
+    "raw_values": [
+      {
+        "path": "/inputs/CERT-000007/forecast/shelter_severity/0/1",
+        "rebuilt": 0.5385857466871293,
+        "recorded": 0.5385857466871294,
+        "rebuilt_hex": "0x1.13c182d039d60p-1",
+        "recorded_hex": "0x1.13c182d039d61p-1"
+      },
+      {
+        "path": "/inputs/CERT-000007/forecast/shelter_severity/1/1",
+        "rebuilt": 0.6592134937193967,
+        "recorded": 0.6592134937193969,
+        "rebuilt_hex": "0x1.51846e5936a2cp-1",
+        "recorded_hex": "0x1.51846e5936a2dp-1"
+      },
+      {
+        "path": "/inputs/CERT-000007/forecast/shelter_severity/3/1",
+        "rebuilt": 0.539192383145973,
+        "recorded": 0.5391923831459731,
+        "rebuilt_hex": "0x1.14110627ba7fbp-1",
+        "recorded_hex": "0x1.14110627ba7fcp-1"
+      },
+      {
+        "path": "/inputs/CERT-000007/forecast/shelter_severity/4/1",
+        "rebuilt": 0.6286172976359493,
+        "recorded": 0.6286172976359494,
+        "rebuilt_hex": "0x1.41da205e17b4bp-1",
+        "recorded_hex": "0x1.41da205e17b4cp-1"
+      },
+      {
+        "path": "/inputs/CERT-000007/forecast/zone_severity/1/1",
+        "rebuilt": 0.666235485332177,
+        "recorded": 0.6662354853321771,
+        "rebuilt_hex": "0x1.551cd149df6e4p-1",
+        "recorded_hex": "0x1.551cd149df6e5p-1"
+      }
+    ],
+    "reference_cos_diagnostic_only": {
+      "contract_version": "sentinel-trace-portability-v1",
+      "strict_equal": true,
+      "hash_equivalent": true,
+      "raw_difference_paths": [],
+      "incompatible_paths": []
+    }
+  },
+  "python312": {
+    "contract": "sentinel-trace-portability-v1",
+    "python": "3.12.15 (main, Oct  9 2026, 15:10:57) [Clang 22.1.3 ]",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "source_root": "/Users/aksharsinha/worktrees/sentinel-integration/sentinel-sprint",
+    "artifact_sha256": "1079954ae8e81cf5bf6fccf12e500a506512a0d2a65be90d47ebf0ebc420e8df",
+    "default": {
+      "contract_version": "sentinel-trace-portability-v1",
+      "strict_equal": false,
+      "hash_equivalent": true,
+      "raw_difference_paths": [
+        "/inputs/CERT-000007/forecast/shelter_severity/0/1",
+        "/inputs/CERT-000007/forecast/shelter_severity/1/1",
+        "/inputs/CERT-000007/forecast/shelter_severity/3/1",
+        "/inputs/CERT-000007/forecast/shelter_severity/4/1",
+        "/inputs/CERT-000007/forecast/zone_severity/1/1"
+      ],
+      "incompatible_paths": []
+    },
+    "raw_values": [
+      {
+        "path": "/inputs/CERT-000007/forecast/shelter_severity/0/1",
+        "rebuilt": 0.5385857466871293,
+        "recorded": 0.5385857466871294,
+        "rebuilt_hex": "0x1.13c182d039d60p-1",
+        "recorded_hex": "0x1.13c182d039d61p-1"
+      },
+      {
+        "path": "/inputs/CERT-000007/forecast/shelter_severity/1/1",
+        "rebuilt": 0.6592134937193967,
+        "recorded": 0.6592134937193969,
+        "rebuilt_hex": "0x1.51846e5936a2cp-1",
+        "recorded_hex": "0x1.51846e5936a2dp-1"
+      },
+      {
+        "path": "/inputs/CERT-000007/forecast/shelter_severity/3/1",
+        "rebuilt": 0.539192383145973,
+        "recorded": 0.5391923831459731,
+        "rebuilt_hex": "0x1.14110627ba7fbp-1",
+        "recorded_hex": "0x1.14110627ba7fcp-1"
+      },
+      {
+        "path": "/inputs/CERT-000007/forecast/shelter_severity/4/1",
+        "rebuilt": 0.6286172976359493,
+        "recorded": 0.6286172976359494,
+        "rebuilt_hex": "0x1.41da205e17b4bp-1",
+        "recorded_hex": "0x1.41da205e17b4cp-1"
+      },
+      {
+        "path": "/inputs/CERT-000007/forecast/zone_severity/1/1",
+        "rebuilt": 0.666235485332177,
+        "recorded": 0.6662354853321771,
+        "rebuilt_hex": "0x1.551cd149df6e4p-1",
+        "recorded_hex": "0x1.551cd149df6e5p-1"
+      }
+    ],
+    "reference_cos_diagnostic_only": {
+      "contract_version": "sentinel-trace-portability-v1",
+      "strict_equal": true,
+      "hash_equivalent": true,
+      "raw_difference_paths": [],
+      "incompatible_paths": []
+    }
+  },
+  "untouched_baseline": {
+    "contract": "sentinel-trace-portability-v1",
+    "python": "3.11.3 (main, Apr 19 2023, 18:49:55) [Clang 14.0.6 ]",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "source_root": "/private/tmp/sentinel-full-audit-20261026.9HnIGh/main",
+    "artifact_sha256": "1079954ae8e81cf5bf6fccf12e500a506512a0d2a65be90d47ebf0ebc420e8df",
+    "default": {
+      "contract_version": "sentinel-trace-portability-v1",
+      "strict_equal": false,
+      "hash_equivalent": true,
+      "raw_difference_paths": [
+        "/inputs/CERT-000007/forecast/shelter_severity/0/1",
+        "/inputs/CERT-000007/forecast/shelter_severity/1/1",
+        "/inputs/CERT-000007/forecast/shelter_severity/3/1",
+        "/inputs/CERT-000007/forecast/shelter_severity/4/1",
+        "/inputs/CERT-000007/forecast/zone_severity/1/1"
+      ],
+      "incompatible_paths": []
+    },
+    "raw_values": [
+      {
+        "path": "/inputs/CERT-000007/forecast/shelter_severity/0/1",
+        "rebuilt": 0.5385857466871293,
+        "recorded": 0.5385857466871294,
+        "rebuilt_hex": "0x1.13c182d039d60p-1",
+        "recorded_hex": "0x1.13c182d039d61p-1"
+      },
+      {
+        "path": "/inputs/CERT-000007/forecast/shelter_severity/1/1",
+        "rebuilt": 0.6592134937193967,
+        "recorded": 0.6592134937193969,
+        "rebuilt_hex": "0x1.51846e5936a2cp-1",
+        "recorded_hex": "0x1.51846e5936a2dp-1"
+      },
+      {
+        "path": "/inputs/CERT-000007/forecast/shelter_severity/3/1",
+        "rebuilt": 0.539192383145973,
+        "recorded": 0.5391923831459731,
+        "rebuilt_hex": "0x1.14110627ba7fbp-1",
+        "recorded_hex": "0x1.14110627ba7fcp-1"
+      },
+      {
+        "path": "/inputs/CERT-000007/forecast/shelter_severity/4/1",
+        "rebuilt": 0.6286172976359493,
+        "recorded": 0.6286172976359494,
+        "rebuilt_hex": "0x1.41da205e17b4bp-1",
+        "recorded_hex": "0x1.41da205e17b4cp-1"
+      },
+      {
+        "path": "/inputs/CERT-000007/forecast/zone_severity/1/1",
+        "rebuilt": 0.666235485332177,
+        "recorded": 0.6662354853321771,
+        "rebuilt_hex": "0x1.551cd149df6e4p-1",
+        "recorded_hex": "0x1.551cd149df6e5p-1"
+      }
+    ]
+  },
+  "production_rng_changed": false,
+  "original_strict_test_changed": false,
+  "historical_producer_c_library": "NOT_RECORDED",
+  "single_regional_step3_reference_restores_entire_trace": true,
+  "reference_is_production": false,
+  "source_blobs": {
+    "src/sim/randomness.py": "522ae8e094843c73c6e1f1668f74d189b6fb1dc6",
+    "src/sim/hazard.py": "bda8a237b924535601d90766f97177d89caf6043",
+    "src/sim/world.py": "324d4124f57b41e80f603bcc31f7e2a7aa6a26ee",
+    "src/sim/generator.py": "144fd79264b99cb833508177229ad4a30355cee8"
+  }
+}
