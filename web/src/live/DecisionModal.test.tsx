@@ -32,7 +32,7 @@ describe('operator decision dialog', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /Decision pending/ }));
     await user.keyboard('d');
-    expect(screen.getByRole('button', { name: 'Confirm reject' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Confirm decline' })).toBeInTheDocument();
     await user.keyboard('a');
     expect(submit).toHaveBeenCalledWith('ACCEPT', '', '');
   });

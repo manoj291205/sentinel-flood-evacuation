@@ -52,7 +52,7 @@ test('one live session carries accept, override, refusal and decline across the 
   await shot('05-refused');
   await dialog.getByRole('button', { name: 'Decline' }).click();
   await dialog.getByLabel('REASON').fill('Hold pending field report');
-  await dialog.getByRole('button', { name: 'Confirm reject' }).click();
+  await dialog.getByRole('button', { name: 'Confirm decline' }).click();
   await expect(dialog).toContainText('CERT-000003');
   await expect(page.getByRole('group', { name: 'Action route marks' })).toContainText('decline');
   await shot('06-decline');

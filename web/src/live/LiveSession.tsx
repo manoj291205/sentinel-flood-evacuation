@@ -1,11 +1,13 @@
-import { useEffect, useReducer, useState } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import type { MapGeometry } from '../types';
 import { SimulationMap, type SimulationMapStep } from './OperationsMap';
-import DecisionModal, { type Context, type Decision, type Refusal, type Recheck } from './DecisionModal';
+import DecisionModal, { type LiveContext, type Decision, type Refusal, type Recheck } from './DecisionModal';
+import { prepareDecision, type PreparedDecision } from './decisionRequest';
+import { episodeOutcomeLabel } from './sessionStore';
 import SpeedControl, { type Speed } from '../sims/SpeedControl';
 import styles from './Live.module.css';
 
-type State = { people_stranded?: number; kpis: { waiting: number; in_transit: number; safe: number; stranded?: number; certificates_issued: number }; zones?: { zone_id: string; population_remaining: number; flood_severity_current: number }[]; shelters?: { shelter_id: string; capacity_total: number; occupancy_current: number; capacity_reserved: number; flood_severity_current: number }[]; route_rows?: { Source: string; Destination: string; Status: string }[]; transit_positions?: { group_id: string; source_zone_id: string; destination_shelter_id: string; progress: number }[] };
+type State = { current_timestep?: number; graph_fingerprint?: string; closed_edge_svg_path?: string; summary?: { terminal_reason?: string | null }; people_stranded?: number; people_unsafe_arrival?: number | null; people_overflow?: number | null; kpis: { waiting: number; in_transit: number; safe: number; stranded?: number; certificates_issued: number }; zones?: { zone_id: string; population_remaining: number; flood_severity_current: number }[]; shelters?: { shelter_id: string; capacity_total: number; occupancy_current: number; capacity_reserved: number; flood_severity_current: number }[]; route_rows?: { Source: string; Destination: string; Status: string }[]; transit_positions?: { group_id: string; source_zone_id: string; destination_shelter_id: string; progress: number; svg_path?: string }[] };
 type Phase = 'IDLE' | 'STARTING' | 'AWAIT_DECISION' | 'SUBMITTING' | 'RESULT' | 'DONE';
 export function livePhase(phase: Phase, event: 'START' | 'CONTEXT' | 'SUBMIT' | 'COMMIT' | 'NEXT' | 'END'): Phase {
   if (event === 'START') return 'STARTING';
@@ -31,7 +33,8 @@ async function request<T>(path: string, body?: object): Promise<T> {
   const response = await fetch(path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : undefined);
   const data = await response.json();
   if (!response.ok) {
-    const error = new Error(data.flag === 'UNCERTIFIED_OVERRIDE_REFUSED' ? 'Refused: not certified' : data.detail ?? `Request failed (${response.status})`) as Error & { refusal?: Refusal; status?: number };
+    const detail = typeof data.detail === 'string' ? data.detail : data.detail?.message;
+    const error = new Error(data.flag === 'UNCERTIFIED_OVERRIDE_REFUSED' ? 'Refused: not certified' : detail ?? `Request failed (${response.status})`) as Error & { refusal?: Refusal; status?: number };
     error.status = response.status;
     if (data.flag === 'UNCERTIFIED_OVERRIDE_REFUSED') error.refusal = data as Refusal;
     throw error;
@@ -44,7 +47,9 @@ export default function LiveSession({ geometry, initialNetworkDemo = false }: { 
   const [seed, setSeed] = useState(620003);
   const [world, setWorld] = useState('v4-medium-dt2-v1');
   const [session, setSession] = useState('');
-  const [context, setContext] = useState<Context | null>(null);
+  const [context, setContext] = useState<LiveContext | null>(null);
+  const pendingRequest = useRef<{ intent: string; body: PreparedDecision } | null>(null);
+  const submitting = useRef(false);
   const [decision, setDecision] = useState<Decision | null>(null);
   const [state, setState] = useState<State | null>(null);
   const [rechecks, setRechecks] = useState<Recheck[]>([]);
@@ -93,8 +98,8 @@ export default function LiveSession({ geometry, initialNetworkDemo = false }: { 
   }, [autoRun, decision, session, speed]);
 
   const fetchContext = async (id: string) => {
-    let next: Context;
-    try { next = await request<Context>(`/api/sessions/${id}/context`); }
+    let next: LiveContext;
+    try { next = await request<LiveContext>(`/api/sessions/${id}/context`); }
     catch (cause) { if ((cause as Error & { status?: number }).status === 409) { transition('END'); setContext(null); setAutoRun(false); return; } throw cause; }
     setContext(next);
     const snapshot = await request<State>(`/api/sessions/${id}/state`);
@@ -106,6 +111,14 @@ export default function LiveSession({ geometry, initialNetworkDemo = false }: { 
     transition(phase === 'RESULT' ? 'NEXT' : 'CONTEXT');
   };
   const start = async (mode = escrowMode) => {
+    if (session) {
+      if (!window.confirm('Start a new session? Export the current audit first; the previous live session will end.')) return;
+      try {
+        const ended = await fetch(`/api/sessions/${session}`, { method: 'DELETE' });
+        if (!ended.ok && ended.status !== 404) throw new Error('Could not end the previous session; it has been retained.');
+      } catch (cause) { setError(String(cause)); return; }
+    }
+    pendingRequest.current = null;
     transition('START');
     setBusy(true); setError(''); setRefusal(null);
     try {
@@ -130,47 +143,66 @@ export default function LiveSession({ geometry, initialNetworkDemo = false }: { 
     finally { setBusy(false); }
   };
   const submit = async (choice: 'ACCEPT' | 'OVERRIDE' | 'REJECT', alternative = selected, explanation = reason) => {
-    if (!session) return;
+    if (!session || !context || submitting.current) return;
+    if (context.decision_identity?.session_id !== session) { setError('Refresh the server suggestion before deciding.'); return; }
+    const intent = { decision: choice, selected_action: choice === 'OVERRIDE' ? alternative : undefined,
+      reason: choice === 'ACCEPT' ? '' : explanation, evidence };
+    const key = JSON.stringify(intent);
+    if (pendingRequest.current && pendingRequest.current.intent !== key) { setError('Previous outcome is unknown. Retry the same decision first.'); return; }
+    if (!pendingRequest.current) pendingRequest.current = { intent: key, body: prepareDecision(context.decision_identity, intent) };
+    submitting.current = true;
     transition('SUBMIT');
     setBusy(true); setError(''); setRefusal(null);
     try {
-      const result = await request<Decision>(`/api/sessions/${session}/decisions`, {
-        decision: choice, selected_action: choice === 'OVERRIDE' ? alternative : undefined,
-        reason: choice === 'ACCEPT' ? '' : explanation, evidence,
-      });
+      const result = await request<Decision & { state?: State }>(`/api/sessions/${session}/decisions`, pendingRequest.current.body);
+      pendingRequest.current = null;
       setDecision(result); setDecisionLog(previous => [...previous, result]); setRechecks(previous => [...previous, ...result.rechecks]);
-      const snapshot = await request<State>(`/api/sessions/${session}/state`);
+      const snapshot = result.state ?? await request<State>(`/api/sessions/${session}/state`);
       setSafeDelta(state == null ? null : snapshot.kpis.safe - state.kpis.safe);
       setState(snapshot); setHistory(previous => [...previous, { ...snapshot.kpis, stranded: snapshot.people_stranded ?? snapshot.kpis.stranded }]);
       setFeed(previous => [...previous, { type: 'decision', text: `${choice} · ${result.certificates.map(cert => cert.cert_id).join(', ')}` }]);
       transition('COMMIT');
     } catch (cause) {
-      setError(String(cause));
+      const status = (cause as Error & { status?: number }).status;
+      if (status != null && status < 500) pendingRequest.current = null;
+      if (status === 409) { await fetchContext(session); setError('Suggestion changed. Review the refreshed state before deciding.'); return; }
+      setError(`${String(cause)}${pendingRequest.current ? ' Outcome unknown; retry this same decision to recover its original result.' : ''}`);
       const refused = (cause as Error & { refusal?: Refusal }).refusal ?? null;
       setRefusal(refused);
       if (refused) setRefusalCount(previous => previous + 1);
       transition('CONTEXT');
     }
-    finally { setBusy(false); }
+    finally { submitting.current = false; setBusy(false); }
   };
   const fastForward = async (count: number) => {
-    if (!session || !context) return;
+    if (!session || !context || submitting.current) return;
+    const intent = { decision: 'ACCEPT' as const, reason: '', evidence };
+    const intentKey = JSON.stringify(intent);
+    if (pendingRequest.current && pendingRequest.current.intent !== intentKey) { setError('Previous outcome is unknown. Retry the same decision first.'); return; }
+    submitting.current = true;
     setAutoRun(false); setBusy(true); setError('');
     try {
       let current = context;
       for (let n = 0; n < count; n++) {
-        const result = await request<Decision>(`/api/sessions/${session}/decisions`, { decision: 'ACCEPT', reason: '', evidence });
+        if (!pendingRequest.current) pendingRequest.current = { intent: intentKey, body: prepareDecision(current.decision_identity, intent) };
+        const result = await request<Decision & { state?: State }>(`/api/sessions/${session}/decisions`, pendingRequest.current.body);
+        pendingRequest.current = null;
         setDecision(result); setDecisionLog(previous => [...previous, result]); setFastForwarded(previous => previous + 1);
         setFeed(previous => [...previous, { type: 'demo fast-forward', text: `ACCEPT · ${result.certificates.map(cert => cert.cert_id).join(', ')}` }]);
-        const snapshot = await request<State>(`/api/sessions/${session}/state`);
+        const snapshot = result.state ?? await request<State>(`/api/sessions/${session}/state`);
         setState(snapshot); setHistory(previous => [...previous, { ...snapshot.kpis, stranded: snapshot.people_stranded ?? snapshot.kpis.stranded }]);
-        try { current = await request<Context>(`/api/sessions/${session}/context`); }
+        try { current = await request<LiveContext>(`/api/sessions/${session}/context`); }
         catch (cause) { if ((cause as Error & { status?: number }).status === 409) { transition('END'); setContext(null); return; } throw cause; }
         setContext(current); setRechecks(previous => [...previous, ...current.certified.rechecks]);
       }
       setDecision(null);
-    } catch (cause) { setError(String(cause)); }
-    finally { setBusy(false); }
+    } catch (cause) {
+      const status = (cause as Error & { status?: number }).status;
+      if (status != null && status < 500) pendingRequest.current = null;
+      if (status === 409) { await fetchContext(session); setError('Suggestion changed. Review the refreshed state before deciding.'); }
+      else setError(`${String(cause)}${pendingRequest.current ? ' Outcome unknown; retry ACCEPT to recover its original result.' : ''}`);
+    }
+    finally { submitting.current = false; setBusy(false); }
   };
   return <div className={styles.page}>
     <h1>Live Operations</h1>
@@ -204,7 +236,7 @@ export default function LiveSession({ geometry, initialNetworkDemo = false }: { 
     </section>}
     {refusal && <p>Refusal row: step {refusal.timestep} · {refusal.action_key} · {refusal.verdict ?? 'unknown verdict'} · {refusal.reason}</p>}
     {session && context && <>
-      <div className={styles.commandHead}><p>Step {context.certified.timestep} · {geometry ? `${Object.keys(geometry.zones).length} zones on the map` : 'Map unavailable'} · {phase}</p><div><label><input type="checkbox" checked={autoRun} onChange={event => setAutoRun(event.target.checked)} />Auto-run (pauses for each decision)</label><SpeedControl speed={speed} onChange={setSpeed} /><button type="button" disabled={busy} onClick={() => void fastForward(3)}>Demo fast-forward · 3 steps</button><small>With accepts (demo)</small></div></div>
+      <div className={styles.commandHead}><p>Step {state?.current_timestep ?? context.certified.timestep} · {geometry ? `${Object.keys(geometry.zones).length} zones on the map` : 'Map unavailable'} · {phase}</p><div><label><input type="checkbox" checked={autoRun} onChange={event => setAutoRun(event.target.checked)} />Auto-run (pauses for each decision)</label><SpeedControl speed={speed} onChange={setSpeed} /><button type="button" disabled={busy} onClick={() => void fastForward(3)}>Demo fast-forward · 3 steps</button><small>With accepts (demo)</small></div></div>
       {fastForwarded > 0 && <p>Demo fast-forward: {fastForwarded} accepts recorded in this session</p>}
       {state && <div className={styles.kpis} aria-label="Simulated population and certificate counts">
         {([['WAITING', state.kpis.waiting], ['ON THE ROAD', state.kpis.in_transit], ['SAFE', state.kpis.safe], ['STRANDED', state.people_stranded ?? state.kpis.stranded], ['CERTIFICATES', state.kpis.certificates_issued], ['STEP', context.certified.timestep]] as const).map(([label, value]) =>
@@ -214,13 +246,13 @@ export default function LiveSession({ geometry, initialNetworkDemo = false }: { 
         <section className={styles.mapColumn} aria-label="Live map and state">
           {geometry && <SimulationMap geometry={geometry} step={{
             chosen_key: context.certified.recommendation.action_key,
-            candidates: [context.certified.recommendation, ...context.certified.alternatives].filter(item => item.action_key !== 'WAIT').map(item => { const [from, to] = item.action_key.split('->'); const raw = geometry[`route_${from}_${to}`] as [string, number] | undefined; return { action_key: item.action_key, people: null, verdict: item.verdict, svg_path: raw?.[0] ?? '' }; }),
+            candidates: [context.certified.recommendation, ...context.certified.alternatives].filter(item => item.action_key !== 'WAIT').map(item => ({ action_key: item.action_key, people: item.subject?.people ?? null, verdict: item.verdict, svg_path: context.routing?.routes[item.action_key]?.svg_path ?? '' })),
             zone_severity: Object.fromEntries((state?.zones ?? []).map(item => [item.zone_id, item.flood_severity_current])),
             zone_waiting: Object.fromEntries((state?.zones ?? []).map(item => [item.zone_id, item.population_remaining])),
             shelter_severity: Object.fromEntries((state?.shelters ?? []).map(item => [item.shelter_id, item.flood_severity_current])),
-            edge_closed_path: (state?.route_rows ?? []).filter(item => item.Status !== 'OPEN').map(item => (geometry[`route_${item.Source}_${item.Destination}`] as [string, number] | undefined)?.[0] ?? '').join(''),
+            edge_closed_path: state?.closed_edge_svg_path ?? context.routing?.closed_edge_svg_path ?? '',
             shelters: (state?.shelters ?? []).map(item => ({ id: item.shelter_id, capacity: item.capacity_total, occupied: item.occupancy_current, reserved: item.capacity_reserved })),
-          } satisfies SimulationMapStep} label="Live certified session" speed={speed} moving={(state?.transit_positions ?? []).map(item => ({ group_id: item.group_id, action_key: `${item.source_zone_id}->${item.destination_shelter_id}`, progress: item.progress }))} />}
+          } satisfies SimulationMapStep} label="Live certified session" speed={speed} moving={(state?.transit_positions ?? []).map(item => ({ group_id: item.group_id, action_key: `${item.source_zone_id}->${item.destination_shelter_id}`, progress: item.progress, svg_path: item.svg_path ?? '' }))} />}
           <p>Suggestion: {context.certified.recommendation.label}</p><p>{context.certified.note}</p>
           {rechecks.filter(row => row.action === 'MIGRATE' && row.cert_id).map(row => <p key={row.cert_id}>Re-routed automatically as {row.cert_id} (operator notified)</p>)}
           <div className={styles.events}><h2>Timeline and event feed</h2><input type="range" aria-label="Session timeline" min={0} max={Math.max(0, history.length - 1)} value={Math.max(0, history.length - 1)} readOnly /><ul>{feed.map((item, index) => <li key={index}><span>●</span><b>{item.type}</b><span>{item.text}</span></li>)}</ul></div>
@@ -234,6 +266,6 @@ export default function LiveSession({ geometry, initialNetworkDemo = false }: { 
       </div>
       <DecisionModal context={context} result={decision} refusal={refusal} busy={busy} session={session} safeDelta={safeDelta} onSubmit={(choice, alternative, explanation) => void submit(choice, alternative, explanation)} onNext={() => { setBusy(true); void fetchContext(session).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }} />
     </>}
-    {session && phase === 'DONE' && <section className={styles.card}><h2>Episode complete</h2><p>Safe {state?.kpis.safe ?? '—'} · stranded {state?.people_stranded ?? state?.kpis.stranded ?? '—'} · certificates {state?.kpis.certificates_issued ?? '—'}</p><p>Overrides {decisionLog.filter(row => row.audit_record.decision === 'OVERRIDE').length} · declines {decisionLog.filter(row => row.audit_record.decision === 'REJECT').length} · gate refusals {refusalCount}</p><p>Certificates by kind: {Object.entries(decisionLog.flatMap(row => row.certificates).reduce<Record<string, number>>((counts, cert) => ({ ...counts, [cert.kind]: (counts[cert.kind] ?? 0) + 1 }), {})).map(([kind, count]) => `${kind} ${count}`).join(' · ') || '—'}</p><a href={`/api/sessions/${session}/audit.csv`} download>Download audit.csv</a> · <a href={`/api/sessions/${session}/audit.json`} download>Download audit.json</a></section>}
+    {session && phase === 'DONE' && <section className={styles.card}><h2>{episodeOutcomeLabel(state?.summary?.terminal_reason)}</h2><p>Unsafe arrivals {state?.people_unsafe_arrival ?? '—'} · overflow {state?.people_overflow ?? '—'} · stranded {state?.people_stranded ?? '—'}</p><p>Safe {state?.kpis.safe ?? '—'} · stranded {state?.people_stranded ?? state?.kpis.stranded ?? '—'} · certificates {state?.kpis.certificates_issued ?? '—'}</p><p>Overrides {decisionLog.filter(row => row.audit_record.decision === 'OVERRIDE').length} · declines {decisionLog.filter(row => row.audit_record.decision === 'REJECT').length} · gate refusals {refusalCount}</p><p>Certificates by kind: {Object.entries(decisionLog.flatMap(row => row.certificates).reduce<Record<string, number>>((counts, cert) => ({ ...counts, [cert.kind]: (counts[cert.kind] ?? 0) + 1 }), {})).map(([kind, count]) => `${kind} ${count}`).join(' · ') || '—'}</p><a href={`/api/sessions/${session}/audit.csv`} download>Download audit.csv</a> · <a href={`/api/sessions/${session}/audit.json`} download>Download audit.json</a></section>}
   </div>;
 }

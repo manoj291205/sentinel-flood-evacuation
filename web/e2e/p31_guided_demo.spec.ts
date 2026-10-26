@@ -7,6 +7,7 @@ const HONESTY = 'REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPER
 test.beforeEach(async ({ page }) => {
   await page.goto('/live');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Live Operations');
+  await page.getByRole('radio', { name: 'Guided demo' }).check();
 });
 
 test('shell: five nav entries and the honesty banner', async ({ page }) => {

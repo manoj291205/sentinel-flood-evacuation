@@ -5,6 +5,7 @@ import { api } from '../api';
 import type { Certificate, CertificateCandidate } from '../types';
 import styles from './Decisions.module.css';
 import { useSessionStore } from '../live/sessionStore';
+import type { RouteGeometry } from '../live/DecisionModal';
 
 const kinds = ['All', 'Dispatch', 'Migration', 'Hold', 'Override'] as const;
 
@@ -55,7 +56,7 @@ export default function Decisions() {
   const sessionId = search.get('session');
   const [kind, setKind] = useState<(typeof kinds)[number]>('All');
   const [tamper, setTamper] = useState(false);
-  const [replay, setReplay] = useState<{ result: string; mismatched_fields: string[] } | null>(null);
+  const [replay, setReplay] = useState<{ result: string; mismatched_fields: string[]; executed_routes?: Record<string, RouteGeometry> } | null>(null);
   const [replayError, setReplayError] = useState<string | null>(null);
   const [replaying, setReplaying] = useState(false);
   const list = useQuery({ queryKey: ['certificates', sessionId], queryFn: sessionId ?
@@ -123,6 +124,7 @@ export default function Decisions() {
             <div className={styles.replayControls}><label><input type="checkbox" checked={tamper} onChange={event => { setTamper(event.target.checked); setReplay(null); }} />Tamper with forecast (demo)</label>
               <button type="button" onClick={() => void runReplay()} disabled={replaying}>Replay certificate</button></div>
             {replay && <p role="status" className={replay.result === 'MATCH' ? styles.match : styles.mismatch}>{replay.result === 'MATCH' ? 'MATCH — regenerated bit-for-bit' : `MISMATCH — ${replay.mismatched_fields.join(', ')}`}</p>}
+            {replay?.executed_routes?.[selectedId] && <section aria-label="Committed route replay"><p>Committed ordered route · {replay.executed_routes[selectedId].path_id ?? 'HOLD (no route)'} · graph {replay.executed_routes[selectedId].graph_fingerprint}</p><svg viewBox="0 0 880 789" role="img" aria-label="Route from stored certificate inputs" style={{ maxHeight: 260, width: '100%' }}><path d={replay.executed_routes[selectedId].svg_path} fill="none" stroke="var(--info)" strokeWidth="5" /></svg><p>{replay.executed_routes[selectedId].edge_ids.length} stored directed edges · decision step {replay.executed_routes[selectedId].timestep}</p></section>}
             {replayError && <p role="alert" className={styles.error}>{replayError}</p>}
           </section>
           <section className={styles.panel}><h3>Audit trail</h3><ol>

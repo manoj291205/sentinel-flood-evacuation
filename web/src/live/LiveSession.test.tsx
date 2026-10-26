@@ -29,7 +29,7 @@ describe('live certified session', () => {
   it('shows the pending reason, disables an uncertified option, and commits an accepted certificate', async () => {
     const responses = [
       { session_id: 'live-1' },
-      { certified: { timestep: 0, recommendation: { label: 'HOLD' },
+      { decision_identity: { session_id: 'live-1', state_version: 0, recommendation_id: 'a'.repeat(64) }, routing: { graph_fingerprint: 'graph', timestep: 0, state_version: 0, routes: {}, closed_edge_svg_path: '' }, certified: { timestep: 0, recommendation: { label: 'HOLD' },
         why: ['No dispatch option reached the threshold', 'Best option is undecided', 'The gate holds'],
         alternatives: [{ action_key: 'Z1->S1', label: 'Z-01 → S-01', verdict: 'UNDECIDED',
           lower: 0.5, certified: false, comparison: 'Not certified by the gate' }],

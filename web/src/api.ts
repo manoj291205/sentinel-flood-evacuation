@@ -1,4 +1,6 @@
 import type { Ack, Certificate, DecisionWhy, DemoState, EvidenceResponse, MapGeometry, RuleTiersResponse, SystemStatus } from './types';
+import type { RouteGeometry } from './live/DecisionModal';
+type ReplayResponse = { result: 'MATCH' | 'MISMATCH'; mismatched_fields: string[]; executed_routes?: Record<string, RouteGeometry> };
 
 async function json<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, init);
@@ -21,7 +23,7 @@ export const api = {
   demoStep: (action: 'next' | 'prev' | 'reset') => json<DemoState>('/api/demo/step', post({ action })),
   certificates: () => json<{ certificates: Certificate[] }>('/api/certificates'),
   sessionCertificates: (id: string) => json<{ certificates: Certificate[] }>(`/api/sessions/${encodeURIComponent(id)}/certificates`),
-  sessionReplay: (id: string, cert: string, tamper: boolean) => json<{ result: 'MATCH' | 'MISMATCH'; mismatched_fields: string[] }>(`/api/sessions/${encodeURIComponent(id)}/certificates/${encodeURIComponent(cert)}/replay`, post({ tamper })),
+  sessionReplay: (id: string, cert: string, tamper: boolean) => json<ReplayResponse>(`/api/sessions/${encodeURIComponent(id)}/certificates/${encodeURIComponent(cert)}/replay`, post({ tamper })),
   certificate: (id: string) => json<Certificate>(`/api/certificates/${encodeURIComponent(id)}`),
   replay: (id: string, tamper: boolean) => json<{ result: 'MATCH' | 'MISMATCH'; mismatched_fields: string[] }>(`/api/certificates/${encodeURIComponent(id)}/replay`, post({ tamper })),
   why: (id: string) => json<DecisionWhy>(`/api/decisions/${encodeURIComponent(id)}/why`),

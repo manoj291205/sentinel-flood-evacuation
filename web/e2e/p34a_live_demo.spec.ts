@@ -8,6 +8,7 @@ test.setTimeout(120_000);
 
 test('Run demo plays six recorded steps from the real engine', async ({ page }) => {
   await page.goto('/live');
+  await page.getByRole('radio', { name: 'Guided demo' }).check();
   await expect(page.getByText(/Recorded run of the real engine/)).toBeVisible();
   await expect(page.getByText(/not a performance sample/)).toBeVisible();
   await expect(page.getByText('scripted preview')).toHaveCount(0);

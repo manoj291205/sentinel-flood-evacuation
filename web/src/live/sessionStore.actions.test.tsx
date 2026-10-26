@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SessionProvider, useSessionStore } from './sessionStore';
 
 const subject = (key: string) => ({ action_key: key, kind: 'DISPATCH' as const, people: 20, zone_id: key.split('->')[0], shelter_id: key.split('->')[1], route_label: null, eta_minutes: null });
-const context = { certified: { timestep: 1, recommendation: { action_key: 'Z1->S2', label: 'Z1 → S2', verdict: 'FEASIBLE', lower: .94, certified: true, comparison: '', subject: subject('Z1->S2') },
+const context = { decision_identity: { session_id: 'one', state_version: 1, recommendation_id: 'a'.repeat(64) }, routing: { graph_fingerprint: 'graph', timestep: 1, state_version: 1, routes: {}, closed_edge_svg_path: '' }, certified: { timestep: 1, recommendation: { action_key: 'Z1->S2', label: 'Z1 → S2', verdict: 'FEASIBLE', lower: .94, certified: true, comparison: '', subject: subject('Z1->S2') },
   alternatives: [{ action_key: 'Z2->S2', label: 'Z2 → S2', verdict: 'FEASIBLE', lower: .92, certified: true, comparison: '', subject: subject('Z2->S2') }, { action_key: 'Z3->S3', label: 'Z3 → S3', verdict: 'UNDECIDED', lower: .5, certified: false, comparison: '', subject: subject('Z3->S3') }],
   why: [], rechecks: [], note: '' } };
 const initialState = { current_timestep: 1, people_stranded: 0, kpis: { waiting: 100, in_transit: 0, safe: 0, certificates_issued: 0 }, zones: [], shelters: [] };
@@ -18,6 +18,7 @@ function Probe() {
     <button onClick={() => void live.submit('OVERRIDE', 'Z2->S2', 'Road report', 'Bridge flooded')}>Override action</button>
     <button onClick={() => void live.submit('OVERRIDE', 'Z3->S3', 'Road report', 'Bridge flooded')}>Refuse action</button>
     <button onClick={() => void live.submit('DECLINE', '', 'Road report', 'Bridge flooded')}>Decline action</button>
+    <button onClick={() => void live.stepOn()}>Refresh action</button>
     <button onClick={() => live.practice('OVERRIDE', subject('Z2->S2'), 1, 'CERT-PRACTICE')}>Practice action</button>
   </>;
 }
@@ -25,6 +26,32 @@ function Probe() {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); sessionStorage.clear(); });
 
 describe('shared live session actions', () => {
+  it.each([false, true])('logs a migration once with its own route across response, context and reattach (%s)', async (reattach) => {
+    sessionStorage.setItem('sentinel-live-session', JSON.stringify({ sessionId: 'one', world: 'v4-medium-dt2-v1', seed: 620003 }));
+    const migration = { cert_id: 'CERT-MIGRATION', kind: 'MIGRATION', timestep: 1,
+      chosen: { action_key: 'Z3->S3', people: 12 } };
+    const row = { group_id: 'G1', action: 'MIGRATE', cert_id: migration.cert_id, route: 'Z3->S3', lower: .99 };
+    let committed = reattach;
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async input => {
+      const url = String(input);
+      if (url.endsWith('/state')) return response(initialState);
+      if (url.endsWith('/timeline')) return response({ timeline: [] });
+      if (url.endsWith('/certificates')) return response({ certificates: committed ? [migration] : [] });
+      if (url.endsWith('/audit')) return response({ audit: [], refusals: [] });
+      if (url.includes('/context')) return response({ ...context, certified: { ...context.certified, rechecks: committed ? [row] : [] } });
+      if (url.endsWith('/decisions')) { committed = true; return response({ audit_record: { decision: 'ACCEPT' }, state: initialState, certificates: [migration], rechecks: [row] }); }
+      throw new Error(url);
+    });
+    render(<SessionProvider><Probe /></SessionProvider>);
+    await screen.findByText('AWAIT_DECISION');
+    await userEvent.click(screen.getByRole('button', { name: 'Accept action' }));
+    await waitFor(() => expect(screen.getByLabelText('phase')).toHaveTextContent('RESULT'));
+    await userEvent.click(screen.getByRole('button', { name: 'Refresh action' }));
+    await screen.findByText('AWAIT_DECISION');
+    const migrations = JSON.parse(screen.getByLabelText('log').textContent ?? '[]').filter((entry: { decision: string }) => entry.decision === 'AUTO_REROUTE');
+    expect(migrations).toHaveLength(1);
+    expect(migrations[0].subject.action_key).toBe('Z3->S3');
+  });
   it('keeps recorded walkthrough decisions visibly separate from engine decisions', async () => {
     render(<SessionProvider><Probe /></SessionProvider>);
     await userEvent.click(screen.getByRole('button', { name: 'Practice action' }));

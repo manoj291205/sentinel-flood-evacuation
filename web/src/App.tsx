@@ -10,7 +10,7 @@ import System from './pages/System';
 import Simulations from './sims/Simulations';
 import Journey from './pages/Journey';
 import styles from './App.module.css';
-import { useSessionStore } from './live/sessionStore';
+import { committedDecisionCount, useSessionStore } from './live/sessionStore';
 
 const HONESTY = 'REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED';
 
@@ -42,7 +42,7 @@ export default function App() {
         <svg viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="1" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M5 15L11 6L17 15" fill="none" stroke="currentColor" strokeWidth="2" /></svg>
         SENTINEL
       </div>
-      <div className={styles.incident}>{live.sessionId ? `LIVE SESSION · ${live.world} · step ${live.context?.certified.timestep ?? live.state?.current_timestep ?? '—'}/${live.horizonSteps ?? '—'} · ${live.log.filter(row => row.source === 'LIVE').length} decisions · ${live.phase === 'AWAIT_DECISION' ? 1 : 0} pending` : demo.data ? `GUIDED DEMO · t = ${demo.data.step.timestep}` : `INCIDENT — · ${demo.isError ? 'API unavailable' : 'loading demo state'}`}</div>
+      <div className={styles.incident}>{live.operationsMode === 'guided' ? (demo.data ? `RECORDED WALKTHROUGH · t = ${demo.data.step.timestep}` : `RECORDED WALKTHROUGH · ${demo.isError ? 'API unavailable' : 'loading'}`) : live.sessionId ? `LIVE SESSION · ${live.world} · step ${live.state?.current_timestep ?? live.context?.certified.timestep ?? '—'}/${live.horizonSteps ?? '—'} · ${committedDecisionCount(live.log)} decisions · ${live.phase === 'AWAIT_DECISION' ? 1 : 0} pending` : 'LIVE ENGINE · ready to start'}</div>
       <div className={styles.headerRight}>
         <span className={styles.regime}>SIMULATED CONDITIONS</span>
         <time className={styles.incident} dateTime={clock.toISOString()}>{clock.toLocaleTimeString('en-IN', { hour12: false })}</time>

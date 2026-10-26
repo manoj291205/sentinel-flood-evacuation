@@ -6,7 +6,8 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
-    proxy: { '/api': 'http://localhost:8000', '/ws': { target: 'ws://localhost:8000', ws: true } },
+    proxy: { '/api': process.env.SENTINEL_API_URL || 'http://localhost:8000',
+      '/ws': { target: (process.env.SENTINEL_API_URL || 'http://localhost:8000').replace(/^http/, 'ws'), ws: true } },
     fs: { allow: ['..'] },
   },
   test: {
