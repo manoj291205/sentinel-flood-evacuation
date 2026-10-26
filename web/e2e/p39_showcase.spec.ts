@@ -34,6 +34,7 @@ test('live command dialog records accept, override, refusal and decline', async 
   await expect(page.getByRole('heading', { name: 'Episode ended — horizon reached' })).toBeVisible();
   await expect(page.getByText('Overrides 1 · declines 1 · gate refusals 1')).toBeVisible();
   await expect(page.getByText(/Certificates by kind:/)).toBeVisible();
+  await expect(page.getByText(/Certificates by kind:/)).toContainText('OVERRIDE 1');
 });
 
 for (const path of ['/', '/live', '/simulations', '/decisions', '/evidence', '/system', '/journey']) {

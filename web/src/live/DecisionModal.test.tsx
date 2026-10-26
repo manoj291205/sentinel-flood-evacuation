@@ -11,6 +11,10 @@ const context: Context = { certified: { timestep: 1, recommendation: { action_ke
 ], rechecks: [], note: 'Re-checks happen on consultation.', threshold: .9, futures_used: 256, looks: 2 } };
 
 describe('operator decision dialog', () => {
+  it('describes the committed HOLD instead of the original dispatch suggestion', () => {
+    render(<DecisionModal context={context} result={{ audit_record: { decision: 'REJECT' }, certificates: [{ cert_id: 'HOLD-1', kind: 'HOLD', chosen: { action_key: 'WAIT' } }], rechecks: [] }} refusal={null} busy={false} session="one" safeDelta={0} onSubmit={vi.fn()} onNext={vi.fn()} />);
+    expect(screen.getByText('HOLD: no dispatch this step', { exact: true })).toBeVisible();
+  });
   it('shows refusal and cannot select uncertified alternatives', async () => {
     render(<DecisionModal context={context} result={null} refusal={{ timestep: 1, action_key: 'Z3->S3', verdict: 'UNDECIDED', reason: 'test', flag: 'UNCERTIFIED_OVERRIDE_REFUSED' }} busy={false} session="one" safeDelta={null} onSubmit={vi.fn()} onNext={vi.fn()} />);
     expect(screen.getByRole('alert')).toHaveTextContent('Gate refused: not certified');

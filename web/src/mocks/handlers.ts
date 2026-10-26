@@ -78,7 +78,7 @@ export const handlers = [
     const certId = `CERT-${String(liveCertificate).padStart(6, '0')}`;
     const fixture = certificateFixture.certificates[0];
     const action = body.decision === 'REJECT' ? 'WAIT' : body.selected_action ?? (liveStep === 0 && !extendedLive ? 'WAIT' : 'Z1->S2');
-    const certificate = { ...fixture, cert_id: certId, kind: action === 'WAIT' ? 'HOLD' : 'DISPATCH', timestep: liveStep,
+    const certificate = { ...fixture, cert_id: certId, kind: action === 'WAIT' ? 'HOLD' : body.decision === 'OVERRIDE' ? 'OVERRIDE' : 'DISPATCH', timestep: liveStep,
       chosen: { ...fixture.chosen, action_key: action, people: action === 'WAIT' ? 0 : Math.min(20, liveWaiting) },
       operator: { ...fixture.operator, actor: 'Mock operator', decision: body.decision, reason: body.reason ?? '' },
       commands: action === 'WAIT' ? [] : [{ target: 'mock-vehicle', command: `route ${action}` }] };

@@ -135,15 +135,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [operationsMode, setOperationsMode] = useState<'session' | 'guided'>('session');
   const initial = useRef(initialSession());
   const [sessionId, setSessionId] = useState(initial.current.sessionId);
+  const sessionIdRef = useRef(initial.current.sessionId);
   const [world, setWorld] = useState(initial.current.world);
   const [seed, setSeed] = useState(initial.current.seed);
   const [horizonSteps, setHorizonSteps] = useState<number | null>(initial.current.horizonSteps ?? null);
-  const [phase, setPhase] = useState<SessionStore['phase']>('IDLE');
+  const [phase, setPhase] = useState<SessionStore['phase']>(initial.current.sessionId ? 'STARTING' : 'IDLE');
   const [context, setContext] = useState<LiveContext | null>(null);
   const [state, setState] = useState<LiveState | null>(null);
   const stateRef = useRef<LiveState | null>(null);
   const contextRef = useRef<LiveContext | null>(null);
-  const pendingRequest = useRef<{ intent: string; body: PreparedDecision } | null>(null);
+  const pendingRequest = useRef<{ intent: string; body: PreparedDecision; context: LiveContext; before?: Kpis } | null>(null);
   const submitting = useRef(false);
   const [kpiHistory, setKpiHistory] = useState<Kpis[]>([]);
   const [log, setLog] = useState<OperatorEntry[]>([]);
@@ -153,12 +154,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<Toast | null>(null);
   const [result, setResult] = useState<Decision | null>(null);
   const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState(!!initial.current.sessionId);
   const [speed, setSpeed] = useState<number | null>(null);
   const toastTimer = useRef<number | undefined>(undefined);
   const seqSeen = useRef(new Set<number>());
   const fastForwarding = useRef(false);
-  const setSnapshot = useCallback((next: LiveState) => { stateRef.current = next; setState(next); setKpiHistory(rows => [...rows, next.kpis]); }, []);
+  const setSnapshot = useCallback((next: LiveState) => {
+    if (next.state_version != null && stateRef.current?.state_version != null && next.state_version < stateRef.current.state_version) return;
+    stateRef.current = next; setState(next); setKpiHistory(rows => [...rows, next.kpis]); }, []);
   const notify = useCallback((text: string, tone: Toast['tone']) => {
     window.clearTimeout(toastTimer.current);
     setToast({ id: Date.now(), text, tone });
@@ -174,12 +177,21 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const fetchContext = useCallback(async (id: string) => {
     try {
       const next = await request<LiveContext>(`/api/sessions/${id}/context?include_subject=true`);
-      contextRef.current = next; setContext(next); setPhase('AWAIT_DECISION'); setResult(null);
+      if (sessionIdRef.current !== id) return;
+      contextRef.current = next; setContext(next);
       const [snapshot, issued] = await Promise.all([
         request<LiveState>(`/api/sessions/${id}/state`),
         request<{ certificates: Record<string, unknown>[]; executed_routes?: Record<string, RouteGeometry> }>(`/api/sessions/${id}/certificates`),
       ]);
+      if (sessionIdRef.current !== id) return;
       setSnapshot(snapshot); addCertificates(issued.certificates);
+      setPhase('AWAIT_DECISION'); setResult(null);
+      setLog(previous => {
+        const known = new Set(previous.flatMap(item => item.cert_ids));
+        const missing = issued.certificates.filter(cert => cert.kind !== 'MIGRATION' && !known.has(String(cert.cert_id)))
+          .map(cert => ({ ...restoredEntry(cert), route: issued.executed_routes?.[String(cert.cert_id)] }));
+        return missing.length ? [...previous, ...missing].sort((a, b) => b.step - a.step) : previous;
+      });
       for (const row of next.certified.rechecks.filter(item => item.action === 'MIGRATE')) {
         const cert = issued.certificates.find(item => item.cert_id === row.cert_id);
         const reroute = migrationEntry(cert, row, next.certified.timestep, issued.executed_routes);
@@ -188,6 +200,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         notify(`Group ${row.group_id} re-routed · ${row.cert_id ?? 'certificate pending'}`, 'warn');
       }
     } catch (cause) {
+      if (sessionIdRef.current !== id) return;
       if ((cause as Error & { status?: number }).status === 409) { contextRef.current = null; setContext(null); setPhase('DONE'); }
       else throw cause;
     }
@@ -199,13 +212,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!sessionId) return;
     let cancelled = false;
+    setBusy(true); setPhase('STARTING');
     void Promise.all([
       request<LiveState>(`/api/sessions/${sessionId}/state`),
       request<{ timeline: Record<string, unknown>[] }>(`/api/sessions/${sessionId}/timeline`),
       request<{ certificates: Record<string, unknown>[]; executed_routes?: Record<string, RouteGeometry> }>(`/api/sessions/${sessionId}/certificates`),
       request<{ audit?: Record<string, unknown>[]; refusals?: Refusal[] }>(`/api/sessions/${sessionId}/audit`),
     ]).then(async ([snapshot, timeline, certs, audit]) => {
-      if (cancelled) return;
+      if (cancelled || sessionIdRef.current !== sessionId) return;
       setSnapshot(snapshot); setCertificates(certs.certificates); setRefusals(audit.refusals ?? []);
       setLog(previous => previous.length ? previous : [
         ...certs.certificates.map(cert => ({ ...restoredEntry(cert), route: certs.executed_routes?.[String(cert.cert_id)] })),
@@ -218,10 +232,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setFeed(timeline.timeline.map((event, index) => toFeedItem({ seq: index, type: 'event', payload: event }, sessionId)).reverse());
       await fetchContext(sessionId);
     }).catch(cause => {
-      if (cancelled) return;
+      if (cancelled || sessionIdRef.current !== sessionId) return;
       if ((cause as Error & { status?: number }).status === 404) { setPhase('ENDED'); setError('Session ended — start a new one'); }
       else setError(String(cause));
-    });
+    }).finally(() => { if (!cancelled && sessionIdRef.current === sessionId) setBusy(false); });
     return () => { cancelled = true; };
   }, [sessionId, setSnapshot, fetchContext]);
   useEffect(() => {
@@ -230,6 +244,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     url.protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
     const socket = new WebSocket(url);
     socket.onmessage = event => {
+      if (sessionIdRef.current !== sessionId) return;
       try {
         const message = JSON.parse(event.data) as Message;
         if (message.seq != null && seqSeen.current.has(message.seq)) return;
@@ -243,13 +258,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return () => socket.close();
   }, [sessionId, setSnapshot, addCertificates]);
   const start = useCallback(async (nextWorld: string, nextSeed: number) => {
+    if (submitting.current) return;
+    submitting.current = true;
     setBusy(true); setError(''); setPhase('STARTING'); setSpeed(null);
     try {
       const created = await request<{ session_id: string; horizon_steps?: number }>('/api/sessions', { seed: nextSeed, regime: nextWorld, certified: true, params_id: 'v4-cert-test-v1' });
       setWorld(nextWorld); setSeed(nextSeed); setHorizonSteps(created.horizon_steps ?? null); setLog([]); setFeed([]); setCertificates([]); setRefusals([]); setKpiHistory([]);
-      seqSeen.current.clear(); setSessionId(created.session_id); notify('Live session started', 'info');
+      seqSeen.current.clear(); pendingRequest.current = null; sessionIdRef.current = created.session_id; setSessionId(created.session_id); notify('Live session started', 'info');
     } catch (cause) { setPhase('IDLE'); setError(String(cause)); }
-    finally { setBusy(false); }
+    finally { submitting.current = false; setBusy(false); }
   }, [notify]);
   const submit = useCallback(async (choice: 'ACCEPT' | 'OVERRIDE' | 'DECLINE', alt = '', code = '', text = '') => {
     const pending = contextRef.current?.certified;
@@ -264,25 +281,30 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setError('Previous outcome is unknown. Retry the same decision before choosing another action.'); return false;
     }
     if (!pendingRequest.current) {
-      try { pendingRequest.current = { intent: intentKey, body: prepareDecision(identity, intent) }; }
+      try { pendingRequest.current = { intent: intentKey, body: prepareDecision(identity, intent), context: contextRef.current!, before: stateRef.current?.kpis }; }
       catch (cause) { setError(String(cause)); return false; }
     }
     submitting.current = true;
     setBusy(true); setError(''); setPhase('SUBMITTING');
-    const candidate = choice === 'OVERRIDE' ? pending.alternatives.find(item => item.action_key === alt) : pending.recommendation;
-    const subject = subjectOf(candidate ?? pending.recommendation);
-    const before = stateRef.current?.kpis;
+    const reviewed = pendingRequest.current.context.certified;
+    const candidate = choice === 'OVERRIDE' ? reviewed.alternatives.find(item => item.action_key === alt) : reviewed.recommendation;
+    let subject = choice === 'DECLINE' || alt === 'WAIT' ? subjectOf({ action_key: 'WAIT' }) : subjectOf(candidate ?? reviewed.recommendation);
+    const before = pendingRequest.current.before;
+    const requestId = pendingRequest.current.body.request_id;
     try {
       const response = await request<Decision & { state: LiveState }>(`/api/sessions/${sessionId}/decisions`, pendingRequest.current.body);
       pendingRequest.current = null;
       const next = response.state ?? await request<LiveState>(`/api/sessions/${sessionId}/state`);
       const delta = { safe: next.kpis.safe - (before?.safe ?? next.kpis.safe), waiting: next.kpis.waiting - (before?.waiting ?? next.kpis.waiting), in_transit: next.kpis.in_transit - (before?.in_transit ?? next.kpis.in_transit) };
-      const certIds = (response.certificates ?? []).map(item => item.cert_id);
+      const operatorCertificates = (response.certificates ?? []).filter(item => item.kind !== 'MIGRATION');
+      const issuedKey = operatorCertificates[0]?.chosen?.action_key;
+      if (issuedKey && issuedKey !== subject.action_key) subject = subjectOf({ action_key: issuedKey });
+      const certIds = operatorCertificates.map(item => item.cert_id);
       const loggedDecision = choice === 'ACCEPT' && fastForwarding.current ? 'FAST_FORWARD_ACCEPT' : choice;
-      const entry: OperatorEntry = { id: `${sessionId}-${pending.timestep}-${Date.now()}`, step: pending.timestep, utc: new Date().toISOString(), decision: loggedDecision,
+      const entry: OperatorEntry = { id: `request-${requestId}`, step: reviewed.timestep, utc: new Date().toISOString(), decision: loggedDecision,
         subject, alternative: choice === 'OVERRIDE' ? subjectOf(pending.recommendation) : undefined,
         reason_code: code || undefined, reason: text || undefined, cert_ids: certIds, kpi_delta: delta, source: 'LIVE',
-        route: Object.values(response.executed_routes ?? {}).find(route => route.action_key === subject.action_key) };
+        route: response.executed_routes?.[certIds[0]] };
       setLog(rows => [entry, ...rows]); setSnapshot(next); addCertificates(response.certificates ?? []); setResult(response); setPhase('RESULT');
       setFeed(rows => [{ id: entry.id, text: `${loggedDecision} recorded · ${subjectSentence(subject)}${certIds.length ? ` · ${certIds.join(', ')}` : ''}`, tone: 'ok', href: certIds[0] ? `/decisions?session=${sessionId}&cert=${certIds[0]}` : undefined }, ...rows]);
       for (const row of response.rechecks ?? []) if (row.action === 'MIGRATE') {
@@ -333,14 +355,18 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return () => window.clearTimeout(timer);
   }, [speed, phase, stepOn]);
   const end = useCallback(async () => {
+    if (submitting.current) return;
     if (sessionId && !window.confirm('End this session and remove its server audit? Download audit JSON/CSV first if you need to keep it.')) return;
+    submitting.current = true; setBusy(true);
     try {
       if (sessionId) { const response = await fetch(`/api/sessions/${sessionId}`, { method: 'DELETE' }); if (!response.ok && response.status !== 404) throw new Error('Session could not be ended; audit retained.'); }
-      pendingRequest.current = null; setSpeed(null); setSessionId(''); setContext(null); contextRef.current = null;
+      pendingRequest.current = null; sessionIdRef.current = ''; setSpeed(null); setSessionId(''); setContext(null); contextRef.current = null;
       setState(null); stateRef.current = null; setHorizonSteps(null); setPhase('IDLE');
+      setLog([]); setFeed([]); setCertificates([]); setRefusals([]); setKpiHistory([]); setResult(null); setError('');
       try { sessionStorage.removeItem('sentinel-live-session'); } catch { /* storage unavailable */ }
       notify('Live session ended', 'info');
     } catch (cause) { setError(String(cause)); }
+    finally { submitting.current = false; setBusy(false); }
   }, [notify, sessionId]);
   const practice = useCallback((decision: 'ACCEPT' | 'OVERRIDE' | 'DECLINE', subject: Subject, step: number, certId?: string, reason?: string) => {
     setLog(rows => [{ id: `practice-${Date.now()}`, step, utc: new Date().toISOString(), decision, subject, cert_ids: certId ? [certId] : [], kpi_delta: { safe: null, waiting: null, in_transit: null }, source: 'PRACTICE', reason }, ...rows]);

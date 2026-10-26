@@ -6,6 +6,7 @@ const apiUrl = process.env.SENTINEL_API_URL || `http://127.0.0.1:${apiPort}`;
 
 export default defineConfig({
   testDir: './e2e',
+  workers: process.env.SENTINEL_E2E_LIVE ? 1 : undefined,
   timeout: 45_000,
   expect: { timeout: 10_000 },
   use: { ...devices['Desktop Chrome'], channel: 'chrome', baseURL: 'http://127.0.0.1:5174' },

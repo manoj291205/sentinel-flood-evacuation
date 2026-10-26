@@ -26,6 +26,27 @@ function Probe() {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); sessionStorage.clear(); });
 
 describe('shared live session actions', () => {
+  it('refreshes operator decisions committed by another client without duplicating local entries', async () => {
+    sessionStorage.setItem('sentinel-live-session', JSON.stringify({ sessionId: 'one', world: 'v4-medium-dt2-v1', seed: 620003 }));
+    let external = false;
+    const cert = { cert_id: 'CERT-EXTERNAL', kind: 'DISPATCH', timestep: 2, chosen: { action_key: 'Z3->S3', people: 12 }, operator: { decision: 'ACCEPT' } };
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async input => {
+      const url = String(input);
+      if (url.endsWith('/state')) return response(initialState);
+      if (url.endsWith('/timeline')) return response({ timeline: [] });
+      if (url.endsWith('/certificates')) return response({ certificates: external ? [cert] : [] });
+      if (url.endsWith('/audit')) return response({ audit: [], refusals: [] });
+      if (url.includes('/context')) return response(context);
+      throw new Error(url);
+    });
+    render(<SessionProvider><Probe /></SessionProvider>);
+    await screen.findByText('AWAIT_DECISION');
+    external = true;
+    await userEvent.click(screen.getByRole('button', { name: 'Refresh action' }));
+    await waitFor(() => expect(JSON.parse(screen.getByLabelText('log').textContent!)).toHaveLength(1));
+    await userEvent.click(screen.getByRole('button', { name: 'Refresh action' }));
+    expect(JSON.parse(screen.getByLabelText('log').textContent!)).toHaveLength(1);
+  });
   it.each([false, true])('logs a migration once with its own route across response, context and reattach (%s)', async (reattach) => {
     sessionStorage.setItem('sentinel-live-session', JSON.stringify({ sessionId: 'one', world: 'v4-medium-dt2-v1', seed: 620003 }));
     const migration = { cert_id: 'CERT-MIGRATION', kind: 'MIGRATION', timestep: 1,
@@ -81,6 +102,7 @@ describe('shared live session actions', () => {
       const log = JSON.parse(screen.getByLabelText('log').textContent ?? '[]');
       expect(log).toHaveLength(1);
       expect(log[0].decision).toBe(decision);
+      expect(log[0].subject.action_key).toBe(decision === 'DECLINE' ? 'WAIT' : decision === 'OVERRIDE' ? 'Z2->S2' : 'Z1->S2');
       expect(log[0].kpi_delta).toEqual({ safe: 10, waiting: -20, in_transit: 10 });
       expect(screen.getByLabelText('toast').textContent).toContain('CERT-000001 issued');
     });

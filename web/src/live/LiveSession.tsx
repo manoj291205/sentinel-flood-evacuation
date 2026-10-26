@@ -48,7 +48,7 @@ export default function LiveSession({ geometry, initialNetworkDemo = false }: { 
   const [world, setWorld] = useState('v4-medium-dt2-v1');
   const [session, setSession] = useState('');
   const [context, setContext] = useState<LiveContext | null>(null);
-  const pendingRequest = useRef<{ intent: string; body: PreparedDecision } | null>(null);
+  const pendingRequest = useRef<{ intent: string; body: PreparedDecision; before: State | null } | null>(null);
   const submitting = useRef(false);
   const [decision, setDecision] = useState<Decision | null>(null);
   const [state, setState] = useState<State | null>(null);
@@ -111,17 +111,17 @@ export default function LiveSession({ geometry, initialNetworkDemo = false }: { 
     transition(phase === 'RESULT' ? 'NEXT' : 'CONTEXT');
   };
   const start = async (mode = escrowMode) => {
-    if (session) {
-      if (!window.confirm('Start a new session? Export the current audit first; the previous live session will end.')) return;
-      try {
-        const ended = await fetch(`/api/sessions/${session}`, { method: 'DELETE' });
-        if (!ended.ok && ended.status !== 404) throw new Error('Could not end the previous session; it has been retained.');
-      } catch (cause) { setError(String(cause)); return; }
-    }
-    pendingRequest.current = null;
-    transition('START');
+    if (submitting.current) return;
+    if (session && !window.confirm('Start a new session? Export the current audit first; the previous live session will end.')) return;
+    submitting.current = true;
     setBusy(true); setError(''); setRefusal(null);
     try {
+      if (session) {
+        const ended = await fetch(`/api/sessions/${session}`, { method: 'DELETE' });
+        if (!ended.ok && ended.status !== 404) throw new Error('Could not end the previous session; it has been retained.');
+      }
+      pendingRequest.current = null;
+      transition('START');
       if (networkDemo) {
         const created = await request<EscrowStatus>('/api/escrow/sessions', { seed, regime: world, mode });
         setEscrowStatus(created); setSession(''); setContext(null);
@@ -132,7 +132,7 @@ export default function LiveSession({ geometry, initialNetworkDemo = false }: { 
       setSession(created.session_id); setRechecks([]); setHistory([]); setFeed([]); setFastForwarded(0); setDecisionLog([]); setRefusalCount(0); setSafeDelta(null);
       await fetchContext(created.session_id);
     } catch (cause) { setError(String(cause)); }
-    finally { setBusy(false); }
+    finally { submitting.current = false; setBusy(false); }
   };
   const networkAction = async (action: 'step' | 'cut' | 'restore') => {
     if (!escrowStatus) return;
@@ -149,7 +149,8 @@ export default function LiveSession({ geometry, initialNetworkDemo = false }: { 
       reason: choice === 'ACCEPT' ? '' : explanation, evidence };
     const key = JSON.stringify(intent);
     if (pendingRequest.current && pendingRequest.current.intent !== key) { setError('Previous outcome is unknown. Retry the same decision first.'); return; }
-    if (!pendingRequest.current) pendingRequest.current = { intent: key, body: prepareDecision(context.decision_identity, intent) };
+    if (!pendingRequest.current) pendingRequest.current = { intent: key, body: prepareDecision(context.decision_identity, intent), before: state };
+    const before = pendingRequest.current.before;
     submitting.current = true;
     transition('SUBMIT');
     setBusy(true); setError(''); setRefusal(null);
@@ -158,7 +159,7 @@ export default function LiveSession({ geometry, initialNetworkDemo = false }: { 
       pendingRequest.current = null;
       setDecision(result); setDecisionLog(previous => [...previous, result]); setRechecks(previous => [...previous, ...result.rechecks]);
       const snapshot = result.state ?? await request<State>(`/api/sessions/${session}/state`);
-      setSafeDelta(state == null ? null : snapshot.kpis.safe - state.kpis.safe);
+      setSafeDelta(before == null ? null : snapshot.kpis.safe - before.kpis.safe);
       setState(snapshot); setHistory(previous => [...previous, { ...snapshot.kpis, stranded: snapshot.people_stranded ?? snapshot.kpis.stranded }]);
       setFeed(previous => [...previous, { type: 'decision', text: `${choice} · ${result.certificates.map(cert => cert.cert_id).join(', ')}` }]);
       transition('COMMIT');
@@ -184,7 +185,7 @@ export default function LiveSession({ geometry, initialNetworkDemo = false }: { 
     try {
       let current = context;
       for (let n = 0; n < count; n++) {
-        if (!pendingRequest.current) pendingRequest.current = { intent: intentKey, body: prepareDecision(current.decision_identity, intent) };
+        if (!pendingRequest.current) pendingRequest.current = { intent: intentKey, body: prepareDecision(current.decision_identity, intent), before: state };
         const result = await request<Decision & { state?: State }>(`/api/sessions/${session}/decisions`, pendingRequest.current.body);
         pendingRequest.current = null;
         setDecision(result); setDecisionLog(previous => [...previous, result]); setFastForwarded(previous => previous + 1);
@@ -239,13 +240,13 @@ export default function LiveSession({ geometry, initialNetworkDemo = false }: { 
       <div className={styles.commandHead}><p>Step {state?.current_timestep ?? context.certified.timestep} · {geometry ? `${Object.keys(geometry.zones).length} zones on the map` : 'Map unavailable'} · {phase}</p><div><label><input type="checkbox" checked={autoRun} onChange={event => setAutoRun(event.target.checked)} />Auto-run (pauses for each decision)</label><SpeedControl speed={speed} onChange={setSpeed} /><button type="button" disabled={busy} onClick={() => void fastForward(3)}>Demo fast-forward · 3 steps</button><small>With accepts (demo)</small></div></div>
       {fastForwarded > 0 && <p>Demo fast-forward: {fastForwarded} accepts recorded in this session</p>}
       {state && <div className={styles.kpis} aria-label="Simulated population and certificate counts">
-        {([['WAITING', state.kpis.waiting], ['ON THE ROAD', state.kpis.in_transit], ['SAFE', state.kpis.safe], ['STRANDED', state.people_stranded ?? state.kpis.stranded], ['CERTIFICATES', state.kpis.certificates_issued], ['STEP', context.certified.timestep]] as const).map(([label, value]) =>
+        {([['WAITING', state.kpis.waiting], ['ON THE ROAD', state.kpis.in_transit], ['SAFE', state.kpis.safe], ['STRANDED', state.people_stranded ?? state.kpis.stranded], ['CERTIFICATES', state.kpis.certificates_issued], ['STEP', state?.current_timestep ?? context.certified.timestep]] as const).map(([label, value]) =>
           <div className={styles.kpi} key={label}><span className={styles.kpiLabel}>{label}</span><strong className="mono">{value == null ? '—' : value.toLocaleString('en-IN')}</strong><svg viewBox="0 0 100 24" role="img" aria-label={`${label} history`}><polyline fill="none" stroke="var(--info)" strokeWidth="2" points={history.map((row, index) => `${history.length < 2 ? 0 : index * 100 / (history.length - 1)},${24 - 22 * ((Number(label === 'WAITING' ? row.waiting : label === 'ON THE ROAD' ? row.in_transit : label === 'SAFE' ? row.safe : label === 'STRANDED' ? row.stranded : row.certificates_issued) || 0) / Math.max(1, ...history.map(item => Number(label === 'WAITING' ? item.waiting : label === 'ON THE ROAD' ? item.in_transit : label === 'SAFE' ? item.safe : label === 'STRANDED' ? item.stranded : item.certificates_issued) || 0)))}`).join(' ')} /></svg></div>)}
       </div>}
       <div className={styles.operationsGrid}>
         <section className={styles.mapColumn} aria-label="Live map and state">
           {geometry && <SimulationMap geometry={geometry} step={{
-            chosen_key: context.certified.recommendation.action_key,
+            chosen_key: decision?.certificates.find(cert => cert.kind !== 'MIGRATION')?.chosen?.action_key ?? context.certified.recommendation.action_key,
             candidates: [context.certified.recommendation, ...context.certified.alternatives].filter(item => item.action_key !== 'WAIT').map(item => ({ action_key: item.action_key, people: item.subject?.people ?? null, verdict: item.verdict, svg_path: context.routing?.routes[item.action_key]?.svg_path ?? '' })),
             zone_severity: Object.fromEntries((state?.zones ?? []).map(item => [item.zone_id, item.flood_severity_current])),
             zone_waiting: Object.fromEntries((state?.zones ?? []).map(item => [item.zone_id, item.population_remaining])),
