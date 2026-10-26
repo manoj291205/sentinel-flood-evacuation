@@ -18,7 +18,10 @@ from pathlib import Path
 from typing import Iterable, Protocol, Sequence
 
 from .corpus import CORPUS_VERSION, corpus_fingerprint, load_manifest, validate_manifest
-from .ingest import CHROMA_DIR, COLLECTION_NAME, EMBED_MODEL_NAME, PreparedCorpus, prepare_corpus
+from .ingest import (
+    CHROMA_DIR, COLLECTION_NAME, EMBED_MODEL_NAME, EMBED_MODEL_REVISION, EMBEDDING_DIMENSION,
+    PreparedCorpus, prepare_corpus,
+)
 
 RETRIEVAL_CONFIG_VERSION = "v3-retrieval-v1"
 DENSE_METHOD_ID = "dense-minilm-v1"
@@ -112,7 +115,7 @@ def frozen_corpus_identity() -> tuple[str, str]:
 def _model():
     from sentence_transformers import SentenceTransformer
 
-    return SentenceTransformer(EMBED_MODEL_NAME, local_files_only=True)
+    return SentenceTransformer(EMBED_MODEL_NAME, revision=EMBED_MODEL_REVISION, local_files_only=True)
 
 
 def _validate_dense_collection(collection) -> None:
@@ -126,6 +129,16 @@ def _validate_dense_collection(collection) -> None:
         raise ValueError(
             f"dense index contains {collection.count()} chunks; expected {EXPECTED_CHUNK_COUNT}"
         )
+    if metadata.get("embedding_model") != EMBED_MODEL_NAME:
+        raise ValueError("dense index embedding model mismatch; no automatic index rebuild is permitted")
+    if "embedding_revision" not in metadata:
+        raise ValueError("legacy dense index embedding revision is unverifiable; historical results remain unchanged")
+    if metadata["embedding_revision"] != EMBED_MODEL_REVISION:
+        raise ValueError("dense index embedding revision mismatch")
+    if metadata.get("embedding_dimension") != EMBEDDING_DIMENSION:
+        raise ValueError("dense index embedding dimension mismatch")
+    if metadata.get("hnsw:space") != "cosine":
+        raise ValueError("dense index distance space mismatch")
 
 
 @lru_cache(maxsize=1)

@@ -31,6 +31,8 @@ from src.rag.corpus import (
 from src.rag.ingest import (
     COLLECTION_NAME,
     EMBEDDING_DIMENSION,
+    EMBED_MODEL_NAME,
+    EMBED_MODEL_REVISION,
     PreparedCorpus,
     build_index,
     prepare_corpus,
@@ -192,6 +194,10 @@ def test_retrieval_can_return_multiple_source_ids(monkeypatch: pytest.MonkeyPatc
         metadata = {
             "corpus_version": CORPUS_VERSION,
             "corpus_fingerprint": load_manifest()["fingerprint"],
+            "embedding_model": EMBED_MODEL_NAME,
+            "embedding_revision": EMBED_MODEL_REVISION,
+            "embedding_dimension": EMBEDDING_DIMENSION,
+            "hnsw:space": "cosine",
         }
 
         def count(self):

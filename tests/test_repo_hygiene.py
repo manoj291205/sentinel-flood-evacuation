@@ -29,6 +29,10 @@ def _mode(call: ast.Call, pos: int = 1) -> str | None:
 
 def _is_violation(node: ast.Call) -> bool:
     f = node.func
+    # os.open returns a binary file descriptor; it has no text encoding argument.
+    if (isinstance(f, ast.Attribute) and f.attr == "open"
+            and isinstance(f.value, ast.Name) and f.value.id == "os"):
+        return False
     is_open = isinstance(f, ast.Name) and f.id == "open"
     is_rw = isinstance(f, ast.Attribute) and f.attr in ("read_text", "write_text")
     is_path_open = isinstance(f, ast.Attribute) and f.attr == "open"  # Path.open(mode, ...)
@@ -53,3 +57,10 @@ def _violations(path: Path) -> list[str]:
 def test_text_io_specifies_encoding():
     bad = [v for p in _files() for v in _violations(p)]
     assert not bad, f"{len(bad)} text-mode I/O calls without encoding=:\n" + "\n".join(bad)
+
+
+def test_encoding_check_distinguishes_descriptors_from_text_streams():
+    assert not _is_violation(ast.parse("os.open(path, os.O_RDONLY)").body[0].value)
+    assert _is_violation(ast.parse("path.open('r')").body[0].value)
+    assert _is_violation(ast.parse("open(path, 'w')").body[0].value)
+    assert not _is_violation(ast.parse("path.open('r', encoding='utf-8')").body[0].value)

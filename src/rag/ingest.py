@@ -27,6 +27,8 @@ CHROMA_DIR = Path(__file__).resolve().parent / "chroma_db"
 
 COLLECTION_NAME = "v3_authoritative_corpus_v1"
 EMBED_MODEL_NAME = "all-MiniLM-L6-v2"
+# Prospective runtime pin, verified from the local model cache; not inferred for old results.
+EMBED_MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
 EMBEDDING_DIMENSION = 384
 
 # Existing page-scoped chunking remains the dense baseline for later retrieval phases.
@@ -150,7 +152,7 @@ def build_index(
         print(f"Loading embedding model '{EMBED_MODEL_NAME}' (local, CPU)...")
         from sentence_transformers import SentenceTransformer
 
-        model = SentenceTransformer(EMBED_MODEL_NAME, local_files_only=True)
+        model = SentenceTransformer(EMBED_MODEL_NAME, revision=EMBED_MODEL_REVISION, local_files_only=True)
     embeddings = model.encode(
         prepared.documents,
         batch_size=64,
@@ -175,6 +177,7 @@ def build_index(
             "corpus_version": CORPUS_VERSION,
             "corpus_fingerprint": fingerprint,
             "embedding_model": EMBED_MODEL_NAME,
+            "embedding_revision": EMBED_MODEL_REVISION,
             "embedding_dimension": EMBEDDING_DIMENSION,
         },
     )

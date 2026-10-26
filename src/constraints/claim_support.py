@@ -161,6 +161,7 @@ def verify_claim_support(claim: str, evidence: EvidenceChunk) -> ClaimSupportRes
 
 
 def safe_to_cite(verdict: ClaimSupportVerdict | str) -> bool:
+    """Frozen classification mapping only; use evidence.operational_citation_eligible for permission."""
     return ClaimSupportVerdict(verdict) is ClaimSupportVerdict.SUPPORTED
 
 

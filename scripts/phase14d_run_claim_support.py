@@ -41,6 +41,7 @@ from src.constraints.claim_support_p14d import (  # noqa: E402
     verify_claim_support_p14d,
 )
 from src.rag.ingest import prepare_corpus  # noqa: E402
+from src.constraints.provider_journal import ProviderJournal  # noqa: E402
 
 CHALLENGE_DIR = ROOT / "data/eval_v4/phase14d"
 MANIFEST = CHALLENGE_DIR / "manifest.json"
@@ -193,7 +194,14 @@ def run(
     tokens_in_run = 0
     stop_reason = "COMPLETE"
     header_stop = False
-    with ledger_path.open("a", encoding="utf-8") as ledger, calls_path.open("a", encoding="utf-8") as call_log:
+    identity = {"evaluation_id": EVALUATION_ID, "model_id": MODEL_ID, "protocol_sha256": protocol_hash,
+                "challenge_fingerprint": manifest["challenge_fingerprint"], "challenge_set": challenge_set,
+                "prompt_sha256": prompt_hash, "request_settings": REQUEST_SETTINGS,
+                "runner_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                "python_version": sys.version.split()[0], "httpx_version": httpx.__version__}
+    with ProviderJournal(out_dir / "attempt_journal.json", identity, rows, request_budget=max_requests,
+                         lock_path=budget_root / ".provider-budget.lock") as attempts, \
+            ledger_path.open("a", encoding="utf-8") as ledger, calls_path.open("a", encoding="utf-8") as call_log:
         for order_index in range(len(rows), len(order)):
             if requests_made >= max_requests:
                 stop_reason = "MAX_REQUESTS"
@@ -236,6 +244,7 @@ def run(
                 call_started = time.monotonic()
                 response = None
                 failure = None
+                attempt = attempts.begin(pair_id, body)
                 try:
                     response = transport(body)
                     return response
@@ -243,6 +252,7 @@ def run(
                     failure = exc
                     raise
                 finally:
+                    attempts.resolve(attempt, response, failure)
                     requests_made += 1
                     usage = _usage(response.body) if response is not None else {}
                     counted_tokens = usage.get("total_tokens", estimate)
@@ -302,6 +312,8 @@ def run(
             }
             ledger.write(json.dumps(row, ensure_ascii=False) + "\n")
             ledger.flush()
+            os.fsync(ledger.fileno())
+            attempts.commit(row)
             rows.append(row)
             if header_stop:
                 stop_reason = "DAILY_REQUEST_BUDGET"

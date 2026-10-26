@@ -6,9 +6,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sys
 import tempfile
 import time
+from types import SimpleNamespace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
@@ -26,6 +28,7 @@ from src.constraints.claim_support_gemini import (  # noqa: E402
     verify_claim_support_gemini,
 )
 from src.rag.ingest import prepare_corpus  # noqa: E402
+from src.constraints.provider_journal import ProviderJournal  # noqa: E402
 
 CHALLENGE = ROOT / "data/eval_v3/phase14/claim_support_challenge.json"
 MANIFEST = ROOT / "data/eval_v3/phase14/claim_support_manifest.json"
@@ -51,6 +54,10 @@ def _rate_limited(exc: Exception) -> bool:
     return code == 429 or "429" in str(exc)
 
 
+class _RequestBudgetStop(Exception):
+    pass
+
+
 def run(*, max_requests: int, client: Callable[[str], str], ledger_path: Path) -> dict:
     if max_requests < 0:
         raise ValueError("max_requests must be non-negative")
@@ -72,7 +79,13 @@ def run(*, max_requests: int, client: Callable[[str], str], ledger_path: Path) -
     ledger_path.parent.mkdir(parents=True, exist_ok=True)
     requests_made = 0
     reason = "COMPLETE"
-    with ledger_path.open("a", encoding="utf-8") as ledger:
+    identity = {"provider_id": PROVIDER_ID, "prompt_version": PROMPT_VERSION, "model": MODEL,
+                "challenge_fingerprint": manifest["challenge_fingerprint"], "temperature": 0.0,
+                "runner_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                "python_version": sys.version.split()[0]}
+    with ProviderJournal(ledger_path.with_name(ledger_path.name + ".attempts.json"), identity, existing,
+                         request_budget=max_requests) as attempts, \
+            ledger_path.open("a", encoding="utf-8") as ledger:
         for order_index in range(len(done_ids), len(order)):
             if requests_made >= max_requests:
                 reason = "MAX_REQUESTS"
@@ -86,14 +99,33 @@ def run(*, max_requests: int, client: Callable[[str], str], ledger_path: Path) -
             )
             started = time.monotonic()
             request_utc = datetime.now(timezone.utc).isoformat()
+            def counted(prompt):
+                nonlocal requests_made
+                if requests_made >= max_requests:
+                    raise _RequestBudgetStop
+                attempt = attempts.begin(pair_id, {"prompt": prompt})
+                requests_made += 1
+                try:
+                    raw = client(prompt)
+                except BaseException as exc:
+                    code = getattr(exc, "status_code", None) or getattr(exc, "code", None)
+                    attempts.resolve(attempt, None, SimpleNamespace(
+                        status=code if isinstance(code, int) else None,
+                        reason="HTTP_ERROR" if isinstance(code, int) else "NETWORK_ERROR"))
+                    raise
+                attempts.resolve(attempt, SimpleNamespace(status=200, body={"choices": [
+                    {"message": {"content": raw}}]}), None)
+                return raw
             try:
-                result = verify_claim_support_gemini(pair["claim"], evidence, client=client)
+                result = verify_claim_support_gemini(pair["claim"], evidence, client=counted)
+            except _RequestBudgetStop:
+                reason = "MAX_REQUESTS"
+                break
             except Exception as exc:
                 if _rate_limited(exc):
                     reason = "RATE_LIMITED"
                     break
                 raise
-            requests_made += 1
             row = {
                 "claim_pair_id": pair_id,
                 "order_index": order_index,
@@ -111,6 +143,8 @@ def run(*, max_requests: int, client: Callable[[str], str], ledger_path: Path) -
             }
             ledger.write(json.dumps(row, ensure_ascii=False) + "\n")
             ledger.flush()
+            os.fsync(ledger.fileno())
+            attempts.commit(row)
             done_ids.append(pair_id)
     if len(done_ids) == len(order):
         reason = "COMPLETE"
@@ -133,7 +167,8 @@ def main() -> int:
         with tempfile.TemporaryDirectory(prefix="phase14b-fake-") as directory:
             result = run(max_requests=args.max_requests, client=_fake_client, ledger_path=Path(directory) / "dispositions.jsonl")
     else:
-        result = run(max_requests=args.max_requests, client=_call_gemini, ledger_path=DEFAULT_LEDGER)
+        print("Phase 14B is superseded; live execution is disabled. Use --dry-run or --client fake.")
+        return 2
     print(f"{result['done']}/{result['total']} done; {result['stopped_reason']}")
     if result["stopped_reason"] != "COMPLETE":
         print("Rerun: python scripts/phase14b_run_claim_support.py --max-requests 20")

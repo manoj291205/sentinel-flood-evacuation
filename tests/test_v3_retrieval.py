@@ -13,7 +13,7 @@ import pytest
 
 from src.constraints.generate import check_grounding
 from src.rag.corpus import CORPUS_VERSION, load_manifest
-from src.rag.ingest import EMBEDDING_DIMENSION, PreparedCorpus, prepare_corpus
+from src.rag.ingest import EMBED_MODEL_NAME, EMBED_MODEL_REVISION, EMBEDDING_DIMENSION, PreparedCorpus, prepare_corpus
 from src.rag.retrieve import (
     BM25_B,
     BM25_EPSILON,
@@ -112,6 +112,10 @@ class FakeCollection:
         self.metadata = {
             "corpus_version": version,
             "corpus_fingerprint": fingerprint,
+            "embedding_model": EMBED_MODEL_NAME,
+            "embedding_revision": EMBED_MODEL_REVISION,
+            "embedding_dimension": EMBEDDING_DIMENSION,
+            "hnsw:space": "cosine",
         }
         self._count = count
 
@@ -253,7 +257,7 @@ def test_dense_model_loader_is_offline_only(monkeypatch: pytest.MonkeyPatch):
         SimpleNamespace(SentenceTransformer=FakeSentenceTransformer),
     )
     _model()
-    assert calls[0][1] == {"local_files_only": True}
+    assert calls[0][1] == {"local_files_only": True, "revision": EMBED_MODEL_REVISION}
     _model.cache_clear()
 
 
