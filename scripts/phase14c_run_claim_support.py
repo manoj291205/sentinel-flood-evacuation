@@ -31,6 +31,7 @@ from src.constraints.claim_support_p14c import (  # noqa: E402
     PROMPT_VERSION,
     PROVIDER_ID,
     REQUEST_SETTINGS,
+    RESPONSE_SCHEMA,
     TEMPERATURE_NOTE,
     ProviderResponse,
     ProviderStop,
@@ -167,6 +168,8 @@ def run(
     identity = {"evaluation_id": EVALUATION_ID, "model_id": MODEL_ID, "protocol_sha256": protocol_hash,
                 "challenge_fingerprint": manifest["challenge_fingerprint"], "request_settings": REQUEST_SETTINGS,
                 "runner_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                "provider_source_sha256": hashlib.sha256((ROOT / "src/constraints/claim_support_p14c.py").read_bytes()).hexdigest(),
+                "response_schema_sha256": hashlib.sha256(json.dumps(RESPONSE_SCHEMA, sort_keys=True).encode("utf-8")).hexdigest(),
                 "python_version": sys.version.split()[0], "httpx_version": httpx.__version__}
     with ProviderJournal(out_dir / "attempt_journal.json", identity, rows, request_budget=max_requests) as attempts, \
             ledger_path.open("a", encoding="utf-8") as ledger, calls_path.open("a", encoding="utf-8") as call_log:

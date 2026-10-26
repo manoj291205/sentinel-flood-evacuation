@@ -24,6 +24,7 @@ from src.constraints.claim_support_gemini import (  # noqa: E402
     MODEL,
     PROMPT_VERSION,
     PROVIDER_ID,
+    RESPONSE_SCHEMA,
     _call_gemini,
     verify_claim_support_gemini,
 )
@@ -82,6 +83,8 @@ def run(*, max_requests: int, client: Callable[[str], str], ledger_path: Path) -
     identity = {"provider_id": PROVIDER_ID, "prompt_version": PROMPT_VERSION, "model": MODEL,
                 "challenge_fingerprint": manifest["challenge_fingerprint"], "temperature": 0.0,
                 "runner_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                "provider_source_sha256": hashlib.sha256((ROOT / "src/constraints/claim_support_gemini.py").read_bytes()).hexdigest(),
+                "response_schema_sha256": hashlib.sha256(json.dumps(RESPONSE_SCHEMA, sort_keys=True).encode("utf-8")).hexdigest(),
                 "python_version": sys.version.split()[0]}
     with ProviderJournal(ledger_path.with_name(ledger_path.name + ".attempts.json"), identity, existing,
                          request_budget=max_requests) as attempts, \

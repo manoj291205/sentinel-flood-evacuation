@@ -30,6 +30,7 @@ from src.constraints.claim_support_p14d import (  # noqa: E402
     MODEL_ID,
     PROVIDER_ID,
     REQUEST_SETTINGS,
+    RESPONSE_SCHEMA,
     TEMPERATURE_NOTE,
     PROMPT_DIR,
     ProviderResponse,
@@ -198,6 +199,8 @@ def run(
                 "challenge_fingerprint": manifest["challenge_fingerprint"], "challenge_set": challenge_set,
                 "prompt_sha256": prompt_hash, "request_settings": REQUEST_SETTINGS,
                 "runner_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                "provider_source_sha256": hashlib.sha256((ROOT / "src/constraints/claim_support_p14d.py").read_bytes()).hexdigest(),
+                "response_schema_sha256": hashlib.sha256(json.dumps(RESPONSE_SCHEMA, sort_keys=True).encode("utf-8")).hexdigest(),
                 "python_version": sys.version.split()[0], "httpx_version": httpx.__version__}
     with ProviderJournal(out_dir / "attempt_journal.json", identity, rows, request_budget=max_requests,
                          lock_path=budget_root / ".provider-budget.lock") as attempts, \

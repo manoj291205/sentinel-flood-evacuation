@@ -83,13 +83,18 @@ def test_committed_disposition_validates_and_provider_reasoning_is_not_saved(tmp
             pass
 
 
-def test_known_http_error_is_preserved_and_can_be_retried_explicitly(tmp_path):
+@pytest.mark.parametrize("status", [429, 503])
+def test_known_http_error_is_preserved_and_can_be_retried_explicitly(tmp_path, status):
     path = tmp_path / "attempts.json"
     with ProviderJournal(path, {"protocol": "fixture"}, []) as journal:
         number = journal.begin("P1", {})
-        journal.resolve(number, SimpleNamespace(status=503, body={}), None)
+        journal.resolve(number, SimpleNamespace(status=status, body={}), None)
     with ProviderJournal(path, {"protocol": "fixture"}, []) as journal:
         assert len(journal.data["requests"]) == 1
+        number = journal.begin("P1", {})
+        journal.resolve(number, response(), None)
+        journal.commit({"claim_pair_id": "P1", "verdict": "UNSUPPORTED"})
+        assert [row["http_status"] for row in journal.data["requests"]] == [status, 200]
 
 
 def test_network_error_is_ambiguous_and_never_automatically_reissued(tmp_path):
@@ -137,6 +142,24 @@ def test_actual_runner_never_reissues_after_interrupted_fake_transport(monkeypat
     with pytest.raises(ReconciliationRequired, match="ambiguous"):
         runner.run(transport=interrupted, **args)
     assert len(calls) == 1
+
+
+@pytest.mark.parametrize("name", ["phase14c_run_claim_support", "phase14d_run_claim_support"])
+def test_changed_response_schema_cannot_resume_a_future_run(monkeypatch, tmp_path, name):
+    runner = runner_fixture(monkeypatch, name)
+    calls = []
+    def unavailable(_body):
+        calls.append(1)
+        return SimpleNamespace(status=503, body={}, headers={})
+    args = {"out_dir": tmp_path, "max_requests": 1, "zdr_attested": True}
+    if "14d" in name:
+        args.update(challenge_set="practice", prompt_version="14d-prompt-r0")
+    runner.run(transport=unavailable, **args)
+    count = len(calls)
+    monkeypatch.setattr(runner, "RESPONSE_SCHEMA", {**runner.RESPONSE_SCHEMA, "title": "changed future schema"})
+    with pytest.raises(ReconciliationRequired, match="identity"):
+        runner.run(transport=unavailable, **args)
+    assert len(calls) == count
 
 
 def test_superseded_runner_cap_counts_every_fake_generation(monkeypatch, tmp_path):
