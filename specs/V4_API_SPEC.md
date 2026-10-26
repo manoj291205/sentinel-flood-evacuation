@@ -63,6 +63,20 @@ certificate replay MATCH / tamper MISMATCH; why endpoint validates; WS sequence 
 first message is `state`; OpenAPI document lists every path above.
 
 ## Amendments
+- 2026-10-26 (authorized integration hardening, API v2): every decision POST requires
+  `request_id` (UUID), `expected_state_version` and `recommendation_id` from the
+  displayed context. Session, state, recommendation, complete action and reason are
+  bound under the session lock. Identical retries return the cached original response;
+  changed intent under an existing ID and stale contexts return 409 before mutation.
+  The cache lasts for the in-memory session lifetime and never silently evicts request
+  IDs. Context also exposes authoritative ordered route geometry and actual runtime
+  rule status. Evidence references must belong to the authenticated canonical corpus.
+  `DELETE /sessions/{session_id}` explicitly releases a session; capacity is refused
+  with 503 rather than silently discarding another operator's audit. Export before
+  closing/restarting. Use one server worker. V3 rejection does not advance time;
+  certified V4 rejection commits HOLD. Existing parity tests now send v2 bindings and
+  separately check the API-specific identity/evidence fields while preserving simulator
+  and certificate parity assertions.
 - 2026-10-15 (Lead, resolves Lane X request): schema-bound documents (`GET /certificates/{cert_id}`, `GET /decisions/{decision_id}/why`) are returned exactly as their contract (no extra body fields: a certificate is a hashed document). For these two, `simulated` / `honesty` / `source` travel in the headers `X-Sentinel-Simulated`, `X-Sentinel-Honesty`, `X-Sentinel-Source` (the why document also carries `source` in its body). Every other response keeps the body fields. The web console shows the honesty banner on every page regardless.
 - 2026-10-15 (Lead): CI now installs `requirements-api.txt`, so the Phase 30 tests run on both CI platforms.
 

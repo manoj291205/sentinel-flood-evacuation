@@ -8,7 +8,7 @@ import math
 from src.geospatial.road_network import RoadGraph
 
 
-def project_graph(graph: RoadGraph, width: int = 880, height: int = 789) -> dict:
+def _project_nodes(graph: RoadGraph, width: int = 880, height: int = 789) -> dict:
     lat0 = sum(node.lat for node in graph.nodes) / len(graph.nodes)
     cos_lat = math.cos(math.radians(lat0))
     raw = {node.node_id: (node.lon * cos_lat, -node.lat) for node in graph.nodes}
@@ -18,10 +18,31 @@ def project_graph(graph: RoadGraph, width: int = 880, height: int = 789) -> dict
     min_y, max_y = min(ys), max(ys)
     pad = 20.0
     scale = min((width - 2 * pad) / (max_x - min_x), (height - 2 * pad) / (max_y - min_y))
-    points = {
+    return {
         node_id: (round(pad + (x - min_x) * scale, 1), round(pad + (y - min_y) * scale, 1))
         for node_id, (x, y) in raw.items()
     }
+
+
+def edge_path_svg(graph: RoadGraph, edge_ids, width: int = 880, height: int = 789) -> str:
+    """Project the supplied authoritative edges without choosing another route."""
+    points = _project_nodes(graph, width, height)
+    segments = []
+    for edge_id in edge_ids:
+        edge = graph.edges_by_id[edge_id]
+        x1, y1 = points[edge.u]
+        x2, y2 = points[edge.v]
+        segments.append(f"M{x1:.1f} {y1:.1f}L{x2:.1f} {y2:.1f}")
+    return "".join(segments)
+
+
+def project_graph(graph: RoadGraph, width: int = 880, height: int = 789) -> dict:
+    points = _project_nodes(graph, width, height)
+    lat0 = sum(node.lat for node in graph.nodes) / len(graph.nodes)
+    cosine = math.cos(math.radians(lat0))
+    xs = [node.lon * cosine for node in graph.nodes]
+    ys = [-node.lat for node in graph.nodes]
+    scale = min((width - 40) / (max(xs) - min(xs)), (height - 40) / (max(ys) - min(ys)))
 
     def segment(u: str, v: str) -> str:
         x1, y1 = points[u]

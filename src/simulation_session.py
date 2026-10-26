@@ -7,6 +7,14 @@ from __future__ import annotations
 import csv
 from io import StringIO
 import json
+import hashlib
+import subprocess
+import os
+import re
+import platform
+from importlib.metadata import PackageNotFoundError, version
+from dataclasses import asdict
+from pathlib import Path
 
 from src.geospatial import audit_route_metadata, build_geospatial_demo_runtime
 from src.human_decision import (
@@ -21,12 +29,13 @@ class SimulationSession:
     """Caller-owned live state; never put an instance in a shared Streamlit cache."""
 
     def __init__(self, seed=620000, regime="v3-medium-v1", *, graph=None,
-                 certified=False, params_id="v4-cert-v1", recertify=False):
+                 certified=False, params_id="v4-cert-v1", recertify=False, runtime_rules=None):
         if recertify and not certified:
             raise ValueError("recertify requires a certified session")
         self.certified = certified
         self.params_id = params_id
         self.recertify = recertify
+        self.runtime_rules = runtime_rules
         self.reset(seed, regime, graph=graph)
 
     def reset(self, seed=620000, regime="v3-medium-v1", *, graph=None):
@@ -38,6 +47,7 @@ class SimulationSession:
         self._recert_histories = {}
         self._rechecked_timestep = None
         if self.certified:
+            from src.constraints.runtime_rules import load_runtime_rules
             from src.actuation.commands import InMemorySink
             from src.certify.gate import CertifiedGate
             from src.certify.ledger import SimLedgerAdapter
@@ -48,9 +58,14 @@ class SimulationSession:
              self.world) = build_v4_runtime(regime, generator_seed=seed, graph=graph)
             self.ledger = SimLedgerAdapter(self.simulator)
             self.sink = InMemorySink()
+            if self.runtime_rules is None:
+                self.runtime_rules = load_runtime_rules()
+            if self.runtime_rules.metadata.get("status") != "CURRENT":
+                raise ValueError("runtime rule catalog is not authenticated: "
+                                 + str(self.runtime_rules.metadata.get("reason", "unknown reason")))
             self.gate = CertifiedGate(
                 self.scenario, self.graph, self.world, get_cert_params(self.params_id),
-                self.ledger, sink=self.sink, world_id=regime,
+                self.ledger, sink=self.sink, world_id=regime, rules=self.runtime_rules.rules,
             )
         else:
             self.scenario, self.simulator, self.graph, self.overlay = build_geospatial_demo_runtime(
@@ -227,6 +242,9 @@ class SimulationSession:
             "elapsed_timesteps": state.current_timestep,
             "terminal": state.terminal,
             "terminal_reason": state.terminal_reason.value if state.terminal_reason else None,
+            "people_stranded": state.people_stranded if state.is_v4 else 0,
+            "people_unsafe_arrival": state.people_unsafe_arrival if state.is_v4 else 0,
+            "people_overflow": state.people_overflow if state.is_v4 else 0,
         }
 
     def export_csv(self):
@@ -234,18 +252,22 @@ class SimulationSession:
         if self.audit:
             writer = csv.DictWriter(output, fieldnames=list(self.audit[0]))
             writer.writeheader()
-            writer.writerows(self.audit)
+            writer.writerows({key: _csv_cell(value) for key, value in row.items()}
+                             for row in self.audit)
         else:
             output.write("audit_id,timestamp,decision,executed_action\r\n")
         return output.getvalue()
 
     def export_json(self):
         return json.dumps({
+            "export_schema": "sentinel-session-v2",
+            "provenance": self.provenance(),
+            "scenario": self.scenario.to_dict(),
             "scenario_id": self.scenario.scenario_id,
             "generator_seed": self.seed, "scenario_seed": self.scenario.seed,
             "uncertainty_regime": self.simulator.config.level.value,
             "uncertainty_config_id": self.simulator.config.config_id,
-            "simulator": "StochasticSimulator (V3 Phase 3/4)",
+            "simulator": "StochasticSimulator V4" if self.certified else "StochasticSimulator V3",
             "scenario_schema_version": self.scenario.schema_version,
             "horizon_steps": self.scenario.time.horizon_steps,
             "timestep_minutes": self.scenario.time.timestep_minutes,
@@ -254,7 +276,45 @@ class SimulationSession:
             "summary": self.summary(), "audit": self.audit,
             "population_history": self.population_history,
             "hazard_history": self.hazard_history, "timeline": self.timeline,
+            "certificates": self.certificates(),
+            "certificate_inputs": ({cert["cert_id"]: self.ledger.inputs(cert["cert_id"]).to_dict()
+                                    for cert in self.certificates()} if self.certified else {}),
+            "recertification": self.recert_log,
+            "lifecycle": "In-memory session; export before closing or restarting the single-process server",
+            "replay_requirements": "Matching source/config hashes, graph fingerprint, rules and saved certificate inputs; timestamps are not deterministic",
         }, indent=2)
+
+    def provenance(self):
+        root = Path(__file__).resolve().parents[1]
+        try:
+            commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, check=True,
+                                    capture_output=True, text=True, encoding="utf-8").stdout.strip()
+        except (OSError, subprocess.CalledProcessError):
+            supplied = os.getenv("SENTINEL_SOURCE_COMMIT", "")
+            commit = supplied if re.fullmatch(r"[0-9a-f]{40}", supplied) else "UNAVAILABLE"
+        source = hashlib.sha256()
+        for path in sorted((root / "src").rglob("*.py")):
+            source.update(path.relative_to(root).as_posix().encode())
+            source.update(path.read_bytes())
+        configuration = {"uncertainty": asdict(self.simulator.config),
+                         "world": asdict(self.world) if self.certified else None,
+                         "certification": asdict(self.gate.params) if self.certified else None}
+        dependencies = {}
+        for package in ("numpy", "scipy", "pypdf", "fastapi", "httpx", "networkx"):
+            try:
+                dependencies[package] = version(package)
+            except PackageNotFoundError:
+                dependencies[package] = "NOT_INSTALLED"
+        return {"source_commit": commit, "source_tree_sha256": source.hexdigest(),
+                "source_tree_scope": "src/**/*.py; source commit identifies committed frontend and configuration",
+                "runtime": {"python": platform.python_version(), "platform": platform.platform(),
+                            "dependencies": dependencies},
+                "configuration": configuration,
+                "configuration_sha256": hashlib.sha256(json.dumps(configuration, sort_keys=True).encode()).hexdigest(),
+                "planner": "certified-gate" if self.certified else "risk-greedy",
+                "active_rules": self.runtime_rules.metadata if self.certified else {"enforced_count": 0},
+                "evidence_references": [{k: row[k] for k in row if "evidence" in k or "source" in k or "chunk" in k}
+                                        for row in self.audit]}
 
     def route_rows(self):
         # The adapter is authoritative: a graph path alone does not override an
@@ -274,6 +334,15 @@ class SimulationSession:
                 "Closed at": route.closed_at_timestep,
             })
         return rows
+
+
+def _csv_cell(value):
+    if isinstance(value, str):
+        first = next((char for char in value
+                      if not (char.isspace() or ord(char) <= 32 or char == "\ufeff")), "")
+        if first in ("=", "+", "-", "@"):
+            return "'" + value
+    return value
 
 
 class _GateExecutor:

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from dataclasses import dataclass, field
-from threading import Lock
+from threading import Lock, RLock
 from uuid import uuid4
 
 from src.geospatial.road_network import RoadGraph
@@ -14,7 +14,11 @@ from src.simulation_session import SimulationSession
 @dataclass
 class SessionEntry:
     session: SimulationSession
-    lock: Lock = field(default_factory=Lock)
+    lock: RLock = field(default_factory=RLock)
+    session_id: str = ""
+    state_version: int = 0
+    requests: dict[str, tuple[str, int, dict]] = field(default_factory=dict)
+    closed: bool = False
     sequence: int = 0
     refusals: list[dict] = field(default_factory=list)
 
@@ -42,11 +46,11 @@ class SessionRegistry:
         else:
             session = SimulationSession(seed, regime, graph=self.graph)
         session_id = uuid4().hex
-        entry = SessionEntry(session)
+        entry = SessionEntry(session, session_id=session_id)
         with self._lock:
+            if len(self._entries) >= self.max_sessions:
+                raise RuntimeError("Session capacity reached; export and explicitly close an existing session")
             self._entries[session_id] = entry
-            while len(self._entries) > self.max_sessions:
-                self._entries.popitem(last=False)
         return session_id, entry
 
     def get(self, session_id: str) -> SessionEntry | None:
@@ -55,3 +59,16 @@ class SessionRegistry:
             if entry is not None:
                 self._entries.move_to_end(session_id)
             return entry
+
+    def close(self, session_id: str) -> bool:
+        with self._lock:
+            entry = self._entries.get(session_id)
+        if entry is None:
+            return False
+        with entry.lock:
+            with self._lock:
+                if entry.closed:
+                    return False
+                entry.closed = True
+                del self._entries[session_id]
+                return True

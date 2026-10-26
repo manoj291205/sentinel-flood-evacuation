@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "sentinel-live-context-v1",
-  "title": "GET /api/sessions/{session_id}/context for a certified live session (contract v1, Phase 34C)",
+  "$id": "sentinel-live-context-v2",
+  "title": "State-bound certified live decision context (v2)",
   "description": "Wave A ContextDTO plus the pending certification. Every number comes from the CertificationResult the session already computed for this step (V4_WIRING_SPEC section 10.1); nothing is re-certified or invented. rechecks = this step's Phase 26 re-check rows from SimulationSession(recertify=True).recert_log (P34R).",
   "type": "object",
   "required": [
@@ -11,7 +11,10 @@
     "simulated",
     "honesty",
     "source",
-    "certified"
+    "certified",
+    "decision_identity",
+    "routing",
+    "active_rules"
   ],
   "properties": {
     "simulated": {
@@ -204,6 +207,57 @@
           }
         }
       }
+    },
+    "decision_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "session_id",
+        "state_version",
+        "recommendation_id"
+      ],
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state_version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "recommendation_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "routing": {
+      "type": "object",
+      "required": [
+        "graph_fingerprint",
+        "state_version",
+        "routes"
+      ],
+      "properties": {
+        "graph_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "state_version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "routes": {
+          "type": "object"
+        }
+      }
+    },
+    "active_rules": {
+      "type": "object",
+      "required": [
+        "status",
+        "enforced_count"
+      ]
     }
   },
   "$defs": {

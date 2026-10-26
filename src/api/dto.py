@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -21,6 +22,9 @@ class EvidenceDTO(BaseModel):
 
 
 class DecisionRequest(BaseModel):
+    request_id: UUID
+    expected_state_version: int = Field(ge=0)
+    recommendation_id: str = Field(pattern=r"^[0-9a-f]{64}$")
     decision: Literal["ACCEPT", "OVERRIDE", "REJECT"]
     selected_action: str | None = None
     reason: str = ""

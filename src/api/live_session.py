@@ -2,11 +2,65 @@
 
 from __future__ import annotations
 
+import hashlib
+
 from src.api.why import action_label, reasons
 from src.certify.params import get_cert_params
+from src.geospatial import path_for_action
+from src.presentation.map_geometry import edge_path_svg
+from src.sim import DispatchAction
 
 NOTE = ("Every step, groups already on the road are re-checked; a group whose route loses its "
         "certificate is re-routed to a certified alternative or escalated.")
+
+
+def _geometry(graph, action_key, edge_ids, timestep, *, reachable=True):
+    edges = tuple(edge_ids)
+    fingerprint = hashlib.sha256("\n".join(edges).encode()).hexdigest() if edges else None
+    return {"action_key": action_key, "edge_ids": list(edges), "reachable": reachable,
+            "path_sha256": fingerprint, "path_id": f"path-{fingerprint[:16]}" if fingerprint else None,
+            "svg_path": edge_path_svg(graph, edges), "graph_fingerprint": graph.graph_fingerprint,
+            "timestep": timestep, "distance_m": round(sum(graph.edges_by_id[e].length_m for e in edges), 3)
+            if reachable and edges else None}
+
+
+def current_route_geometry(session, *, state_version=None):
+    """Current engine paths; static background routes never determine a live route."""
+    state = session.state
+    paths = {}
+    for route in state.routes:
+        key = f"{route.source_zone_id}->{route.destination_shelter_id}"
+        path = path_for_action(session.graph, session.overlay.road_state,
+                               DispatchAction(route.source_zone_id, route.destination_shelter_id))
+        reachable = route.reachable_current and path.reachable
+        paths[key] = _geometry(session.graph, key, path.edge_ids if reachable else (),
+                               state.current_timestep, reachable=reachable)
+    if session.certified:
+        pending = session.certification()
+        if pending is not None:
+            for candidate in pending[1].candidates:
+                paths[candidate.action_key] = _geometry(session.graph, candidate.action_key,
+                                                        candidate.edge_ids, state.current_timestep)
+    closed = [edge.edge_id for edge in session.overlay.road_state.edges if not edge.open]
+    return {"graph_fingerprint": session.graph.graph_fingerprint, "timestep": state.current_timestep,
+            "state_version": state_version, "routes": paths,
+            "closed_edge_svg_path": edge_path_svg(session.graph, closed)}
+
+
+def certificate_route_geometry(session, certificates):
+    """Pin executed/replayed routes to committed inputs, even after later closures."""
+    routes = {}
+    for certificate in certificates:
+        if certificate["graph_fingerprint"] != session.graph.graph_fingerprint:
+            raise ValueError("certificate route belongs to a different graph")
+        key = certificate["chosen"]["action_key"]
+        inputs = session.ledger.inputs(certificate["cert_id"])
+        candidate = next((item for item in inputs.candidates if item.action_key == key), None)
+        if key != "WAIT" and candidate is None:
+            raise ValueError("committed route is absent from certificate inputs")
+        routes[certificate["cert_id"]] = _geometry(session.graph, key,
+            candidate.edge_ids if candidate else (), certificate["timestep"])
+    return routes
 
 
 def _candidate(candidate) -> dict:

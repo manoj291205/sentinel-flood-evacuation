@@ -67,14 +67,16 @@ def test_accept_matches_direct_session(client):
     session = _new_session(client)
     response = client.post(
         f"/api/sessions/{session['session_id']}/decisions",
-        json={"decision": "ACCEPT", "reason": "", "evidence": EVIDENCE},
+        json=_bound_payload(client, session['session_id'], {"decision": "ACCEPT", "reason": "", "evidence": EVIDENCE}),
     )
     assert response.status_code == 200, response.text
     api_record = response.json()["audit_record"]
     twin = SimulationSession(620000, "v3-medium-v1")
     direct_record, _ = twin.decide("ACCEPT", EvidenceReference(**EVIDENCE))
     volatile = {"timestamp", "audit_id", "timestamp_utc"}
-    assert {k: v for k, v in api_record.items() if k not in volatile} == {
+    assert api_record["decision_identity"]["session_id"] == session["session_id"]
+    assert api_record["evidence_provenance"]["chunk_id"] == EVIDENCE["chunk_id"]
+    assert {k: v for k, v in api_record.items() if k not in volatile | {"decision_identity", "evidence_provenance"}} == {
         k: v for k, v in direct_record.items() if k not in volatile
     }
     assert response.json()["state"]["current_timestep"] == 1
@@ -84,7 +86,7 @@ def test_reject_requires_reason(client):
     session = _new_session(client)
     response = client.post(
         f"/api/sessions/{session['session_id']}/decisions",
-        json={"decision": "REJECT", "reason": "", "evidence": EVIDENCE},
+        json=_bound_payload(client, session['session_id'], {"decision": "REJECT", "reason": "", "evidence": EVIDENCE}),
     )
     assert response.status_code == 422
 
@@ -131,7 +133,7 @@ def test_websocket_sequence(client):
         assert first["seq"] == 1 and first["type"] == "state"
         client.post(
             f"/api/sessions/{session['session_id']}/decisions",
-            json={"decision": "ACCEPT", "reason": "", "evidence": EVIDENCE},
+            json=_bound_payload(client, session['session_id'], {"decision": "ACCEPT", "reason": "", "evidence": EVIDENCE}),
         )
         messages = [ws.receive_json() for _ in range(3)]
         seqs = [first["seq"]] + [m["seq"] for m in messages]
@@ -148,3 +150,13 @@ def test_openapi_lists_contract_paths(client):
         "/api/certificates/{cert_id}", "/api/certificates/{cert_id}/replay", "/api/decisions/{decision_id}/why",
     ):
         assert path in paths, path
+
+
+# Prospective API v2 amendment: bind each deliberate test action to its displayed state.
+# Assertions about simulator behavior and certificate parity remain unchanged.
+def _bound_payload(client, session_id, payload):
+    from uuid import uuid4
+    context = client.get(f"/api/sessions/{session_id}/context").json()["decision_identity"]
+    return {**payload, "request_id": str(uuid4()),
+            "expected_state_version": context["state_version"],
+            "recommendation_id": context["recommendation_id"]}

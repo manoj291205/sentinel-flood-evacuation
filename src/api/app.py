@@ -1,4 +1,4 @@
-"""Local FastAPI facade over live V3 sessions and frozen Wave A fixtures."""
+"""State-bound local API for live V3/V4 sessions and source-labelled recorded artifacts."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ import os
 import secrets
 from datetime import datetime, timezone
 from collections import defaultdict
+from contextlib import contextmanager
 from pathlib import Path
 
 import jsonschema
@@ -22,13 +23,15 @@ from src.api.demo_live import load_demo_trace
 from src.api.dto import DecisionRequest, DemoStepRequest, ReplayRequest, SessionRequest
 from src.api.escrow_api import install_escrow_routes
 from src.api.fixtures import DemoPlayback
-from src.api.live_session import certified_context, recheck_rows
+from src.api.live_session import (certified_context, recheck_rows, current_route_geometry,
+                                  certificate_route_geometry)
 from src.api.library import library_index, library_trace, library_v3
 from src.api.project_facts import escrow_comparison, project_facts
 from src.api.sessions import SessionEntry, SessionRegistry
 from src.api.why import explanation
 from src.certify.certificate import CertificateInputs
 from src.certify.replay import replay_certificate
+from src.constraints.evidence import authenticate_evidence_reference
 from src.geospatial import load_road_graph
 from src.human_decision import (
     EvidenceReference, HumanDecisionError, action_key, action_label,
@@ -36,11 +39,11 @@ from src.human_decision import (
 )
 from src.presentation.artifacts import load_contract_fixture
 from src.presentation.evidence import evidence_items
-from src.presentation.map_geometry import project_graph
+from src.presentation.map_geometry import edge_path_svg, project_graph
 from src.presentation.rule_tiers import rule_tiers
 
 HONESTY = "REAL ROAD TOPOLOGY · SIMULATED DISASTER CONDITIONS · NOT OPERATIONALLY VALIDATED"
-VERSION = "v4-api-wave-a"
+VERSION = "v4-api-state-bound-v2"
 
 
 def _public(payload: dict, source: str = "LIVE") -> dict:
@@ -68,15 +71,26 @@ def _session_dto(session_id: str, entry: SessionEntry) -> dict:
 def _state_dto(entry: SessionEntry) -> dict:
     session = entry.session
     state = session.state
+    plans = session.simulator.transit_plans() if session.certified else {}
     return _public({
+        "state_version": entry.state_version,
+        "graph_fingerprint": session.graph.graph_fingerprint,
+        "closed_edge_svg_path": edge_path_svg(session.graph,
+            [edge.edge_id for edge in session.overlay.road_state.edges if not edge.open]),
         **state.to_policy_observation(),
         "summary": session.summary(),
         "people_stranded": state.people_stranded if state.is_v4 else None,
+        "people_unsafe_arrival": state.people_unsafe_arrival if state.is_v4 else None,
+        "people_overflow": state.people_overflow if state.is_v4 else None,
         "route_rows": session.route_rows(),
         "transit_positions": [{"group_id": event.event_id,
                                "source_zone_id": event.source_zone_id,
                                "destination_shelter_id": event.destination_shelter_id,
                                "people": event.people,
+                               "edge_ids": list(getattr(plans.get(event.event_id), "edge_ids", ())),
+                               "svg_path": edge_path_svg(session.graph, getattr(plans.get(event.event_id), "edge_ids", ())),
+                               "graph_fingerprint": session.graph.graph_fingerprint,
+                               "state_version": entry.state_version,
                                "progress": max(0.0, min(1.0, (state.current_timestep - event.departure_timestep) /
                                                          max(1, event.travel_lag_steps)))}
                               for event in state.pending_dispatches],
@@ -108,6 +122,18 @@ def _context_dto(entry: SessionEntry, *, include_subject: bool = False) -> dict:
     }
     if entry.session.certified:
         dto["certified"] = certified_context(entry.session, include_subject=include_subject)
+    dto["routing"] = current_route_geometry(entry.session, state_version=entry.state_version)
+    dto["active_rules"] = (entry.session.runtime_rules.metadata if entry.session.certified
+                           else {"enforced_count": 0, "rules": [], "digest": None,
+                                 "status": "Legacy session: no document rules enforced"})
+    identity = {"session_id": entry.session_id, "state_version": entry.state_version,
+                "state": entry.session.state.to_dict(),
+                "recommendation": dto["recommendation"], "snapshot": dto["snapshot"]}
+    dto["decision_identity"] = {
+        "session_id": entry.session_id, "state_version": entry.state_version,
+        "recommendation_id": hashlib.sha256(json.dumps(identity, sort_keys=True,
+                                                       separators=(",", ":")).encode()).hexdigest(),
+    }
     return _public(dto)
 
 
@@ -130,12 +156,28 @@ def create_app() -> FastAPI:
     why_by_id = {item["decision_id"]: item for item in explanations}
     system_fixture = load_contract_fixture("system_status_fixture.json")
     subscribers: dict[str, set[tuple[asyncio.Queue, asyncio.AbstractEventLoop]]] = defaultdict(set)
+
+    def publish(session_id, messages):
+        def deliver(queue, message):
+            if queue.full():
+                while not queue.empty():
+                    queue.get_nowait()
+                queue.put_nowait({"type": "resync_required"})
+            else:
+                queue.put_nowait(message)
+        for queue, loop in tuple(subscribers[session_id]):
+            for message in messages:
+                try:
+                    loop.call_soon_threadsafe(deliver, queue, message)
+                except RuntimeError:
+                    subscribers[session_id].discard((queue, loop))
+                    break  # A disconnected observer cannot invalidate a committed decision.
     app = FastAPI(title="Sentinel local API", version=VERSION)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost:5173"],
         allow_credentials=False,
-        allow_methods=["GET", "POST"],
+        allow_methods=["GET", "POST", "DELETE"],
         allow_headers=["Content-Type", "Authorization"],
     )
     install_escrow_routes(app, graph, HONESTY)
@@ -174,6 +216,14 @@ def create_app() -> FastAPI:
             raise HTTPException(404, "session not found")
         return entry
 
+    @contextmanager
+    def locked_entry(session_id):
+        entry = entry_or_404(session_id)
+        with entry.lock:
+            if entry.closed:
+                raise HTTPException(410, "session was explicitly closed")
+            yield entry
+
     @app.get("/api/health")
     def health():
         return _public({"status": "ok", "version": VERSION, "graph_fingerprint": graph.graph_fingerprint})
@@ -185,23 +235,29 @@ def create_app() -> FastAPI:
                                                 params_id=body.params_id)
         except ValueError as exc:
             raise HTTPException(422, str(exc)) from exc
+        except RuntimeError as exc:
+            raise HTTPException(503, str(exc)) from exc
         return _session_dto(session_id, entry)
+
+    @app.delete("/api/sessions/{session_id}")
+    def close_session(session_id: str):
+        if not registry.close(session_id):
+            raise HTTPException(404, "session not found")
+        publish(session_id, [{"type": "closed"}])
+        return _public({"closed": True, "session_id": session_id})
 
     @app.get("/api/sessions/{session_id}/state")
     def session_state(session_id: str):
-        entry = entry_or_404(session_id)
-        with entry.lock:
+        with locked_entry(session_id) as entry:
             return _state_dto(entry)
 
     @app.get("/api/sessions/{session_id}/context")
     def session_context(session_id: str, include_subject: bool = False):
-        entry = entry_or_404(session_id)
-        with entry.lock:
+        with locked_entry(session_id) as entry:
             return _context_dto(entry, include_subject=include_subject)
 
-    @app.post("/api/sessions/{session_id}/decisions")
-    def decide(session_id: str, body: DecisionRequest):
-        entry = entry_or_404(session_id)
+    def execute_decision(session_id: str, body: DecisionRequest, entry: SessionEntry,
+                         request_id: str, evidence_provenance: dict):
         refusal_message = None
         with entry.lock:
             session = entry.session
@@ -243,11 +299,18 @@ def create_app() -> FastAPI:
                         selected_action=selected_action,
                         reason=body.reason,
                     )
+                    record["decision_identity"] = {
+                        "session_id": session_id, "request_id": request_id,
+                        "expected_state_version": body.expected_state_version,
+                        "recommendation_id": body.recommendation_id,
+                    }
+                    record["evidence_provenance"] = evidence_provenance
             except (HumanDecisionError, ValueError) as exc:
                 raise HTTPException(422, str(exc)) from exc
             if refusal_message is not None:
                 messages = [refusal_message]
             else:
+                entry.state_version += 1
                 state = _state_dto(entry)
                 new_events = session.timeline[old_timeline_length:]
                 new_certs = session.certificates()[old_certs:]
@@ -261,21 +324,56 @@ def create_app() -> FastAPI:
                 messages.extend({"seq": entry.next_sequence(), "type": "event", "payload": item}
                                 for item in new_events)
                 messages.append({"seq": entry.next_sequence(), "type": "state", "payload": state})
-        for queue, loop in tuple(subscribers[session_id]):
-            for message in messages:
-                loop.call_soon_threadsafe(queue.put_nowait, message)
         if refusal_message is not None:
             return JSONResponse({**refusal_message["payload"], "detail": "Override is not certified"},
-                                status_code=422)
+                                status_code=422), messages
         response = {"audit_record": record, "state": state}
         if session.certified:
             response.update(certificates=new_certs, rechecks=new_rechecks)
-        return _public(response)
+            response["executed_routes"] = certificate_route_geometry(session, new_certs)
+        return _public(response), messages
+
+    @app.post("/api/sessions/{session_id}/decisions")
+    def decide(session_id: str, body: DecisionRequest):
+        entry = entry_or_404(session_id)
+        fingerprint = hashlib.sha256(body.model_dump_json().encode()).hexdigest()
+        request_id = str(body.request_id)
+        messages = []
+        with entry.lock:
+            if entry.closed:
+                raise HTTPException(410, "session was explicitly closed")
+            previous = entry.requests.get(request_id)
+            if previous is not None:
+                previous_hash, status, response = previous
+                if previous_hash != fingerprint:
+                    raise HTTPException(409, "request_id was already used with different content")
+                return JSONResponse(response, status_code=status)
+            if len(entry.requests) >= 2048:
+                raise HTTPException(409, "Request history full; export and start a new session")
+            if body.expected_state_version != entry.state_version:
+                raise HTTPException(409, "stale state version; refresh the decision context")
+            current = _context_dto(entry)
+            if body.recommendation_id != current["decision_identity"]["recommendation_id"]:
+                raise HTTPException(409, "recommendation identity does not match this session and state")
+            try:
+                evidence_provenance = authenticate_evidence_reference(**body.evidence.model_dump())
+                response, messages = execute_decision(session_id, body, entry, request_id,
+                                                      evidence_provenance)
+            except HTTPException as exc:
+                response = JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
+            except (OSError, ValueError) as exc:
+                response = JSONResponse({"detail": str(exc)}, status_code=422)
+            if isinstance(response, JSONResponse):
+                status, payload = response.status_code, json.loads(response.body)
+            else:
+                status, payload = 200, response
+            entry.requests[request_id] = (fingerprint, status, payload)
+            publish(session_id, messages)  # Cache first; schedule in commit order while still holding the lock.
+        return JSONResponse(payload, status_code=status)
 
     @app.get("/api/sessions/{session_id}/audit")
     def audit(session_id: str):
-        entry = entry_or_404(session_id)
-        with entry.lock:
+        with locked_entry(session_id) as entry:
             dto = {"audit": list(entry.session.audit)}
             if entry.session.certified:
                 dto["refusals"] = list(entry.refusals)
@@ -283,39 +381,42 @@ def create_app() -> FastAPI:
 
     @app.get("/api/sessions/{session_id}/certificates")
     def session_certificates(session_id: str):
-        entry = entry_or_404(session_id)
-        with entry.lock:
-            return _public({"certificates": entry.session.certificates()})
+        with locked_entry(session_id) as entry:
+            certs = entry.session.certificates()
+            return _public({"certificates": certs,
+                            "executed_routes": certificate_route_geometry(entry.session, certs)})
 
     @app.post("/api/sessions/{session_id}/certificates/{cert_id}/replay")
     def session_replay(session_id: str, cert_id: str, body: ReplayRequest):
-        entry = entry_or_404(session_id)
-        with entry.lock:
+        with locked_entry(session_id) as entry:
             session = entry.session
             original = next((item for item in session.certificates() if item["cert_id"] == cert_id), None)
             if original is None:
                 raise HTTPException(404, "certificate not found")
             candidate = ({**original, "forecast_hash": hashlib.sha256(b"tampered").hexdigest()}
                          if body.tamper else original)
-            report = replay_certificate(candidate, session.ledger.inputs(cert_id), graph=graph)
-            return _public({"result": report.result, "mismatched_fields": list(report.mismatched_fields)})
+            report = replay_certificate(candidate, session.ledger.inputs(cert_id), graph=graph,
+                                        rules=session.runtime_rules.rules)
+            return _public({"result": report.result, "mismatched_fields": list(report.mismatched_fields),
+                            "executed_routes": certificate_route_geometry(session, [original])})
 
     @app.get("/api/sessions/{session_id}/audit.csv")
     def audit_csv(session_id: str):
-        entry = entry_or_404(session_id)
-        with entry.lock:
+        with locked_entry(session_id) as entry:
             return PlainTextResponse(entry.session.export_csv(), media_type="text/csv")
 
     @app.get("/api/sessions/{session_id}/audit.json")
     def audit_json(session_id: str):
-        entry = entry_or_404(session_id)
-        with entry.lock:
-            return _public(json.loads(entry.session.export_json()))
+        with locked_entry(session_id) as entry:
+            return _public({**json.loads(entry.session.export_json()), "session_id": session_id,
+                            "state_version": entry.state_version, "refusals": entry.refusals,
+                            "request_history": [{"request_id": key, "payload_sha256": item[0],
+                                                 "status": item[1], "response": item[2]}
+                                                for key, item in entry.requests.items()]})
 
     @app.get("/api/sessions/{session_id}/timeline")
     def timeline(session_id: str):
-        entry = entry_or_404(session_id)
-        with entry.lock:
+        with locked_entry(session_id) as entry:
             return _public({"timeline": list(entry.session.timeline)})
 
     @app.get("/api/map/geometry")
@@ -431,12 +532,19 @@ def create_app() -> FastAPI:
             await websocket.close(code=4404)
             return
         await websocket.accept()
-        queue: asyncio.Queue = asyncio.Queue()
+        queue: asyncio.Queue = asyncio.Queue(maxsize=256)
         subscription = (queue, asyncio.get_running_loop())
         subscribers[session_id].add(subscription)
         try:
-            with entry.lock:
-                first = {"seq": entry.next_sequence(), "type": "state", "payload": _state_dto(entry)}
+            def initial_snapshot():
+                with entry.lock:
+                    if entry.closed:
+                        return None
+                    return {"seq": entry.next_sequence(), "type": "state", "payload": _state_dto(entry)}
+            first = await asyncio.to_thread(initial_snapshot)
+            if first is None:
+                await websocket.close(code=1001)
+                return
             await websocket.send_json(first)
             while True:
                 receive_task = asyncio.create_task(websocket.receive())
@@ -446,11 +554,16 @@ def create_app() -> FastAPI:
                 )
                 for task in pending:
                     task.cancel()
+                await asyncio.gather(*pending, return_exceptions=True)
                 if receive_task in done and receive_task.result()["type"] == "websocket.disconnect":
                     break
                 if queue_task in done:
-                    await websocket.send_json(queue_task.result())
-        except WebSocketDisconnect:
+                    message = queue_task.result()
+                    if message.get("type") in {"closed", "resync_required"}:
+                        await websocket.close(code=1001 if message["type"] == "closed" else 1013)
+                        break
+                    await websocket.send_json(message)
+        except (WebSocketDisconnect, asyncio.CancelledError):
             pass
         finally:
             subscribers[session_id].discard(subscription)

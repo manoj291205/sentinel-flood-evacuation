@@ -29,7 +29,8 @@ def _schema(name):
 
 
 def _stable(row):
-    return {k: v for k, v in row.items() if k not in VOLATILE}
+    return {k: v for k, v in row.items()
+            if k not in VOLATILE | {"decision_identity", "evidence_provenance"}}
 
 
 def _pending(session):
@@ -71,7 +72,7 @@ def run():
             payload = {"decision": decision, "reason": reason, "evidence": EVIDENCE}
             if selected is not None:
                 payload["selected_action"] = selected
-            response = client.post(f"/api/sessions/{sid}/decisions", json=payload)
+            response = client.post(f"/api/sessions/{sid}/decisions", json=_bound_payload(client, sid, payload))
             assert response.status_code == 200, response.text
             out["responses"].append(response.json())
             out["api_records"].append(response.json()["audit_record"])
@@ -84,9 +85,9 @@ def run():
         # step 0: HOLD recommended; an uncertified override is refused, then ACCEPT commits the HOLD
         ctx = context()
         uncertified = next(a for a in ctx["certified"]["alternatives"] if not a["certified"])
-        refused = client.post(f"/api/sessions/{sid}/decisions", json={
+        refused = client.post(f"/api/sessions/{sid}/decisions", json=_bound_payload(client, sid, {
             "decision": "OVERRIDE", "selected_action": uncertified["action_key"], "reason": "operator insists",
-            "evidence": EVIDENCE})
+            "evidence": EVIDENCE}))
         out["refused"] = (refused.status_code, refused.json(), uncertified)
         out["after_refusal"] = client.get(f"/api/sessions/{sid}/state").json()
         out["certs_after_refusal"] = client.get(f"/api/sessions/{sid}/certificates").json()["certificates"]
@@ -117,7 +118,7 @@ def run():
         for _ in range(5):
             out["accept_contexts"].append(client.get(f"/api/sessions/{second['session_id']}/context").json())
             response = client.post(f"/api/sessions/{second['session_id']}/decisions",
-                                   json={"decision": "ACCEPT", "reason": "", "evidence": EVIDENCE})
+                                   json=_bound_payload(client, second['session_id'], {"decision": "ACCEPT", "reason": "", "evidence": EVIDENCE}))
             assert response.status_code == 200, response.text
             out["accept_run"].append(response.json())
             twin2.decide("ACCEPT", evidence)
@@ -172,6 +173,8 @@ def test_decisions_match_the_twin_and_advance(run):
     twin = run["twin"]
     assert len(run["api_records"]) == 3
     for api_row, twin_row in zip(run["api_records"], run["twin_records"]):
+        assert api_row["decision_identity"]["session_id"] == run["session"]["session_id"]
+        assert api_row["evidence_provenance"]["chunk_id"] == EVIDENCE["chunk_id"]
         assert _stable(api_row) == _stable(twin_row)
     assert [r["decision"] for r in run["api_records"]] == ["ACCEPT", "OVERRIDE", "REJECT"]
     assert run["certificates"] == twin.certificates()
@@ -255,3 +258,13 @@ def test_live_text_makes_no_outcome_claim(run):
             if any(e.search(text) for e in exempt):
                 continue
             assert not any(b.search(text) for b in banned), text
+
+
+# Prospective API v2 amendment: bind each deliberate test action to its displayed state.
+# Assertions about simulator behavior and certificate parity remain unchanged.
+def _bound_payload(client, session_id, payload):
+    from uuid import uuid4
+    context = client.get(f"/api/sessions/{session_id}/context").json()["decision_identity"]
+    return {**payload, "request_id": str(uuid4()),
+            "expected_state_version": context["state_version"],
+            "recommendation_id": context["recommendation_id"]}

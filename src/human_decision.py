@@ -244,12 +244,12 @@ def apply_human_decision(
 ) -> tuple[dict[str, object], TransitionResult | None]:
     """Validate, optionally execute, and return one session-scoped audit record."""
     choice = HumanDecision(decision)
-    note = human_reason.strip()
+    note = human_reason
     if audit_sequence < 1:
         raise HumanDecisionError("audit sequence must be positive")
     if simulator.prepared_state_for_debug() != context.state:
         raise HumanDecisionError("decision context is stale; obtain a current recommendation")
-    if choice in {HumanDecision.OVERRIDE, HumanDecision.REJECT} and not note:
+    if choice in {HumanDecision.OVERRIDE, HumanDecision.REJECT} and not note.strip():
         raise HumanDecisionError(f"{choice.value} requires a short human reason")
     timestamp = (now or (lambda: datetime.now(timezone.utc)))()
     if timestamp.tzinfo is None:
