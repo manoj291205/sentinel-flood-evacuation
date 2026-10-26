@@ -12,17 +12,18 @@ const response = (body: unknown, status = 200) => new Response(JSON.stringify(bo
 function Probe() {
   const live = useSessionStore();
   return <><output aria-label="phase">{live.phase}</output><output aria-label="error">{live.error}</output>
+    <output aria-label="feed">{live.feed.map(item => item.text).join(' | ')}</output>
     <button onClick={() => void live.submit('ACCEPT')}>Accept action</button>
     <button onClick={() => void live.fastForward(3)}>Fast forward</button></>;
 }
 afterEach(() => { cleanup(); vi.restoreAllMocks(); sessionStorage.clear(); });
 
-function attach(post: (body: Record<string, unknown>) => Promise<Response>) {
+function attach(post: (body: Record<string, unknown>) => Promise<Response>, timeline: Record<string, unknown>[] = []) {
   sessionStorage.setItem('sentinel-live-session', JSON.stringify({ sessionId: 'one', world: 'v4-medium-dt2-v1', seed: 620003 }));
   vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
     const url = String(input);
     if (url.endsWith('/state')) return response(snapshot);
-    if (url.endsWith('/timeline')) return response({ timeline: [] });
+    if (url.endsWith('/timeline')) return response({ timeline });
     if (url.endsWith('/certificates')) return response({ certificates: [] });
     if (url.endsWith('/audit')) return response({ audit: [], refusals: [] });
     if (url.includes('/context')) return response(context);
@@ -75,4 +76,13 @@ it('stops fast-forward when a decision outcome is unknown', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Fast forward' }));
   await waitFor(() => expect(screen.getByLabelText('error')).toHaveTextContent(/retry/i));
   expect(sent).toHaveLength(1);
+});
+
+it('restores the event feed newest first, matching incoming live events', async () => {
+  attach(async () => response({}), [
+    { event_type: 'FLOOD_STATE_UPDATED', description: 'older hazard update' },
+    { event_type: 'ROUTE_CLOSED', description: 'newer road closure' },
+  ]);
+  await screen.findByText('AWAIT_DECISION');
+  expect(screen.getByLabelText('feed').textContent).toBe('ROUTE_CLOSED | FLOOD_STATE_UPDATED');
 });

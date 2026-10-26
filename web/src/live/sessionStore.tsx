@@ -215,7 +215,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           kpi_delta: { safe: 0, waiting: 0, in_transit: 0 }, source: 'LIVE', reason: refusal.reason,
         })),
       ].sort((a, b) => b.step - a.step));
-      setFeed(timeline.timeline.map((event, index) => toFeedItem({ seq: index, type: 'event', payload: event }, sessionId)));
+      setFeed(timeline.timeline.map((event, index) => toFeedItem({ seq: index, type: 'event', payload: event }, sessionId)).reverse());
       await fetchContext(sessionId);
     }).catch(cause => {
       if (cancelled) return;
