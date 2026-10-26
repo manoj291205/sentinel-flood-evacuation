@@ -34,7 +34,22 @@ The project also studies:
 
 ---
 
-## Current V3 Architecture
+## Architecture and evidence boundaries
+
+The authoritative demonstration is the React console with the FastAPI live-session
+API. See [the integrated execution path](docs/INTEGRATED_ARCHITECTURE.md) and
+[the remediation verification report](docs/AUDIT_REMEDIATION_REPORT.md). The older
+Streamlit applications remain V3 demonstrations. They have different REJECT semantics:
+V3 records a rejection without advancing time; a certified V4 rejection commits HOLD.
+
+Runtime document rules are loaded from authenticated approved records. The current
+R01/R02 records are **advisory T1**, so **zero NDMA rules are enforced as mandatory
+T2 constraints**. Mechanical, modeled hazard and certification checks still apply.
+Retrieval and semantic benchmarking are offline research workflows; the live console
+does not issue provider calls or perform a new semantic evaluation on each dispatch.
+
+The following historical V3 diagram shows research components, not an assertion that
+RAG automatically creates operational safety constraints:
 
 ```text
 Authoritative Disaster Guidance
@@ -233,30 +248,6 @@ it has been reviewed and merged into `main`.
 | P0, 29 | Patent filing                                               | ⏸ On hold                                |
 | 35     | Full escrow embodiment                                      | ✖ Dropped (D-27)                         |
 <!-- MILESTONE-TABLE:END -->
-
------ | ------------------------------------------------------ | ----------- |
-| 0     | V1 baseline freeze and repository audit                | ✅ Complete |
-| 1     | Pre-registered evaluation framework                    | ✅ Complete |
-| 2     | Versioned V3 scenario/data contract                    | ✅ Complete |
-| 3     | Deterministic multi-timestep evacuation simulator      | ✅ Complete |
-| 4     | Stochastic flood, travel, closure and shelter dynamics | ✅ Complete |
-| 5     | Deterministic hard-safety engine and action masks      | ✅ Complete |
-| 6     | Strong planning baselines and pre-PPO headroom gate    | ✅ Complete |
-| 7     | Fixed-dimension Gymnasium environment                  | ✅ Complete |
-| 8     | Pre-registered RL reward and integration               | ✅ Complete |
-| 9     | Five-seed MaskablePPO training                         | ✅ Complete |
-| 10    | Frozen held-out planner-vs-PPO evaluation              | ✅ Complete |
-| 11    | Authoritative RAG corpus expansion                     | ✅ Complete |
-| 12    | Dense + BM25 + hybrid retrieval                        | ✅ Complete |
-| 13    | AI-assisted retrieval benchmark                        | ✅ Complete |
-| 14A   | Construction-labeled claim-support challenge           | ✅ Complete |
-| 14B   | Semantic claim-support evaluation                      | ⏸ Paused   |
-| 15    | Re-scoped to 15′ (tier-verified constraints)           | ⏳ Planned  |
-| 16    | Cached geospatial road graph and routing engine        | ✅ Complete |
-| 17    | Dynamic hazard-aware graph routing integration         | ✅ Complete |
-| 18    | Human-in-the-loop override and session audit trail     | ✅ Complete |
-| 19    | Streamlit review dashboard (legacy)                    | ✅ Complete |
-| 20    | Verified baseline (frozen-artifact guard, UTF-8, CI)   | ✅ Complete |
 
 ---
 
@@ -586,8 +577,9 @@ The full offline regression suite was verified on Windows without `PYTHONUTF8` w
 1056 passed, 41 xfailed, 2 xpassed   (main, 2026-10-17)
 ```
 
-The xfailed tests are acceptance tests for Wave C milestones not yet merged; they become
-active when each milestone is reviewed and merged.
+That count is a historical snapshot, not the current suite result. The current
+acceptance-pending list is empty. Use the exact commands and observed results in
+`docs/AUDIT_REMEDIATION_REPORT.md`; remote CI can be blocked before tests execute.
 
 Coverage includes:
 
@@ -639,13 +631,31 @@ A negative result is considered a valid research outcome.
 
 ## Next Development Stages
 
-The decision-policy and retrieval studies are frozen. Remaining work (see the table above):
+The decision-policy and retrieval studies are frozen. Current implementation corrections,
+verification limits and remaining blockers are recorded in `docs/AUDIT_REMEDIATION_REPORT.md`.
+Completed Wave C work is listed in the milestone table above. Future work is optional:
 
 ```text
-Wave C   34A/34C review, 34B release, 36 course pack, 35-lite network-outage demo
-After C  37 conference paper, 38 journal extension (optional)
+Optional 37 conference submission, 38 journal extension
 On hold  patent filing
 ```
+
+### Scientific interpretation retained by the current demonstration
+
+- Frozen Phase 10: **RL usefulness = NO**. PPO underperformed strong planning;
+  prospective planner corrections do not rewrite that evaluation.
+- Phase 13: Hybrid passed the registered comparison against Dense; BM25 had the
+  highest DirectHit@5 (39/45, versus Hybrid 37/45 and Dense 28/45). Labels were
+  AI-assisted. The perfect consistency statistic repeats a deterministic judgment
+  table; it is **not independent annotation agreement**.
+- Phase 14C failed its reliability gate. Phase 14D is a distinct evaluation that
+  passed its registered gate on construction-derived labels. Sentence-derived
+  labels and source/span construction limit generalization to independent claims.
+- Phase 27 did **not** establish improved overall evacuation outcomes: its
+  throughput guard failed (about 21.4% versus the registered 95% requirement).
+- Floods, people, capacities and disruptions are simulated. Real OSM topology is
+  not a real flood observation. Simulated HIL does not establish hardware or
+  physical deployment readiness.
 
 ---
 

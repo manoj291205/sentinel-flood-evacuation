@@ -23,7 +23,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version-file: ".python-version"
           cache: pip
           cache-dependency-path: |
             requirements.txt
@@ -43,10 +43,13 @@ jobs:
       - name: Assert no API key is present
         shell: bash
         run: |
-          if [ -n "$GEMINI_API_KEY" ]; then echo "GEMINI_API_KEY unexpectedly set"; exit 1; fi
-          echo "no API key present, as intended"
+          if [ -n "$GEMINI_API_KEY$GROQ_API_KEY$GOOGLE_API_KEY" ]; then echo "Provider key unexpectedly set"; exit 1; fi
+          echo "no provider key present, as intended"
 
       - name: Run tests
+        env:
+          PYTHONPATH: scripts/verification
+          PYTHONDONTWRITEBYTECODE: "1"
         run: python -m pytest tests/ -p no:cacheprovider -o addopts="" -q
 
   web:
@@ -82,7 +85,7 @@ jobs:
       - uses: actions/setup-python@v5
         if: hashFiles('web/e2e/p34a_live_demo.spec.ts') != ''
         with:
-          python-version: "3.12"
+          python-version-file: ".python-version"
           cache: pip
           cache-dependency-path: |
             requirements.txt
@@ -124,7 +127,7 @@ jobs:
       - uses: actions/setup-python@v5
         if: hashFiles('data/demo_v4/demo_trace.json') != ''
         with:
-          python-version: "3.12"
+          python-version-file: ".python-version"
 
       - name: Install the checker's only dependency
         if: hashFiles('data/demo_v4/demo_trace.json') != ''
@@ -132,7 +135,7 @@ jobs:
 
       - name: Build image
         if: hashFiles('data/demo_v4/demo_trace.json') != ''
-        run: docker build -t sentinel-demo .
+        run: docker build --build-arg SENTINEL_SOURCE_COMMIT=${{ github.sha }} -t sentinel-demo .
 
       - name: Run container
         if: hashFiles('data/demo_v4/demo_trace.json') != ''

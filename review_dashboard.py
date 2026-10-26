@@ -373,7 +373,7 @@ with st.sidebar.expander("3-Minute Review Demo", expanded=review_mode):
         "3. **Policy & RL:** show 1.25M PPO steps and the retained negative result.\n"
         "4. **Evidence / RAG:** compare retrievers and open one NDMA example.\n"
         "5. **Human Override & Audit:** show operator authority and provenance.\n"
-        "6. **Research Progress:** explain why Phase 14B is paused."
+        "6. **Research Progress:** distinguish superseded Phase 14B from the separate 14C and 14D evaluations."
     )
 
 (
@@ -1175,7 +1175,7 @@ with evidence_tab:
                         f'{excerpt_html}</div>',
                         unsafe_allow_html=True,
                     )
-        st.info("Relevant evidence retrieval is separate from claim entailment. Phase 14B claim-support verification is currently paused because of the Gemini daily quota; no partial performance is shown.", icon="ℹ️")
+        st.info("Relevant retrieval is separate from claim entailment. Phase 14B is superseded and unscored; 14C failed its gate, while the distinct construction-labeled 14D evaluation passed its registered gate. No provider calls run here.", icon="ℹ️")
 
 
 with tradeoffs_tab:
@@ -1429,7 +1429,7 @@ with human_tab:
 
 with progress_tab:
     st.subheader("Research Progress")
-    st.caption("A transparent record of completed, frozen, and paused work. No experiment is executed by this dashboard.")
+    st.caption("A transparent record of completed, frozen, and superseded work. No experiment is executed by this dashboard.")
 
     progress_rows = [
         ("V1", "Static shelter recommendation", "COMPLETE", "Foundational prototype"),
@@ -1441,7 +1441,9 @@ with progress_tab:
         ("Phase 11", "Authoritative NDMA RAG corpus", "COMPLETE", "3 documents · 1,797 chunks"),
         ("Phase 13", "Dense / BM25 / Hybrid benchmark", "COMPLETE", "HYBRID_SUPPORTED vs Dense"),
         ("Phase 14A", "Claim-support challenge benchmark", "COMPLETE", "135 construction-labeled examples"),
-        ("Phase 14B", "Semantic claim-support evaluation", "PAUSED", "Gemini free-tier daily quota"),
+        ("Phase 14B", "Semantic claim-support evaluation", "SUPERSEDED", "Unscored; no official performance result"),
+        ("Phase 14C", "Separate semantic evaluation", "COMPLETE", "NOT_YET_RELIABLE"),
+        ("Phase 14D", "Construction-labeled evaluation of record", "COMPLETE", "Registered gate passed; limited generalization"),
         ("Phase 16/17", "Fort Kochi geospatial road network", "COMPLETE", "622 nodes · 1,358 directed edges"),
         ("Phase 19", "Human override", "COMPLETE", "Accept / override / reject"),
         ("Phase 19", "Session audit trail", "COMPLETE", "CSV + JSON export"),
@@ -1452,20 +1454,17 @@ with progress_tab:
         width="stretch",
     )
 
-    st.markdown("### Phase 14B — paused, incomplete evaluation")
-    phase14_columns = st.columns(4)
-    phase14_columns[0].metric("Official dispositions", "21 / 135")
-    phase14_columns[1].metric("Successful predictions", 19)
-    phase14_columns[2].metric("Invalid outputs", 2)
-    phase14_columns[3].metric("Status", "PAUSED")
+    st.markdown("### Phase 14B — superseded, unscored evaluation")
+    st.metric("Phase 14B status", "SUPERSEDED")
     st.warning(
-        "PAUSED — GEMINI FREE-TIER DAILY QUOTA. The incomplete run has no official performance result; "
-        "no interim performance score or class-summary table is displayed or interpreted scientifically.",
-        icon="⏸️",
+        "Phase 14B has no official performance result. The historical checkpoint is preserved, "
+        "not resumed or scored. Phase 14C and 14D are separate frozen evaluations in the React console.",
+        icon="ℹ️",
     )
     st.caption(
         "Phase 13 passage-relevance labels are AI-assisted. Phase 14A claim pairs are AI-assisted, "
-        "construction-labeled challenge examples."
+        "construction-labeled challenge examples. Phase 13 consistency replays a deterministic "
+        "judgment table; it is not independent annotation agreement."
     )
 
     st.markdown("### Why claim-support verification exists")
@@ -1507,7 +1506,7 @@ with progress_tab:
             "3. **POLICY & RL:** show 1.25M PPO training steps and the retained negative result.\n"
             "4. **RAG:** compare Dense, BM25, and Hybrid; open one offline NDMA evidence example.\n"
             "5. **HUMAN OVERRIDE:** show operator authority and the resulting audit provenance.\n"
-            "6. **RESEARCH PROGRESS:** explain that semantic claim-support evaluation is paused and remains the next research stage."
+            "6. **RESEARCH PROGRESS:** explain superseded 14B, failed 14C, and the construction-label limitations of 14D."
         )
 
 st.divider()

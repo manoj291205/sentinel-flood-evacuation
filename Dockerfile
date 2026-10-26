@@ -9,6 +9,9 @@ COPY specs/contracts/ specs/contracts/
 RUN cd web && npm run build
 
 FROM python:3.12-slim
+ARG SENTINEL_SOURCE_COMMIT=UNAVAILABLE
+ENV SENTINEL_SOURCE_COMMIT=${SENTINEL_SOURCE_COMMIT}
+LABEL org.opencontainers.image.revision=${SENTINEL_SOURCE_COMMIT}
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PYTHONUTF8=1
 WORKDIR /app
 COPY requirements-runtime.txt requirements-api.txt ./
@@ -17,6 +20,7 @@ COPY src/ src/
 COPY specs/contracts/ specs/contracts/
 COPY specs/approvals/ specs/approvals/
 COPY data/geospatial_v3/ data/geospatial_v3/
+COPY data/raw_docs/ data/raw_docs/
 COPY data/eval_results/ data/eval_results/
 COPY data/eval_v3/phase10/ data/eval_v3/phase10/
 COPY data/eval_v3/phase13/ data/eval_v3/phase13/

@@ -93,16 +93,15 @@ def test_dashboard_override_executes_safe_graph_reachable_alternative_and_audits
     assert record["graph_edge_count"] > 0
 
 
-def test_phase14b_is_presented_only_as_paused_progress_not_a_result():
+def test_phase14b_is_presented_as_superseded_without_partial_performance():
     app = render()
     metrics = {(item.label, str(item.value)) for item in app.metric}
-    assert ("Official dispositions", "21 / 135") in metrics
-    assert ("Successful predictions", "19") in metrics
-    assert ("Invalid outputs", "2") in metrics
-    assert ("Status", "PAUSED") in metrics
+    assert ("Phase 14B status", "SUPERSEDED") in metrics
+    assert not {"Official dispositions", "Successful predictions", "Invalid outputs"} & {label for label, _ in metrics}
     text = rendered_text(app)
-    assert "PAUSED — GEMINI FREE-TIER DAILY QUOTA" in text
     assert "no official performance result" in text
+    assert "Phase 14C and 14D are separate" in text
+    assert "not independent annotation agreement" in text
     source = DASHBOARD.read_text(encoding="utf-8")
     for forbidden in ("google.genai", "generate_content(", "GEMINI_API_KEY", "requests.get("):
         assert forbidden not in source

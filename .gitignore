@@ -2,7 +2,10 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.hypothesis/
 .venv/
+.venv-runtime/
+.runtime/
 venv/
 *.egg-info/
 
@@ -17,6 +20,17 @@ models/*.zip.tmp
 # Secrets — GEMINI_API_KEY / GROQ_API_KEY come from the environment, never a committed file
 .env
 .env.*
+
+# Prospective provider lifecycle and local operational sessions are never staged.
+runtime/
+**/provider_requests.json
+**/provider_requests.json.lock
+**/provider_run.lock
+**/attempt_journal.json
+**/attempt_journal.json.lock
+**/*.attempts.json
+**/*.attempts.json.lock
+**/.provider-budget.lock
 
 # OS
 .DS_Store

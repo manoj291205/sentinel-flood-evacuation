@@ -8,7 +8,7 @@ The demo is one container: the built web console plus the FastAPI app. It serves
 ## 1. Run it locally
 
 ```bash
-docker build -t sentinel-demo .
+docker build --build-arg SENTINEL_SOURCE_COMMIT="$(git rev-parse HEAD)" -t sentinel-demo .
 docker run -p 8000:8000 -e SENTINEL_DEMO_PASSWORD=choose-one sentinel-demo
 ```
 
