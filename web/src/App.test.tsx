@@ -1,15 +1,16 @@
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { setupServer } from 'msw/node';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import App from './App';
 import { handlers } from './mocks/handlers';
 
 const server = setupServer(...handlers);
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterAll(() => server.close());
+afterEach(() => { cleanup(); localStorage.removeItem('sentinel-theme'); });
 
 describe('console shell', () => {
   it('defaults to Night and exposes a keyboard skip link to the main landmark', async () => {
