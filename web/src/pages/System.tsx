@@ -16,7 +16,7 @@ export default function System() {
   const acks = useQuery({ queryKey: ['system-acks'], queryFn: api.systemAcks });
   const devices = status.data?.devices ?? [];
   return <div className={styles.page}>
-    <header className={styles.heading}><p className={styles.eyebrow}>SYSTEM / HARDWARE</p><h1>System &amp; Hardware</h1><p>Local broker, simulated sensors, and certificate-gated actuation.</p></header>
+    <header className={styles.heading}><div><p className={styles.eyebrow}>SYSTEM / HARDWARE</p><h1>System &amp; Hardware</h1><p>Local broker, simulated sensors, and certificate-gated actuation.</p></div><span className={styles.sourceBadge}>SIMULATED HIL · NO PHYSICAL BENCH CLAIM</span></header>
     {(status.isError || acks.isError) && <p role="alert" className={styles.error}>System data unavailable. <button type="button" onClick={() => { void status.refetch(); void acks.refetch(); }}>Retry</button></p>}
     {status.isPending && <p role="status">Loading system status…</p>}
     {status.data && <p className={styles.sourceBadge}>{status.data.source} · Broker {status.data.broker.connected ? '● CONNECTED' : '○ OFFLINE'}{status.data.broker.host && ` · ${status.data.broker.host}`}</p>}
