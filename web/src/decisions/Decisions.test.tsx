@@ -18,6 +18,14 @@ function mount(initial = '/decisions') {
 }
 
 describe('Decisions & Certificates', () => {
+  it('places the actual dispatch threshold on the full zero-to-one interval scale', async () => {
+    mount('/decisions?cert=CERT-000127');
+    const interval = (await screen.findAllByRole('img', { name: /^Interval/ }))[0];
+    const threshold = Number(/threshold ([\d.]+)/.exec(interval.getAttribute('aria-label') ?? '')?.[1]);
+    expect(threshold).toBeGreaterThan(0);
+    expect(interval.lastElementChild).toHaveStyle({ left: `${threshold * 100}%` });
+  });
+
   it('opens a deep-linked migration and filters the list', async () => {
     mount('/decisions?cert=CERT-000126');
     expect(await screen.findByRole('region', { name: 'Decision detail' })).toHaveTextContent('MIGRATION');

@@ -30,9 +30,9 @@ function Verdict({ verdict }: { verdict: string }) {
 
 function CandidateTable({ cert }: { cert: Certificate }) {
   const threshold = 1 - cert.params.eps_dispatch;
-  const scale = (value: number) => Math.max(0, Math.min(100, (value - 0.8) * 500));
+  const scale = (value: number) => Math.max(0, Math.min(100, value * 100));
   return <div className={styles.tableScroll} tabIndex={0} role="region" aria-label="Scrollable gate candidates"><table className={styles.table}>
-    <caption>Gate candidates and outcomes across sampled futures</caption>
+    <caption>Gate candidates and outcomes across sampled futures · interval scale 0–1</caption>
     <thead><tr><th scope="col">Option</th><th scope="col">Verdict</th><th scope="col">Futures OK</th><th scope="col">Certified interval</th><th scope="col">OK / Stranded / Unsafe / Overflow / Policy</th></tr></thead>
     <tbody>{cert.candidates.map((candidate: CertificateCandidate) => <tr key={candidate.action_key}>
       <td>{actionLabel(candidate.action_key)}{candidate.people ? ` · ${candidate.people} people` : ''}</td>
