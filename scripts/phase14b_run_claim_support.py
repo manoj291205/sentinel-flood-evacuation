@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 import tempfile
 import time
@@ -50,9 +51,26 @@ def _challenge() -> tuple[list[dict], dict]:
     return pairs, manifest
 
 
+def _status(exc: Exception) -> int | None:
+    for field in ("status_code", "code"):
+        code = getattr(exc, field, None)
+        if type(code) is int:
+            return code
+    return None
+
+
 def _rate_limited(exc: Exception) -> bool:
-    code = getattr(exc, "status_code", None) or getattr(exc, "code", None)
-    return code == 429 or "429" in str(exc)
+    status = _status(exc)
+    if status is not None:
+        return status == 429
+    return bool(re.search(r"\b429\b", str(exc))) or "RESOURCE_EXHAUSTED" in str(exc)
+
+
+def _unavailable(exc: Exception) -> bool:
+    status = _status(exc)
+    if status is not None:
+        return 500 <= status <= 599
+    return bool(re.search(r"\b503\s+UNAVAILABLE\b", str(exc)))
 
 
 class _RequestBudgetStop(Exception):
@@ -111,7 +129,7 @@ def run(*, max_requests: int, client: Callable[[str], str], ledger_path: Path) -
                 try:
                     raw = client(prompt)
                 except BaseException as exc:
-                    code = getattr(exc, "status_code", None) or getattr(exc, "code", None)
+                    code = _status(exc)
                     attempts.resolve(attempt, None, SimpleNamespace(
                         status=code if isinstance(code, int) else None,
                         reason="HTTP_ERROR" if isinstance(code, int) else "NETWORK_ERROR"))
@@ -127,6 +145,9 @@ def run(*, max_requests: int, client: Callable[[str], str], ledger_path: Path) -
             except Exception as exc:
                 if _rate_limited(exc):
                     reason = "RATE_LIMITED"
+                    break
+                if _unavailable(exc):
+                    reason = "PROVIDER_UNAVAILABLE"
                     break
                 raise
             row = {
