@@ -52,3 +52,6 @@
 .error button { min-height: 44px; padding: 0 14px; background: var(--primary); color: var(--onprimary); border: 0; }
 @media (max-width: 1050px) { .overviewHero { grid-template-columns: 1fr; } .population .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } .population .kpis > div { min-height: 100px; } }
 @media (max-width: 600px) { .panel { padding: 16px; } .population .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .facts { grid-template-columns: 1fr; gap: 6px; } .facts dd { margin-bottom: 12px; } .overviewMap svg { height: 300px; } .sectionNav a { flex: 1 1 42%; } }
+.tableScroll[aria-label='Devices table'] .table { min-width:480px; }
+.diagramScroll { overflow:auto; max-width:100%; }
+.diagramScroll svg { display:block; min-width:680px; }
