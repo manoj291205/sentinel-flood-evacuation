@@ -83,3 +83,14 @@ test('phone operator dialog keeps reasons and all three decisions reachable', as
   await expect(dialog).not.toBeVisible();
   await expect(bar.getByRole('button', { name: 'Decline', exact: true })).toBeFocused();
 });
+
+test('recorded gate marker agrees with its own context rather than a fixed display threshold', async ({ page }) => {
+  await page.goto('/live');
+  await page.getByRole('radio', { name: 'Guided demo' }).check();
+  const gate = page.getByRole('region', { name: 'Dispatch Gate' });
+  await expect(gate).toBeVisible();
+  const metadata = await gate.locator('p').first().textContent();
+  const threshold = Number(/1\s*−\s*ε\s*=\s*(\S+)/.exec(metadata ?? '')?.[1]);
+  expect(Number.isFinite(threshold)).toBe(true);
+  expect(await gate.locator('[data-threshold]').first().evaluate(element => (element as HTMLElement).style.left)).toBe(`${threshold * 100}%`);
+});

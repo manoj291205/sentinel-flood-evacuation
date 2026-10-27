@@ -1,13 +1,30 @@
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import fixture from '../../../specs/contracts/demo_steps.json';
 import type { DemoStep } from '../types';
 import { EventFeed, GatePanel, ShelterLedger, SideTabs, SuggestionCard, TransitList } from './Panels';
 
 const step = fixture.steps[2] as DemoStep;
+afterEach(cleanup);
 
 describe('operations side panels', () => {
+  it('plots the recorded threshold and full interval without the old 0.80 clipping', () => {
+    const recorded = { ...step, gate: { meta: 'n = 64 futures · 1 − ε = 0.70 · recorded',
+      candidates: [{ ...step.gate.candidates[0], lower: .4, upper: .8 }] } };
+    const view = render(<GatePanel step={recorded} selected="" onSelect={() => {}} />);
+    expect(view.container.querySelector('[data-threshold]')).toHaveStyle({ left: '70%' });
+    expect(view.container.querySelector('[aria-hidden="true"]')?.lastElementChild).toHaveStyle({ left: '40%', width: '40%' });
+  });
+
+  it('does not invent a marker when the context omits or corrupts its threshold', () => {
+    const view = render(<GatePanel step={step} selected="" onSelect={() => {}} />);
+    expect(view.container.querySelector('[data-threshold]')).toBeNull();
+    expect(screen.getByText(/threshold not provided/)).toBeVisible();
+    view.rerender(<GatePanel step={{ ...step, gate: { ...step.gate, meta: '1 − ε = 1.20' } }} selected="" onSelect={() => {}} />);
+    expect(view.container.querySelector('[data-threshold]')).toBeNull();
+  });
+
   it('switches side tabs', async () => {
     const change = vi.fn();
     render(<SideTabs active="Suggestion" onChange={change} />);

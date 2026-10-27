@@ -67,7 +67,7 @@
 .gateMain strong{font-size:12px}.gateMain small,.gateFoot small{color:var(--ink2);font-size:10px}
 .gateFoot b{font-size:10px;letter-spacing:.03em}.gateFoot b[data-status="FEASIBLE"]{color:var(--ok)}.gateFoot b[data-status="UNDECIDED"]{color:var(--warn)}.gateFoot b[data-status="INFEASIBLE"]{color:var(--bad)}
 .interval{display:block;height:9px;position:relative;background:var(--sunk);border:1px solid var(--rule)}
-.threshold{position:absolute;left:75%;height:14px;top:-3px;border-left:2px solid var(--ink);z-index:2}
+.threshold{position:absolute;height:14px;top:-3px;border-left:2px solid var(--ink);z-index:2}
 .intervalBand{position:absolute;top:1px;height:5px;background:var(--info)}
 .warning{padding:8px;border:1px dashed var(--warn);font-size:12px;color:var(--warn);font-weight:600}
 .decisionButtons{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}

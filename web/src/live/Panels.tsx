@@ -28,14 +28,19 @@ function gateWord(status: GateCandidate['status']) {
 }
 
 export function GatePanel({ step, selected, onSelect }: { step: DemoStep; selected: string; onSelect: (id: string) => void }) {
+  // The recorded demo contract supplies its threshold only in gate metadata.
+  const thresholdText = /1\s*[−-]\s*ε\s*=\s*(\S+)/.exec(step.gate.meta)?.[1];
+  const threshold = thresholdText === undefined ? NaN : Number(thresholdText);
+  const hasThreshold = Number.isFinite(threshold) && threshold >= 0 && threshold <= 1;
   return <section className={styles.card} aria-label="Dispatch Gate">
     <div className={styles.cardEyebrow}>DISPATCH GATE</div>
     <h2>Candidate certification</h2>
     <p className={styles.muted}>{step.gate.meta}</p>
+    <p className={styles.muted}>Interval scale 0–1{hasThreshold ? ' · marker from recorded threshold' : ' · threshold not provided in this context'}</p>
     <div className={styles.gateRows}>
       {step.gate.candidates.map(candidate => <button key={candidate.id} type="button" className={`${styles.gateRow} ${selected === candidate.id ? styles.gateSelected : ''}`} aria-label={`${candidate.label} ${candidate.status}`} aria-pressed={selected === candidate.id} onClick={() => onSelect(candidate.id)}>
         <span className={styles.gateMain}><strong>{candidate.label}</strong><small className="mono">{candidate.lower === null ? '—' : candidate.lower.toFixed(3)}{candidate.upper === null ? '' : `–${candidate.upper.toFixed(3)}`}</small></span>
-        <span className={styles.interval} aria-hidden="true"><i className={styles.threshold} />{candidate.lower !== null && candidate.upper !== null && <i className={styles.intervalBand} style={{ left: `${Math.max(0, (candidate.lower - .8) * 500)}%`, width: `${Math.max(2, (candidate.upper - candidate.lower) * 500)}%` }} />}</span>
+        <span className={styles.interval} aria-hidden="true">{hasThreshold && <i className={styles.threshold} data-threshold={threshold} style={{ left: `${threshold * 100}%` }} />}{candidate.lower !== null && candidate.upper !== null && <i className={styles.intervalBand} style={{ left: `${Math.max(0, Math.min(1, candidate.lower)) * 100}%`, width: `${Math.max(0, Math.min(1, candidate.upper) - Math.max(0, candidate.lower)) * 100}%` }} />}</span>
         <span className={styles.gateFoot}><b data-status={candidate.status}>{gateWord(candidate.status)}</b><small>{candidate.meta}</small></span>
       </button>)}
     </div>
