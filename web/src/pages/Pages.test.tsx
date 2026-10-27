@@ -29,7 +29,7 @@ describe('Wave B overview and evidence pages', () => {
     const chart = await screen.findByRole('img', { name: 'Phase 10 · planner comparison artifact values as bars' });
     expect(within(chart).getByRole('img', { name: 'UI fixture measure: 1.000' })).toBeVisible();
     expect(chart.querySelector('rect[aria-label]')).toBeNull();
-    expect(within(chart).getByText('1.000')).toBeVisible();
+    expect(screen.getByRole('region', { name: 'Phase 10 planners evidence table' }).textContent).toContain('1.000');
   });
 
   it('takes ledger values from the demo response and links to the latest certificate', async () => {
