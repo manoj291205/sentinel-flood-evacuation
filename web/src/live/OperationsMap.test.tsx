@@ -7,6 +7,27 @@ import type { DemoStep, MapGeometry } from '../types';
 import { Legend, OperationsMap, SimulationMap } from './OperationsMap';
 
 describe('operations map and legend', () => {
+  it('supports keyboard pan, zoom and home without changing the selected route', async () => {
+    const step = { chosen_key: 'WAIT', candidates: [], zone_severity: {}, shelter_severity: {}, edge_closed_path: '', shelters: [] };
+    render(<SimulationMap geometry={geometry as unknown as MapGeometry} label="Keyboard map" step={step} />);
+    const map = screen.getByRole('img', { name: /Keyboard map:/ });
+    map.focus();
+    const original = map.getAttribute('viewBox');
+    await userEvent.keyboard('{ArrowRight}');
+    expect(map.getAttribute('viewBox')).not.toBe(original);
+    await userEvent.keyboard('+');
+    expect(map.getAttribute('viewBox')?.split(' ')[2]).not.toBe(original?.split(' ')[2]);
+    await userEvent.keyboard('{Home}');
+    expect(map).toHaveAttribute('viewBox', original);
+  });
+
+  it('uses distinct atlas definitions for side-by-side maps', () => {
+    const step = { chosen_key: 'WAIT', candidates: [], zone_severity: {}, shelter_severity: {}, edge_closed_path: '', shelters: [] };
+    const view = render(<><SimulationMap geometry={geometry as unknown as MapGeometry} label="First" step={step} /><SimulationMap geometry={geometry as unknown as MapGeometry} label="Second" step={step} /></>);
+    const ids = [...view.container.querySelectorAll('[id]')].map(item => item.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
   it('draws the selected route over road topology with accessible entities', async () => {
     const view = render(<OperationsMap geometry={geometry as unknown as MapGeometry} step={fixture.steps[0] as DemoStep} selectedCandidate="c2" />);
     expect(screen.getByRole('img', { name: /Fort Kochi road topology/ })).toBeVisible();
