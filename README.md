@@ -1,4 +1,48 @@
-## Sentinel-Agent V3
+# Sentinel-Agent
+
+The current application is the **V4 FastAPI + React console**: live stochastic
+evacuation sessions, certified dispatch, human decisions, road maps, audit exports,
+replay and the seven-page console. The V3 Streamlit applications and frozen research
+results remain available as historical components.
+
+## Run the current project
+
+Use Python **3.12** and Node **20+**. No provider key, model training, embedding
+download or external evaluation is required for the console.
+
+```bash
+python3.12 -m venv .venv-runtime
+.venv-runtime/bin/python -m pip install -r requirements-runtime.txt -r requirements-api.txt
+cd web
+npm ci
+npm run build
+cd ..
+bash scripts/run_console.sh
+```
+
+Open **http://127.0.0.1:8101/live**. The launcher serves the built frontend and API
+from one local process, using `.venv-runtime` first and `.venv` as a fallback.
+Use `PORT=8103 bash scripts/run_console.sh` if the default port is occupied.
+For subsequent starts, only the final launcher command is needed.
+
+On Windows PowerShell, create the environment with `py -3.12 -m venv .venv-runtime`,
+use `.venv-runtime\Scripts\python.exe` for pip, build `web/` as above, then run:
+
+```powershell
+$env:SENTINEL_WEB_DIST = (Resolve-Path web/dist).Path
+.venv-runtime\Scripts\python.exe -m uvicorn src.api.app:create_app --factory --host 127.0.0.1 --port 8101
+```
+
+Use one server worker: live sessions are held in memory. Set
+`SENTINEL_DEMO_PASSWORD` before starting any shared demonstration; the default
+launcher binds only to localhost. Hazards and hardware are simulated, and no
+document-derived T2 rule is currently mandatory. This is not an operational
+emergency deployment.
+
+Branch consolidation and verification are recorded in
+[the main-branch integration report](docs/MAIN_INTEGRATION_REPORT.md).
+
+## Research background
 
 **Sentinel-Agent** is an evidence-grounded decision-support prototype for dynamic flood evacuation under uncertainty.
 
@@ -95,7 +139,9 @@ Authoritative Disaster Guidance
 ## V4 web console
 
 The V4 console (`web/`, React + Vite) is served by the FastAPI app in `src/api/`. The two Streamlit apps below are legacy.
-Everything it shows is simulated; the demo is a recorded run of the real engine and calls no model and no API key.
+Hazards, populations and devices are simulated on real road topology. The console
+supports live simulated sessions and a recorded walkthrough; neither requires a
+provider key or a new model evaluation.
 
 ```powershell
 scripts/dev.ps1            # API on :8000 + console on :5173

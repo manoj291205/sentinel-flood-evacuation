@@ -16,6 +16,7 @@ ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PYTHONUTF8=1
 WORKDIR /app
 COPY requirements-runtime.txt requirements-api.txt ./
 RUN pip install --no-cache-dir -r requirements-runtime.txt -r requirements-api.txt
+COPY README.md ./
 COPY src/ src/
 COPY specs/contracts/ specs/contracts/
 COPY specs/approvals/ specs/approvals/
@@ -24,6 +25,8 @@ COPY data/raw_docs/ data/raw_docs/
 COPY data/eval_results/ data/eval_results/
 COPY data/eval_v3/phase10/ data/eval_v3/phase10/
 COPY data/eval_v3/phase13/ data/eval_v3/phase13/
+COPY data/eval_v3/phase11_corpus_summary.json data/eval_v3/gate6_summary.json data/eval_v3/
+COPY data/eval_v3/training/training_summary.json data/eval_v3/training/learning_curves.csv data/eval_v3/training/
 COPY data/constraints_v4/ data/constraints_v4/
 COPY data/demo_v4/ data/demo_v4/
 COPY --from=web /build/web/dist web/dist
