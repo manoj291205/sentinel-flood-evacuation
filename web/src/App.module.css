@@ -22,7 +22,7 @@
 .navFooter small { color: var(--ink3); font-size: 11px; }
 .content { min-width: 0; padding: 28px; max-width: 100%; }
 .pendingBadge { display: inline-grid; place-items: center; width: 18px; height: 18px; margin-left: auto; border: 1px solid var(--warn); color: var(--warn); font-size: 11px; }
-.toast { position: fixed; right: 20px; bottom: 20px; z-index: 110; max-width: min(28rem, calc(100vw - 40px)); padding: 14px 16px; background: var(--raised); color: var(--ink); border: 1px solid var(--info); display: flex; gap: 16px; align-items: center; }
+.toast { padding: 8px 24px; background: var(--raised); color: var(--ink); border-bottom: 1px solid var(--info); border-left: 3px solid var(--info); display: flex; gap: 16px; align-items: center; justify-content: space-between; font-size: 13px; overflow-wrap: anywhere; }
 .toast[data-tone='ok'] { border-color: var(--ok); }
 .toast[data-tone='danger'] { border-color: var(--bad); }
 .toast[data-tone='warn'] { border-color: var(--warn); }

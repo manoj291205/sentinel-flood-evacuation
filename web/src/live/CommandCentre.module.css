@@ -96,7 +96,7 @@
   .railContent { padding: 16px; }
 }
 .workspace { display:grid; grid-template-columns:minmax(0,7fr) minmax(310px,4fr); grid-template-areas:"metrics metrics" "map decision" "map details"; gap:18px; align-items:start; }
-.workspace>.operatorBar { grid-area:decision; position:static; flex-direction:column; gap:14px; }
+.workspace>.operatorBar { grid-area:decision; position:sticky; top:12px; flex-direction:column; gap:14px; }
 .workspace>.kpis { grid-area:metrics; }
 .workspace>.grid { display:contents; }
 .workspace .mapArea { grid-area:map; }
@@ -108,4 +108,4 @@
 .ruleStatus { margin:0; padding:10px 14px; background:var(--sunk); border-left:2px solid var(--info); color:var(--ink2); font-size:11px; }
 .kpi { padding:12px 16px; }
 .kpi svg { height:14px; }
-@media(max-width:1000px) { .workspace { grid-template-columns:1fr; grid-template-areas:"metrics" "decision" "map" "details"; } }
+@media(max-width:1000px) { .workspace { grid-template-columns:1fr; grid-template-areas:"metrics" "decision" "map" "details"; } .workspace>.operatorBar { position:static; } }

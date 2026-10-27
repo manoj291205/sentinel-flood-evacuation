@@ -71,6 +71,11 @@ test('phone operator dialog keeps reasons and all three decisions reachable', as
     await expect(button).toBeEnabled();
     const bounds = await button.boundingBox();
     expect(bounds && bounds.x >= 0 && bounds.x + bounds.width <= 391 && bounds.height >= 44).toBeTruthy();
+    expect(await button.evaluate(element => {
+      const bounds = element.getBoundingClientRect();
+      const hit = document.elementFromPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+      return hit === element || (hit !== null && element.contains(hit));
+    })).toBe(true);
   }
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.screenshot({ path: testInfo.outputPath('phone-decision-dialog.png'), animations: 'disabled' });

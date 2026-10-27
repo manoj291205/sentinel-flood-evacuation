@@ -66,11 +66,12 @@ export default function App() {
       </div>
     </header>
     <section aria-label="Simulation honesty"><div className={styles.honesty} role="note">{HONESTY}</div></section>
+    {live.toast && <div className={styles.toast} data-tone={live.toast.tone} role="status"><span>{live.toast.text}</span><button type="button" aria-label="Dismiss notification" onClick={live.clearToast}>×</button></div>}
     <div className={styles.body}>
       <aside className={styles.nav} aria-label="Console navigation">
       <nav aria-label="Main" className={styles.navCore}>
         <span className={styles.navGroup}>OPERATE</span>
-        {nav('/', 'Overview')}<NavLink to="/live"><NavIcon path="/live" /><span>Live Operations</span>{live.phase === 'AWAIT_DECISION' && <span aria-hidden="true" className={styles.pendingBadge}>1</span>}</NavLink>
+        {nav('/', 'Overview')}<NavLink to="/live"><NavIcon path="/live" />Live Operations{live.phase === 'AWAIT_DECISION' && <span aria-hidden="true" className={styles.pendingBadge}>1</span>}</NavLink>
         <span className={styles.navGroup}>VERIFY</span>
         {nav('/decisions', 'Decisions & Certificates')}
         <span className={styles.navGroup}>EVIDENCE</span>
@@ -96,6 +97,5 @@ export default function App() {
         </Routes>
       </main>
     </div>
-    {live.toast && <div className={styles.toast} data-tone={live.toast.tone} role="status"><span>{live.toast.text}</span><button type="button" aria-label="Dismiss notification" onClick={live.clearToast}>×</button></div>}
   </div>;
 }
