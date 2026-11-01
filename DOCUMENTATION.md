@@ -1528,8 +1528,8 @@ unsafe due to severe flooding.
 
 ### Cleanup
 
-Removed local-only `.claude/`, `.pytest_cache/`, and project `__pycache__/` directories.
-Added `.claude/` and `.pytest_cache/` to `.gitignore`; Python bytecode caches were already
+Removed local-only tool folders, `.pytest_cache/`, and project `__pycache__/` directories.
+Added local tool folders and `.pytest_cache/` to `.gitignore`; Python bytecode caches were already
 ignored. `.venv/` and `src/rag/chroma_db/` remain ignored but were deliberately retained
 so the checked-out demo stays immediately runnable. These removed directories contained
 no tracked source or evaluation data and can be recreated by their respective tools.

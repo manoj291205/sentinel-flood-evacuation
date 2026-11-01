@@ -85,7 +85,7 @@ only the console with `VITE_API_MOCK=1`. They never set `SENTINEL_DEMO_PASSWORD`
   SENTINEL_WEB_DIST=/app/web/dist SENTINEL_DEMO_SOURCE=RECORDED`; `EXPOSE 8000`; non-root user; `CMD ["python", "-m",
   "uvicorn", "src.api.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]` (a `PORT` env override for
   hosts that assign one is fine). Never `ENV`/`ARG` a password or key. `.dockerignore`: `.git`, `.venv`, `.env*`,
-  `web/node_modules`, `web/dist`, `models/`, `src/rag/chroma_db/`, `**/__pycache__`, `.claude/`.
+  `web/node_modules`, `web/dist`, `models/`, `src/rag/chroma_db/`, `**/__pycache__`.
 - `docs/HOSTING.md`: (1) local `docker build` / `docker run -e SENTINEL_DEMO_PASSWORD=…`; (2) step by step for **one**
   free host (Render web service from the Dockerfile, or a Hugging Face Docker Space — pick one, say why), setting
   `SENTINEL_DEMO_PASSWORD` as a secret in the host's dashboard; (3) the alternative: static `web/dist` on a static host +

@@ -1,8 +1,7 @@
 # DEVELOPMENT.md — Sentinel-Agent
 
 Flood-evacuation decision support on real Fort Kochi roads with simulated hazards (V3 phases 0–19 done),
-being extended with a certified dispatch gate (V4, phases 20–36). **Private repository — confidential,
-unfiled invention. Never make it public or show the gate work before the Indian provisional (P0) is filed.**
+extended with a certified dispatch gate (V4, phases 20–36). This file records the build rules the team followed.
 
 ## Start of every session
 1. Read `docs/patent-roadmap/STATUS.md` (live ledger) and the prompt file the user pasted.
