@@ -235,8 +235,8 @@ experiment or an operationally validated emergency system.
 
 ## Development Status
 
-<!-- MILESTONE-TABLE:START — refreshed by the reviewer at every merge into main from docs/patent-roadmap/STATUS.md -->
-Last refreshed: 2026-10-19 (Phase 40 merged) · base branch `main` · 1118 tests pass on `main` · live ledger: `docs/patent-roadmap/STATUS.md`
+<!-- MILESTONE-TABLE:START — refreshed by the reviewer at every merge into main -->
+Last refreshed: 2026-10-19 (Phase 40 merged) · base branch `main` · 1118 tests pass on `main`
 
 V3 (phases 0–19) is complete. V4 extends it with a certified dispatch layer; V4 internals are confidential
 and described only in the private roadmap. Work is built on milestone branches and appears here only after
@@ -756,4 +756,4 @@ The current evaluation demonstrates behavior only within the project's controlle
 
 ## V4 Roadmap
 
-V4 roadmap: private, see `docs/patent-roadmap/`.
+The V4 planning notes are kept private.
