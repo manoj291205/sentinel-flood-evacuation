@@ -1,759 +1,250 @@
-# Sentinel-Agent
+# Sentinel — certified dispatch for flood evacuation
 
-The current application is the **V4 FastAPI + React console**: live stochastic
-evacuation sessions, certified dispatch, human decisions, road maps, audit exports,
-replay and the seven-page console. The V3 Streamlit applications and frozen research
-results remain available as historical components.
+Sentinel is a decision-support prototype for flood evacuation. It runs on the **real road network of Fort Kochi,
+Kerala** with **simulated flood hazards**, and helps an operator decide which waiting group to send, to which
+shelter, by which road, and when.
 
-## Run the current project
+Its core is a **certified dispatch gate**: a dispatch is allowed only if the system can show, with a statistical
+bound, that the *whole trip* is likely to succeed. That means the road stays open while the group is on it, the
+shelter is still safe when they arrive, and there are still seats left. The operator always makes the final call.
 
-Use Python **3.12** and Node **20+**. No provider key, model training, embedding
-download or external evaluation is required for the console.
+![Live Operations: the operator sees the certified suggestion on the live map and decides Accept, Override or Decline](docs/images/live-operations.png)
+
+> Research prototype. The roads are real; the hazards, populations, shelters, closures and devices are simulated.
+> It has not been used or validated in a real emergency.
+
+---
+
+## The problem
+
+Most evacuation tools check whether a road and a shelter are safe **at the moment of dispatch**. But a group
+meets the road and the shelter **later**. On the way, a road can flood and close, the shelter can become unsafe,
+and walk-in evacuees can take the free seats before the group arrives.
+
+The project asks two questions:
+
+1. Can every dispatch be held to a statistical guarantee about what happens **on arrival**?
+2. Does holding every dispatch to that guarantee actually make evacuations better?
+
+## How the gate works
+
+![Certified dispatch gate](docs/images/certified-gate.jpg)
+
+1. **Keyed futures.** From the current observation, the gate generates many possible flood futures. Every random
+   draw comes from a SHA-256 key, so all candidates are compared on the same futures and any decision can be
+   replayed exactly.
+2. **Joint arrival-time check.** For each candidate dispatch and each future, the group is followed along its route
+   to its own arrival time. The trip counts as a success only if every road segment is open when entered, the
+   shelter is safe on arrival, and seats are free on arrival, all in the same future.
+3. **Fail-closed certification.** The gate checks 256, then 512, then 1,024 futures and computes a one-sided
+   Clopper–Pearson lower bound on the success probability. A dispatch is **FEASIBLE** only if that bound reaches
+   0.95. Anything the gate cannot prove is blocked.
+4. **Certificate and replay.** A committed dispatch is written to the capacity ledger together with a
+   hash-chained certificate in one transaction. Anyone can regenerate the futures from the certificate and get the
+   same decision bit for bit. Groups already on the road are re-checked every step and rerouted if their trip is
+   certified to fail.
+
+---
+
+## Research and results
+
+The project ran in two stages. Both were evaluated against strong baselines under plans fixed in advance, and
+negative results are reported as they came out.
+
+### Stage 1: does reinforcement learning beat planning?
+
+We trained a MaskablePPO agent (five seeds) and compared it with classical planners on **600 unseen scenarios**
+(200 each at low, medium and high uncertainty) plus 250 stress scenarios.
+
+| Policy | NSU (higher is better) | Safe population | Exposure | CVaR₁₀ |
+|---|---:|---:|---:|---:|
+| Random valid | 0.000 | 0.660 | 1839.7 | 0.0004 |
+| Nearest safe | 0.762 | 0.732 | 1384.4 | 0.0325 |
+| Risk greedy | 1.000 | 0.760 | 1456.0 | 0.0509 |
+| Lookahead-2 | 1.475 | 0.824 | 1322.8 | 0.1012 |
+| Lookahead-3 | **1.531** | 0.830 | 1318.6 | 0.1030 |
+| MPC | 1.459 | **0.831** | 1469.2 | 0.1020 |
+| MaskablePPO (5 seeds) | 0.209 | 0.683 | 1817.5 | 0.0038 |
+
+**Finding:** the learned policy did not beat simple planners. Against risk-greedy it scored 0.79 NSU lower
+(95 % CI [−0.84, −0.75]) with 24.8 % higher exposure, and it failed the usefulness test in every uncertainty level
+and stress test. We kept this result instead of retraining until it won, and built the gate around a planner
+instead.
+
+### Stage 2: the certified gate
+
+The gate was evaluated in a **pre-registered** study: the plan, the systems and four pass/fail bars were written
+and locked with a SHA-256 hash before any run. In total there were **7 systems × 3 hazard regimes × 60 seeds =
+1,260 episodes**, plus an oracle study that graded up to 400 decision states on 4,096 independent futures.
+
+| Bar | Test | Result | Pass |
+|---|---|---|:---:|
+| 1. Outcomes | Lower failure rate **and** at least 95 % of the people delivered | Failure rate −0.230 [−0.264, −0.197], but only 21.4 % of the people | ✗ |
+| 2. Coupling | Joint check makes fewer errors than separate checks (McNemar) | 179 vs 243 errors, p = 1.08 × 10⁻¹⁹ | ✓ |
+| 3. Keyed futures | Variance reduced at least 2× | 1.071× | ✗ |
+| 4. Safety | False accepts in at most 1 % of states | 0 of 400 (upper bound 0.0075) | ✓ |
+
+| System (primary regimes, per episode) | Groups sent | People delivered safely | Group failure rate |
+|---|---:|---:|---:|
+| A: greedy planner + current mask | 16.6 | 228.1 | 23.7 % |
+| A2: lookahead planner + mask | 16.6 | 223.8 | 26.0 % |
+| B: known safety techniques combined | 8.2 | 132.9 | 4.1 % |
+| **P: certified gate** | 3.3 | 47.9 | **0.7 %** |
+| P without fail-closed blocking | 6.6 | 104.4 | 3.3 % |
+
+<img src="docs/images/tradeoff.jpg" alt="Failure rate versus people delivered for each system" width="520">
+
+**What we found:**
+
+- **The safety side worked.** The gate never certified a dispatch that the oracle judged unsafe (0 of 400 states).
+  Checking road, shelter and seats together in the same future wrongly blocked 26 % fewer good dispatches than
+  checking them separately.
+- **The outcome side did not.** The gate cut the group failure rate from 23.7 % to 0.7 %, but only by sending far
+  fewer groups. It delivered 21.4 % of the people the lookahead planner delivered, so by the rule we fixed in
+  advance **we do not claim it improves evacuations**.
+- **The lesson:** a per-decision safety guarantee can be real and still be the wrong target. A gate meant for real
+  use needs a system-level goal (people delivered, time at risk) as its acceptance test, not only per-trip safety.
+
+Other measured results:
+
+- **Replay:** 1,274 of 1,274 certified decisions from 64 episodes regenerated bit for bit from their certificates
+  (using the fast test parameters).
+- **Rerouting stability:** in a synthetic study (1,000 seeds × 40 steps), 854 reroutes never sent a group back to
+  a shelter it had left, and no group was moved more than twice.
+- **Guideline rules:** rules from the NDMA flood guidelines enter the gate only at the trust level their evidence
+  earns. The claim-support checker scored macro-F1 0.970 on 135 claim–evidence pairs (an earlier version failed
+  at 0.585 and is kept on record).
+- **Latency (laptop, 256 futures):** certify-only 288 ms at the median, end to end 6.6 s at the median. Both
+  latency targets were missed.
+
+The full write-up is in [`docs/paper/paper.tex`](docs/paper/paper.tex). Every number in it is generated from
+frozen result files by one script, which also writes a trace from each number to its source.
+
+---
+
+## The operator console
+
+A React console on top of a FastAPI service, with live simulated sessions and recorded replays.
+
+**Live Operations** (top of this page): pick a world and seed, run step by step or at 1×–10× speed, and decide each
+certified suggestion with **Accept**, **Override** (to another certified route) or **Decline**. Overrides to an
+uncertified action are refused and logged. Every decision updates the map, the counters, the overview and the
+decision log, and issues a certificate.
+
+**Incident overview:** the last decisions, the population ledger, shelters, gate activity and recent certificates.
+
+![Incident overview](docs/images/overview.png)
+
+**Simulation library:** replay any of the 1,260 recorded evaluation runs on the map, compare two systems on the
+same world and seed, and browse every run.
+
+![Simulation library](docs/images/simulation-library.png)
+
+Other pages show every decision with its certificate (replay or tamper-check it from the browser), the evidence and
+results tables with their source files, and a simulated hardware-in-the-loop rig of ESP32 nodes (water level,
+shelter head count, vehicle terminal) that talks over MQTT and refuses commands whose certificate does not verify.
+
+---
+
+## Tech stack
+
+| Area | Tools |
+|---|---|
+| Simulation and routing | Python 3.12, NetworkX (Dijkstra on open roads), cached OpenStreetMap road graph |
+| Learning | Gymnasium, Stable-Baselines3 / sb3-contrib (MaskablePPO) |
+| Certification and statistics | SciPy (Clopper–Pearson, exact McNemar, bootstrap), SHA-256 keyed randomness |
+| Retrieval over guidelines | BM25 plus MiniLM sentence embeddings (ChromaDB), fused by reciprocal rank fusion |
+| Backend | FastAPI, Uvicorn |
+| Frontend | React, TypeScript, Vite |
+| Hardware rig | ESP32 nodes over MQTT (simulated publisher) |
+| Testing | pytest: about 1,100 tests covering simulation, safety masks, certification, replay, API and console |
+
+---
+
+## Setup
+
+You need **Python 3.12** and **Node 20+**. No API key, model training or embedding download is needed to run the
+console.
+
+**macOS / Linux**
 
 ```bash
+git clone https://github.com/manoj291205/sentinel-flood-evacuation.git
+cd sentinel-flood-evacuation
 python3.12 -m venv .venv-runtime
 .venv-runtime/bin/python -m pip install -r requirements-runtime.txt -r requirements-api.txt
-cd web
-npm ci
-npm run build
-cd ..
+cd web && npm ci && npm run build && cd ..
 bash scripts/run_console.sh
 ```
 
-Open **http://127.0.0.1:8101/live**. The launcher serves the built frontend and API
-from one local process, using `.venv-runtime` first and `.venv` as a fallback.
-Use `PORT=8103 bash scripts/run_console.sh` if the default port is occupied.
-For subsequent starts, only the final launcher command is needed.
+Then open **http://127.0.0.1:8101/live**. If the port is taken, run `PORT=8103 bash scripts/run_console.sh`.
 
-On Windows PowerShell, create the environment with `py -3.12 -m venv .venv-runtime`,
-use `.venv-runtime\Scripts\python.exe` for pip, build `web/` as above, then run:
+**Windows (PowerShell)**
 
 ```powershell
+git clone https://github.com/manoj291205/sentinel-flood-evacuation.git
+cd sentinel-flood-evacuation
+py -3.12 -m venv .venv-runtime
+.venv-runtime\Scripts\python.exe -m pip install -r requirements-runtime.txt -r requirements-api.txt
+cd web; npm ci; npm run build; cd ..
 $env:SENTINEL_WEB_DIST = (Resolve-Path web/dist).Path
 .venv-runtime\Scripts\python.exe -m uvicorn src.api.app:create_app --factory --host 127.0.0.1 --port 8101
 ```
 
-Use one server worker: live sessions are held in memory. Set
-`SENTINEL_DEMO_PASSWORD` before starting any shared demonstration; the default
-launcher binds only to localhost. Hazards and hardware are simulated, and no
-document-derived T2 rule is currently mandatory. This is not an operational
-emergency deployment.
+After the first setup, only the last command is needed to start it again. Use a single server worker, because live
+sessions are kept in memory.
 
-Branch consolidation and verification are recorded in
-[the main-branch integration report](docs/MAIN_INTEGRATION_REPORT.md).
+**Development mode** (API on port 8000 and a hot-reloading console on port 5173): `scripts/dev.ps1` on Windows or
+`bash scripts/dev.sh` elsewhere. Add `-Mock` / `--mock` to run the console alone against an in-browser mock.
 
-## Research background
-
-**Sentinel-Agent** is an evidence-grounded decision-support prototype for dynamic flood evacuation under uncertainty.
-
-The project investigates how a disaster-response system can combine:
-
-- authoritative disaster-management guidance,
-- retrieval-augmented generation,
-- deterministic safety constraints,
-- stochastic multi-step evacuation simulation,
-- strong planning algorithms,
-- reinforcement learning,
-- reproducible evaluation,
-- and an auditable human-facing decision interface.
-
-The project deliberately follows a **measurement-first approach**. Algorithms are not retained simply because they are more complex. Every major component is compared against strong baselines, and negative experimental results are preserved.
-
-> **Important:** The current flood scenarios, evacuation populations, shelter capacities, stochastic flood evolution, road disruptions, and reward weights are simulation/modeling assumptions unless explicitly identified as real data. The system is a research prototype and does not claim real-world emergency-response effectiveness.
-
----
-
-### Research Goal
-
-The central decision-making question is:
-
-> **When, if ever, does reinforcement learning provide a meaningful advantage over strong deterministic planning for stochastic multi-step flood evacuation?**
-
-The project also studies:
-
-1. whether safety constraints reduce unsafe evacuation decisions;
-2. whether evidence-grounded retrieval improves the traceability of policy constraints;
-3. how decision strategies behave under flood, travel-time, route-closure, and shelter uncertainty;
-4. whether learned policies remain robust when the identities and positions of zones and shelters are permuted.
-
----
-
-## Architecture and evidence boundaries
-
-The authoritative demonstration is the React console with the FastAPI live-session
-API. See [the integrated execution path](docs/INTEGRATED_ARCHITECTURE.md) and
-[the remediation verification report](docs/AUDIT_REMEDIATION_REPORT.md). The older
-Streamlit applications remain V3 demonstrations. They have different REJECT semantics:
-V3 records a rejection without advancing time; a certified V4 rejection commits HOLD.
-
-Runtime document rules are loaded from authenticated approved records. The current
-R01/R02 records are **advisory T1**, so **zero NDMA rules are enforced as mandatory
-T2 constraints**. Mechanical, modeled hazard and certification checks still apply.
-Retrieval and semantic benchmarking are offline research workflows; the live console
-does not issue provider calls or perform a new semantic evaluation on each dispatch.
-
-The following historical V3 diagram shows research components, not an assertion that
-RAG automatically creates operational safety constraints:
-
-```text
-Authoritative Disaster Guidance
-            |
-            v
-      Local RAG Pipeline
-            |
-            v
- Evidence / Constraint Layer
-            |
-            v
-+-------------------------------+
-| Deterministic Safety Engine   |
-|                               |
-| capacity | status | routes    |
-| hazard   | action masks       |
-+---------------+---------------+
-                |
-                v
-+-------------------------------------------+
-| Dynamic Stochastic Evacuation Simulator   |
-|                                           |
-| zones | shelters | routes | flood state   |
-| travel lag | closures | in-transit groups |
-+--------------------+----------------------+
-                     |
-           +---------+----------+
-           |                    |
-           v                    v
-   Planning Algorithms      MaskablePPO
-           |                    |
-           +---------+----------+
-                     |
-                     v
-             Held-Out Evaluation
-                     |
-                     v
-          Decision-Support Interface
-```
-
----
-
-## V4 web console
-
-The V4 console (`web/`, React + Vite) is served by the FastAPI app in `src/api/`. The two Streamlit apps below are legacy.
-Hazards, populations and devices are simulated on real road topology. The console
-supports live simulated sessions and a recorded walkthrough; neither requires a
-provider key or a new model evaluation.
-
-```powershell
-scripts/dev.ps1            # API on :8000 + console on :5173
-scripts/dev.ps1 -Mock      # console only, answered by the in-browser mock (VITE_API_MOCK=1)
-```
-
-On bash use `scripts/dev.sh` and `scripts/dev.sh --mock`. Needs Node 20+ and the `.venv` from the Testing section.
-
-Docker (one container serving the console and the API; set a password, see `docs/HOSTING.md`):
+**Docker**
 
 ```bash
 docker build -t sentinel-demo .
 docker run -p 8000:8000 -e SENTINEL_DEMO_PASSWORD=choose-one sentinel-demo
-python scripts/deploy_check.py http://127.0.0.1:8000 --password choose-one
 ```
 
-Hosting: `docs/HOSTING.md`. Five-minute walkthrough for judges: `DEMO_SCRIPT_V4.md`.
-The repository is confidential until the Indian provisional (P0) is filed; keep any deployment password-protected.
-
-## Live Simulation Demo (legacy)
+**Tests**
 
 ```bash
-streamlit run simulation_demo.py
-```
-
-`simulation_demo.py` is the interactive end-to-end simulation; `review_dashboard.py`
-is the research/evaluation presentation dashboard. Run from this checkout with the
-project requirements installed (`python -m pip install -r requirements.txt`).
-
-The live demo uses the existing StochasticSimulator, deterministic mechanical and
-hard-safety mask, unchanged Risk-Greedy planner, offline Fort Kochi graph adapter,
-and human-decision audit. Default generator seed: **620000**; regime: **MEDIUM**.
-Presets select standard MEDIUM or HIGH uncertainty without changing outcomes.
-Seed/regime changes take effect on **RESET**.
-
-**STEP / ADVANCE** or **ACCEPT RECOMMENDATION** executes exactly one transition.
-**OVERRIDE** exposes only allowed alternatives and requires a reason; select WAIT
-to advance without dispatch. **REJECT** requires a reason and records no execution
-or time advancement, preserving the existing human-decision semantics.
-
-The map highlights the current recommendation. Population metrics, zones, shelters,
-routes, current transit groups, actual events, population progress, shelter utilization,
-and hazard history update from simulator state. Short trips may arrive at the next
-observation; the actual post-dispatch snapshot and chart show their transit stage.
-CSV decisions and JSON session history/summary can be downloaded. Session state is
-browser-local and reset clears it. NDMA context reads frozen local artifacts with
-source/page/chunk references; it does not imply semantic support for every claim.
-
-**REAL ROAD TOPOLOGY + SIMULATED DISASTER CONDITIONS. NOT OPERATIONALLY VALIDATED.**
-No Gemini, network requests, PPO training, or policy/retrieval evaluations run in the
-demo. Phase 14B was superseded (its provider was unusable; it was never scored); the
-claim-support evaluation of record is Phase 14D. Later closures affect future dispatches;
-the simulator retains existing transit/arrival semantics without rerouting groups.
-
-Focused offline verification:
-
-```bash
-python -m py_compile simulation_demo.py
-python -m pytest tests/test_simulation_demo.py tests/test_v3_geospatial_integration.py tests/test_human_decision_demo.py
+python -m pip install -r requirements.txt
+python -m pytest tests/ -q
 ```
 
 ---
 
-## Project Review Dashboard (legacy)
-
-Launch the standalone, artifact-backed review UI locally:
-
-```bash
-streamlit run review_dashboard.py
-```
-
-The six-tab review flow covers **Overview**, **Live Evacuation**, **Policy & RL**,
-**Evidence / RAG**, **Human Override & Audit**, and **Research Progress**. A sidebar
-Review Mode provides a concise three-minute faculty walkthrough. The live view connects
-the existing synthetic V3 simulator, deterministic safety mask, Risk-Greedy planner,
-and committed Fort Kochi OpenStreetMap road topology. It supports ACCEPT, safe OVERRIDE,
-and reasoned REJECT decisions and highlights the current graph route without runtime
-internet access. All flood, closure, population, shelter, traffic, and decision
-conditions remain simulated; only the road topology is real.
-
-The research tabs read frozen Phase 9/10/13/14 artifacts without rerunning experiments.
-They retain the negative Phase 10 result (`RL usefulness = NO`), the Phase 13 result
-(`HYBRID_SUPPORTED` versus Dense), and the secondary finding that BM25 had the highest
-DirectHit@5. Phase 14B was superseded and is not scored; Phases 14C and 14D are
-reported in the V4 console. Decision records remain in the browser session and can be
-downloaded as CSV, with the summary available as JSON. Authoritative evidence text is
-not copied into the audit log. This is a presentation layer, not a new scientific
-experiment or an operationally validated emergency system.
-
----
-
-## Development Status
-
-<!-- MILESTONE-TABLE:START — refreshed by the reviewer at every merge into main -->
-Last refreshed: 2026-10-19 (Phase 40 merged) · base branch `main` · 1118 tests pass on `main`
-
-V3 (phases 0–19) is complete. V4 extends it with a certified dispatch layer; V4 internals are confidential
-and described only in the private roadmap. Work is built on milestone branches and appears here only after
-it has been reviewed and merged into `main`.
-
-### V3 — complete
-
-| Phase | Component                                              | Status        |
-| ----- | ------------------------------------------------------ | ------------- |
-| 0     | V1 baseline freeze and repository audit                | ✅ Complete   |
-| 1     | Pre-registered evaluation framework                    | ✅ Complete   |
-| 2     | Versioned V3 scenario/data contract                    | ✅ Complete   |
-| 3     | Deterministic multi-timestep evacuation simulator      | ✅ Complete   |
-| 4     | Stochastic flood, travel, closure and shelter dynamics | ✅ Complete   |
-| 5     | Deterministic hard-safety engine and action masks      | ✅ Complete   |
-| 6     | Strong planning baselines and pre-PPO headroom gate    | ✅ Complete   |
-| 7     | Fixed-dimension Gymnasium environment                  | ✅ Complete   |
-| 8     | Pre-registered RL reward and integration               | ✅ Complete   |
-| 9     | Five-seed MaskablePPO training                         | ✅ Complete   |
-| 10    | Frozen held-out planner-vs-PPO evaluation              | ✅ Complete   |
-| 11    | Authoritative RAG corpus expansion                     | ✅ Complete   |
-| 12    | Dense + BM25 + hybrid retrieval                        | ✅ Complete   |
-| 13    | AI-assisted retrieval benchmark                        | ✅ Complete   |
-| 14A   | Construction-labeled claim-support challenge           | ✅ Complete   |
-| 16    | Cached geospatial road graph and routing engine        | ✅ Complete   |
-| 17    | Dynamic hazard-aware graph routing integration         | ✅ Complete   |
-| 18    | Human-in-the-loop override and session audit trail     | ✅ Complete   |
-| 19    | Streamlit review dashboard (legacy)                    | ✅ Complete   |
-
-### V4 — Wave C complete (`v4.0`), console showcase and Live Operations rebuild merged
-
-| Phase  | Component                                                   | Status                                   |
-| ------ | ----------------------------------------------------------- | ---------------------------------------- |
-| 20     | Verified baseline (frozen-artifact guard, UTF-8, CI)        | ✅ Complete                              |
-| 14B    | Semantic claim-support evaluation (first provider)          | ⛔ Superseded (provider unusable; not scored) |
-| 14C    | Semantic claim-support evaluation (second provider)         | ✅ Complete — verdict NOT_YET_RELIABLE   |
-| 14D    | Semantic claim-support evaluation (evaluation of record)    | ✅ Complete — verdict USEFUL             |
-| 15′    | Tier-verified NDMA constraints (incl. T2 wiring)            | ✅ Complete — rules R01, R02 at T1       |
-| 21     | V4 simulated world (multi-step transit, failures)           | ✅ Complete                              |
-| 22–24  | Certification engine (confidential)                         | ✅ Complete                              |
-| 25–26  | Dispatch gate, certificates, replay, re-routing (confidential) | ✅ Complete                           |
-| 27     | Pre-registered evaluation and decision D-27                 | ✅ Complete — no outcome-effect claim    |
-| 28     | Hardware-in-the-loop rig (simulated publisher until parts)  | ✅ Complete                              |
-| 30–31  | FastAPI service and React console with guided demo          | ✅ Complete                              |
-| 32–33  | Decisions & Certificates, Overview, Evidence, System pages  | ✅ Complete                              |
-| 34A    | Console wired to the real engine (recorded run)             | ✅ Complete                              |
-| 34C    | Live session: accept / override while the simulation runs   | ✅ Complete                              |
-| 34B    | Release: dev scripts, CI web jobs, demo script, Docker      | ✅ Complete                              |
-| 36     | Course submission pack                                      | ✅ Drafts complete — awaiting user approval |
-| 35-lite| Network-outage capacity shares (exploratory)                | ✅ Complete — exploratory, no outcome claim |
-| 37     | Conference paper                                            | 📝 Draft complete — not submitted        |
-| 38     | Journal extension                                           | ⏳ Optional                              |
-| 39     | Console showcase: simulation library, replay, live decision pop-up | ✅ Complete                     |
-| 40     | Live Operations rebuild: every operator action shown everywhere | ✅ Complete (small follow-up open) |
-| P0, 29 | Patent filing                                               | ⏸ On hold                                |
-| 35     | Full escrow embodiment                                      | ✖ Dropped (D-27)                         |
-<!-- MILESTONE-TABLE:END -->
-
----
-
-## Dynamic Simulation
-
-V3 replaces the original one-step shelter-selection formulation with a multi-step stochastic evacuation environment.
-
-The simulator currently supports:
-
-- multiple evacuation zones;
-- multiple shelters;
-- finite shelter capacity;
-- reserved capacity for in-transit evacuees;
-- deterministic and stochastic travel delays;
-- evolving flood severity;
-- correlated regional and local hazard uncertainty;
-- route closures;
-- shelter degradation;
-- in-transit evacuation groups;
-- finite decision horizons;
-- reproducible seeded stochastic episodes.
-
-Population conservation is enforced throughout an episode:
+## Repository layout
 
 ```text
-initial population
-=
-population remaining
-+ population in transit
-+ population safely arrived
+src/
+  sim/          flood world: hazards, closures, shelters, walk-ins, travel
+  geospatial/   Fort Kochi road graph and routing
+  planners/     nearest-safe, risk-greedy, lookahead, MPC
+  env_v3/, training_v3/   RL environment and MaskablePPO training
+  certify/      keyed futures, joint rollout, certifier, certificates, replay, re-certification
+  rag/, constraints/      guideline retrieval and rule trust tiers
+  api/          FastAPI service for the console
+web/            React + Vite operator console
+hil/            hardware-in-the-loop rig (ESP32 / MQTT)
+data/           road data, NDMA guideline documents, frozen evaluation results
+specs/          design specs and the pre-registered evaluation plan
+docs/paper/     research paper source and generated tables
+tests/          pytest suite
 ```
 
-Shelter reservations prevent multiple in-transit groups from overbooking the same capacity.
+## Data
 
----
+- **Real:** the Fort Kochi road network (OpenStreetMap, © OpenStreetMap contributors, ODbL) and the cited NDMA flood
+  guideline documents.
+- **Simulated:** flood hazards, populations, shelters and capacities, road closures, travel times, walk-ins and the
+  hardware devices.
+- **Measured:** only the evaluation results stored under `data/eval_results/` and `data/eval_v3/`.
 
-## Safety Architecture
+## Team
 
-Operational mechanics and safety policy are deliberately separated.
+B.Tech Project-I, School of Computer Science and Engineering (SCOPE), Vellore Institute of Technology.
 
-### Mechanical constraints
-
-Examples include:
-
-```text
-closed route
-unreachable destination
-zero shelter capacity
-closed shelter
-empty evacuation zone
-```
-
-These constraints can never be disabled.
-
-### Hard-safety layer
-
-V3 currently includes a versioned synthetic destination-hazard rule:
-
-```text
-v3-safety-v1
-maximum destination hazard = 0.70
-```
-
-A destination must have severity strictly below `0.70` to pass this rule.
-
-The value is a **project modeling assumption reused for continuity with V1**. It is not claimed to be an official NDMA flood-safety threshold.
-
-The safety layer can be disabled experimentally while mechanical constraints remain active, allowing a clean safety-ablation study.
-
----
-
-## Planning Algorithms
-
-The following non-learned decision policies were implemented before reinforcement learning:
-
-- Random Valid
-- Nearest Safe
-- Risk Greedy
-- 2-Step Lookahead
-- 3-Step Lookahead
-- Sampled Model Predictive Control
-- Clairvoyant exhaustive oracle for small tractable scenarios
-
-Practical planners receive current observable information and forecasts but cannot inspect exact future stochastic outcomes.
-
-The clairvoyant oracle is used only as an experimental upper bound on small instances.
-
----
-
-## Why Reinforcement Learning Was Tested
-
-A pre-PPO planning gate was established before training.
-
-The gate required a fast practical planner to capture:
-
-```text
-median exact headroom >= 0.99
-and
-p10 exact headroom >= 0.97
-```
-
-while satisfying the frozen latency requirement.
-
-The strongest median planner, 3-step lookahead, achieved:
-
-```text
-Median NSU-exact: 0.9954
-p10 NSU-exact:    0.4306
-```
-
-The median was near the clairvoyant upper bound, but lower-tail performance remained far below the pre-registered threshold.
-
-Therefore the gate result was:
-
-```text
-PROCEED_TO_RL
-```
-
-This result justified **testing** reinforcement learning. It did not imply that reinforcement learning would be superior.
-
----
-
-## Reinforcement Learning
-
-The V3 learned policy uses:
-
-```text
-Algorithm:      MaskablePPO
-Policy:         MLP [256, 256], ReLU
-Observation:    384-dimensional normalized vector
-Action space:   Discrete(55)
-Maximum zones:  6
-Maximum shelters: 9
-Training seeds: 5
-Timesteps/seed: 250,000
-Total primary training timesteps: 1,250,000
-```
-
-Five independent primary training seeds were frozen before training:
-
-```text
-1101
-2202
-3303
-4404
-5505
-```
-
-All five models were retained regardless of performance.
-
-No held-out test data were used for checkpoint selection.
-
----
-
-## RL Reward
-
-The primary reward was frozen before PPO training:
-
-```text
-v3-reward-balanced-v1
-```
-
-with:
-
-```text
-reward =
-+ 0.55 × safe-arrival gain
-- 0.30 × flood exposure
-- 0.05 × travel burden
-- 0.10 × unfinished population at horizon
-```
-
-The reward does not reproduce the hard-safety cutoff and does not use planner or oracle information.
-
-Reward weights are synthetic project modeling choices rather than official emergency-management utility weights.
-
----
-
-# Primary Held-Out Result
-
-The final RL comparison used:
-
-```text
-600 unseen held-out scenarios
-200 LOW uncertainty
-200 MEDIUM uncertainty
-200 HIGH uncertainty
-```
-
-plus:
-
-```text
-250 distribution-shift stress scenarios
-```
-
-All five PPO checkpoints and all planning baselines were evaluated on paired stochastic worlds.
-
-### Main Results
-
-| Policy                                | NSU-Practical | Safe Population |    Exposure |     CVaR10 |
-| ------------------------------------- | ------------: | --------------: | ----------: | ---------: |
-| Random Valid                          |        0.0000 |          0.6595 |     1839.73 |     0.0004 |
-| Nearest Safe                          |        0.7615 |          0.7317 |     1384.40 |     0.0325 |
-| Risk Greedy                           |        1.0000 |          0.7596 |     1456.02 |     0.0509 |
-| Lookahead-2                           |        1.4752 |          0.8236 |     1322.76 |     0.1012 |
-| Lookahead-3                           |        1.5309 |          0.8300 |     1318.64 |     0.1030 |
-| MPC                                   |        1.4594 |          0.8308 |     1469.18 |     0.1020 |
-| **MaskablePPO — five-seed aggregate** |    **0.2091** |      **0.6826** | **1817.49** | **0.0038** |
-
-`NSU-Practical` is normalized against the frozen practical reference policies. Values greater than `1.0` are possible when a policy performs better than the reference planner used for normalization.
-
----
-
-## Pre-Registered RL Conclusion
-
-The principal practical comparator for the frozen RL usefulness test was:
-
-```text
-Risk Greedy
-```
-
-PPO produced:
-
-```text
-NSU difference:
--0.7919
-
-95% paired bootstrap CI:
-[-0.8384, -0.7453]
-
-Exposure:
-24.8% higher than the principal comparator
-
-Unsafe-dispatch difference:
-0.0
-```
-
-PPO also failed the pre-registered usefulness criteria separately under:
-
-```text
-LOW uncertainty
-MEDIUM uncertainty
-HIGH uncertainty
-flood-surge stress
-route-closure stress
-shelter-failure stress
-demand-shift stress
-long-travel stress
-```
-
-The frozen Phase 1 result is therefore:
-
-```text
-RL USEFULNESS RESULT: NO
-```
-
-This result is intentionally preserved.
-
-The project does **not** replace the result by retraining PPO until it wins.
-
----
-
-## Observation-Matched Diagnostic
-
-The strongest practical planner has access to somewhat richer pending-arrival information than the PPO observation.
-
-To investigate whether that information advantage explains PPO's deficit, an observation-matched heuristic was also evaluated using only information available to the learned policy.
-
-Results:
-
-```text
-Observation-matched planner NSU: 0.5204
-MaskablePPO NSU:                 0.2091
-```
-
-Therefore the information asymmetry does not fully explain the learned policy's lower performance.
-
----
-
-## Representation Robustness
-
-A pre-registered semantic slot-permutation test was used to detect whether the flat MLP learns shortcuts based on entity positions rather than physical scenario features.
-
-The held-out test measured:
-
-```text
-Action equivalence after remapping: 0.1157
-Median absolute NSU change:         0.6092
-Mean absolute safe-population Δ:    0.0929
-```
-
-Result:
-
-```text
-POTENTIAL_SLOT_SHORTCUT
-```
-
-This indicates material sensitivity to zone/shelter slot permutation.
-
-The issue is preserved as a limitation rather than repaired after observing the held-out result.
-
-Permutation-aware representations such as set-based, attention-based, recurrent, or graph architectures are treated as future research rather than replacements for the frozen primary experiment.
-
----
-
-## Safety and Mechanical Integrity
-
-Across the primary Phase 10 evaluation:
-
-```text
-Unsafe dispatches:            0
-Capacity violations:          0
-Closed-route dispatches:      0
-Invalid PPO masked actions:   0
-```
-
-The simulator, safety layer, and action masks therefore maintained their intended operational invariants throughout the evaluation.
-
----
-
-## Testing
-
-The full offline regression suite was verified on Windows without `PYTHONUTF8` with
-`python -m pytest tests/ -ra`:
-
-```text
-1056 passed, 41 xfailed, 2 xpassed   (main, 2026-10-17)
-```
-
-That count is a historical snapshot, not the current suite result. The current
-acceptance-pending list is empty. Use the exact commands and observed results in
-`docs/AUDIT_REMEDIATION_REPORT.md`; remote CI can be blocked before tests execute.
-
-Coverage includes:
-
-- scenario validation;
-- population/capacity conservation;
-- stochastic reproducibility;
-- RNG independence;
-- future-information leakage;
-- safety masks;
-- planner information boundaries;
-- exact-oracle correctness;
-- Gymnasium compatibility;
-- reward semantics;
-- MaskablePPO integration;
-- checkpoint loading;
-- slot-permutation diagnostics;
-- paired held-out evaluation;
-- bootstrap statistics.
-
-Historical V1 tests and artifacts remain preserved.
-
----
-
-## Experimental Philosophy
-
-Sentinel-Agent deliberately avoids assuming that the most complex algorithm is the best algorithm.
-
-Several project hypotheses have been rejected after measurement.
-
-The V3 RL study is one example:
-
-```text
-Hypothesis:
-Sequential uncertainty may make reinforcement learning preferable.
-
-Experiment:
-Strong planners + five-seed MaskablePPO + held-out evaluation.
-
-Result:
-PPO did not provide a material advantage.
-
-Decision:
-Retain strong planning as the primary decision approach.
-```
-
-A negative result is considered a valid research outcome.
-
----
-
-## Next Development Stages
-
-The decision-policy and retrieval studies are frozen. Current implementation corrections,
-verification limits and remaining blockers are recorded in `docs/AUDIT_REMEDIATION_REPORT.md`.
-Completed Wave C work is listed in the milestone table above. Future work is optional:
-
-```text
-Optional 37 conference submission, 38 journal extension
-On hold  patent filing
-```
-
-### Scientific interpretation retained by the current demonstration
-
-- Frozen Phase 10: **RL usefulness = NO**. PPO underperformed strong planning;
-  prospective planner corrections do not rewrite that evaluation.
-- Phase 13: Hybrid passed the registered comparison against Dense; BM25 had the
-  highest DirectHit@5 (39/45, versus Hybrid 37/45 and Dense 28/45). Labels were
-  AI-assisted. The perfect consistency statistic repeats a deterministic judgment
-  table; it is **not independent annotation agreement**.
-- Phase 14C failed its reliability gate. Phase 14D is a distinct evaluation that
-  passed its registered gate on construction-derived labels. Sentence-derived
-  labels and source/span construction limit generalization to independent claims.
-- Phase 27 did **not** establish improved overall evacuation outcomes: its
-  throughput guard failed (about 21.4% versus the registered 95% requirement).
-- Floods, people, capacities and disruptions are simulated. Real OSM topology is
-  not a real flood observation. Simulated HIL does not establish hardware or
-  physical deployment readiness.
-
----
-
-## Data and Provenance
-
-Sentinel-Agent explicitly distinguishes:
-
-### Real
-
-- authoritative disaster-management source documents;
-- later cached public road-network topology where identified as such.
-
-### Simulated
-
-- evacuation populations;
-- flood progression;
-- shelter capacities unless explicitly verified;
-- road closures;
-- travel disturbances;
-- stochastic scenarios.
-
-### Model-Generated
-
-- natural-language policy interpretations or constraint explanations.
-
-### Measured
-
-- benchmark scores;
-- evaluation results;
-- latency measurements;
-- safety statistics;
-- retrieval metrics.
-
-This distinction is maintained throughout the project to avoid presenting synthetic experimental data as real disaster-response evidence.
-
----
-
-## Disclaimer
-
-Sentinel-Agent is a research and educational decision-support prototype.
-
-It is **not**:
-
-- an official disaster-management system;
-- an operational flood forecasting platform;
-- a replacement for emergency authorities;
-- validated for real-world evacuation deployment.
-
-The current evaluation demonstrates behavior only within the project's controlled synthetic experimental environment.
-
----
-
-## V4 Roadmap
-
-The V4 planning notes are kept private.
+- Manojkumar Ashokkumar
+- Akshar Sinha
+- Agathian
+- Guide: Mohanasundaram R
