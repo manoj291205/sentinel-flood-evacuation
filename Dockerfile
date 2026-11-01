@@ -6,6 +6,8 @@ COPY web/package.json web/package-lock.json web/
 RUN cd web && npm ci
 COPY web/ web/
 COPY specs/contracts/ specs/contracts/
+COPY docs/design/sentinel-console/fort_kochi_map_geometry.json docs/design/sentinel-console/
+COPY data/eval_results/phase35lite/outages.json data/eval_results/phase35lite/
 RUN cd web && npm run build
 
 FROM python:3.12-slim
@@ -17,6 +19,7 @@ WORKDIR /app
 COPY requirements-runtime.txt requirements-api.txt ./
 RUN pip install --no-cache-dir -r requirements-runtime.txt -r requirements-api.txt
 COPY README.md ./
+COPY docs/MILESTONES.md docs/
 COPY src/ src/
 COPY specs/contracts/ specs/contracts/
 COPY specs/approvals/ specs/approvals/

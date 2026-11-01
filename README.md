@@ -122,7 +122,7 @@ frozen result files by one script, which also writes a trace from each number to
 
 ---
 
-## The operator console
+## V4 web console
 
 A React console on top of a FastAPI service, with live simulated sessions and recorded replays.
 
@@ -197,7 +197,8 @@ sessions are kept in memory.
 **Development mode** (API on port 8000 and a hot-reloading console on port 5173): `scripts/dev.ps1` on Windows or
 `bash scripts/dev.sh` elsewhere. Add `-Mock` / `--mock` to run the console alone against an in-browser mock.
 
-**Docker**
+**Docker** (hosting notes in [`docs/HOSTING.md`](docs/HOSTING.md); a five-minute demo walkthrough is in
+[`DEMO_SCRIPT_V4.md`](DEMO_SCRIPT_V4.md))
 
 ```bash
 docker build -t sentinel-demo .
@@ -241,6 +242,8 @@ tests/          pytest suite
 - **Measured:** only the evaluation results stored under `data/eval_results/` and `data/eval_v3/`.
 
 ## Team
+
+The full build record, phase by phase, is in [`docs/MILESTONES.md`](docs/MILESTONES.md).
 
 B.Tech Project-I, School of Computer Science and Engineering (SCOPE), Vellore Institute of Technology.
 
